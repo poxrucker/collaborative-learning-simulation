@@ -1,154 +1,195 @@
 package allow.simulator.mobility.planner;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.util.EntityUtils;
+
+import allow.simulator.core.Time;
+import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TType;
-import allow.simulator.util.Coordinate;
+import allow.simulator.world.Street;
+import allow.simulator.world.StreetMap;
+import allow.simulator.world.StreetNode;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class OTPJourneyPlanner implements IPlannerService {
-	// Json mapper to parse planner responses.
-	protected static ObjectMapper mapper = new ObjectMapper();
+/**
+ * Represents a journey planner for the Allow Ensembles urban traffic
+ * simulation. Implements the IPlannerService interface. Encapsulates a client
+ * querying OpenTripPlanner web service.
+ * 
+ * @author Andreas Poxrucker (DFKI)
+ *
+ */
+public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
+	// Client to send requests.
+	private final HttpClient client;
 
+	// Host requests are send to.
+	private final HttpHost target;
+
+	// Streetmap to map driving/walking/cycling traces to if provided
+	private final StreetMap map;
+	
+	// Dataservive to map bus traces to if prvided
+	private final IDataService dataService;
+	
+	// Time instance to use
+	private final Time time;
+	
 	/**
-	 * Parses an itinerary from a Json node.
+	 * Creates a new instance of OTPJourneyPlanner sending requests to
+	 * an OpenTripPlanner server instance.
 	 * 
-	 * @param it Json node.
-	 * @return Itinerary parsed from given node.
-	 * 
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @param host Host running OpenTripPlanner service
+	 * @param port Port of OpenTripPlanner service
 	 */
-	protected Itinerary parseItinerary(JsonNode it, boolean isTaxi) throws JsonParseException,
-			JsonMappingException, IOException {
-		Itinerary newIt = new Itinerary();
-		newIt.startTime = it.get("startTime").asLong();
-		newIt.endTime = it.get("endTime").asLong();
-		newIt.walkTime = it.get("walkTime").asLong();
-		newIt.transitTime = it.get("transitTime").asLong();
-		newIt.waitingTime = it.get("waitingTime").asLong();
-		newIt.walkDistance = it.get("walkDistance").asDouble();
-		newIt.transfers = it.get("transfers").asInt();
-		newIt.duration = it.get("duration").asLong();
-		JsonNode legNode = it.get("legs");
-
-		for (Iterator<JsonNode> jt = legNode.elements(); jt.hasNext();) {
-			Leg newLeg = parseLeg(jt.next(), isTaxi);
-			newIt.addLeg(newLeg);
-			newIt.costs += newLeg.costs;
-		}
-		newIt.itineraryType = Itinerary.getItineraryType(newIt);
-		
-		if (newIt.itineraryType == 1) {
-			newIt.costs = 1.2;
-		}
-		return newIt;
+	public OTPJourneyPlanner(String host, int port) {
+		this(host, port, null, null, null);
 	}
 
 	/**
-	 * Parses a leg from a Json node.
+	 * Creates a new instance of OTPJourneyPlanner sending requests to
+	 * an OpenTripPlanner server instance. The instance can use the
+	 * supplied StreetMap and IDataService instances to map returned
+	 * traces of GPS points to the underlying map.
 	 * 
-	 * @param lt Json node.
-	 * @return Leg parsed from given Json node.
+	 * @param host Host running OpenTripPlanner service
+	 * @param port Port of OpenTripPlanner service
+	 * @param map Streetmap to map returned traces to
+	 * @param dataService Service providing routing between bus stops
 	 */
-	protected Leg parseLeg(JsonNode lt, boolean isTaxi) {
-		Leg newLeg = new Leg();
-		newLeg.startTime = Long.parseLong(lt.get("startTime").asText());
-		newLeg.endTime = Long.parseLong(lt.get("endTime").asText());
-		newLeg.distance = lt.get("distance").asDouble();
-		newLeg.from = parsePlace(lt.get("from"));
-		newLeg.stopIdFrom = parseStopId(lt.get("from"));
-		newLeg.to = parsePlace(lt.get("to"));
-		newLeg.stopIdTo = parseStopId(lt.get("to"));
-		newLeg.legGeometry = lt.get("legGeometry").get("points").asText();
-		newLeg.mode = TType.valueOf(lt.get("mode").asText());
-		
-		switch (newLeg.mode) {
-		case WALK:
-			newLeg.costs = 0.0;
-			break;
+	public OTPJourneyPlanner(String host, int port, StreetMap map, IDataService dataService, Time time) {
+		target = new HttpHost(host, port, "http");
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(new Scheme("http", port, PlainSocketFactory.getSocketFactory()));
+		PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+		cm.setMaxTotal(300);
+		cm.setDefaultMaxPerRoute(150);
+		client = new DefaultHttpClient(cm);
+		this.map = map;
+		this.dataService = dataService;
+		this.time = time;
+	}
+	
+	@Override
+	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
+		// Create new get request and set URI.
+		HttpGet getRequest = new HttpGet();
+
+		try {
+			getRequest.setURI(new URI(createQueryString(request)));
 			
-		case BICYCLE:
-			newLeg.costs = newLeg.distance * 0.000005;
-			break;
-			
-		case BUS:
-		case CABLE_CAR:
-			newLeg.routeId = lt.get("routeId").asText();
-			newLeg.agencyId = lt.get("agencyId").asText();
-			newLeg.tripId = lt.get("tripId").asText();			
-			newLeg.costs = 1.2;
-			newLeg.stops = parseStopIds(lt.get("intermediateStops"));
-			break;
-			
-		case CAR:
-			if (isTaxi) {
-				newLeg.costs = newLeg.distance * 0.001; // 0.0004;
-						
-			} else {
-				newLeg.costs = newLeg.distance * 0.00035; // 0.00025;
+		} catch (URISyntaxException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			// Execute request and receive response
+			HttpResponse httpResponse = client.execute(target, getRequest);
+			String res = EntityUtils.toString(httpResponse.getEntity());
+
+			// Check for errors
+			final JsonNode root = mapper.readTree(res);
+			final JsonNode error = root.get("error");
+
+			if (error != null)
+				return false;
+
+			// Parse response
+			JsonNode travelPlan = root.get("plan");
+			JsonNode it = travelPlan.get("itineraries");
+
+			for (Iterator<JsonNode> jt = it.elements(); jt.hasNext();) {
+				JsonNode next = jt.next();
+				Itinerary nextIt = parseItinerary(next, request.isTaxiRequest);
+				nextIt.from = request.From;
+				nextIt.to = request.To;
+				nextIt.reqId = request.reqId;
+				nextIt.reqNumber = request.reqNumber;
+				
+				for (Leg l : nextIt.legs) {
+					mapTracesToStreets(l);
+				}
+				nextIt.initialWaitingTime = Math.max((nextIt.startTime - time.getTimestamp()) / 1000, 0);
+				nextIt.isTaxiItinerary = request.isTaxiRequest;
+				itineraries.add(nextIt);
 			}
-			break;
 			
-		case RAIL:
-			newLeg.costs = 20.0;
-			break;
-			
-		case TRANSIT:
-		default:
-			throw new IllegalArgumentException("Error: Unknown transport type " + newLeg.mode);
-		}
-		
-		List<String> nodes = new ArrayList<String>();
-		for (Iterator<JsonNode> it = lt.get("osmNodes").iterator(); it.hasNext(); ) {
-			nodes.add(it.next().asText());
-		}
-		newLeg.osmNodes = nodes;
-		return newLeg;
-	}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
 
-	/**
-	 * Parses a stop Id from a Json node.
-	 * 
-	 * @param lt Json node.
-	 * @return Stop Id parsed from given Json node.
-	 */
-	protected String parseStopId(JsonNode place) {
-		JsonNode stopId = place.get("stopId");
-		
-		if (stopId != null) {
-			String tokens[] = stopId.asText().split(":");
-			return tokens[1];
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return null;
+		return true;
 	}
 	
-	protected List<String> parseStopIds(JsonNode stops) {
-		List<String> ids = new ArrayList<String>();
-		
-		for (Iterator<JsonNode> it = stops.iterator(); it.hasNext(); ) {
-			ids.add(parseStopId(it.next()));
+	private void mapTracesToStreets(Leg leg) {
+		leg.streets = new ArrayList<Street>();
+		if (leg.mode == TType.CAR || leg.mode == TType.BICYCLE || leg.mode == TType.WALK) {
+
+			for (int j = 0; j < leg.osmNodes.size() - 1; j++) {
+				String first = normalize(leg.osmNodes.get(j), map);
+				String second = normalize(leg.osmNodes.get(j + 1), map);
+				Street street = map.getStreet(first, second);
+
+				if (street != null)
+					leg.streets.add(street);
+			}
+
+		} else {
+			List<String> allStops = new ArrayList<String>(leg.stops.size() + 2);
+			allStops.add(leg.stopIdFrom);
+			
+			for (int j = 0; j < leg.stops.size(); j++) {
+				allStops.add(leg.stops.get(j));
+			}
+			allStops.add(leg.stopIdTo);
+			
+			for (int j = 0; j < allStops.size() - 1; j++) {
+				String first = allStops.get(j);
+				String second = allStops.get(j + 1);
+				List<Street> segs = dataService.getBusstopRoutingStreet(first, second);
+
+				if (segs != null)
+					leg.streets.addAll(segs);
+			}
 		}
-		return ids;
-	}
-	/**
-	 * Parses a coordinate from a Json node.
-	 * 
-	 * @param lt Json node.
-	 * @return Coordinate parsed from given Json node.
-	 */
-	protected Coordinate parsePlace(JsonNode place) {
-		Coordinate c = new Coordinate(place.get("lon").doubleValue(),
-				place.get("lat").doubleValue());
-		return c;
 	}
 	
+	private static String normalize(String nodeLabel, StreetMap map) {
+		if (nodeLabel.startsWith("osm:node") || nodeLabel.startsWith("split"))
+			// These are nodes which have the same label as in the planner.
+			return nodeLabel;
+		String tokens[] = nodeLabel.split("_");
+
+		if (tokens.length == 1) {
+			// These are unknown nodes.
+			return "";
+		}
+		// These are intermediate nodes which can be determined by their position.
+		// Planner returns "streetname_lat,lon".
+		StreetNode n = map.getStreetNodeFromPosition(tokens[1]);
+
+		if (n == null) {
+			return "";
+		}
+		return n.getLabel();
+	}
 }

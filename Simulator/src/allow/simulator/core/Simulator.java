@@ -36,9 +36,7 @@ import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.IPlannerService;
-import allow.simulator.mobility.planner.JourneyRepository;
-import allow.simulator.mobility.planner.OfflineJourneyPlanner;
-import allow.simulator.mobility.planner.OnlineJourneyPlanner;
+import allow.simulator.mobility.planner.OTPJourneyPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
@@ -122,29 +120,19 @@ public class Simulator {
 		System.out.println("Creating planner services...");
 		List<IPlannerService> plannerServices = new ArrayList<IPlannerService>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
-		//int nClients = config.allowParallelClientRequests() ? (Runtime.getRuntime().availableProcessors() * 8) : plannerConfigs.size();
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
 			Service plannerConfig = plannerConfigs.get(i);
-
-			if (plannerConfig.isOnline()) {
-				// For online queries create online planner service. 
-				plannerServices.add(new OnlineJourneyPlanner(plannerConfig.getURL(), plannerConfig.getPort(), config.getTracesOutputPath()));
-			
-			} else {
-				// For offline queries create journey repository and offline services.
-				JourneyRepository journeyRepository = new JourneyRepository(plannerConfig.getURL());
-				plannerServices.add(new OfflineJourneyPlanner(journeyRepository, config.getTracesOutputPath()));
-			}
+			plannerServices.add(new OTPJourneyPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
 		}		
 		
 		// Create taxi planner service
 		Coordinate taxiRank = new Coordinate(11.1198448, 46.0719489);
-		TaxiPlanner taxiPlannerService = new TaxiPlanner(plannerServices, time, taxiRank);
+		TaxiPlanner taxiPlannerService = new TaxiPlanner(plannerServices, taxiRank);
 		
 		// Create bike rental service
 		Coordinate bikeRentalStation = new Coordinate(11.1248895,46.0711398);
-		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, time, bikeRentalStation);
+		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, bikeRentalStation);
 		System.out.println("Loading weather model...");
 		Weather weather = new Weather(config.getWeatherPath(), time);
 				

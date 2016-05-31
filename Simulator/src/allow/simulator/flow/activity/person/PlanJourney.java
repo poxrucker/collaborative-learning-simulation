@@ -69,12 +69,12 @@ public final class PlanJourney extends Activity {
 			// own a private car or person left the car at home, a taxi request
 			// is emulated.
 			if (person.getProfile() != Profile.CHILD) {
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, person, reqId));
+				requests.add(JourneyRequest.createRequest(start, destination, date, false, (!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar())), carJourney, reqId));
 			}
 			
 			if (!person.hasUsedCar()) {
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, transitJourney, person, reqId));
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, walkJourney, person, reqId));
+				requests.add(JourneyRequest.createRequest(start, destination, date, false, false, transitJourney, reqId));
+				requests.add(JourneyRequest.createRequest(start, destination, date, false, false, walkJourney, reqId));
 			
 				// if (person.hasBike())
 				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));

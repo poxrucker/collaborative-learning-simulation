@@ -1,5 +1,6 @@
 package allow.simulator.mobility.planner;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.core.Time;
-import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.data.TaxiStop;
@@ -22,34 +21,25 @@ public final class TaxiPlanner implements IPlannerService {
 	
 	// Position of taxi rank 
 	private final Coordinate taxiRank;
-	
-	// Time of simulation
-	private final Time time;
-	
+
 	// Buffer to store planned trips which can be requested 
 	private final Map<String, TaxiTrip> tripBuffer;
 
-	public TaxiPlanner(List<IPlannerService> plannerServices, Time time, Coordinate taxiRank) {
+	/**
+	 * Creates a new instance of a TaxiPlanner service which operates on the
+	 * underlying set of planners from the given taxi rank position.
+	 * 
+	 * @param plannerServices Set of planners to use for creating taxi itineraries
+	 * @param taxiRank Position of taxi rank where all taxis start from
+	 */
+	public TaxiPlanner(List<IPlannerService> plannerServices, Coordinate taxiRank) {
 		this.plannerServices = plannerServices;
-		this.time = time;
 		this.taxiRank = taxiRank;
 		tripBuffer = new ConcurrentHashMap<String, TaxiTrip>();
 	}
 	
-	public TaxiTrip getTaxiTrip(String tripId) {
-		return tripBuffer.remove(tripId);
-	}
-	
-//	@Override
-//	public List<Itinerary> requestSingleJourney(JourneyRequest request) {
-//		return requestSingleJourney(request, new ArrayList<Itinerary>());
-//	}
-
 	@Override
 	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
-		// Get planner instance
-		int randomPlannerId = ThreadLocalRandom.current().nextInt(plannerServices.size());
-		IPlannerService planner = plannerServices.get(randomPlannerId);			
 		TType modes[] = request.TransportTypes;
 		boolean success = false;
 		
@@ -57,10 +47,12 @@ public final class TaxiPlanner implements IPlannerService {
 			Itinerary newIt = null;
 			
 			if (modes[i] == TType.TAXI) {
-				newIt = createTaxiItinerary(request, planner);
+				// If mode is taxi, plan a new single hop taxi itinerary
+				newIt = createTaxiItinerary(request);
 	
 			} else if (modes[i] == TType.SHARED_TAXI) {
-				newIt = createSharedTaxiItinerary(request, planner);
+				// If mode is shared taxi, plan a new multihop taxi itinerary
+				newIt = createSharedTaxiItinerary(request);
 			}
 
 			if (newIt != null) {
@@ -71,7 +63,22 @@ public final class TaxiPlanner implements IPlannerService {
 		return success;
 	}
 	
-	private Itinerary createTaxiItinerary(JourneyRequest req, IPlannerService planner) {
+	/**
+	 * Returns a planned taxi trip for a certain trip Id. 
+	 * 
+	 * @param tripId Trip Id to get corresponding taxi trip
+	 * @return TaxiTrip which corresponds to the given trip Id, or null if
+	 * no such trip exists
+	 */
+	public TaxiTrip getTaxiTrip(String tripId) {
+		return tripBuffer.remove(tripId);
+	}
+
+	private Itinerary createTaxiItinerary(JourneyRequest req) {
+		// Get planner instance
+		int randomPlannerId = ThreadLocalRandom.current().nextInt(plannerServices.size());
+		IPlannerService planner = plannerServices.get(randomPlannerId);			
+				
 		// Query legs for complete journey (base - pickup - dest - base)
 		List<Coordinate> locations = new ArrayList<Coordinate>(3);
 		locations.add(taxiRank);
@@ -102,8 +109,11 @@ public final class TaxiPlanner implements IPlannerService {
 		return ret;
 	}
 	
-	private Itinerary createSharedTaxiItinerary(JourneyRequest req, IPlannerService planner) {
-		List<Leg> legs = solveTS(req.Destinations, planner);
+	private Itinerary createSharedTaxiItinerary(JourneyRequest req) {
+		// Get planner instance
+		int randomPlannerId = ThreadLocalRandom.current().nextInt(plannerServices.size());
+		IPlannerService planner = plannerServices.get(randomPlannerId);					
+		List<Leg> legs = createTripLegsTS(req.Destinations, planner);
 
 		if (legs == null)
 			return null;
@@ -127,7 +137,7 @@ public final class TaxiPlanner implements IPlannerService {
 		return ret;
 	}
 	
-	private List<Leg> solveTS(List<Coordinate> base, IPlannerService planner) {
+	private List<Leg> createTripLegsTS(List<Coordinate> base, IPlannerService planner) {
 		PermutationIterator<Coordinate> it = new PermutationIterator<Coordinate>(base);
 		double minTime = Double.MAX_VALUE;
 		List<Leg> ret = null;
@@ -156,7 +166,7 @@ public final class TaxiPlanner implements IPlannerService {
 		List<Leg> ret = new ArrayList<Leg>(locations.size() - 1);
 		
 		for (int i = 0; i < locations.size() - 1; i++) {
-			Leg l = createLeg(locations.get(i), locations.get(i + 1), planner, req.entity);
+			Leg l = createLeg(locations.get(i), locations.get(i + 1), planner, req);
 			
 			if (l == null) 
 				return null;
@@ -184,9 +194,10 @@ public final class TaxiPlanner implements IPlannerService {
 		return ret;
 	}
 	
-	private Leg createLeg(Coordinate from, Coordinate to, IPlannerService planner, Entity requestor) {
+	private Leg createLeg(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, time.getCurrentDateTime(), false, new TType[] { TType.CAR }, (Person) requestor, reqId);
+		LocalTime t = req2.ArrivalTime != null ? req2.ArrivalTime : req2.DepartureTime;
+		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, t), false, false, new TType[] { TType.CAR }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;

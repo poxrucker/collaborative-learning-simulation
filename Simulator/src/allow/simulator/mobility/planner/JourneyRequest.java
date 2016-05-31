@@ -1,13 +1,11 @@
 package allow.simulator.mobility.planner;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import allow.simulator.entity.Entity;
-import allow.simulator.entity.Person;
 import allow.simulator.mobility.data.RType;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
@@ -19,11 +17,6 @@ import allow.simulator.util.Coordinate;
  *
  */
 public class JourneyRequest {
-	
-	/**
-	 * Id of the entity requesting the journey.
-	 */
-	public Entity entity;
 	
 	/**
 	 * Specifies if this request emulates a Taxi request.
@@ -43,17 +36,17 @@ public class JourneyRequest {
 	/**
 	 * Arrival date of the journey.
 	 */
-	public String Date = null;
+	public LocalDate Date = null;
 	
 	/**
 	 * Departure time of the journey.
 	 */
-	public String DepartureTime = null;
+	public LocalTime DepartureTime = null;
 	
 	/**
 	 * Arrival time of the journey.
 	 */
-	public String ArrivalTime = null;
+	public LocalTime ArrivalTime = null;
 	
 	/**
 	 * Starting position.
@@ -96,30 +89,22 @@ public class JourneyRequest {
 	public int MaximumWalkDistance;
 	
 	private JourneyRequest() {}
-	
-	// DateFormat to format departure date.
-	private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-			
-	// DateFormat to format departure time.
-	private static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mma");
-			
+
 	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
-			LocalDateTime date, boolean arriveBy, TType modes[], Person person, 
-			RequestId reqId) {
+			LocalDateTime date, boolean arriveBy, boolean isTaxiRequest, TType modes[], RequestId reqId) {
 		JourneyRequest s = new JourneyRequest();
-		s.entity = person;
 		s.reqId = reqId.getRequestId();
 		s.reqNumber = reqId.getNextRequestNumber();
-		s.Date = date.format(dateFormat);
-		LocalTime time = date.toLocalTime();
+		s.Date = date.toLocalDate();
 		
 		if (arriveBy) {
-			s.ArrivalTime = time.format(timeFormat);
+			s.ArrivalTime = date.toLocalTime();
+			
 		} else {
-			s.DepartureTime = time.format(timeFormat);
+			s.DepartureTime = date.toLocalTime();
 		}
 		
-		s.isTaxiRequest = (person != null) && (!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar()));		
+		s.isTaxiRequest = isTaxiRequest;
 		s.From.x = from.x;
 		s.From.y = from.y;
 		s.To.x = to.x;
@@ -133,19 +118,16 @@ public class JourneyRequest {
 	}
 	
 	public static JourneyRequest createRequest(Coordinate from, List<Coordinate> to,
-			LocalDateTime date, boolean arriveBy, TType[] types, Person person,
-			RequestId reqId) {
+			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
 		JourneyRequest s = new JourneyRequest();
-		s.entity = person;
 		s.reqId = reqId.getRequestId();
 		s.reqNumber = reqId.getNextRequestNumber();
-		s.Date = date.format(dateFormat);
-		LocalTime time = date.toLocalTime();
+		s.Date = date.toLocalDate();
 
 		if (arriveBy) {
-			s.ArrivalTime = time.format(timeFormat);
+			s.ArrivalTime = date.toLocalTime();
 		} else {
-			s.DepartureTime = time.format(timeFormat);
+			s.DepartureTime = date.toLocalTime();
 		}
 		
 		s.isTaxiRequest = false;

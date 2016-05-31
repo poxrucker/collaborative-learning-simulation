@@ -123,7 +123,7 @@ public final class PrepareJourney extends Activity {
 			case TAXI:
 				TaxiAgency ta2 = person.getContext().getWorld().getUrbanMobilitySystem()
 				.getTransportationRepository().getTaxiAgency();
-				
+
 				break;
 				
 			default:

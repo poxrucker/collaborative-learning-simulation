@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.nlogo.agent.World;
 
@@ -67,8 +68,8 @@ public class Simulator {
 	// Id counter for entities.
 	private long ids;
 	
-	private ExecutorService plannerThreadPool;
-	private ExecutorService knowlegdeThreadPool;
+	// Threadpool for executing multiple tasks in parallel
+	private ExecutorService threadpool;
 	
 	public static final String LAYER_DISTRICTS = "partitioning";
 	public static final String LAYER_SAFTEY = "safety";
@@ -77,10 +78,10 @@ public class Simulator {
 	 * Creates a new instance of the simulator.
 	 * @throws IOException 
 	 */
-	public void setup(Configuration config, SimulationParameter params,
-			World netLogoWorld) throws IOException {
+	public void setup(Configuration config, SimulationParameter params, World netLogoWorld) throws IOException {
 		// Reset Id counter.
 		ids = 0;
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// Setup world.
 		System.out.println("Loading world...");
@@ -121,10 +122,10 @@ public class Simulator {
 		System.out.println("Creating planner services...");
 		List<IPlannerService> plannerServices = new ArrayList<IPlannerService>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
-		int nClients = config.allowParallelClientRequests() ? (Runtime.getRuntime().availableProcessors() * 8) : plannerConfigs.size();
+		//int nClients = config.allowParallelClientRequests() ? (Runtime.getRuntime().availableProcessors() * 8) : plannerConfigs.size();
 		
-		for (int i = 0; i < nClients; i++) {
-			Service plannerConfig = plannerConfigs.get(i % plannerConfigs.size());
+		for (int i = 0; i < plannerConfigs.size(); i++) {
+			Service plannerConfig = plannerConfigs.get(i);
 
 			if (plannerConfig.isOnline()) {
 				// For online queries create online planner service. 
@@ -162,13 +163,10 @@ public class Simulator {
 		// Create urban mobility system entity.
 		UrbanMobilitySystem ums = (UrbanMobilitySystem) addEntity(EntityType.URBANMOBILITYSYSTEM);
 		ums.setTransportationRepository(repos);
-		int nThreads = config.allowParallelClientRequests() ? (Runtime.getRuntime().availableProcessors() * 8) : plannerServices.size();
-		plannerThreadPool = Executors.newFixedThreadPool(nThreads);
-		ums.getFlow().addActivity(new QueryJourneyPlanner(ums, config.allowParallelClientRequests(), plannerThreadPool));
+		ums.getFlow().addActivity(new QueryJourneyPlanner(ums, config.allowParallelClientRequests(), threadpool));
 		
 		// Initialize EvoKnowlegde and setup logger.
-		knowlegdeThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
-		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, knowlegdeThreadPool);
+		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 		EvoKnowledge.setLoggerDirectory(config.getLoggingOutputPath());
 		
 		// Update world grid.
@@ -349,7 +347,13 @@ public class Simulator {
 	}
 	
 	public void finish() {
-		plannerThreadPool.shutdown();
-		knowlegdeThreadPool.shutdown();
+		threadpool.shutdown();
+		
+		try {
+			threadpool.awaitTermination(10, TimeUnit.SECONDS);
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

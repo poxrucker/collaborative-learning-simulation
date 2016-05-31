@@ -14,10 +14,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class GTFSAgency {
 	// Id of agency.
-	private String id;
+	private final String id;
 	
 	// Name of agency.
-	private String name;
+	private final String name;
 
 	/**
 	 * Constructor.

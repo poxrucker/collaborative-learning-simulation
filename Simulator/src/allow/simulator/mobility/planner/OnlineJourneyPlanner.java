@@ -13,7 +13,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import allow.simulator.mobility.data.IDataService;
@@ -62,16 +66,16 @@ public final class OnlineJourneyPlanner extends OTPJourneyPlanner {
 	 */
 	public OnlineJourneyPlanner(String host, int port, Path tracesFile) {
 		target = new HttpHost(host, port, "http");
-		client = new DefaultHttpClient();
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(new Scheme("http", port, PlainSocketFactory.getSocketFactory()));
+		PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+		cm.setMaxTotal(300);
+		cm.setDefaultMaxPerRoute(150);
+		client = new DefaultHttpClient(cm);
 	}
 
-//	@Override
-//	public synchronized List<Itinerary> requestSingleJourney(JourneyRequest request) {
-//		return requestSingleJourney(request, new ArrayList<Itinerary>());
-//	}
-
 	@Override
-	public synchronized boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
+	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
 		// Build query string.
 		StringBuilder paramBuilder = new StringBuilder();
 		paramBuilder.append(routingURI.toString());

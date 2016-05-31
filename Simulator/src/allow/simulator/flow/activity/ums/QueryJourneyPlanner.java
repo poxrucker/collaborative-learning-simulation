@@ -39,6 +39,10 @@ public class QueryJourneyPlanner extends Activity {
 		// Get planner entity.
 		UrbanMobilitySystem planner = (UrbanMobilitySystem) entity;
 		Queue<Pair<List<JourneyRequest>, RequestBuffer>> requests = planner.getRequestQueue();
+		
+		if (requests.size() == 0)
+			return deltaT;
+		
 		CountDownLatch latch = new CountDownLatch(requests.size());
 		Context context = planner.getContext();
 
@@ -48,12 +52,13 @@ public class QueryJourneyPlanner extends Activity {
 			Worker w = workerPool.pop();
 			w.prepare(request.first, request.second, context.getPlannerServices().get(i), context.getFlexiBusPlannerService(),
 					context.getBikeRentalPlannerService(), context.getTaxiPlannerService(), latch);
+			service.submit(w);
 			tasks.add(w);
 			i = (i + 1) % planner.getContext().getPlannerServices().size();
 		}
 		
 		try {
-			service.invokeAll(tasks);
+			//service.invokeAll(tasks);
 			latch.await();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

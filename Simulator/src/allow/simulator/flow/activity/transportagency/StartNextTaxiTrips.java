@@ -5,13 +5,14 @@ import java.util.List;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.taxi.PrepareTaxiTrip;
 import allow.simulator.mobility.data.TaxiTrip;
 
 public class StartNextTaxiTrips extends Activity {
 	
 	public StartNextTaxiTrips(TaxiAgency agency) {
-		super(Activity.Type.SCHEDULE_NEXT_TAXI_TRIPS, agency);
+		super(ActivityType.SCHEDULE_NEXT_TAXI_TRIPS, agency);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package allow.simulator.flow.activity.publictransportation;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 
 /**
  * Represents an activity to go back to a transport agency if trip is finished.
@@ -14,7 +15,7 @@ public class ReturnToAgency extends Activity {
 		
 	public ReturnToAgency(PublicTransportation entity) {
 		// Constructor of super class.
-		super(Activity.Type.RETURN_TO_AGENCY, entity);
+		super(ActivityType.RETURN_TO_AGENCY, entity);
 	}
 
 	@Override

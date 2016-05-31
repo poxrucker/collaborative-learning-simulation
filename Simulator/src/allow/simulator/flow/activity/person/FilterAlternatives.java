@@ -5,6 +5,7 @@ import java.util.List;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.Itinerary;
 
 public final class FilterAlternatives extends Activity {
@@ -12,7 +13,7 @@ public final class FilterAlternatives extends Activity {
 	private List<Itinerary> toFilter;
 	
 	public FilterAlternatives(Person person, List<Itinerary> it) {
-		super(Activity.Type.FILTER_ALTERNATIVES, person);
+		super(ActivityType.FILTER_ALTERNATIVES, person);
 		toFilter = it;
 	}
 
@@ -20,7 +21,6 @@ public final class FilterAlternatives extends Activity {
 	public double execute(double deltaT) {
 		Person person = (Person) entity;
 		List<Itinerary> filtered = new ArrayList<Itinerary>(toFilter.size());
-		//SafetyLayer safetyLayer = (SafetyLayer) person.getContext().getWorld().getStreetMap().getLayer(Layer.Type.SAFETY);
 		/* 
 		 * Do filtering here 
 		 */

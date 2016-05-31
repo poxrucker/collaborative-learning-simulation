@@ -33,7 +33,7 @@ public abstract class TransportationAgency extends Entity {
 	 * @param utility Utility function
 	 * @param context Simulation context
 	 */
-	protected TransportationAgency(long id, Type type, IUtility utility, Preferences prefs, Context context) {
+	protected TransportationAgency(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
 		super(id, type, utility, prefs, context);
 		agencyId = "";
 		

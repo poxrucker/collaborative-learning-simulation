@@ -3,12 +3,13 @@ package allow.simulator.flow.activity.taxi;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 
 public class ReturnToTaxiAgency extends Activity {
 	
 	public ReturnToTaxiAgency(Taxi taxi) {
 		// Constructor of super class.
-		super(Activity.Type.RETURN_TO_TAXI_AGENCY, taxi);
+		super(ActivityType.RETURN_TO_TAXI_AGENCY, taxi);
 	}
 
 	@Override

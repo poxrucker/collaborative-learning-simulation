@@ -29,7 +29,7 @@ public final class UrbanMobilitySystem extends Entity {
 	private TransportationRepository transport;
 	
 	public UrbanMobilitySystem(long id, Utility utility, Preferences prefs, Context context) {
-		super(id, Type.URBANMOBILITYSYSTEM, utility, prefs, context);
+		super(id, EntityType.URBANMOBILITYSYSTEM, utility, prefs, context);
 		requests = new ConcurrentLinkedDeque<Pair<List<JourneyRequest>, RequestBuffer>>();
 	}
 

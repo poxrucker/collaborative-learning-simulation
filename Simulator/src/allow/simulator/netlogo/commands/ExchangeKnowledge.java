@@ -7,8 +7,7 @@ import org.nlogo.api.DefaultCommand;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 
-import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.Activity.Type;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 
 /**
@@ -27,9 +26,9 @@ public class ExchangeKnowledge extends DefaultCommand {
 			IAgentAdapter p = (IAgentAdapter) a;
 			
 			if (!p.getEntity().getFlow().isIdle()) {
-				Activity.Type type = p.getEntity().getFlow().getCurrentActivity().getType();
+				ActivityType type = p.getEntity().getFlow().getCurrentActivity().getType();
 				
-				if (type == Type.DRIVE || type == Type.CYCLE || type == Type.WALK || type == Type.USE_PUBLIC_TRANSPORT) {
+				if (type == ActivityType.DRIVE || type == ActivityType.CYCLE || type == ActivityType.WALK || type == ActivityType.USE_PUBLIC_TRANSPORT) {
 					p.exchangeKnowledge();
 				}
 			}

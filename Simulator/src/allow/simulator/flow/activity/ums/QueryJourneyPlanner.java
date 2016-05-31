@@ -10,6 +10,7 @@ import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.UrbanMobilitySystem;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.RequestBuffer;
 import allow.simulator.util.Pair;
@@ -27,7 +28,7 @@ public class QueryJourneyPlanner extends Activity {
 	private ExecutorService service;
 
 	public QueryJourneyPlanner(Entity entity, boolean allowParallelClientRequests, ExecutorService service) {
-		super(Type.QUERY_JOURNEY_PLANNER, entity);
+		super(ActivityType.QUERY_JOURNEY_PLANNER, entity);
 		workerPool = new WorkerPool(128);
 		tasks = new ArrayList<Worker>();
 		this.service = service;

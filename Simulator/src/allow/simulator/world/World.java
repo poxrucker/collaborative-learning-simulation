@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityType;
 import allow.simulator.entity.UrbanMobilitySystem;
 
 /**
@@ -20,7 +21,7 @@ import allow.simulator.entity.UrbanMobilitySystem;
 public abstract class World implements IWorld {
 	
 	// Entities of the simulated world grouped by entity type.
-	protected Map<Entity.Type, Map<Long, Entity>> entities;
+	protected Map<EntityType, Map<Long, Entity>> entities;
 		
 	// Street network.
 	protected StreetMap streetNetwork;
@@ -38,7 +39,7 @@ public abstract class World implements IWorld {
 	 */
 	public World(Path worldConfig) throws IOException {
 		// Prepare entity mapping.
-		entities = new ConcurrentHashMap<Entity.Type, Map<Long, Entity>>();
+		entities = new ConcurrentHashMap<EntityType, Map<Long, Entity>>();
 		
 		// Load map from file.
 		streetNetwork = new StreetMap(worldConfig);
@@ -75,7 +76,7 @@ public abstract class World implements IWorld {
 	@Override
 	public Entity removeEntity(long entityId) {
 		
-		for (Entity.Type temp : entities.keySet()) {
+		for (EntityType temp : entities.keySet()) {
 			Entity e = entities.get(temp).get(entityId);
 			
 			if (e != null) {
@@ -95,7 +96,7 @@ public abstract class World implements IWorld {
 	@Override
 	public Entity getEntityById(long entityId) {
 		
-		for (Entity.Type temp : entities.keySet()) {
+		for (EntityType temp : entities.keySet()) {
 			Entity e = entities.get(temp).get(entityId);
 			
 			if (e != null) {
@@ -111,7 +112,7 @@ public abstract class World implements IWorld {
 	 * @param type Type of entities to return.
 	 * @return Collection of entities of given type.
 	 */
-	public Collection<Entity> getEntitiesOfType(Entity.Type type) {
+	public Collection<Entity> getEntitiesOfType(EntityType type) {
 		Map<Long, Entity> ret = entities.get(type);
 		return (ret != null) ? ret.values() : new ArrayList<Entity>(0);
 	}
@@ -139,7 +140,7 @@ public abstract class World implements IWorld {
 	
 	@Override
 	public UrbanMobilitySystem getUrbanMobilitySystem() {
-		Collection<Entity> planners = entities.get(Entity.Type.URBANMOBILITYSYSTEM).values();
+		Collection<Entity> planners = entities.get(EntityType.URBANMOBILITYSYSTEM).values();
 		
 		if (planners.isEmpty()) {
 			return null;

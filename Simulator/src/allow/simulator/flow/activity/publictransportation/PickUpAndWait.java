@@ -10,6 +10,7 @@ import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.knowledge.Experience;
 import allow.simulator.entity.knowledge.StopExperience;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.PublicTransportationStop;
 
 /**
@@ -41,7 +42,7 @@ public class PickUpAndWait extends Activity {
 	 */
 	public PickUpAndWait(PublicTransportation entity, PublicTransportationStop stop, LocalTime time) {
 		// Constructor of super class.
-		super(Activity.Type.PICKUP_AND_WAIT, entity);
+		super(ActivityType.PICKUP_AND_WAIT, entity);
 		
 		// Stop.
 		this.stop = stop;

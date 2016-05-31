@@ -6,7 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.knowledge.Experience;
 import allow.simulator.entity.knowledge.TravelExperience;
 import allow.simulator.entity.relation.Relation;
-import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
@@ -29,7 +29,7 @@ public final class Walk extends MovementActivity {
 	 * @param path The path to walk.
 	 */
 	public Walk(Person entity, List<Street> path) {
-		super(Activity.Type.WALK, entity, path);
+		super(ActivityType.WALK, entity, path);
 	}
 	
 	@Override

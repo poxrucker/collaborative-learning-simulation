@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.entity.Person;
-import allow.simulator.entity.Person.Profile;
+import allow.simulator.entity.Profile;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
@@ -39,7 +40,7 @@ public final class PlanJourney extends Activity {
 	 * @param person The person executing the journey request.
 	 */
 	public PlanJourney(Person person, Coordinate start, Coordinate destination) {
-		super(Activity.Type.PLAN_JOURNEY, person);
+		super(ActivityType.PLAN_JOURNEY, person);
 		this.start = start;
 		this.destination = destination;
 		requestSent = false;

@@ -8,7 +8,7 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityType;
 import allow.simulator.entity.Person;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 
@@ -23,7 +23,7 @@ public class GetPersonRole extends DefaultReporter
 		
 		IAgentAdapter temp = (IAgentAdapter) a;
 		
-		if (!(temp.getEntity().getType() == Entity.Type.PERSON))
+		if (!(temp.getEntity().getType() == EntityType.PERSON))
 			throw new ExtensionException("Error: Calling agent must wrap a person entity.");
 		Person p = (Person) temp.getEntity();
 		return p.getProfile().toString();

@@ -2,11 +2,12 @@ package allow.simulator.flow.activity.flexibusagency;
 
 import allow.simulator.entity.FlexiBusAgency;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 
 public class Reschedule extends Activity {
 
 	public Reschedule(FlexiBusAgency agency) {
-		super(Activity.Type.SCHEDULE_NEXT_FLEXIBUS_TRIPS, agency);
+		super(ActivityType.SCHEDULE_NEXT_FLEXIBUS_TRIPS, agency);
 	}
 
 	@Override

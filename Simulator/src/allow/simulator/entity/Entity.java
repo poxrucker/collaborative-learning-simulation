@@ -20,62 +20,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  */
 public abstract class Entity extends Observable {
-	
-	public enum Type {
-		
-		/**
-		 * Person entities are the most general form. They cannot be instantiated
-		 * directly. Use one of the following subclasses (child, homemaker,
-		 * retired, student, worker) instead.
-		 */
-		PERSON,
-		
-		/**
-		 * Bus entity executing a given fixed schedule.
-		 */
-		BUS,
-		
-		/**
-		 * Taxi entity executing single and shared taxi rides.
-		 */
-		TAXI,
-		
-		/**
-		 * FlexiBus entity executing dynamic trips.
-		 */
-		FLEXIBUS,
-		
-		/**
-		 * Train entity executing a given fixed schedule.
-		 */
-		TRAIN,
-		
-		/**
-		 * Transport agency managing a static set of routes.
-		 */
-		PUBLICTRANSPORTAGENCY,
-		
-		/**
-		 * Taxi agency managing a taxis which can be dynamically allocated as required.
-		 */
-		TAXIAGENCY,
-		
-		/**
-		 * FlexiBus agency providing dynamic on-request bus scheduling.
-		 */
-		FLEXIBUSAGENCY,
-		
-		/**
-		 * The urban mobility system for smart journey planning.
-		 */
-		URBANMOBILITYSYSTEM
-		
-	}
 	// Id of the entity.
 	protected final long id;
 	
 	// Type of entity.
-	protected final Type type;
+	protected final EntityType type;
 	
 	// Utility module.
 	protected final IUtility utility;
@@ -113,7 +62,7 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	protected Entity(long id, Type type, IUtility utility, Preferences prefs, Context context) {
+	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
 		this.id = id;
 		this.type = type;
 		position = new Coordinate(-1, -1);
@@ -136,7 +85,7 @@ public abstract class Entity extends Observable {
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id, Type type, IUtility utility, Preferences prefs) {
+	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs) {
 		// Initialize members.
 		this.id = id;
 		this.type = type;
@@ -163,7 +112,7 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Type of the entity.
 	 */
-	public Type getType() {
+	public EntityType getType() {
 		return type;
 	}
 	
@@ -288,11 +237,6 @@ public abstract class Entity extends Observable {
 	@JsonIgnore
 	public abstract boolean isActive();
 	
-	/**
-	 * Returns String representation of this entity.
-	 * 
-	 * @return String representation.
-	 */
 	@Override
 	public String toString() {
 		return "[Entity" + id + "]";

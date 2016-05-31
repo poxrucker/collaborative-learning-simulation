@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityType;
 import allow.simulator.entity.UrbanMobilitySystem;
 
 /**
@@ -44,7 +45,7 @@ public interface IWorld {
 	 * @param type Type of entities to return.
 	 * @return Collection of entities of given type.
 	 */
-	 Collection<Entity> getEntitiesOfType(Entity.Type type);
+	 Collection<Entity> getEntitiesOfType(EntityType type);
 	
 	/**
 	 * Returns entities with certain distance entity with given Id.

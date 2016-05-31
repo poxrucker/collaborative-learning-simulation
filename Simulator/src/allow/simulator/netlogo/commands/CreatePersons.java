@@ -8,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.Simulator;
-import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityType;
 
 public class CreatePersons extends DefaultCommand {
 
@@ -18,7 +18,7 @@ public class CreatePersons extends DefaultCommand {
 		int numberOfAgents = args[0].getIntValue();
 		
 		for (int i = 0; i < numberOfAgents; i++) {
-			Simulator.Instance().addEntity(Entity.Type.PERSON);
+			Simulator.Instance().addEntity(EntityType.PERSON);
 		}
 	}
 	

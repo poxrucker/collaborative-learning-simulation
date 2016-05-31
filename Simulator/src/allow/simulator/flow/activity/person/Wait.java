@@ -2,13 +2,14 @@ package allow.simulator.flow.activity.person;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 
 public class Wait extends Activity {
 
 	private double waitingTime;
 	
 	public Wait(Person person, double waitingTime) {
-		super(Activity.Type.WAIT, person);
+		super(ActivityType.WAIT, person);
 		this.waitingTime = waitingTime;
 	}
 

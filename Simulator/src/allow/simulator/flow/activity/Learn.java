@@ -11,7 +11,7 @@ import allow.simulator.entity.Entity;
 public class Learn extends Activity {
 	
 	public Learn(Entity entity) {
-		super(Activity.Type.LEARN, entity);
+		super(ActivityType.LEARN, entity);
 	}
 
 	@Override

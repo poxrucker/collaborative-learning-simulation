@@ -16,8 +16,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.entity.Person.Gender;
-import allow.simulator.entity.Person.Profile;
 import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.UtilityWithoutPreferences;
 import allow.simulator.mobility.data.TType;

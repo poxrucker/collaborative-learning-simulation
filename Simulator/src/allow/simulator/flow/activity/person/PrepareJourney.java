@@ -10,6 +10,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportationAgency;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.Learn;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Route;
@@ -39,7 +40,7 @@ public final class PrepareJourney extends Activity {
 	 * @param journey The journey.
 	 */
 	public PrepareJourney(Person entity, Itinerary journey) {
-		super(Activity.Type.PREPARE_JOURNEY, entity);
+		super(ActivityType.PREPARE_JOURNEY, entity);
 		this.journey = journey;
 	}
 	

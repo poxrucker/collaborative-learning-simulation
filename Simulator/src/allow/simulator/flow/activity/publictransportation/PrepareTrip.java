@@ -6,6 +6,7 @@ import java.util.List;
 
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.Learn;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.PublicTransportationTrip;
@@ -31,7 +32,7 @@ public class PrepareTrip extends Activity {
 	 * @param trip Trip to execute.
 	 */
 	public PrepareTrip(PublicTransportation entity, PublicTransportationTrip trip) {
-		super(Activity.Type.PREPARE_TRIP, entity);
+		super(ActivityType.PREPARE_TRIP, entity);
 		this.trip = trip;
 	}
 

@@ -10,12 +10,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.nlogo.agent.World;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.Entity.Type;
+import allow.simulator.entity.EntityType;
 import allow.simulator.entity.FlexiBusAgency;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
@@ -161,7 +160,7 @@ public class Simulator {
 		TransportationRepository repos = TransportationRepository.loadPublicTransportation(this);
 		
 		// Create urban mobility system entity.
-		UrbanMobilitySystem ums = (UrbanMobilitySystem) addEntity(Entity.Type.URBANMOBILITYSYSTEM);
+		UrbanMobilitySystem ums = (UrbanMobilitySystem) addEntity(EntityType.URBANMOBILITYSYSTEM);
 		ums.setTransportationRepository(repos);
 		int nThreads = config.allowParallelClientRequests() ? (Runtime.getRuntime().availableProcessors() * 8) : plannerServices.size();
 		plannerThreadPool = Executors.newFixedThreadPool(nThreads);
@@ -210,7 +209,7 @@ public class Simulator {
 	 * @param e Type of entity.
 	 * @return Instance of new entity of given type.
 	 */
-	public Entity addEntity(Entity.Type e) {
+	public Entity addEntity(EntityType e) {
 		// Entity to add.
 		Entity newEntity = null;
 		
@@ -263,7 +262,7 @@ public class Simulator {
 		
 		// Trigger routine scheduling.
 		if (days != context.getTime().getDays()) {
-			Collection<Entity> persons = context.getWorld().getEntitiesOfType(Type.PERSON);
+			Collection<Entity> persons = context.getWorld().getEntitiesOfType(EntityType.PERSON);
 
 			for (Entity p : persons) {
 				PlanGenerator.generateDayPlan((Person) p);

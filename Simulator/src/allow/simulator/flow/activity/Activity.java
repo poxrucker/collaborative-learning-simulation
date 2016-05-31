@@ -10,88 +10,14 @@ import allow.simulator.entity.Entity;
  *
  */
 public abstract class Activity {
-	
-	public enum Type {
-		
-		/**
-		 * Bus activities.
-		 */
-		PREPARE_TRIP,
-		
-		PICKUP_AND_WAIT,
-		
-		DRIVE_TO_NEXT_STOP,
-		
-		RETURN_TO_AGENCY,
-
-		/**
-		 * Person activities.
-		 */
-		USE_PUBLIC_TRANSPORT,
-		
-		PLAN_JOURNEY,
-		
-		FILTER_ALTERNATIVES,
-		
-		RANK_ALTERNATIVES,
-		
-		PREPARE_JOURNEY,
-		
-		DRIVE,
-		
-		WALK,
-		
-		CYCLE,
-		
-		CORRECT_POSITION,
-		
-		REGISTER_TO_FLEXIBUS,
-		
-		USE_FLEXIBUS,
-		
-		REPLAN,
-		
-		WAIT,
-		
-		/**
-		 * Taxi activities.
-		 */
-		PREPARE_TAXI_TRIP,
-		
-		DRIVE_TO_NEXT_DESTINATION,
-		
-		PICK_UP_OR_DROP,
-		
-		RETURN_TO_TAXI_AGENCY,
-		
-		/**
-		 * Transportation agency activities.
-		 */
-		SCHEDULE_NEXT_TRIPS,
-
-		SCHEDULE_NEXT_FLEXIBUS_TRIPS,
-		
-		SCHEDULE_NEXT_TAXI_TRIPS,
-		
-		/**
-		 * Smart planner activities.
-		 */
-		QUERY_JOURNEY_PLANNER,
-		
-		/**
-		 * General activities.
-		 */
-		LEARN
-		
-	}
 	// Indicates if Activity has finished.
 	private boolean finished;
 	
 	// Type of the Activity.
-	protected Type type;
+	protected final ActivityType type;
 	
 	// Entity executing the activity.
-	protected Entity entity;
+	protected final Entity entity;
 	
 	// Starting and ending timestamps.
 	protected long tStart;
@@ -103,7 +29,7 @@ public abstract class Activity {
 	 * @param type Type of the Activity.
 	 * @param entitiy Entity supposed to execute the Activity.
 	 */
-	protected Activity(Type type, Entity entity) {
+	protected Activity(ActivityType type, Entity entity) {
 		this.type = type;
 		this.entity = entity;
 		finished = false;
@@ -131,7 +57,7 @@ public abstract class Activity {
 	}
 	
 	/**
-	 * Marks this Activity as finished.
+	 * Marks this Activity instance as finished.
 	 */
 	public void setFinished() {
 		finished = true;
@@ -142,7 +68,7 @@ public abstract class Activity {
 	 * 
 	 * @return Type of the Activity.
 	 */
-	public Type getType() {
+	public ActivityType getType() {
 		return type;
 	}
 }

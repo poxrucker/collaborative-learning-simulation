@@ -155,7 +155,6 @@ public class Simulator {
 		
 		// Initialize EvoKnowlegde and setup logger.
 		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
-		EvoKnowledge.setLoggerDirectory(config.getLoggingOutputPath());
 		
 		// Update world grid.
 		world.updateGrid();

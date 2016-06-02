@@ -26,12 +26,13 @@ public final class PlanJourney extends Activity {
 	private static final TType transitJourney[] = new TType[] { TType.TRANSIT, TType.WALK };
 	private static final TType walkJourney[] = new TType[] { TType.WALK };
 	private static final TType carJourney[] = new TType[] { TType.CAR, TType.WALK };
-
+	private static final TType taxiJourney[] = new TType[] { TType.TAXI };
+	
 	// The start coordinate of the journey.
-	private Coordinate start;
+	private final Coordinate start;
 	
 	// The destination of the journey.
-	private Coordinate destination;
+	private final Coordinate destination;
 	private boolean requestSent;
 	
 	/**
@@ -47,14 +48,11 @@ public final class PlanJourney extends Activity {
 	}
 			
 	@Override
-	public double execute(double deltaT) {
-		// Register for knowledge exchange.
-		// entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
-				
-		// Person entity.
+	public double execute(double deltaT) {	
+		// Person entity
 		Person person = (Person) entity;
 		
-		// Update preferences.
+		// Update preferences
 		double dist = Geometry.haversineDistance(start, destination);
 		person.getPreferences().setTmax(1500);
 		person.getPreferences().setCmax(2.5);
@@ -62,19 +60,25 @@ public final class PlanJourney extends Activity {
 		
 		if (!requestSent) {
 			RequestId reqId = new RequestId();
-			List<JourneyRequest> requests = new ArrayList<JourneyRequest>(4);
+			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
 			LocalDateTime date = person.getContext().getTime().getCurrentDateTime();
 			
 			// Car requests are now sent out in any case. If a person does not
 			// own a private car or person left the car at home, a taxi request
-			// is emulated.
+			// is emulated
 			if (person.getProfile() != Profile.CHILD) {
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, (!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar())), carJourney, reqId));
+				
+				if ((!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar()))) {
+					requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
+				
+				} else {
+					requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, reqId));
+				}
 			}
 			
 			if (!person.hasUsedCar()) {
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, false, transitJourney, reqId));
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, false, walkJourney, reqId));
+				requests.add(JourneyRequest.createRequest(start, destination, date, false, transitJourney, reqId));
+				requests.add(JourneyRequest.createRequest(start, destination, date, false, walkJourney, reqId));
 			
 				// if (person.hasBike())
 				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));
@@ -90,13 +94,13 @@ public final class PlanJourney extends Activity {
 			return deltaT;
 				
 		} else if (person.getRequestBuffer().buffer.size() == 0) {
-			// In case no trips were found, reset buffer.
+			// In case no trips were found, reset buffer
 			setFinished();
 			person.setPosition(destination);
 			return 0.0;
 				
 		} else {
-			// In case FlexiBus was queried, unregister now.
+			// In case FlexiBus was queried, unregister now
 			if (person.useFlexiBus()) {
 				person.getContext().getWorld().getUrbanMobilitySystem().unregister(person);
 			}

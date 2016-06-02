@@ -37,7 +37,7 @@ public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	protected Itinerary parseItinerary(JsonNode it, boolean isTaxi) throws JsonParseException,
+	protected Itinerary parseItinerary(JsonNode it) throws JsonParseException,
 			JsonMappingException, IOException {
 		Itinerary newIt = new Itinerary();
 		newIt.startTime = it.get("startTime").asLong();
@@ -51,13 +51,13 @@ public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
 		JsonNode legNode = it.get("legs");
 
 		for (Iterator<JsonNode> jt = legNode.elements(); jt.hasNext();) {
-			Leg newLeg = parseLeg(jt.next(), isTaxi);
-			newIt.addLeg(newLeg);
+			Leg newLeg = parseLeg(jt.next());
+			newIt.legs.add(newLeg);
 			newIt.costs += newLeg.costs;
 		}
 		newIt.itineraryType = Itinerary.getItineraryType(newIt);
 		
-		if (newIt.itineraryType == 1) {
+		if (newIt.itineraryType == TType.BUS) {
 			newIt.costs = 1.2;
 		}
 		return newIt;
@@ -69,7 +69,7 @@ public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
 	 * @param lt Json node.
 	 * @return Leg parsed from given Json node.
 	 */
-	protected Leg parseLeg(JsonNode lt, boolean isTaxi) {
+	protected Leg parseLeg(JsonNode lt) {
 		Leg newLeg = new Leg();
 		newLeg.startTime = Long.parseLong(lt.get("startTime").asText());
 		newLeg.endTime = Long.parseLong(lt.get("endTime").asText());
@@ -100,12 +100,7 @@ public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
 			break;
 			
 		case CAR:
-			if (isTaxi) {
-				newLeg.costs = newLeg.distance * 0.001; // 0.0004;
-						
-			} else {
-				newLeg.costs = newLeg.distance * 0.00035; // 0.00025;
-			}
+			newLeg.costs = newLeg.distance * 0.00035; // 0.00025;
 			break;
 			
 		case RAIL:
@@ -162,6 +157,7 @@ public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
 		if (request.ArrivalTime != null) {
 			paramBuilder.append("&time=" + request.ArrivalTime.format(timeFormat));
 			paramBuilder.append("&arriveBy=true");
+			
 		} else {
 			paramBuilder.append("&time=" + request.DepartureTime.format(timeFormat));
 			paramBuilder.append("&arriveBy=false");

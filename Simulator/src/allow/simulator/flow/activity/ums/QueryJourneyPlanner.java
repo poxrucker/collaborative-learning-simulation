@@ -51,7 +51,7 @@ public class QueryJourneyPlanner extends Activity {
 			Pair<List<JourneyRequest>, RequestBuffer> request = requests.poll();
 			Worker w = workerPool.pop();
 			w.prepare(request.first, request.second, context.getPlannerServices().get(i), context.getFlexiBusPlannerService(),
-					context.getBikeRentalPlannerService(), context.getTaxiPlannerService(), latch);
+					context.getTaxiPlannerService(), context.getBikeRentalPlannerService(), latch);
 			service.submit(w);
 			tasks.add(w);
 			i = (i + 1) % planner.getContext().getPlannerServices().size();
@@ -63,7 +63,7 @@ public class QueryJourneyPlanner extends Activity {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		for (int j = 0; j < tasks.size(); j++) {
 			Worker w = tasks.get(j);
 			w.reset();

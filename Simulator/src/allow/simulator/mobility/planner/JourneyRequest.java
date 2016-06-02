@@ -3,7 +3,6 @@ package allow.simulator.mobility.planner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.mobility.data.RType;
@@ -17,71 +16,60 @@ import allow.simulator.util.Coordinate;
  *
  */
 public class JourneyRequest {
+	/**
+	 * Request id to identify requests belonging together
+	 */
+	public long ReqId;
 	
 	/**
-	 * Specifies if this request emulates a Taxi request.
+	 * Request number identifying individual requests sharing the same request Id
 	 */
-	public boolean isTaxiRequest;
+	public int ReqNumber;
 	
 	/**
-	 * Request id to identify requests belonging together.
+	 * Arrival date of the journey
 	 */
-	public long reqId;
+	public LocalDate Date;
 	
 	/**
-	 * Request number identifying individual requests sharing the same request Id.
+	 * Departure time of the journey
 	 */
-	public int reqNumber;
+	public LocalTime DepartureTime;
 	
 	/**
-	 * Arrival date of the journey.
+	 * Arrival time of the journey
 	 */
-	public LocalDate Date = null;
+	public LocalTime ArrivalTime;
 	
 	/**
-	 * Departure time of the journey.
+	 * Starting position
 	 */
-	public LocalTime DepartureTime = null;
+	public Coordinate From;
 	
 	/**
-	 * Arrival time of the journey.
+	 * Destination
 	 */
-	public LocalTime ArrivalTime = null;
-	
-	/**
-	 * Starting position.
-	 */
-	public Coordinate From = new Coordinate();
-	
-	/**
-	 * Destination.
-	 */
-	public Coordinate To = new Coordinate();
+	public Coordinate To;
 	
 	/**
 	 * Destinations in case of a shared taxi request
 	 */
-	public List<Coordinate> Destinations = new ArrayList<Coordinate>();
+	public List<Coordinate> Destinations;
 	
 	/**
-	 * Type of route to optimize for.
+	 * Type of route to optimize for
 	 */
 	public RType RouteType;
 	
 	/**
-	 * Modes of transportation to use.
+	 * Modes of transportation to use
 	 */
 	public TType TransportTypes[];
 	
 	/**
-	 * Number of results to return.
+	 * Number of results to return
 	 */
 	public int ResultsNumber;
-	
-	/**
-	 * Maximum amount of money a user wants to spent.
-	 */
-	public double MaximumCosts;
 	
 	/**
 	 * Maximum distance to walk.
@@ -91,10 +79,10 @@ public class JourneyRequest {
 	private JourneyRequest() {}
 
 	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
-			LocalDateTime date, boolean arriveBy, boolean isTaxiRequest, TType modes[], RequestId reqId) {
+			LocalDateTime date, boolean arriveBy, TType modes[], RequestId reqId) {
 		JourneyRequest s = new JourneyRequest();
-		s.reqId = reqId.getRequestId();
-		s.reqNumber = reqId.getNextRequestNumber();
+		s.ReqId = reqId.getRequestId();
+		s.ReqNumber = reqId.getNextRequestNumber();
 		s.Date = date.toLocalDate();
 		
 		if (arriveBy) {
@@ -103,16 +91,11 @@ public class JourneyRequest {
 		} else {
 			s.DepartureTime = date.toLocalTime();
 		}
-		
-		s.isTaxiRequest = isTaxiRequest;
-		s.From.x = from.x;
-		s.From.y = from.y;
-		s.To.x = to.x;
-		s.To.y = to.y;
+		s.From = from;
+		s.To = to;
 		s.RouteType = RType.QUICK;
 		s.TransportTypes = modes;
 		s.ResultsNumber = 1;
-		s.MaximumCosts = 25;
 		s.MaximumWalkDistance = 1000;
 		return s;
 	}
@@ -120,21 +103,17 @@ public class JourneyRequest {
 	public static JourneyRequest createRequest(Coordinate from, List<Coordinate> to,
 			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
 		JourneyRequest s = new JourneyRequest();
-		s.reqId = reqId.getRequestId();
-		s.reqNumber = reqId.getNextRequestNumber();
+		s.ReqId = reqId.getRequestId();
+		s.ReqNumber = reqId.getNextRequestNumber();
 		s.Date = date.toLocalDate();
 
 		if (arriveBy) {
 			s.ArrivalTime = date.toLocalTime();
 		} else {
 			s.DepartureTime = date.toLocalTime();
-		}
-		
-		s.isTaxiRequest = false;
-		
+		}		
 		// Set starting position and destination.
-		s.From.x = from.x;
-		s.From.y = from.y;
+		s.From = from;
 		s.Destinations = to;
 
 		// Set route type.
@@ -143,7 +122,6 @@ public class JourneyRequest {
 		// Set predefined choice of means of transportation.
 		s.TransportTypes = types;
 		s.ResultsNumber = 1;
-		s.MaximumCosts = 0;
 		s.MaximumWalkDistance = 0;
 		return s;
 	}

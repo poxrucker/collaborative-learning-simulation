@@ -56,7 +56,7 @@ public class BikeRentalPlanner implements IPlannerService {
 		
 		// Compose itinerary
 		Itinerary ret = new Itinerary();
-		ret.addLeg(walkingLeg);
+		ret.legs.add(walkingLeg);
 		ret.legs.addAll(bikeIt.legs);
 		ret.costs = walkingLeg.costs + bikeIt.costs;
 		ret.startTime = walkingLeg.startTime;
@@ -65,43 +65,44 @@ public class BikeRentalPlanner implements IPlannerService {
 		ret.from = req.From;
 		ret.to = req.To;
 		ret.itineraryType = Itinerary.getItineraryType(ret);
-		ret.reqId = req.reqId;
-		ret.reqNumber = req.reqNumber;
+		ret.reqId = req.ReqId;
+		ret.reqNumber = req.ReqNumber;
 		ret.walkDistance = walkingLeg.distance + bikeIt.walkDistance;
 		ret.walkTime = (walkingLeg.endTime - walkingLeg.startTime) / 1000 + bikeIt.walkTime;
+		ret.itineraryType = Itinerary.getItineraryType(ret);
 		return ret;
 	}
 	
 	private Leg createWalkingLeg(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, false, new TType[] { TType.WALK }, reqId);
+		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, new TType[] { TType.WALK }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {
 			
-			if (it.itineraryType == 3) {
+			if (it.itineraryType == TType.WALK) {
 				candidateIt = it;
 				break;
 			}
 		}
 				
 		if (candidateIt == null)
-			return null;			
+			return null;		
 		return candidateIt.legs.get(0);
 	}
 	
 	private Itinerary createBikeItinerary(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2, long startTime) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, false, new TType[] { TType.BICYCLE }, reqId);
+		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, new TType[] { TType.BICYCLE }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {
 			
-			if (it.itineraryType == 2) {
+			if (it.itineraryType == TType.WALK) {
 				candidateIt = it;
 				break;
 			}

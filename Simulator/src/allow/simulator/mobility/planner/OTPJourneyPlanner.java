@@ -117,17 +117,16 @@ public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
 
 			for (Iterator<JsonNode> jt = it.elements(); jt.hasNext();) {
 				JsonNode next = jt.next();
-				Itinerary nextIt = parseItinerary(next, request.isTaxiRequest);
+				Itinerary nextIt = parseItinerary(next);
 				nextIt.from = request.From;
 				nextIt.to = request.To;
-				nextIt.reqId = request.reqId;
-				nextIt.reqNumber = request.reqNumber;
+				nextIt.reqId = request.ReqId;
+				nextIt.reqNumber = request.ReqNumber;
 				
 				for (Leg l : nextIt.legs) {
 					mapTracesToStreets(l);
 				}
 				nextIt.initialWaitingTime = Math.max((nextIt.startTime - time.getTimestamp()) / 1000, 0);
-				nextIt.isTaxiItinerary = request.isTaxiRequest;
 				itineraries.add(nextIt);
 			}
 			

@@ -31,7 +31,7 @@ public class TestTaxi extends DefaultCommand {
 			IPlannerService taxiPlanner = person.getContext().getBikeRentalPlannerService();
 			List<TravelEvent> t = person.getDailyRoutine().getDailyRoutine(1);
 			JourneyRequest req = JourneyRequest.createRequest(t.get(0).getStartingPoint(), t.get(0).getDestination(), person.getContext().getTime().getCurrentDateTime(),
-					false, false, new TType[] { TType.SHARED_BICYCLE }, new RequestId());
+					false, new TType[] { TType.SHARED_BICYCLE }, new RequestId());
 			List<Itinerary> temp = new ArrayList<Itinerary>();
 			taxiPlanner.requestSingleJourney(req, temp);
 			

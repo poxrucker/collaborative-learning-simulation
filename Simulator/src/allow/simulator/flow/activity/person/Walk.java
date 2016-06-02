@@ -23,10 +23,10 @@ import allow.simulator.world.StreetSegment;
 public final class Walk extends MovementActivity {
 
 	/**
-	 * Creates new instance of the walking Activity.
+	 * Creates new instance of a walking Activity.
 	 * 
-	 * @param person The person moving.
-	 * @param path The path to walk.
+	 * @param person The person moving
+	 * @param path The path to walk
 	 */
 	public Walk(Person entity, List<Street> path) {
 		super(ActivityType.WALK, entity, path);

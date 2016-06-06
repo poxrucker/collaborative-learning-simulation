@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class AbstractOTPJourneyPlanner implements IPlannerService {
+public abstract class AbstractOTPPlanner implements IPlannerService {
 	// Json mapper to parse planner responses.
 	protected static final ObjectMapper mapper = new ObjectMapper();
 

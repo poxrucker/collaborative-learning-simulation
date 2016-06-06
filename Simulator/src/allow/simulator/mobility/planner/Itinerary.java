@@ -110,6 +110,8 @@ public final class Itinerary {
 			switch (l.mode) {
 			case BUS:
 			case CABLE_CAR:
+				return TType.BUS;
+				
 			case BICYCLE:
 			case SHARED_BICYCLE:
 			case TAXI:

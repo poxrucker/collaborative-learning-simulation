@@ -1,10 +1,14 @@
 package allow.simulator.core;
 
 import java.util.List;
+import java.util.Queue;
 
+import allow.simulator.entity.Entity;
 import allow.simulator.mobility.data.IDataService;
+import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.IPlannerService;
+import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.world.IWorld;
@@ -30,6 +34,10 @@ public class Context {
 	// Instances of available data services (for information about transportation network).
 	private List<IDataService> dataServices;
 	
+	private JourneyPlanner journeyPlanner;
+	
+	private TransportationRepository transportationRepository;
+		
 	// Instances of available planner services (for journey planning).
 	private List<IPlannerService> plannerServices;
 	
@@ -60,6 +68,7 @@ public class Context {
 	 */
 	public Context(IWorld world,
 			Time time,
+			JourneyPlanner journeyPlanner,
 			List<IDataService> dataServices,
 			List<IPlannerService> plannerServices,
 			IPlannerService flexiBusService,
@@ -70,6 +79,7 @@ public class Context {
 			SimulationParameter params) {
 		this.world = world;
 		this.time = time;
+		this.journeyPlanner = journeyPlanner;
 		this.dataServices = dataServices;
 		this.plannerServices = plannerServices;
 		this.flexiBusService = flexiBusService;
@@ -105,6 +115,10 @@ public class Context {
 	 */
 	public List<IDataService> getDataServices() {
 		return dataServices;
+	}
+	
+	public JourneyPlanner getJourneyPlanner() {
+		return journeyPlanner;
 	}
 	
 	/**
@@ -159,6 +173,14 @@ public class Context {
 	 */
 	public Statistics getStatistics() {
 		return stats;
+	}
+	
+	public void setTransportationRepository(TransportationRepository repository) {
+		transportationRepository = repository;
+	}
+	
+	public TransportationRepository getTransportationRepository() {
+		return transportationRepository;
 	}
 	
 	/**

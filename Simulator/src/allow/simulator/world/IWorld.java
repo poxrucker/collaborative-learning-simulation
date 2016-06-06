@@ -5,7 +5,6 @@ import java.util.List;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
-import allow.simulator.entity.UrbanMobilitySystem;
 
 /**
  * Interface for world representations used in the Allow Ensembles
@@ -62,14 +61,6 @@ public interface IWorld {
 	 * @return Street map of this world.
 	 */
 	 StreetMap getStreetMap();
-	
-	/**
-	 * Returns the Urban Mobility System entity of the world.
-	 * 
-	 * @return Urban Mobility System entity of the world or null, if no Urban
-	 * Mobility System entity exists.
-	 */
-	 UrbanMobilitySystem getUrbanMobilitySystem();
 	
 	/**
 	 * Returns the mapping of rectangular world space used in this world to

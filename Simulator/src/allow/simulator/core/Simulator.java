@@ -23,11 +23,9 @@ import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.PublicTransportationAgency;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
-import allow.simulator.entity.UrbanMobilitySystem;
 import allow.simulator.entity.knowledge.EvoKnowledge;
 import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.Utility;
-import allow.simulator.flow.activity.ums.QueryJourneyPlanner;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.MobilityRepository;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -36,11 +34,11 @@ import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.IPlannerService;
-import allow.simulator.mobility.planner.OTPJourneyPlanner;
+import allow.simulator.mobility.planner.JourneyPlanner;
+import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.IWorld;
 import allow.simulator.world.NetLogoWorld;
 import allow.simulator.world.Weather;
 import allow.simulator.world.layer.Layer;
@@ -123,7 +121,7 @@ public class Simulator {
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
 			Service plannerConfig = plannerConfigs.get(i);
-			plannerServices.add(new OTPJourneyPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
+			plannerServices.add(new OTPPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
 		}		
 		
 		// Create taxi planner service
@@ -135,10 +133,13 @@ public class Simulator {
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, bikeRentalStation);
 		System.out.println("Loading weather model...");
 		Weather weather = new Weather(config.getWeatherPath(), time);
-				
+		
+		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
+				bikeRentalPlanner, new FlexiBusPlanner());
+		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, time, dataServices, plannerServices, new FlexiBusPlanner(),
-				taxiPlannerService, bikeRentalPlanner, weather, new Statistics(800), params);
+		context = new Context(world, time, planner, dataServices, plannerServices, new FlexiBusPlanner(),
+				taxiPlannerService, bikeRentalPlanner, weather, new Statistics(400), params);
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");
@@ -147,11 +148,7 @@ public class Simulator {
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
 		TransportationRepository repos = TransportationRepository.loadPublicTransportation(this);
-		
-		// Create urban mobility system entity.
-		UrbanMobilitySystem ums = (UrbanMobilitySystem) addEntity(EntityType.URBANMOBILITYSYSTEM);
-		ums.setTransportationRepository(repos);
-		ums.getFlow().addActivity(new QueryJourneyPlanner(ums, config.allowParallelClientRequests(), threadpool));
+		context.setTransportationRepository(repos);
 		
 		// Initialize EvoKnowlegde and setup logger.
 		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
@@ -219,10 +216,6 @@ public class Simulator {
 				newEntity = new TaxiAgency(ids++, new Utility(), new Preferences(), context);
 				break;
 			
-			case URBANMOBILITYSYSTEM:
-				newEntity = new UrbanMobilitySystem(ids++, new Utility(), new Preferences(), context);
-				break;
-				
 			default:
 				throw new IllegalArgumentException("Error: Unknown entity type.");
 		}
@@ -284,58 +277,13 @@ public class Simulator {
 		return context.getWorld().getEntityById(entityId);	
 	}
 	
-	/**
-	 * Returns the current time of day of the simulation.
-	 * 
-	 * @return Current time of day of the simulation.
-	 */
-	public Time getTime() {
-		return context.getTime();
-	}
-	
-	/**
-	 * Returns the simulated world of the simulation.
-	 * 
-	 * @return Simulated world.
-	 */
-	public IWorld getWorld() {
-		return context.getWorld();
-	}
-	
-	/**
-	 * Returns the data services to use in the simulation.
-	 * 
-	 * @return Data services of the simulation.
-	 */
-	public List<IDataService> getDataService() {
-		return context.getDataServices();
-	}
-	
-	/**
-	 * Returns the planner services to use in the simulation.
-	 * 
-	 * @return Planner services of the simulation.
-	 */
-	public List<IPlannerService> getPlannerService() {
-		return context.getPlannerServices();
-	}
-	
-	/**
-	 * Returns the weather of the simulation.
-	 * 
-	 * @return Weather of the simulation.
-	 */
-	public Weather getWeather() {
-		return context.getWeather();
-	}
-	
 	public Context getContext() {
 		return context;
 	}
 	
 	public void finish() {
 		threadpool.shutdown();
-		
+
 		try {
 			threadpool.awaitTermination(10, TimeUnit.SECONDS);
 			

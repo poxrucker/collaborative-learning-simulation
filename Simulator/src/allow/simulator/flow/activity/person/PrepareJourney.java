@@ -82,8 +82,7 @@ public final class PrepareJourney extends Activity {
 			case RAIL:
 			case CABLE_CAR:
 			case TRANSIT:
-				PublicTransportationAgency ta = person.getContext().getWorld().getUrbanMobilitySystem()
-					.getTransportationRepository().getGTFSTransportAgency(l.agencyId);
+				PublicTransportationAgency ta = person.getContext().getTransportationRepository().getGTFSTransportAgency(l.agencyId);
 				Route route = ta.getRoute(l.routeId);		
 				if (route == null)
 					throw new IllegalStateException("Error: Transport " + l.routeId + " of " + l.agencyId + " is unknown.");

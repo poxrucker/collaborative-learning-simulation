@@ -36,7 +36,7 @@ public final class RegisterToFlexiBus extends Activity {
 	public double execute(double deltaT) {
 		Person p = (Person) entity;
 		LocalDate d = p.getContext().getTime().getCurrentDateTime().toLocalDate();
-		p.getContext().getWorld().getUrbanMobilitySystem().register(p, start, destination, LocalDateTime.of(d, earliestStartingTime));
+		//p.getContext().getWorld().getUrbanMobilitySystem().register(p, start, destination, LocalDateTime.of(d, earliestStartingTime));
 		setFinished();
 		return deltaT;
 	}

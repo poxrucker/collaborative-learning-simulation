@@ -273,7 +273,7 @@ public class EvoKnowledge {
 			break;
 			
 		default:
-			throw new IllegalArgumentException("Illegal journey type.");
+			throw new IllegalArgumentException("Illegal journey type " + itinerary.itineraryType);
 		}
 		summary.utility = e.getUtility().computeUtility(summary.travelTime, summary.costs,
 				summary.walkingDistance, summary.maxBusFillingLevel, summary.transfers, e.getPreferences());

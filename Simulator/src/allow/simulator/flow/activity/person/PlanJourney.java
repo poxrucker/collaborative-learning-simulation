@@ -3,6 +3,8 @@ package allow.simulator.flow.activity.person;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
@@ -33,7 +35,8 @@ public final class PlanJourney extends Activity {
 	
 	// The destination of the journey.
 	private final Coordinate destination;
-	private boolean requestSent;
+	private Future<List<Itinerary>> requestFuture;
+	private int stepsWaited;
 	
 	/**
 	 * Creates a new Activity to request a journey.
@@ -44,7 +47,6 @@ public final class PlanJourney extends Activity {
 		super(ActivityType.PLAN_JOURNEY, person);
 		this.start = start;
 		this.destination = destination;
-		requestSent = false;
 	}
 			
 	@Override
@@ -58,7 +60,7 @@ public final class PlanJourney extends Activity {
 		person.getPreferences().setCmax(2.5);
 		person.getPreferences().setWmax(Math.min(dist, 1000));
 		
-		if (!requestSent) {
+		if (requestFuture == null) {
 			RequestId reqId = new RequestId();
 			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
 			LocalDateTime date = person.getContext().getTime().getCurrentDateTime();
@@ -86,28 +88,33 @@ public final class PlanJourney extends Activity {
 				// if (person.useFlexiBus())
 				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
-			person.getContext().getWorld().getUrbanMobilitySystem().addRequests(requests, person.getRequestBuffer());
-			requestSent = true;
+			requestFuture = person.getContext().getJourneyPlanner().requestSingleJourney(requests, person.getBuffer());
+			//person.getContext().getWorld().getUrbanMobilitySystem().addRequests(requests, person.getRequestBuffer());
+			//requestSent = true;
 			return deltaT;
 			
-		} else if (!person.getRequestBuffer().processed) {
+		} else if (!requestFuture.isDone() && (stepsWaited < 3)) {
+			stepsWaited++;
 			return deltaT;
-				
-		} else if (person.getRequestBuffer().buffer.size() == 0) {
-			// In case no trips were found, reset buffer
-			setFinished();
-			person.setPosition(destination);
-			return 0.0;
-				
+			
 		} else {
-			// In case FlexiBus was queried, unregister now
-			if (person.useFlexiBus()) {
-				person.getContext().getWorld().getUrbanMobilitySystem().unregister(person);
+			List<Itinerary> it = null;
+			
+			try {
+				it = requestFuture.get();
+				
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
 			}
 			
+			if (it == null || it.size() == 0)  {
+				// In case no trips were found, reset buffer.
+				setFinished();
+				person.setPosition(destination);
+				return 0.0;
+			}
 			// In case response was received, rank alternatives.
-			person.getFlow().addActivity(new FilterAlternatives(person, new ArrayList<Itinerary>(person.getRequestBuffer().buffer)));
-			person.getRequestBuffer().buffer.clear();
+			person.getFlow().addActivity(new RankAlternatives(person, it));
 			setFinished();
 			return 0.0;
 		}

@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="E1" xmlns:tns="http://das.fbk.eu/Ensemble" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+  <!--  DRONE D1 -->
+  <tns:role id="d1" type="D1">
+  	 <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+  	 <!--   Drone Equipment Fault Detected -->
+     <tns:solver name="S1-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to Ground Station --> 
+        <tns:issue>
+        <tns:issueType>GSDrone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    <!--   Drone Plan Changed -->
+     <tns:solver name="S2-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone1ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>
+    
+    
+     <!--   Drone Come Back at Ground Station-->
+     <tns:solver name="S3-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone1ComeBack</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>
+    
+     <!--   Drone TakePhoto -->
+     <tns:solver name="S3-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>TakePhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>
+   
+      <!--   <tns:solver name="S2-D1" selected="true">
+      <tns:issue>
+        <tns:issueType> AskDroneIntruderCheck</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>PhotoIntruder</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       <tns:issue>
+        <tns:issueType>NotifyGuard</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:issue>
+        <tns:issueType>WarningMessageToIntruder</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+
+    <tns:solver name="S3-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>PhotoIntruder</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S4-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S5-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGuard</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AdvertiseGuardForIntruder</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S6-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>StopDrone1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S7-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>LowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>NotifyGSLowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+   <tns:solver name="S8-D1" selected="true">
+      <tns:issue>
+        <tns:issueType>ComeBackHome</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    -->     
+   
+
+ <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>
+  
+  <!--  DRONE D2 -->
+  <tns:role id="d2" type="D2">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    <!--   Drone Equipment Fault Detected -->
+
+     <tns:solver name="S1-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to Ground Station --> 
+        <tns:issue>
+        <tns:issueType>GSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    <!--   Drone Plan Changed -->
+     <tns:solver name="S2-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone2ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>	
+    
+    <!--   Drone2 Come Back at Ground Station-->
+     <tns:solver name="S3-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>Drone2ComeBack</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+       </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>
+    
+    
+    <!--   Drone Light Area -->
+     <tns:solver name="S4-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>  
+      </tns:solution>
+    </tns:solver>
+    	
+	
+  <!--<tns:solver name="S2-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>PhotoIntruder</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    
+      <tns:solver name="S3-D2" selected="true">
+      <tns:issue>
+        <tns:issueType>StopDrone2</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>-->
+      <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>
+  
+   <!-- H1 (Ground Station) -->
+  <tns:role id="h1" type="H1">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    
+    <!--   Drone1 Equipment Fault Received -->
+     <tns:solver name="S1-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>M1Drone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+     <tns:solver name="S2-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>Drone1ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+   <tns:solver name="S3-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        
+        <tns:issue>
+        <tns:issueType>AskGS1Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>   
+     <!--   Drone2 Equipment Fault Received -->
+     <tns:solver name="S4-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to the Mantainer --> 
+        <tns:issue>
+        <tns:issueType>M1Drone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S5-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to the Mantainer --> 
+       <tns:issue>
+        <tns:issueType>AskGSHelp</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    
+    <tns:solver name="S6-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>GSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to the Mantainer --> 
+        <tns:issue>
+        <tns:issueType>Drone2ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    
+   
+    <!-- help request from another Ensembles and replan Drone3 automatically -->
+    <tns:solver name="S7-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>ShareH1Drone</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <!-- communicate to the Mantainer --> 
+        <tns:issue>
+        <tns:issueType>Drone1ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+    
+    <tns:solver name="S8-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneIntruderCheck</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+       <tns:issue>
+        <tns:issueType>TakePhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       <tns:issue>
+        <tns:issueType>NotifyGuard1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+   
+    
+    
+     <tns:solver name="S8-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneToH1ForLightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+       <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S9-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneToH1ForLightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+       <tns:issue>
+        <tns:issueType>LightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       
+      </tns:solution>
+    </tns:solver>
+     <tns:solver name="S10-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>E1ShareDroneForPhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+       <tns:issue>
+        <tns:issueType>TakePhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       
+      </tns:solution>
+    </tns:solver>
+    
+   
+    
+
+   <!-- <tns:solver name="S2-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGSDrone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>StopDrone1toM1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S3-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskCSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S4-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGSDrone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>    
+        <tns:issue>
+        <tns:issueType>StopDrone2toM1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+     <tns:solver name="S5-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGSCameraFault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskM1CameraFault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+    
+    <tns:solver name="S6-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGSLowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskM1LowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>
+    
+       <tns:solver name="S7-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGSLowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskGLowBattery</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+        
+      </tns:solution>
+    </tns:solver>-->
+    
+    
+    
+   
+  
+    
+    <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>
+  
+  
+  <!--  MAINTAINER M1 -->
+  <tns:role id="m1" type="M1">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    
+    <tns:solver name="S1-M1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskM1CameraFault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S2-M1" selected="true">
+      <tns:issue>
+        <tns:issueType>M1Drone1Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>Drone1ComeBack</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       <tns:issue>
+        <tns:issueType>Drone2ChangePlan</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S3-M1" selected="true">
+      <tns:issue>
+        <tns:issueType>M1Drone2Fault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>Drone2ComeBack</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+
+     <tns:preferences>NMTOKEN</tns:preferences>
+    </tns:role>
+    
+    <!--  CAMERA C1 -->
+  <tns:role id="c1" type="C1">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    <tns:solver name="S1-C1" selected="true">
+      <tns:issue>
+        <tns:issueType>CameraFault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskGSCameraFault</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+    
+     <tns:solver name="S2-C1" selected="true">
+      <tns:issue>
+        <tns:issueType>IntruderDetected</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+        <tns:issue>
+        <tns:issueType>AskDroneIntruderCheck</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver>
+     <tns:preferences>NMTOKEN</tns:preferences>
+    </tns:role>
+    
+  
+    
+    
+  
+  <tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

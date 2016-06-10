@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="CPRideB" xmlns:tns="http://das.fbk.eu/Ensemble"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+
+<!-- Driver CPB -->
+<tns:role id="CPDriver_B" type="CPDriver_B">
+		<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+        <tns:solver name="AskDriverB" selected="true">
+			<tns:issue>
+				<tns:issueType>AskDriverB</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+			</tns:solution>
+		</tns:solver>
+		
+		<tns:solver name="NotifyDriverB" selected="true">
+			<tns:issue>
+				<tns:issueType>NotifyDriverB</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+			</tns:solution>
+		</tns:solver>
+		
+		
+		
+		
+	</tns:role>
+
+	
+
+	<!-- CP PASSENGER P3 -->
+	<tns:role id="CPPassenger_3" type="CPPassenger_3">
+		<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+	
+	</tns:role>
+	<tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

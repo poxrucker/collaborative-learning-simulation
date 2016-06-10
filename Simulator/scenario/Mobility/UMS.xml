@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="UMS" xmlns:tns="http://das.fbk.eu/Ensemble"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+
+<!-- CP Manager -->
+<tns:role id="CPManager" type="CPManager">
+<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+
+		
+<tns:solver name="AskCPManager" selected="true">
+      <tns:issue>
+        <tns:issueType>AskCPManager</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      <tns:issue>
+        <tns:issueType>CPSolutionsCalculated</tns:issueType>
+        <tns:issueCondition>Exist</tns:issueCondition>
+      </tns:issue>
+     </tns:solution>
+     </tns:solver>  
+		
+</tns:role>
+	
+<!--  Flexi Bus Company -->
+<tns:role id="FBC" type="FBC">
+<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+
+   
+     <tns:solver name="DriversStrike" selected="true">
+      <tns:issue>
+        <tns:issueType>DriversStrike</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      <tns:issue>
+        <tns:issueType>AskCPManager</tns:issueType>
+        <tns:issueCondition>Exist</tns:issueCondition>
+      </tns:issue>
+     </tns:solution>
+     </tns:solver>  
+
+</tns:role>
+    	
+	
+
+
+	<tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

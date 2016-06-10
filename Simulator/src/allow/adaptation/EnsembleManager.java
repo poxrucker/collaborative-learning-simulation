@@ -1,6 +1,5 @@
 package allow.adaptation;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,17 +24,17 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraph.mxICellVisitor;
 
-import eu.fbk.das.adaptation.ahp.Ranking;
-import eu.fbk.das.adaptation.api.CollectiveAdaptationProblem;
-import eu.fbk.das.adaptation.api.CollectiveAdaptationSolution;
-import eu.fbk.das.adaptation.ensemble.Analyzer;
-import eu.fbk.das.adaptation.ensemble.Ensemble;
-import eu.fbk.das.adaptation.ensemble.Role;
-import eu.fbk.das.adaptation.model.IssueCommunication;
-import eu.fbk.das.adaptation.model.IssueResolution;
-import eu.fbk.das.adaptation.presentation.CATree;
-import eu.fbk.das.adaptation.presentation.CAWindow;
-import eu.fbk.das.adaptation.utils.UtilityManager;
+import allow.adaptation.ahp.Ranking;
+import allow.adaptation.api.CollectiveAdaptationProblem;
+import allow.adaptation.api.CollectiveAdaptationSolution;
+import allow.adaptation.ensemble.Analyzer;
+import allow.adaptation.ensemble.Ensemble;
+import allow.adaptation.ensemble.Role;
+import allow.adaptation.model.IssueCommunication;
+import allow.adaptation.model.IssueResolution;
+import allow.adaptation.presentation.CATree;
+import allow.adaptation.presentation.CAWindow;
+import allow.adaptation.utils.UtilityManager;
 
 public class EnsembleManager {
     private static int distance = 0;

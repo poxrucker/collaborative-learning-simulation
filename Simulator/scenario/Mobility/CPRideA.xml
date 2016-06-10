@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="CPRideA" xmlns:tns="http://das.fbk.eu/Ensemble"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+
+<!-- Driver CPA -->
+<tns:role id="CPDriver_A" type="CPDriver_A">
+		<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+		
+		
+		<tns:solver name="AskDriverA" selected="true">
+			<tns:issue>
+				<tns:issueType>AskDriverA</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+			</tns:solution>
+		</tns:solver>
+		
+			<tns:solver name="NotifyDriverA" selected="true">
+			<tns:issue>
+				<tns:issueType>NotifyDriverA</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+			</tns:solution>
+		</tns:solver>
+		
+	
+
+	</tns:role>
+
+
+	<!-- CP PASSENGER P1 -->
+	<tns:role id="CPPassenger_1" type="CPPassenger_1">
+		<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+	
+		
+		<tns:solver name="CPAPassengerDelay" selected="true">
+			<tns:issue>
+				<tns:issueType>CPAPassengerDelay</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+				<tns:issue>
+					<tns:issueType>AskRideB</tns:issueType>
+					<tns:issueCondition>Exist</tns:issueCondition>
+				</tns:issue>
+				<tns:issue>
+					<tns:issueType>NotifyDriverA</tns:issueType>
+					<tns:issueCondition>Exist</tns:issueCondition>
+				</tns:issue>
+			</tns:solution>
+		</tns:solver>
+		
+		
+		</tns:role>
+	
+	
+
+
+	<tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

@@ -1,0 +1,9 @@
+<tns:ensemble name="RouteA" xmlns:tns="http://das.fbk.eu/Ensemble"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd">
+	<tns:domainObjectType>RouteManager_A</tns:domainObjectType>
+	<tns:domainObjectType>FlexibusDriver_A</tns:domainObjectType>
+	<tns:domainObjectType>RoutePassenger_1</tns:domainObjectType>
+	<tns:domainObjectType>RoutePassenger_2</tns:domainObjectType>
+	<tns:domainObjectType>RoutePassenger_3</tns:domainObjectType>
+</tns:ensemble>

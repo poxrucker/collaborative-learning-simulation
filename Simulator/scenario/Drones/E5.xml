@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="E5" xmlns:tns="http://das.fbk.eu/Ensemble" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+  <!--  GUARD G1 -->
+  <tns:role id="g1" type="G1">
+  	 <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+     <tns:solver name="S1-G1" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGuard1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+
+ <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>
+  
+    <!--  GUARD G2 -->
+  <tns:role id="g2" type="G2">
+  	 <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+     <tns:solver name="S1-G2" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGuard2</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+
+ <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>
+  
+   
+   <!--  GUARD G3 -->
+  <tns:role id="g3" type="G3">
+  	 <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+     <tns:solver name="S1-G3" selected="true">
+      <tns:issue>
+        <tns:issueType>NotifyGuard3</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+    
+    <tns:solver name="S2-G3" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGuardSupport</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+      </tns:solution>
+    </tns:solver>
+ <tns:preferences>NMTOKEN</tns:preferences>
+  </tns:role>  
+	
+	
+  
+
+  <tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="CPCompany" xmlns:tns="http://das.fbk.eu/Ensemble"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+
+<!-- Driver CPA -->
+<tns:role id="CPDriver_A" type="CPDriver_A">
+	<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+
+</tns:role>
+	
+<!-- Driver CPB -->
+<tns:role id="CPDriver_B" type="CPDriver_B">
+	<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+
+		<tns:solver name="AddPassengerFromA" selected="true">
+			<tns:issue>
+				<tns:issueType>AddPassengerFromA</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+				<tns:issue>
+					<tns:issueType>NotifyDriverB</tns:issueType>
+					<tns:issueCondition>Exist</tns:issueCondition>
+				</tns:issue>
+			</tns:solution>
+		</tns:solver>
+</tns:role>
+	
+	
+<!-- CP Manager -->
+<tns:role id="CPManager" type="CPManager">
+	<tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+	
+	<tns:solver name="AskRideB" selected="true">
+			<tns:issue>
+				<tns:issueType>AskRideB</tns:issueType>
+				<tns:issueCondition></tns:issueCondition>
+			</tns:issue>
+			<tns:solverCondition></tns:solverCondition>
+			<tns:solution name="SOL1">
+				<tns:internalSolution>Nothing</tns:internalSolution>
+				<tns:issue>
+					<tns:issueType>AddPassengerFromA</tns:issueType>
+					<tns:issueCondition>Exist</tns:issueCondition>
+				</tns:issue>
+			</tns:solution>
+		</tns:solver>
+		
+
+	
+</tns:role>
+	
+	
+	
+<tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ensemble name="E4" xmlns:tns="http://das.fbk.eu/Ensemble" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://das.fbk.eu/Ensemble Ensemble.xsd ">
+ 
+   <!-- Ground Station H1  -->
+  <tns:role id="h1-E4" type="H1-E4">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    <tns:solver name="S1-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS1Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH2</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    <tns:solver name="S2-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS1Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH3</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    <tns:solver name="S3-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneToH1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>ShareH1Drone</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    <tns:solver name="S4-H1" selected="true">
+      <tns:issue>
+        <tns:issueType>AskOtherDroneForLigthArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH1ForLightArea</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    
+    ,
+    
+    
+    <tns:preferences>NMTOKEN</tns:preferences>
+    </tns:role>
+
+    
+       <!-- Ground Station H2  -->
+  <tns:role id="h2-E4" type="H2-E4">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    <tns:solver name="S1-H2" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS2Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+ 
+     <tns:solver name="S2-H2" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS2Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH3</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    
+      <tns:solver name="S3-H2" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneToH2</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>ShareH2Drone</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    
+    <tns:solver name="S4-H2" selected="true">
+      <tns:issue>
+        <tns:issueType>AskOtherDrones</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+       <tns:issue>
+        <tns:issueType>AskDroneToH3</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+   
+    <tns:preferences>NMTOKEN</tns:preferences>
+    </tns:role>
+    
+    
+  <!-- Ground Station H3  -->
+  <tns:role id="h3-E4" type="H3-E4">
+    <tns:domainObjectType>tns:domainObjectType</tns:domainObjectType>
+    <tns:solver name="S1-H3" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS3Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH1</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+ 
+     <tns:solver name="S2-H3" selected="true">
+      <tns:issue>
+        <tns:issueType>AskGS3Help</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>AskDroneToH2</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    
+      <tns:solver name="S2-H3" selected="true">
+      <tns:issue>
+        <tns:issueType>AskDroneToH3</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>ShareH3Drone</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    <tns:solver name="S3-H3" selected="true">
+      <tns:issue>
+        <tns:issueType>AskOtherDroneForPhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      <tns:solverCondition></tns:solverCondition>
+      <tns:solution name="SOL">
+        <tns:internalSolution>internalSolution</tns:internalSolution>
+         <tns:issue>
+        <tns:issueType>E1ShareDroneForPhoto</tns:issueType>
+        <tns:issueCondition></tns:issueCondition>
+      </tns:issue>
+      </tns:solution>
+    </tns:solver> 
+    
+    
+    
+    
+    <tns:preferences>NMTOKEN</tns:preferences>
+    </tns:role>
+    
+    
+   
+  <tns:variable>NMTOKEN</tns:variable>
+</tns:ensemble>

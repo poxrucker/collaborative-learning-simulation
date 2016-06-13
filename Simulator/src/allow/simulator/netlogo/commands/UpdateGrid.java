@@ -13,7 +13,7 @@ public class UpdateGrid extends DefaultCommand {
 
 	@Override
 	public void perform(Argument[] arg0, Context arg1) throws ExtensionException, LogoException {
-		NetLogoWorld world = (NetLogoWorld) Simulator.Instance().getWorld();
+		NetLogoWorld world = (NetLogoWorld) Simulator.Instance().getContext().getWorld();
 		world.updateGrid();
 	}
 

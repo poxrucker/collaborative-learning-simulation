@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.entity.Person;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
@@ -106,6 +105,9 @@ public final class TaxiPlanner implements IPlannerService {
 		ret.to = taxiLeg.to;
 		ret.transfers = 1;
 		ret.transitTime = ret.duration;
+		ret.itineraryType = Itinerary.getItineraryType(ret);
+		ret.waitingTime = (long) (0.001 * (legs.get(0).endTime - legs.get(0).startTime));
+		ret.initialWaitingTime = ret.waitingTime;
 		return ret;
 	}
 	
@@ -182,7 +184,8 @@ public final class TaxiPlanner implements IPlannerService {
 			current.routeId = agencyId + "_route";
 			current.tripId = tripId;
 			current.stopIdTo = tripId + "_" + (i + 1);
-			
+			current.costs = current.distance * 0.001;
+			current.mode = TType.TAXI;
 			if (i == 0)
 				continue;
 			Leg previous = ret.get(i - 1);
@@ -197,14 +200,14 @@ public final class TaxiPlanner implements IPlannerService {
 	private Leg createLeg(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
 		LocalTime t = req2.ArrivalTime != null ? req2.ArrivalTime : req2.DepartureTime;
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, t), false, false, new TType[] { TType.CAR }, reqId);
+		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, t), false, new TType[] { TType.CAR }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {
 			
-			if ((it.itineraryType == 0) && (it.legs.size() == 1)) {
+			if ((it.itineraryType == TType.CAR) && (it.legs.size() == 1)) {
 				candidateIt = it;
 				break;
 			}

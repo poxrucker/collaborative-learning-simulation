@@ -4,7 +4,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
-public class Replan extends Activity {
+public final class Replan extends Activity {
 
 	public Replan(Person p) {
 		super(ActivityType.REPLAN, p);

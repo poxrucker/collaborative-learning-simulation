@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
-import allow.simulator.entity.UrbanMobilitySystem;
 
 /**
  * Abstract class representing a simulated world.
@@ -136,15 +135,5 @@ public abstract class World implements IWorld {
 	@Override
 	public WorldTransformation getTransformation() {
 		return transformation;
-	}
-	
-	@Override
-	public UrbanMobilitySystem getUrbanMobilitySystem() {
-		Collection<Entity> planners = entities.get(EntityType.URBANMOBILITYSYSTEM).values();
-		
-		if (planners.isEmpty()) {
-			return null;
-		}
-		return (UrbanMobilitySystem) planners.iterator().next();
 	}
 }

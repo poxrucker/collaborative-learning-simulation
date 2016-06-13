@@ -2,6 +2,7 @@ package allow.simulator.entity;
 
 import java.time.LocalTime;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -11,7 +12,6 @@ import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.UtilityWithoutPreferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.mobility.planner.Itinerary;
-import allow.simulator.mobility.planner.RequestBuffer;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.world.layer.Area;
@@ -50,9 +50,6 @@ public final class Person extends Entity {
 	// True, if person will send requests to the FlexiBus planner, false otherwise.
 	private boolean useFlexiBus;
 	
-	// Request buffer for more efficient journey planning.
-	private RequestBuffer requestBuffer;
-	
 	// Daily routine of this person, i.e. set of travelling events which are
 	// executed regularly on specific days, e.g. going to work on back from 
 	// Mo to Fri.
@@ -69,6 +66,9 @@ public final class Person extends Entity {
 	// Determines if person is replanning.
 	@JsonIgnore
 	private boolean isReplanning;
+	
+	@JsonIgnore
+	private List<Itinerary> buffer;
 	
 	// Indicates whether a person used her car during the current travelling
 	// cycle which forbids replanning a journey with own car.
@@ -115,7 +115,7 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		requestBuffer = new RequestBuffer();
+		buffer = new ArrayList<Itinerary>(8);
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -158,7 +158,7 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		requestBuffer = new RequestBuffer();
+		buffer = new ArrayList<Itinerary>(8);
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -221,6 +221,10 @@ public final class Person extends Entity {
 	
 	public String getHomeArea() {
 		return homeAreaName;
+	}
+	
+	public List<Itinerary> getBuffer() {
+		return buffer;
 	}
 	
 	/**
@@ -356,11 +360,6 @@ public final class Person extends Entity {
 	@JsonIgnore
 	public boolean isAtHome() {
 		return home.equals(position);
-	}
-	
-	@JsonIgnore
-	public RequestBuffer getRequestBuffer() {
-		return requestBuffer;
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
-import allow.simulator.mobility.planner.OTPJourneyPlanner;
+import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -55,7 +55,7 @@ public class Main {
 			this.idxEnd = idxEnd;
 			this.map = map;
 			this.latch = latch;
-			service = new OTPJourneyPlanner("localhost", 8020);
+			service = new OTPPlanner("localhost", 8020);
 		}
 
 		@Override
@@ -159,7 +159,7 @@ public class Main {
 		
 		// Request transit journeys.
 		JourneyRequest s = JourneyRequest.createRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
-				event.arriveBy(), false, transitJourney, reqId);
+				event.arriveBy(), transitJourney, reqId);
 		s.MaximumWalkDistance = 500;
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(s, temp);

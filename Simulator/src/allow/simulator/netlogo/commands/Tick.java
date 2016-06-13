@@ -18,9 +18,6 @@ public class Tick extends DefaultReporter {
 		// Get deltaT.
 		int deltaT = args[0].getIntValue();
 		
-		// Smart Planner execution.
-		Simulator.Instance().getContext().getWorld().getUrbanMobilitySystem().getFlow().executeActivity(Simulator.Instance().getContext().getTime().getDeltaT());
-		
 		// Update simulator.
 		Simulator.Instance().tick(deltaT);
 		

@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
+public final class OTPPlanner extends AbstractOTPPlanner {
 	// Client to send requests.
 	private final HttpClient client;
 
@@ -59,7 +59,7 @@ public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
 	 * @param host Host running OpenTripPlanner service
 	 * @param port Port of OpenTripPlanner service
 	 */
-	public OTPJourneyPlanner(String host, int port) {
+	public OTPPlanner(String host, int port) {
 		this(host, port, null, null, null);
 	}
 
@@ -74,7 +74,7 @@ public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
 	 * @param map Streetmap to map returned traces to
 	 * @param dataService Service providing routing between bus stops
 	 */
-	public OTPJourneyPlanner(String host, int port, StreetMap map, IDataService dataService, Time time) {
+	public OTPPlanner(String host, int port, StreetMap map, IDataService dataService, Time time) {
 		target = new HttpHost(host, port, "http");
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", port, PlainSocketFactory.getSocketFactory()));
@@ -117,17 +117,16 @@ public final class OTPJourneyPlanner extends AbstractOTPJourneyPlanner {
 
 			for (Iterator<JsonNode> jt = it.elements(); jt.hasNext();) {
 				JsonNode next = jt.next();
-				Itinerary nextIt = parseItinerary(next, request.isTaxiRequest);
+				Itinerary nextIt = parseItinerary(next);
 				nextIt.from = request.From;
 				nextIt.to = request.To;
-				nextIt.reqId = request.reqId;
-				nextIt.reqNumber = request.reqNumber;
+				nextIt.reqId = request.ReqId;
+				nextIt.reqNumber = request.ReqNumber;
 				
 				for (Leg l : nextIt.legs) {
 					mapTracesToStreets(l);
 				}
 				nextIt.initialWaitingTime = Math.max((nextIt.startTime - time.getTimestamp()) / 1000, 0);
-				nextIt.isTaxiItinerary = request.isTaxiRequest;
 				itineraries.add(nextIt);
 			}
 			

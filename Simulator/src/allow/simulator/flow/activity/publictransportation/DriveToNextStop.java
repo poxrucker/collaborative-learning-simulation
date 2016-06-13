@@ -6,7 +6,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.knowledge.Experience;
 import allow.simulator.entity.knowledge.TravelExperience;
-import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
@@ -27,7 +27,7 @@ public class DriveToNextStop extends MovementActivity {
 	
 	public DriveToNextStop(PublicTransportation entity, List<Street> path) {
 		// Constructor of super class.
-		super(Activity.Type.DRIVE_TO_NEXT_STOP, entity, path);
+		super(ActivityType.DRIVE_TO_NEXT_STOP, entity, path);
 		
 		if (!path.isEmpty()) {
 			currentSegment.addVehicle();

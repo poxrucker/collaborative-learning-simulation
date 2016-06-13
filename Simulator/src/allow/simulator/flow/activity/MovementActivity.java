@@ -44,7 +44,7 @@ public abstract class MovementActivity extends Activity {
 	 * @param entity Entity executing the Activity (i.e. the entity to move).
 	 * @param polyline Path to move along.
 	 */
-	protected MovementActivity(Type type, Entity entity, List<Street> polyLine) {
+	protected MovementActivity(ActivityType type, Entity entity, List<Street> polyLine) {
 		// Call constructor of superclass specifying type of activity and entity. 
 		super(type, entity);
 		this.path = polyLine;

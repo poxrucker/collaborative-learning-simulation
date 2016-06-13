@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.TaxiStop;
 
 public class PickupOrDrop extends Activity {
@@ -16,7 +17,7 @@ public class PickupOrDrop extends Activity {
 	private boolean approached;
 
 	public PickupOrDrop(Taxi taxi, TaxiStop stop, LocalTime stopTime) {
-		super(Activity.Type.PICK_UP_OR_DROP, taxi);
+		super(ActivityType.PICK_UP_OR_DROP, taxi);
 		this.stop = stop;
 		this.stopTime = stopTime;
 	}

@@ -6,7 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.knowledge.Experience;
 import allow.simulator.entity.knowledge.TravelExperience;
 import allow.simulator.entity.relation.Relation;
-import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
@@ -29,7 +29,7 @@ public final class Cycle extends MovementActivity {
 	 * @param path The path to cycle.
 	 */
 	public Cycle(Person entity, List<Street> path) {
-		super(Activity.Type.CYCLE, entity, path);
+		super(ActivityType.CYCLE, entity, path);
 	}
 	
 	@Override
@@ -126,58 +126,8 @@ public final class Cycle extends MovementActivity {
 		}
 		return deltaT;
 	}
-	/*private double travel(double travelTime) {
-		double deltaT = 0.0;
-		
-		while (deltaT < travelTime && !isFinished()) {
-			// Get current state.
-			StreetSegment s = getCurrentSegment();
-			double v = s.getCyclingSpeed();
-			Coordinate p = getCurrentPosition();
-			
-			// Compute distance to next segment (i.e. end of current segment).
-			double distToNextSeg = Geometry.haversine(p, s.getEndPoint());
-			
-			// Compute distance to travel within deltaT seconds.
-			double distToTravel = (travelTime - deltaT) * v;
-					
-			if (distToTravel >= distToNextSeg) {
-				// If distance to travel is bigger than distance to next segment,
-				// a new log entry needs to be created.
-				double tNextSegment = distToNextSeg / v;
-				
-				double sumTravelTime = segmentTravelTime + tNextSegment;
-				tEnd = tStart + (long) sumTravelTime;
-				Experience newEx = new TravelExperience(s,
-						sumTravelTime,
-						s.getLength() * 0.000005,
-						TType.BICYCLE, 
-						tStart,
-						tEnd,
-						s.getNumberOfVehicles(),
-						0,
-						null,
-						entity.getContext().getWeather().getCurrentState());
-				experiences.add(newEx);
-				segmentTravelTime = 0.0;
-				distOnSeg = 0.0;
-				tStart = tEnd;
-				deltaT += tNextSegment;
-				distanceIndex++;
-				
-			} else {
-				// If distance to next segment is bigger than distance to travel,
-				// update time on segment, travelled distance, and reset deltaT.
-				segmentTravelTime += (travelTime - deltaT);
-				distOnSeg += distToTravel;
-				deltaT += (travelTime - deltaT);
-			}
-			if (experiences.size() == path.size())
-				setFinished();
-		}
-		return deltaT;
-	}*/
 	
+	@Override
 	public String toString() {
 		return "Cycle " + entity;
 	}

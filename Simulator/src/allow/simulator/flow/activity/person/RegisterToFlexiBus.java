@@ -6,6 +6,7 @@ import java.time.LocalTime;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 
 public final class RegisterToFlexiBus extends Activity {
@@ -25,7 +26,7 @@ public final class RegisterToFlexiBus extends Activity {
 	 * @param person Person to register.
 	 */
 	public RegisterToFlexiBus(Person entity, Coordinate start, Coordinate dest, LocalTime earliestStartingTime) {
-		super(Activity.Type.REGISTER_TO_FLEXIBUS, entity);
+		super(ActivityType.REGISTER_TO_FLEXIBUS, entity);
 		this.start = start;
 		this.destination = dest;
 		this.earliestStartingTime = earliestStartingTime;
@@ -35,7 +36,7 @@ public final class RegisterToFlexiBus extends Activity {
 	public double execute(double deltaT) {
 		Person p = (Person) entity;
 		LocalDate d = p.getContext().getTime().getCurrentDateTime().toLocalDate();
-		p.getContext().getWorld().getUrbanMobilitySystem().register(p, start, destination, LocalDateTime.of(d, earliestStartingTime));
+		//p.getContext().getWorld().getUrbanMobilitySystem().register(p, start, destination, LocalDateTime.of(d, earliestStartingTime));
 		setFinished();
 		return deltaT;
 	}

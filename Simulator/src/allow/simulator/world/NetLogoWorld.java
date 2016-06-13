@@ -17,7 +17,7 @@ import org.nlogo.agent.Turtle;
 import org.nlogo.api.AgentException;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.flow.activity.Activity.Type;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 import allow.simulator.netlogo.agent.NetLogoAgent;
 import allow.simulator.util.Coordinate;
@@ -204,10 +204,10 @@ public class NetLogoWorld extends World {
 			
 			if (temp.getEntity().isActive() 
 					&& !temp.getEntity().getFlow().isIdle()
-					&& (temp.getEntity().getFlow().getCurrentActivity().getType() == Type.DRIVE
-						|| temp.getEntity().getFlow().getCurrentActivity().getType() == Type.WALK
-						|| temp.getEntity().getFlow().getCurrentActivity().getType() == Type.CYCLE
-						|| temp.getEntity().getFlow().getCurrentActivity().getType() == Type.USE_PUBLIC_TRANSPORT)
+					&& (temp.getEntity().getFlow().getCurrentActivity().getType() == ActivityType.DRIVE
+						|| temp.getEntity().getFlow().getCurrentActivity().getType() == ActivityType.WALK
+						|| temp.getEntity().getFlow().getCurrentActivity().getType() == ActivityType.CYCLE
+						|| temp.getEntity().getFlow().getCurrentActivity().getType() == ActivityType.USE_PUBLIC_TRANSPORT)
 					&& (temp.getEntity().getId() != entity.getId())
 					&& (Geometry.haversineDistance(entity.getPosition(), temp.getEntity().getPosition()) <= distance)) {
 				buffer.add(temp.getEntity());

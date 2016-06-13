@@ -16,15 +16,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.entity.Person.Gender;
-import allow.simulator.entity.Person.Profile;
 import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.UtilityWithoutPreferences;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
-import allow.simulator.mobility.planner.OnlineJourneyPlanner;
+import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -57,7 +55,7 @@ public class Main {
 			this.idxEnd = idxEnd;
 			this.map = map;
 			this.latch = latch;
-			service = new OnlineJourneyPlanner("localhost", 8020, Paths.get("temp"));
+			service = new OTPPlanner("localhost", 8020);
 		}
 
 		@Override
@@ -161,7 +159,7 @@ public class Main {
 		
 		// Request transit journeys.
 		JourneyRequest s = JourneyRequest.createRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
-				event.arriveBy(), transitJourney, null, reqId);
+				event.arriveBy(), transitJourney, reqId);
 		s.MaximumWalkDistance = 500;
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(s, temp);

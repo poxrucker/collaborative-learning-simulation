@@ -27,7 +27,7 @@ public class GetRegions extends DefaultReporter
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		LogoListBuilder bldr = new LogoListBuilder();
-		StreetMap map = Simulator.Instance().getWorld().getStreetMap();
+		StreetMap map = Simulator.Instance().getContext().getWorld().getStreetMap();
 		
 		if (map == null) 
 			throw new ExtensionException("Error: Simulator is not initialized.");
@@ -59,7 +59,7 @@ public class GetRegions extends DefaultReporter
 			LogoListBuilder bldr2 = new LogoListBuilder();
 			bldr2.add(area);
 			System.out.println(centers.get(area));
-			Coordinate center = Simulator.Instance().getWorld().getTransformation().GISToNetLogo(centers.get(area));
+			Coordinate center = Simulator.Instance().getContext().getWorld().getTransformation().GISToNetLogo(centers.get(area));
 			bldr2.add(center.x);
 			bldr2.add(center.y);
 			

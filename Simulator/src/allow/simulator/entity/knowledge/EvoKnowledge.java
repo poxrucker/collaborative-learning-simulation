@@ -1,12 +1,5 @@
 package allow.simulator.entity.knowledge;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,33 +29,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  *
  */
 public class EvoKnowledge {
-	// Writer to log entity specific movement information.
-	private static BufferedWriter loggerMovement;
-	private static final String MOVEMENT_FORMAT = "LOG_TIMESTAMP,ENTITY,SEGMENT_ID,POSITION_START,POSITION_END,TIME_START,TIME_END,COSTS,TRAVEL_TIME,MODE,N_PEOPLE,WEATHER";
 	
-	// Writer to log information about entities in busses etc.
-	private static BufferedWriter loggerStop;
-	private static final String STOP_FORMAT = "LOG_TIMESTAMP,ENTITY,PASSENGERS,STOP_ID,STOP_POSITION,TIME_ARRIVAL,TIME_DEPARTURE,WEATHER";
-	
-	private static BufferedWriter loggerUtility;
-	private static final String UTILITY_FORMAT = "LOG_TIMESTAMP,ENTITY,REQ_ID,REQ_NUMBER,ESTIMATED_UTILITY,ACTUAL_UTILITY";
-
 	private static Queue<Pair<Entity, List<Itinerary>>> predictBuffer;
 	private static List<Worker> tasks;
 	private static WorkerPool workerPool;
 	private static ExecutorService service;
-	
-	static {
-		
-		try {
-			loggerMovement = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("movement_logs")));
-			loggerStop = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("stop_logs")));
-			loggerUtility = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("utility_logs")));
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public static void initialize(EvoKnowledgeConfiguration config, String knowledgeModel, String prefix, ExecutorService service) {
 		DBConnector.init(config, knowledgeModel, prefix);
@@ -71,22 +42,7 @@ public class EvoKnowledge {
 		workerPool = new WorkerPool(128);
 		EvoKnowledge.service = service;
 	}
-	
-	public static void setLoggerDirectory(Path file) throws IOException {
-		loggerMovement = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(file.toString(), "movement_logs").toFile())));
-		loggerMovement.write(MOVEMENT_FORMAT);
-		loggerMovement.newLine();
-		loggerMovement.flush();
-		loggerStop = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(file.toString(), "stop_logs").toFile())));
-		loggerStop.write(STOP_FORMAT);
-		loggerStop.newLine();
-		loggerStop.flush();
-		loggerUtility = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(file.toString(), "utility_logs").toFile())));
-		loggerUtility.write(UTILITY_FORMAT);
-		loggerUtility.newLine();
-		loggerUtility.flush();
-	}
-	
+
 	// Entity this knowledge instance belongs to.
 	@JsonBackReference
 	private Entity entity; 
@@ -136,11 +92,6 @@ public class EvoKnowledge {
 		}
 	}
 	
-	/*private static final double CAR_PREFERENCE_CHANGE_THRESHOLD1 = 600;
-	private static final double CAR_PREFERENCE_CHANGE_STEP1 = 0.02;
-	private static final double BUS_PREFERENCE_CHANGE_THRESHOLD = 1.0;
-	private static final double BUS_PREFERENCE_CHANGE_STEP = 0.06;*/
-	
 	private static final double CAR_PREFERENCE_CHANGE_THRESHOLD1 = 600;
 	private static final double CAR_PREFERENCE_CHANGE_THRESHOLD2 = 1200;
 	private static final double CAR_PREFERENCE_CHANGE_THRESHOLD3 = 1800;
@@ -182,7 +133,8 @@ public class EvoKnowledge {
 
 			switch (it.itineraryType) {
 			
-				case 0:
+				case CAR:
+				case TAXI:
 					double actualCarTravelTime = summary.travelTime + it.initialWaitingTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);
 					p.getContext().getStatistics().reportPriorAndPosteriorUtilityCar(it.utility, summary.utility);
@@ -206,16 +158,9 @@ public class EvoKnowledge {
 					// Reduce experienced bus filling level
 					double prevFillingLevel = p.getPreferences().getLastExperiencedBusFillingLevel();
 					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel - 0.2, 0));
-					
-					/*if (it.isTaxiItinerary) {
-						p.getContext().getStatistics().reportTaxiJourney();
-						
-					} else {
-						p.getContext().getStatistics().reportCarJourney();
-					}*/
 					break;
 				
-				case 1:
+				case BUS:
 					double actualBusTravelTime = summary.travelTime + it.initialWaitingTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorTransitTravelTimes(estimatedTravelTime, actualBusTravelTime);
 					p.getContext().getStatistics().reportPriorAndPosteriorUtilityBus(p.getCurrentItinerary().utility, summary.utility);
@@ -237,30 +182,25 @@ public class EvoKnowledge {
 					/*if (fillingLevel > BUS_PREFERENCE_CHANGE_THRESHOLD1) {
 						p.getPreferences().setBusPreference(busPreference - fillingLevel * BUS_PREFERENCE_CHANGE_STEP1);
 					}*/
-					//p.getContext().getStatistics().reportTransitJourney();
-
 					break;
 					
-				case 2:
+				case BICYCLE:
+				case SHARED_BICYCLE:
 					double actualBikeTravelTime = summary.travelTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorBikeTravelTimes(estimatedTravelTime, actualBikeTravelTime);
 					
 					// Reduce experienced bus filling level
 					double prevFillingLevel2 = p.getPreferences().getLastExperiencedBusFillingLevel();
 					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel2 - 0.2, 0));
-					// p.getContext().getStatistics().reportBikeJourney();
-
 					break;
 					
-				case 3:
+				case WALK:
 					double actualWalkTravelTime = summary.travelTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorWalkTravelTimes(estimatedTravelTime, actualWalkTravelTime);
 					
 					// Reduce experienced bus filling level
 					double prevFillingLevel3 = p.getPreferences().getLastExperiencedBusFillingLevel();
 					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel3 - 0.2, 0));
-					// p.getContext().getStatistics().reportWalkJourney();
-
 					break;
 					
 				default:
@@ -286,121 +226,9 @@ public class EvoKnowledge {
 			}
 			p.setCurrentItinerary(null);*/
 		}
-
-		// Logging.
-		/*try {
-
-			for (TravelExperience experience : travelExperienceBuffer) {
-				logMovement(currentTime, entity, experience);
-			}
-			
-			for (StopExperience experience : stopExperienceBuffer) {
-				logStopInformation(currentTime, entity, (StopExperience) experience);
-			}
-				
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
 		clear();
 		return true;
 	}
-	
-	/*public boolean learn() {
-		long currentTime = System.currentTimeMillis();
-
-		// Handle statistics learning.
-		if (entity instanceof Person) {
-			Person p = (Person) entity;
-			ExperienceSummary summary = createSummary(p.getCurrentItinerary(), experienceBuffer);
-			double estimatedTravelTime = p.getCurrentItinerary().duration - p.getCurrentItinerary().waitingTime;
-
-			switch (p.getCurrentItinerary().itineraryType) {
-			
-				case 0:
-					double actualCarTravelTime = summary.travelTime;
-					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);
-					double carPreference = p.getPreferences().getCarPreference();
-					double delay = actualCarTravelTime - estimatedTravelTime;
-					
-					if (delay > CAR_PREFERENCE_CHANGE_THRESHOLD) {
-						p.getPreferences().setCarPreference(carPreference - CAR_PREFERENCE_CHANGE_STEP delay * CHANGE_PER_SECOND);
-					}
-					break;
-				
-				case 1:
-					double actualBusTravelTime = summary.travelTime;
-					p.getContext().getStatistics().reportPriorAndPosteriorTransitTravelTimes(estimatedTravelTime, actualBusTravelTime);
-					double fillingLevel = getMaxBusFillingLevel(experienceBuffer);
-					p.getContext().getStatistics().reportBusFillingLevel(fillingLevel);
-					double busPreference = p.getPreferences().getBusPreference();
-					
-					if (fillingLevel > BUS_PREFERENCE_CHANGE_THRESHOLD) {
-						p.getPreferences().setBusPreference(busPreference - BUS_PREFERENCE_CHANGE_STEP);
-
-					}
-					break;
-					
-				case 2:
-					double actualBikeTravelTime = summary.travelTime;
-					p.getContext().getStatistics().reportPriorAndPosteriorBikeTravelTimes(estimatedTravelTime, actualBikeTravelTime);
-					break;
-					
-				case 3:
-					double actualWalkTravelTime = summary.travelTime;
-					p.getContext().getStatistics().reportPriorAndPosteriorWalkTravelTimes(estimatedTravelTime, actualWalkTravelTime);
-					break;
-					
-				default:
-					System.out.print("Unclassified journey: ");
-						for (int i = 0; i < p.getCurrentItinerary().legs.size(); i++) {
-							System.out.print(p.getCurrentItinerary().legs.get(i).mode + " ");
-						}
-						System.out.println();
-				
-			}
-			
-			// Compute and log posterior utility.
-			summary.utility = p.getUtility().computeUtility(p.getPreferences(),
-					summary.travelTime,
-					summary.costs,
-					summary.walkingDistance,
-					summary.numberOfLegs);
-			
-			try {
-				logUtility(currentTime, p, p.getCurrentItinerary(), summary);
-				
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			p.setCurrentItinerary(null);
-			return true;
-		}
-
-		// Logging.
-		/*try {
-
-			for (Experience experience : experienceBuffer) {
-				switch (experience.getType()) {
-				
-				case TRAVEL:
-					logMovement(currentTime, entity, (TravelExperience) experience);
-					break;
-					
-				case STOP:
-					logStopInformation(currentTime, entity, (StopExperience) experience);
-					break;
-					
-				default:
-					throw new IllegalArgumentException("Error: Unknown experience type " + experience.getType());
-				}
-			}
-				
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		experienceBuffer.clear();
-		return true;
-	}*/
 	
 	private static ExperienceSummary createSummary(Entity e, Itinerary itinerary, List<TravelExperience> experiences) {
 		ExperienceSummary summary = new ExperienceSummary();
@@ -408,7 +236,9 @@ public class EvoKnowledge {
 		
 		switch (itinerary.itineraryType) {
 		
-		case 0:
+		case CAR:
+		case TAXI:
+		case SHARED_TAXI:
 			summary.type = 0;
 			summary.travelTime = (long) summarizeTravelTime(experiences);
 			summary.costs = summarizeCosts(experiences);
@@ -416,7 +246,7 @@ public class EvoKnowledge {
 			summary.walkingDistance = 0.0;
 			break;
 		
-		case 1:
+		case BUS:
 			summary.type = 1;
 			summary.travelTime = (long) summarizeTravelTime(experiences);
 			summary.costs = 1.2;
@@ -425,7 +255,8 @@ public class EvoKnowledge {
 			summary.maxBusFillingLevel = getBusFillingLevel(experiences);
 			break;
 			
-		case 2:
+		case BICYCLE:
+		case SHARED_BICYCLE:
 			summary.type = 2;
 			summary.travelTime = (long) summarizeTravelTime(experiences);
 			summary.costs = summarizeCosts(experiences);
@@ -433,7 +264,7 @@ public class EvoKnowledge {
 			summary.walkingDistance = summarizeWalkingDistance(experiences);
 			break;
 			
-		case 3:
+		case WALK:
 			summary.type = 3;
 			summary.travelTime = (long) summarizeTravelTime(experiences);
 			summary.costs = 0;
@@ -442,7 +273,7 @@ public class EvoKnowledge {
 			break;
 			
 		default:
-			throw new IllegalArgumentException("Illegal journey type.");
+			throw new IllegalArgumentException("Illegal journey type " + itinerary.itineraryType);
 		}
 		summary.utility = e.getUtility().computeUtility(summary.travelTime, summary.costs,
 				summary.walkingDistance, summary.maxBusFillingLevel, summary.transfers, e.getPreferences());
@@ -498,43 +329,6 @@ public class EvoKnowledge {
 		return max;
 	}
 	
-	/*private static synchronized void logMovement(long timestamp, Entity entity, TravelExperience ex) throws IOException {
-		loggerMovement.write(timestamp + "," + entity.toString() + ",");
-		loggerMovement.write(ex.getSegmentId() + ",");
-		loggerMovement.write(ex.getStartPosition() + ",");
-		loggerMovement.write(ex.getEndPosition() + ",");
-		loggerMovement.write(ex.getStartingTime() + ",");
-		loggerMovement.write(ex.getEndTime() + ",");
-		loggerMovement.write(ex.getCosts() + ",");
-		loggerMovement.write(ex.getTravelTime() + ",");
-		loggerMovement.write(ex.getTransportationMean() + ",");
-		loggerMovement.write(ex.getNumberOfPeopleOnSegment() + ",");
-		loggerMovement.write(ex.getWeather() + "");
-		loggerMovement.newLine();
-		loggerMovement.flush();
-	}
-	
-	private static synchronized void logStopInformation(long timestamp, Entity entity, StopExperience ex) throws IOException {
-		loggerStop.write(timestamp + "," + entity.toString() + ",");
-		loggerStop.write(ex.getStopId() + ",");
-		loggerStop.write(ex.getStopPosition() + ",");
-		loggerStop.write(ex.getPassengers() + ",");
-		loggerStop.write(ex.getTimeArrival() + ",");
-		loggerStop.write(ex.getTimeDeparture() + ",");
-		loggerStop.write(ex.getWeather() + "");
-		loggerStop.newLine();
-		loggerStop.flush();
-	}
-	
-	private static synchronized void logUtility(long timestamp, Entity entity, Itinerary it, ExperienceSummary sum) throws IOException {
-		loggerUtility.write(timestamp + "," + entity.getId() + ",");
-		loggerUtility.write(it.reqId + "," + it.reqNumber + ",");
-		loggerUtility.write(it.utility + ",");
-		loggerUtility.write(sum.utility + "");
-		loggerUtility.newLine();
-		loggerUtility.flush();
-	}*/
-	
 	/**
 	 * Predicts the values of a set of parameters given a set of observations.
 	 * 
@@ -581,35 +375,34 @@ public class EvoKnowledge {
 	public static List<TravelExperience> itineraryToTravelExperience(Entity e, Itinerary it) {
 		List<TravelExperience> ret = new ArrayList<TravelExperience>();
 		Weather.State currentWeather = e.getContext().getWeather().getCurrentState();
-		//System.out.println(it.legs.size());
 		
 		for (Leg l : it.legs) {
-			//System.out.println("  " + l.mode + " " + l.startTime + " " + l.endTime + " " + l.segments.size());
 			long tStart = l.startTime;
 			long tEnd = 0;
 			
 			if (l.streets.size() == 0) {
-				double v = (l.mode == TType.WALK) 
-						? StreetSegment.WALKING_SPEED 
-								: ((l.mode == TType.BICYCLE) ? StreetSegment.CYCLING_SPEED : StreetSegment.DEFAULT_DRIVING_SPEED);
+				double v = (l.mode == TType.WALK) ? StreetSegment.WALKING_SPEED 
+								: ((l.mode == TType.BICYCLE || l.mode == TType.SHARED_BICYCLE)
+										? StreetSegment.CYCLING_SPEED : StreetSegment.DEFAULT_DRIVING_SPEED);
 				tEnd = (long) (tStart + l.distance / v);
 				ret.add(new TravelExperience(tEnd - tStart, 0.0, l.mode, tStart, tEnd, -1, -1, null, currentWeather));
 				continue;
 			}
 			
 			for (Street street : l.streets) {
-				
-				//for (StreetSegment s : street.getSubSegments()) {
-					double v = (l.mode == TType.WALK) ? street.getSubSegments().get(0).getWalkingSpeed() 
-							: ((l.mode == TType.BICYCLE) ? street.getSubSegments().get(0).getCyclingSpeed() : street.getSubSegments().get(0).getMaxSpeed());
-					double travelTime = street.getLength() / v;
-					double costs = l.costs * (street.getLength() / l.distance);
-					tEnd = (long) (tStart + travelTime * 1000);
-					TravelExperience t  = new TravelExperience(street, travelTime, costs, l.mode, tStart, tEnd, -1, -1, l.tripId, currentWeather);
-					ret.add(t);
-					//System.out.println(t.getSegmentId() + " " + t.getStartingTime() + " " + t.getEndTime() + " " + travelTime);
-					tStart = tEnd;
-				//}
+				double v = (l.mode == TType.WALK) ? street.getSubSegments()
+						.get(0).getWalkingSpeed()
+						: ((l.mode == TType.BICYCLE || l.mode == TType.SHARED_BICYCLE) ? street.getSubSegments()
+								.get(0).getCyclingSpeed() : street
+								.getSubSegments().get(0).getMaxSpeed());
+				double travelTime = street.getLength() / v;
+				double costs = l.costs * (street.getLength() / l.distance);
+				tEnd = (long) (tStart + travelTime * 1000);
+				TravelExperience t = new TravelExperience(street, travelTime,
+						costs, l.mode, tStart, tEnd, -1, -1, l.tripId,
+						currentWeather);
+				ret.add(t);
+				tStart = tEnd;
 			}
 		}
 		return ret;

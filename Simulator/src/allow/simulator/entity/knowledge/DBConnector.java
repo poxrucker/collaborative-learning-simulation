@@ -11,7 +11,7 @@ import java.util.List;
 import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.Entity.Type;
+import allow.simulator.entity.EntityType;
 
 public class DBConnector {
 	
@@ -93,7 +93,7 @@ public class DBConnector {
 			// Reset tables if they exist.
 			con = DriverManager.getConnection(config.getModelPath() + config.getModelName(), config.getUser(), config.getPassword());
 			stmt = con.createStatement();
-			Collection<Entity> persons = Simulator.Instance().getContext().getWorld().getEntitiesOfType(Type.PERSON);
+			Collection<Entity> persons = Simulator.Instance().getContext().getWorld().getEntitiesOfType(EntityType.PERSON);
 			System.out.println(persons.size());
 			
 			for (Entity e : persons) {

@@ -7,6 +7,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.relation.Relation;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.data.Trip;
@@ -46,7 +47,7 @@ public class UsePublicTransport extends Activity {
 	 *        according to schedule. 
 	 */
 	public UsePublicTransport(Person person, PublicTransportationStop start, PublicTransportationStop dest, String agencyId, Trip trip, LocalTime departure) {
-		super(Activity.Type.USE_PUBLIC_TRANSPORT, person);
+		super(ActivityType.USE_PUBLIC_TRANSPORT, person);
 		earliestStartingTime = departure;
 		reachedStop = false;
 		enteredBus = false;

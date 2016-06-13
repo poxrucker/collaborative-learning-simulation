@@ -8,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.entity.Person;
+import allow.simulator.entity.Profile;
 
 public class GetPersonRoles extends DefaultReporter
 {
@@ -16,7 +16,7 @@ public class GetPersonRoles extends DefaultReporter
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		LogoListBuilder bldr = new LogoListBuilder();
 		
-		for (Person.Profile profile : Person.Profile.values()) {
+		for (Profile profile : Profile.values()) {
 			bldr.add(profile.toString());
 		}
 		return bldr.toLogoList();

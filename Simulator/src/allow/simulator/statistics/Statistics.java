@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityType;
 import allow.simulator.entity.utility.Preferences;
 
 public class Statistics {
@@ -245,7 +246,7 @@ public class Statistics {
 	}
 	
 	public synchronized void updateGlobalStatistics(Context simulationContext) {
-		Collection<Entity> persons = simulationContext.getWorld().getEntitiesOfType(Entity.Type.PERSON);
+		Collection<Entity> persons = simulationContext.getWorld().getEntitiesOfType(EntityType.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
 	}

@@ -22,7 +22,7 @@ public final class PublicTransportationAgency extends TransportationAgency {
 	private final List<PublicTransportationTrip> nextTrips;
 		
 	public PublicTransportationAgency(long id, Utility utility, Preferences prefs, Context context) {
-		super(id, Type.PUBLICTRANSPORTAGENCY, utility, prefs, context);
+		super(id, EntityType.PUBLICTRANSPORTAGENCY, utility, prefs, context);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();
 		

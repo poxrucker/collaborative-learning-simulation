@@ -1,6 +1,7 @@
 package allow.simulator.mobility.planner;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,10 +14,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class OTPJourneyPlanner implements IPlannerService {
+public abstract class AbstractOTPPlanner implements IPlannerService {
 	// Json mapper to parse planner responses.
-	protected static ObjectMapper mapper = new ObjectMapper();
+	protected static final ObjectMapper mapper = new ObjectMapper();
 
+	// URI to send requests to.
+	private static final String routingURI = "/otp/routers/default/plan";
+
+	// DateFormat to format departure date.
+	private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+					
+	// DateFormat to format departure time.
+	private static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mma");
+		
 	/**
 	 * Parses an itinerary from a Json node.
 	 * 
@@ -27,7 +37,7 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	protected Itinerary parseItinerary(JsonNode it, boolean isTaxi) throws JsonParseException,
+	protected Itinerary parseItinerary(JsonNode it) throws JsonParseException,
 			JsonMappingException, IOException {
 		Itinerary newIt = new Itinerary();
 		newIt.startTime = it.get("startTime").asLong();
@@ -41,13 +51,13 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 		JsonNode legNode = it.get("legs");
 
 		for (Iterator<JsonNode> jt = legNode.elements(); jt.hasNext();) {
-			Leg newLeg = parseLeg(jt.next(), isTaxi);
-			newIt.addLeg(newLeg);
+			Leg newLeg = parseLeg(jt.next());
+			newIt.legs.add(newLeg);
 			newIt.costs += newLeg.costs;
 		}
 		newIt.itineraryType = Itinerary.getItineraryType(newIt);
 		
-		if (newIt.itineraryType == 1) {
+		if (newIt.itineraryType == TType.BUS) {
 			newIt.costs = 1.2;
 		}
 		return newIt;
@@ -59,7 +69,7 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 	 * @param lt Json node.
 	 * @return Leg parsed from given Json node.
 	 */
-	protected Leg parseLeg(JsonNode lt, boolean isTaxi) {
+	protected Leg parseLeg(JsonNode lt) {
 		Leg newLeg = new Leg();
 		newLeg.startTime = Long.parseLong(lt.get("startTime").asText());
 		newLeg.endTime = Long.parseLong(lt.get("endTime").asText());
@@ -90,12 +100,7 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 			break;
 			
 		case CAR:
-			if (isTaxi) {
-				newLeg.costs = newLeg.distance * 0.001; // 0.0004;
-						
-			} else {
-				newLeg.costs = newLeg.distance * 0.00035; // 0.00025;
-			}
+			newLeg.costs = newLeg.distance * 0.00035; // 0.00025;
 			break;
 			
 		case RAIL:
@@ -115,12 +120,6 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 		return newLeg;
 	}
 
-	/**
-	 * Parses a stop Id from a Json node.
-	 * 
-	 * @param lt Json node.
-	 * @return Stop Id parsed from given Json node.
-	 */
 	protected String parseStopId(JsonNode place) {
 		JsonNode stopId = place.get("stopId");
 		
@@ -139,16 +138,42 @@ public abstract class OTPJourneyPlanner implements IPlannerService {
 		}
 		return ids;
 	}
-	/**
-	 * Parses a coordinate from a Json node.
-	 * 
-	 * @param lt Json node.
-	 * @return Coordinate parsed from given Json node.
-	 */
+	
 	protected Coordinate parsePlace(JsonNode place) {
 		Coordinate c = new Coordinate(place.get("lon").doubleValue(),
 				place.get("lat").doubleValue());
 		return c;
 	}
 	
+	protected static String createQueryString(JourneyRequest request) {
+		StringBuilder paramBuilder = new StringBuilder();
+		paramBuilder.append(routingURI);
+		paramBuilder.append("?toPlace=");
+		paramBuilder.append(request.To.y + "," + request.To.x);
+		paramBuilder.append("&fromPlace=");
+		paramBuilder.append(request.From.y + "," + request.From.x);
+		paramBuilder.append("&date=" + request.Date.format(dateFormat));
+
+		if (request.ArrivalTime != null) {
+			paramBuilder.append("&time=" + request.ArrivalTime.format(timeFormat));
+			paramBuilder.append("&arriveBy=true");
+			
+		} else {
+			paramBuilder.append("&time=" + request.DepartureTime.format(timeFormat));
+			paramBuilder.append("&arriveBy=false");
+		}
+		paramBuilder.append("&optimize=" + request.RouteType.toString());
+		paramBuilder.append("&mode=");
+
+		for (int i = 0; i < request.TransportTypes.length - 1; i++) {
+			paramBuilder.append(request.TransportTypes[i].toString() + ",");
+		}
+		paramBuilder.append(request.TransportTypes[request.TransportTypes.length - 1]);
+		paramBuilder.append("&numItineraries=" + request.ResultsNumber);
+		paramBuilder.append("&walkSpeed=" + 1.29);
+		paramBuilder.append("&bikeSpeed=" + 4.68);
+		paramBuilder.append("&showIntermediateStops=true");
+		// paramBuilder.append("&maxWalkDistance=" + journey.MaximumWalkDistance);
+		return paramBuilder.toString();
+	}
 }

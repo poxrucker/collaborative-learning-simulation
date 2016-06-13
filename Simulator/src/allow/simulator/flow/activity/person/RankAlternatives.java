@@ -6,6 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.knowledge.EvoKnowledge;
 import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.Itinerary;
 
 public class RankAlternatives extends Activity {
@@ -13,7 +14,7 @@ public class RankAlternatives extends Activity {
 	private List<Itinerary> toRank;
 		
 	public RankAlternatives(Person entity, List<Itinerary> it) {
-		super(Activity.Type.RANK_ALTERNATIVES, entity);
+		super(ActivityType.RANK_ALTERNATIVES, entity);
 		toRank = it;
 	}
 

@@ -9,7 +9,7 @@ import allow.simulator.mobility.data.TaxiTrip;
 public final class Taxi extends TransportationEntity {
 	
 	public Taxi(long id, Utility utility, Preferences prefs, Context context, int capacity) {
-		super(id, Type.TAXI, utility, prefs, context, capacity);
+		super(id, EntityType.TAXI, utility, prefs, context, capacity);
 	}
 
 	/**

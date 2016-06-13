@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.UrbanMobilitySystem;
+import allow.simulator.entity.EntityType;
 
 /**
  * Interface for world representations used in the Allow Ensembles
@@ -44,7 +44,7 @@ public interface IWorld {
 	 * @param type Type of entities to return.
 	 * @return Collection of entities of given type.
 	 */
-	 Collection<Entity> getEntitiesOfType(Entity.Type type);
+	 Collection<Entity> getEntitiesOfType(EntityType type);
 	
 	/**
 	 * Returns entities with certain distance entity with given Id.
@@ -61,14 +61,6 @@ public interface IWorld {
 	 * @return Street map of this world.
 	 */
 	 StreetMap getStreetMap();
-	
-	/**
-	 * Returns the Urban Mobility System entity of the world.
-	 * 
-	 * @return Urban Mobility System entity of the world or null, if no Urban
-	 * Mobility System entity exists.
-	 */
-	 UrbanMobilitySystem getUrbanMobilitySystem();
 	
 	/**
 	 * Returns the mapping of rectangular world space used in this world to

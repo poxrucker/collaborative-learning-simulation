@@ -6,13 +6,14 @@ import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.PublicTransportationAgency;
 import allow.simulator.entity.TransportationAgency;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.publictransportation.PrepareTrip;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 
 public class StartNextTrips extends Activity {
 
 	public StartNextTrips(TransportationAgency agency) {
-		super(Activity.Type.SCHEDULE_NEXT_TRIPS, agency);
+		super(ActivityType.SCHEDULE_NEXT_TRIPS, agency);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package allow.simulator.entity.utility;
 import java.util.Comparator;
 import java.util.List;
 
+import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -34,10 +35,10 @@ public class Utility implements IUtility {
 		
 			double pref = 0.5;
 			
-			if (it.itineraryType == 0) {
+			if (it.itineraryType == TType.CAR || it.itineraryType == TType.TAXI || it.itineraryType == TType.SHARED_TAXI) {
 				pref = prefs.getCarPreference();
 				
-			} else if (it.itineraryType == 1) {
+			} else if (it.itineraryType == TType.BUS) {
 				pref = prefs.getBusPreference();	
 			}	
 			pref = 1 + (pref - 0.5);

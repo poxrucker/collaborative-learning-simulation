@@ -21,7 +21,7 @@ public final class TaxiAgency extends TransportationAgency {
 	private final Map<String, TaxiTrip> currentTrips;
 	
 	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context) {
-		super(id, Type.TAXIAGENCY, utility, prefs, context);
+		super(id, EntityType.TAXIAGENCY, utility, prefs, context);
 		position = new Coordinate(11.119714, 46.071988);
 		tripsToSchedule = new ArrayList<TaxiTrip>();
 		currentTrips = new HashMap<String, TaxiTrip>();

@@ -2,6 +2,7 @@ package allow.simulator.entity;
 
 import java.time.LocalTime;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -11,7 +12,6 @@ import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.UtilityWithoutPreferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.mobility.planner.Itinerary;
-import allow.simulator.mobility.planner.RequestBuffer;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.world.layer.Area;
@@ -32,80 +32,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class Person extends Entity {
-
-	/**
-	 * Identifies a profile which suggest a person's behaviour/daily routine
-	 * in the simulation. Workers for example may go to work in the morning and
-	 * back in the evening. 
-	 * 
-	 * @author Andreas Poxrucker (DFKI)
-	 *
-	 */
-	public enum Profile {
-		
-		/**
-		 * Students have a schedule from Monday to Friday arriving randomly at
-		 * university at full hour from 8 am to noon and going back randomly
-		 * from noon to 8 pm at full hour.
-		 */
-		STUDENT("Student"),
-		
-		/**
-		 * Workers arrive at work every morning between 5 am and 9 am and go in
-		 * the afternoon/evening (eight hours later).
-		 */
-		WORKER("Worker"),
-		
-		/**
-		 * Homemakers perform random journeys focusing on shopping areas during
-		 * the morning and afternoon and purely random journeys during the whole
-		 * day.
-		 */
-		HOMEMAKER("Homemaker"),
-		
-		/**
-		 * Children go to school arriving at 8 am in the morning and back at
-		 * 1 pm.
-		 */
-		CHILD("Child"),
-		
-		/**
-		 * Persons with the random profile perform random journeys during the 
-		 * whole day.
-		 */
-		RANDOM("Random");
-		
-		// String describing the role for output.
-		private String prettyPrint;
-		
-		private Profile(String name) {
-			prettyPrint = name;
-		}
-		
-		/**
-		 * Returns a String description of the role for output.
-		 * 
-		 * @return String description of role for output.
-		 */
-		public String toString() {
-			return prettyPrint;
-		}	
-	}
-	
-	/**
-	 * Identifies the gender of a person.
-	 * 
-	 * @author Andreas Poxrucker (DFKI)
-	 *
-	 */
-	public enum Gender {
-		
-		FEMALE,
-
-		MALE
-		
-	}
-	
 	// Gender of a person.
 	private Gender gender;
 	
@@ -124,9 +50,6 @@ public final class Person extends Entity {
 	// True, if person will send requests to the FlexiBus planner, false otherwise.
 	private boolean useFlexiBus;
 	
-	// Request buffer for more efficient journey planning.
-	private RequestBuffer requestBuffer;
-	
 	// Daily routine of this person, i.e. set of travelling events which are
 	// executed regularly on specific days, e.g. going to work on back from 
 	// Mo to Fri.
@@ -143,6 +66,9 @@ public final class Person extends Entity {
 	// Determines if person is replanning.
 	@JsonIgnore
 	private boolean isReplanning;
+	
+	@JsonIgnore
+	private List<Itinerary> buffer;
 	
 	// Indicates whether a person used her car during the current travelling
 	// cycle which forbids replanning a journey with own car.
@@ -179,7 +105,7 @@ public final class Person extends Entity {
 			boolean useFlexiBus,
 			DailyRoutine dailyRoutine,
 			Context context) {
-		super(id, Type.PERSON, utility, prefs, context);
+		super(id, EntityType.PERSON, utility, prefs, context);
 		this.gender = gender;
 		this.profile = profile;
 		this.hasCar = hasCar;
@@ -189,7 +115,7 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		requestBuffer = new RequestBuffer();
+		buffer = new ArrayList<Itinerary>(8);
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -222,7 +148,7 @@ public final class Person extends Entity {
 			@JsonProperty("hasBike") boolean hasBike,
 			@JsonProperty("useFlexiBus") boolean useFlexiBus,
 			@JsonProperty("dailyRoutine") DailyRoutine dailyRoutine) {
-		super(id, Type.PERSON, utility, prefs);
+		super(id, EntityType.PERSON, utility, prefs);
 		this.gender = gender;
 		this.profile = role;
 		this.hasCar = hasCar;
@@ -232,7 +158,7 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		requestBuffer = new RequestBuffer();
+		buffer = new ArrayList<Itinerary>(8);
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -295,6 +221,10 @@ public final class Person extends Entity {
 	
 	public String getHomeArea() {
 		return homeAreaName;
+	}
+	
+	public List<Itinerary> getBuffer() {
+		return buffer;
 	}
 	
 	/**
@@ -432,11 +362,6 @@ public final class Person extends Entity {
 		return home.equals(position);
 	}
 	
-	@JsonIgnore
-	public RequestBuffer getRequestBuffer() {
-		return requestBuffer;
-	}
-	
 	@Override
 	public Activity execute() {
 		Pair<LocalTime, Activity> next = schedule.peek();
@@ -452,8 +377,9 @@ public final class Person extends Entity {
 		return super.execute();
 	}
 	
+	@Override
 	public String toString() {
-		return "[" + profile.prettyPrint + id + "]";
+		return "[" + profile + id + "]";
 	}
 
 	@Override

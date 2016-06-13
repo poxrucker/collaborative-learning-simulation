@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Trip;
 
@@ -21,7 +22,7 @@ public class UseFlexiBus extends Activity {
 	private LocalTime earliestStartingTime;
 		
 	public UseFlexiBus(Entity entity, PublicTransportationStop start, PublicTransportationStop dest, Trip trip, LocalTime departure) {
-		super(Type.USE_FLEXIBUS, entity);
+		super(ActivityType.USE_FLEXIBUS, entity);
 		this.in = start;
 		this.out = dest;
 		this.trip = trip;

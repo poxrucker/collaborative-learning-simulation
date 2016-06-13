@@ -12,7 +12,7 @@ import org.nlogo.api.AgentException;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.Activity.Type;
+import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 
 public final class NetLogoAgent extends Turtle implements IAgentAdapter {
@@ -23,33 +23,33 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 	private final boolean canBeVisible;
 	
 	// Shape lookup table mapping activities to shapes in NetLogo
-	private static final Map<Activity.Type, String> shapes;
+	private static final Map<ActivityType, String> shapes;
 	
 	static {
-		Map<Activity.Type, String> temp = new EnumMap<Activity.Type, String>(Activity.Type.class);
-		temp.put(Type.CORRECT_POSITION, "person");
-		temp.put(Type.PREPARE_JOURNEY, "person");
-		temp.put(Type.PLAN_JOURNEY, "person");
-		temp.put(Type.CYCLE, "bike");
-		temp.put(Type.DRIVE, "car side");
-		temp.put(Type.FILTER_ALTERNATIVES, "person");
-		temp.put(Type.PREPARE_JOURNEY, "person");
-		temp.put(Type.USE_PUBLIC_TRANSPORT, "person");
-		temp.put(Type.WALK, "person");
-		temp.put(Type.RANK_ALTERNATIVES, "person");
-		temp.put(Type.LEARN, "person");
-		temp.put(Type.REPLAN, "person");
-		temp.put(Type.WAIT, "person");
-		temp.put(Type.PREPARE_TRIP, "bus");
-		temp.put(Type.DRIVE_TO_NEXT_STOP, "bus");
-		temp.put(Type.PICKUP_AND_WAIT, "bus");
-		temp.put(Type.RETURN_TO_AGENCY, "bus");
-		temp.put(Type.LEARN, "bus");
-		temp.put(Type.PREPARE_TAXI_TRIP, "car side");
-		temp.put(Type.PICK_UP_OR_DROP, "car side");
-		temp.put(Type.DRIVE_TO_NEXT_DESTINATION, "car side");
-		temp.put(Type.RETURN_TO_TAXI_AGENCY, "car side");
-		temp.put(Type.LEARN, "car side");
+		Map<ActivityType, String> temp = new EnumMap<ActivityType, String>(ActivityType.class);
+		temp.put(ActivityType.CORRECT_POSITION, "person");
+		temp.put(ActivityType.PREPARE_JOURNEY, "person");
+		temp.put(ActivityType.PLAN_JOURNEY, "person");
+		temp.put(ActivityType.CYCLE, "bike");
+		temp.put(ActivityType.DRIVE, "car side");
+		temp.put(ActivityType.FILTER_ALTERNATIVES, "person");
+		temp.put(ActivityType.PREPARE_JOURNEY, "person");
+		temp.put(ActivityType.USE_PUBLIC_TRANSPORT, "person");
+		temp.put(ActivityType.WALK, "person");
+		temp.put(ActivityType.RANK_ALTERNATIVES, "person");
+		temp.put(ActivityType.LEARN, "person");
+		temp.put(ActivityType.REPLAN, "person");
+		temp.put(ActivityType.WAIT, "person");
+		temp.put(ActivityType.PREPARE_TRIP, "bus");
+		temp.put(ActivityType.DRIVE_TO_NEXT_STOP, "bus");
+		temp.put(ActivityType.PICKUP_AND_WAIT, "bus");
+		temp.put(ActivityType.RETURN_TO_AGENCY, "bus");
+		temp.put(ActivityType.LEARN, "bus");
+		temp.put(ActivityType.PREPARE_TAXI_TRIP, "car side");
+		temp.put(ActivityType.PICK_UP_OR_DROP, "car side");
+		temp.put(ActivityType.DRIVE_TO_NEXT_DESTINATION, "car side");
+		temp.put(ActivityType.RETURN_TO_TAXI_AGENCY, "car side");
+		temp.put(ActivityType.LEARN, "car side");
 		shapes = Collections.unmodifiableMap(temp);
 	}
 	

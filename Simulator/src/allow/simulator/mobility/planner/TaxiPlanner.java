@@ -16,7 +16,7 @@ import allow.simulator.world.Street;
 
 public final class TaxiPlanner implements IPlannerService {
 	// List of planner services to create car trips
-	private final List<IPlannerService> plannerServices;
+	private final List<OTPPlanner> plannerServices;
 	
 	// Position of taxi rank 
 	private final Coordinate taxiRank;
@@ -31,7 +31,7 @@ public final class TaxiPlanner implements IPlannerService {
 	 * @param plannerServices Set of planners to use for creating taxi itineraries
 	 * @param taxiRank Position of taxi rank where all taxis start from
 	 */
-	public TaxiPlanner(List<IPlannerService> plannerServices, Coordinate taxiRank) {
+	public TaxiPlanner(List<OTPPlanner> plannerServices, Coordinate taxiRank) {
 		this.plannerServices = plannerServices;
 		this.taxiRank = taxiRank;
 		tripBuffer = new ConcurrentHashMap<String, TaxiTrip>();

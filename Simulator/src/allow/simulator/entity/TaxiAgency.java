@@ -58,14 +58,14 @@ public final class TaxiAgency extends TransportationAgency {
 	}
 	
 	public void call(String tripId) {
-		TaxiPlanner service = context.getTaxiPlannerService();
+		TaxiPlanner service = context.getJourneyPlanner().getTaxiPlannerService();
 		TaxiTrip trip = service.getTaxiTrip(tripId);
 		tripsToSchedule.add(trip);
 		currentTrips.put(tripId, trip);
 	}
 	
 	public void cancel(String tripId) {
-		TaxiPlanner service = context.getTaxiPlannerService();
+		TaxiPlanner service = context.getJourneyPlanner().getTaxiPlannerService();
 		service.getTaxiTrip(tripId);
 	}
 	

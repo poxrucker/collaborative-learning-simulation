@@ -28,7 +28,7 @@ public class TestTaxi extends DefaultCommand {
 		if (a instanceof IAgentAdapter) {
 			IAgentAdapter p = (IAgentAdapter) a;
 			Person person = (Person) p.getEntity();
-			IPlannerService taxiPlanner = person.getContext().getBikeRentalPlannerService();
+			IPlannerService taxiPlanner = person.getContext().getJourneyPlanner().getBikeRentalPlannerService();
 			List<TravelEvent> t = person.getDailyRoutine().getDailyRoutine(1);
 			JourneyRequest req = JourneyRequest.createRequest(t.get(0).getStartingPoint(), t.get(0).getDestination(), person.getContext().getTime().getCurrentDateTime(),
 					false, new TType[] { TType.SHARED_BICYCLE }, new RequestId());

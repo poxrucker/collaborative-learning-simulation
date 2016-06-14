@@ -11,15 +11,23 @@ import scala.concurrent.forkjoin.ThreadLocalRandom;
 import allow.simulator.mobility.data.TType;
 
 public final class JourneyPlanner {
-
+	// Threadpool execution service
 	private ExecutorService service;
-	private final List<IPlannerService> otpPlanner;
-	private final IPlannerService taxiPlanner;
-	private final IPlannerService flexiBusPlanner;
-	private final IPlannerService bikeRentalPlanner;
 	
-	public JourneyPlanner(List<IPlannerService> otpPlanner, IPlannerService taxiPlanner, 
-			IPlannerService bikeRentalPlanner, IPlannerService flexiBusPlanner) {
+	// OTP planner instances
+	private final List<OTPPlanner> otpPlanner;
+	
+	// Taxi planner service instance
+	private final TaxiPlanner taxiPlanner;
+	
+	// FlexiBus planner service instance
+	private final FlexiBusPlanner flexiBusPlanner;
+	
+	// Bike rental planner service instance
+	private final BikeRentalPlanner bikeRentalPlanner;
+	
+	public JourneyPlanner(List<OTPPlanner> otpPlanner, TaxiPlanner taxiPlanner, 
+			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner) {
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;
 		this.bikeRentalPlanner = bikeRentalPlanner;
@@ -66,6 +74,18 @@ public final class JourneyPlanner {
 				return buffer;
 			}		
 		});	
+	}
+	
+	public TaxiPlanner getTaxiPlannerService() {
+		return taxiPlanner;
+	}
+	
+	public FlexiBusPlanner getFlexiBusPlannerService() {
+		return flexiBusPlanner;
+	}
+	
+	public BikeRentalPlanner getBikeRentalPlannerService() {
+		return bikeRentalPlanner;
 	}
 	
 	public void shutdown() throws InterruptedException {

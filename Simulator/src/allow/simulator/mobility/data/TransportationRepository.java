@@ -37,7 +37,7 @@ public class TransportationRepository {
 	
 	private void reload(Simulator simulator) {
 		// Load public transportation from GTFS.
-		List<GTFSAgency> agencyInfos = simulator.getContext().getDataServices().get(0).getAgencies();
+		List<GTFSAgency> agencyInfos = simulator.getContext().getDataService().getAgencies();
 		gtfsAgencies = new HashMap<String, PublicTransportationAgency>();
 		
 		for (int i = 0; i < agencyInfos.size(); i++) {
@@ -49,17 +49,17 @@ public class TransportationRepository {
 			newAgency.setAgencyId(currentAgency.getId());
 			
 			// Request available routes.
-			List<GTFSRoute> availableRoutes = simulator.getContext().getDataServices().get(0).getRoutes(currentAgency.getId());
+			List<GTFSRoute> availableRoutes = simulator.getContext().getDataService().getRoutes(currentAgency.getId());
 		
 			for (Iterator<GTFSRoute> it = availableRoutes.iterator(); it.hasNext(); ) {
 				// Get Id of next route.				
 				String routeId = it.next().getId();
 				
 				// Get time table of this route.
-				TimeTable tt = simulator.getContext().getDataServices().get(0).getTimeTable(routeId);
+				TimeTable tt = simulator.getContext().getDataService().getTimeTable(routeId);
 				
 				// Create stops of route from data service query.
-				List<GTFSStop> stops = simulator.getContext().getDataServices().get(0).getStops(routeId);
+				List<GTFSStop> stops = simulator.getContext().getDataService().getStops(routeId);
 				Map<String, PublicTransportationStop> stopMap = new HashMap<String, PublicTransportationStop>(stops.size());
 				
 				for (GTFSStop current : stops) {

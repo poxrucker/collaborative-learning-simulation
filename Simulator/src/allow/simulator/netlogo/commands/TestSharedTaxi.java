@@ -48,7 +48,7 @@ public class TestSharedTaxi extends DefaultCommand {
 				List<TravelEvent> t2 = other.getDailyRoutine().getDailyRoutine(1);
 				to.add(t2.get(0).getDestination());
 			}
-			IPlannerService taxiPlanner = person.getContext().getTaxiPlannerService();
+			IPlannerService taxiPlanner = person.getContext().getJourneyPlanner().getTaxiPlannerService();
 			JourneyRequest req = JourneyRequest.createRequest(t.get(0).getStartingPoint(), to, person.getContext().getTime().getCurrentDateTime(),
 					false, new TType[] { TType.SHARED_TAXI }, new RequestId());
 			long t1 = System.currentTimeMillis();

@@ -89,8 +89,6 @@ public final class PlanJourney extends Activity {
 				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
 			requestFuture = person.getContext().getJourneyPlanner().requestSingleJourney(requests, person.getBuffer());
-			//person.getContext().getWorld().getUrbanMobilitySystem().addRequests(requests, person.getRequestBuffer());
-			//requestSent = true;
 			return deltaT;
 			
 		} else if (!requestFuture.isDone() && (stepsWaited < 3)) {

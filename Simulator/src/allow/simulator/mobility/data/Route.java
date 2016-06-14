@@ -48,7 +48,7 @@ public class Route {
 	
 	private void timeTableToTrips(TimeTable tt) {
 		// For routing.
-		IDataService service = Simulator.Instance().getContext().getDataServices().get(0);
+		IDataService service = Simulator.Instance().getContext().getDataService();
 
 		// Allocate trips structure.
 		trips = new ArrayList<List<PublicTransportationTrip>>(7);

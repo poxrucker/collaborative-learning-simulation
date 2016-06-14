@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class OTPPlanner extends AbstractOTPPlanner {
+public final class OTPPlannerService extends AbstractOTPPlanner {
 	// Client to send requests.
 	private final HttpClient client;
 
@@ -59,7 +59,7 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 	 * @param host Host running OpenTripPlanner service
 	 * @param port Port of OpenTripPlanner service
 	 */
-	public OTPPlanner(String host, int port) {
+	public OTPPlannerService(String host, int port) {
 		this(host, port, null, null, null);
 	}
 
@@ -74,7 +74,7 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 	 * @param map Streetmap to map returned traces to
 	 * @param dataService Service providing routing between bus stops
 	 */
-	public OTPPlanner(String host, int port, StreetMap map, IDataService dataService, Time time) {
+	public OTPPlannerService(String host, int port, StreetMap map, IDataService dataService, Time time) {
 		target = new HttpHost(host, port, "http");
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", port, PlainSocketFactory.getSocketFactory()));

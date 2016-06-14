@@ -15,7 +15,7 @@ public final class JourneyPlanner {
 	private ExecutorService service;
 	
 	// OTP planner instances
-	private final List<OTPPlanner> otpPlanner;
+	private final List<OTPPlannerService> otpPlanner;
 	
 	// Taxi planner service instance
 	private final TaxiPlanner taxiPlanner;
@@ -26,7 +26,7 @@ public final class JourneyPlanner {
 	// Bike rental planner service instance
 	private final BikeRentalPlanner bikeRentalPlanner;
 	
-	public JourneyPlanner(List<OTPPlanner> otpPlanner, TaxiPlanner taxiPlanner, 
+	public JourneyPlanner(List<OTPPlannerService> otpPlanner, TaxiPlanner taxiPlanner, 
 			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner) {
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;

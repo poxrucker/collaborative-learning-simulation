@@ -116,7 +116,7 @@ public class Simulator {
 				
 		// Create planner services.
 		System.out.println("Creating planner services...");
-		List<IPlannerService> plannerServices = new ArrayList<IPlannerService>();
+		List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
@@ -138,8 +138,7 @@ public class Simulator {
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, time, planner, dataServices, plannerServices, new FlexiBusPlanner(),
-				taxiPlannerService, bikeRentalPlanner, weather, new Statistics(400), params);
+		context = new Context(world, time, planner, dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");

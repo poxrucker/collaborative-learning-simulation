@@ -1,15 +1,8 @@
 package allow.simulator.core;
 
-import java.util.List;
-import java.util.Queue;
-
-import allow.simulator.entity.Entity;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
-import allow.simulator.mobility.planner.BikeRentalPlanner;
-import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.JourneyPlanner;
-import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.world.IWorld;
 import allow.simulator.world.Weather;
@@ -21,70 +14,52 @@ import allow.simulator.world.Weather;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class Context {
-	// World including the StreetMap.
-	private IWorld world;
+public final class Context {
+	// World including the StreetMap
+	private final IWorld world;
 		
-	// Simulated time.
-	private Time time;
+	// Simulated time
+	private final Time time;
 	
-	// Weather.
-	private Weather weather;
+	// Weather
+	private final Weather weather;
 	
-	// Instances of available data services (for information about transportation network).
-	private List<IDataService> dataServices;
+	// Data service to obtain information about transportation network
+	private final IDataService dataService;
 	
-	private JourneyPlanner journeyPlanner;
+	// Journey planner instance for multi-modal journey planning
+	private final JourneyPlanner journeyPlanner;
 	
+	// Transportation repository containing transportation entities
 	private TransportationRepository transportationRepository;
-		
-	// Instances of available planner services (for journey planning).
-	private List<IPlannerService> plannerServices;
 	
-	// Instance of FlexiBus planner service.
-	private IPlannerService flexiBusService;
+	// Statistics to collect from the simulation
+	private final Statistics stats;
 	
-	// Instance if taxi planner service
-	private TaxiPlanner taxiPlannerService;
-	
-	// Bike rental planner service
-	private BikeRentalPlanner bikeRentalService;
-	
-	// Statistics.
-	private Statistics stats;
-	
-	// (Externally) provided simulation parameters.
-	private SimulationParameter params;
+	// (Externally) provided simulation parameters
+	private final SimulationParameter params;
 	
 	/**
-	 * Constructor.
-	 * Creates new context.
+	 * Creates new instance of the Context class holding context information
+	 * globally available within the simulation.
 	 * 
-	 * @param world World of this context.
-	 * @param time Time of this context.
-	 * @param dataServices Data services to be used.
+	 * @param world World instance
+	 * @param time Time instance
+	 * @param dataService Data service to be used
 	 * @param plannerService Planner services to be used.
 	 * @param weather Current weather.
 	 */
 	public Context(IWorld world,
 			Time time,
 			JourneyPlanner journeyPlanner,
-			List<IDataService> dataServices,
-			List<IPlannerService> plannerServices,
-			IPlannerService flexiBusService,
-			TaxiPlanner taxiPlannerService,
-			BikeRentalPlanner bikeRentalPlanner,
+			IDataService dataService,
 			Weather weather,
 			Statistics stats,
 			SimulationParameter params) {
 		this.world = world;
 		this.time = time;
 		this.journeyPlanner = journeyPlanner;
-		this.dataServices = dataServices;
-		this.plannerServices = plannerServices;
-		this.flexiBusService = flexiBusService;
-		this.taxiPlannerService = taxiPlannerService;
-		this.bikeRentalService = bikeRentalPlanner;
+		this.dataService = dataService;
 		this.weather = weather;
 		this.stats = stats;
 		this.params = params;
@@ -109,52 +84,22 @@ public class Context {
 	}
 	
 	/**
-	 * Returns the data service instances used in the simulation.
+	 * Returns the data service instance to obtain information about the
+	 * transportation network.
 	 * 
-	 * @return Data service instance to be used in the simulation.
+	 * @return Data service instance to be used in the simulation
 	 */
-	public List<IDataService> getDataServices() {
-		return dataServices;
+	public IDataService getDataService() {
+		return dataService;
 	}
 	
+	/**
+	 * Returns the journey planner instance
+	 * 
+	 * @return Journey planner instance
+	 */
 	public JourneyPlanner getJourneyPlanner() {
 		return journeyPlanner;
-	}
-	
-	/**
-	 * Returns the planner service instances used in the simulation. 
-	 * 
-	 * @return Planner service instances to be used in the simulation.
-	 */
-	public List<IPlannerService> getPlannerServices() {
-		return plannerServices;
-	}
-	
-	/**
-	 * Returns the FlexiBus planner service instance.
-	 * 
-	 * @return FlexiBus planner service instance.
-	 */
-	public IPlannerService getFlexiBusPlannerService() {
-		return flexiBusService;
-	}
-	
-	/**
-	 * Returns the taxi planner service instance.
-	 * 
-	 * @return Taxi planner service instance.
-	 */
-	public TaxiPlanner getTaxiPlannerService() {
-		return taxiPlannerService;
-	}
-	
-	/**
-	 * Returns the bike rental planner service instance.
-	 * 
-	 * @return Bike planner service instance.
-	 */
-	public BikeRentalPlanner getBikeRentalPlannerService() {
-		return bikeRentalService;
 	}
 	
 	/**

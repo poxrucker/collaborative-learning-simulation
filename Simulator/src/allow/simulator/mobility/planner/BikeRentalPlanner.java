@@ -10,10 +10,10 @@ import allow.simulator.util.Coordinate;
 
 public class BikeRentalPlanner implements IPlannerService {
 
-	private List<IPlannerService> plannerServices;
+	private List<OTPPlanner> plannerServices;
 	private Coordinate bikeRentalStation;
 	
-	public BikeRentalPlanner(List<IPlannerService> plannerServices, Coordinate bikeRentalStation) {
+	public BikeRentalPlanner(List<OTPPlanner> plannerServices, Coordinate bikeRentalStation) {
 		this.plannerServices = plannerServices;
 		this.bikeRentalStation = bikeRentalStation;
 	}

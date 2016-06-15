@@ -7,7 +7,7 @@ import javax.naming.ConfigurationException;
 import org.nlogo.app.App;
 
 public class TestMain {
-    private final static String PROP_PATH = "adaptation.properties";
+//    private final static String PROP_PATH = "adaptation.properties";
 
     public static void main(String[] args) throws ConfigurationException, FileNotFoundException {
     	App.main(new String[0]);

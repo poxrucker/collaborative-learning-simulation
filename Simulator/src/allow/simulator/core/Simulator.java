@@ -33,9 +33,8 @@ import allow.simulator.mobility.data.OnlineDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.FlexiBusPlanner;
-import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.JourneyPlanner;
-import allow.simulator.mobility.planner.OTPPlanner;
+import allow.simulator.mobility.planner.OTPPlannerService;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
@@ -116,12 +115,12 @@ public class Simulator {
 				
 		// Create planner services.
 		System.out.println("Creating planner services...");
-		List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
+		List<OTPPlannerService> plannerServices = new ArrayList<OTPPlannerService>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
 			Service plannerConfig = plannerConfigs.get(i);
-			plannerServices.add(new OTPPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
+			plannerServices.add(new OTPPlannerService(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
 		}		
 		
 		// Create taxi planner service

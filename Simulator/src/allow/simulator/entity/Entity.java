@@ -62,7 +62,7 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
+	public Entity(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
 		this.id = id;
 		this.type = type;
 		position = new Coordinate(-1, -1);

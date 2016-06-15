@@ -11,6 +11,10 @@ public final class Ensemble {
 	// Entity which created the ensemble (responsible for terminating it afterwards)
 	private Entity creator;
 	
+	public void setCreator(Entity creator) {
+		this.creator = creator;
+	}
+
 	// Entities participating in the ensemble including the creator entity
 	private Map<Long, Entity> participants;
 	
@@ -21,7 +25,7 @@ public final class Ensemble {
 	 * 
 	 * @param creator Entity which creates the ensemble
 	 */
-	Ensemble(Entity creator) {
+	public Ensemble(Entity creator) {
 		this.creator = creator;
 		participants = new HashMap<Long, Entity>();
 	}

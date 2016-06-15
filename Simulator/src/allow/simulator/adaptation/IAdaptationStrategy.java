@@ -1,5 +1,7 @@
 package allow.simulator.adaptation;
 
+import java.io.FileNotFoundException;
+
 public interface IAdaptationStrategy {
 
 	/**
@@ -7,7 +9,8 @@ public interface IAdaptationStrategy {
 	 * 
 	 * @param issue Issue to solve
 	 * @param ensemble Ensemble of entities
+	 * @throws FileNotFoundException 
 	 */
-	void solveAdaptation(Issue issue, Ensemble ensemble);
+	void solveAdaptation(Issue issue, Ensemble ensemble) throws FileNotFoundException;
 	
 }

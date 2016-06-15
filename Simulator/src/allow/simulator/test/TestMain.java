@@ -17,7 +17,7 @@ public class TestMain {
         new Runnable() {
           public void run() {
             try {
-              App.app().open("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/Trento.nlogo");
+              App.app().open("/Users/antoniobucchiarone/Documents/Simulator/Trento/Trento.nlogo");
             }
             catch(java.io.IOException ex) {
               ex.printStackTrace();

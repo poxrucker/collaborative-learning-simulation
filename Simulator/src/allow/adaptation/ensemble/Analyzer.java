@@ -1011,7 +1011,7 @@ public class Analyzer {
 		    p.setCost(cost);
 		    p.setId(role.getId());
 		    p.setMaxCost(role.getMaxCost());
-		  //  p.setMaxTravel(role.getMaxTravelTime());
+		//    p.setMaxTravel(role.getMaxTravelTime());
 		    p.setTravelTime(time);
 		    p.setWeightCost(role.getWeightCost());
 		    p.setWeightTravel(role.getWeightTravelTime());
@@ -1609,7 +1609,7 @@ public class Analyzer {
 	// System.out.println("ROLE: " + roleManager.getRole().getType());
 	// boolean result = false;
 
-	// Find Local Solver and set in the analyzer il all the ensembles
+	// Find Local Solver and set in the analyzer  all the ensembles
 
 	for (int i = 0; i < roleManager.getRole().getSolver().size(); i++) {
 	    Solver currentSolver = roleManager.getRole().getSolver().get(i);

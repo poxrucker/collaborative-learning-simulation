@@ -160,6 +160,11 @@ public class RoleManager {
     public void setResolutions(ArrayList<IssueResolution> resolutions) {
 	this.issueResolutions = resolutions;
     }
+    
+    
+    
+ 
+    
 
     private Analyzer analyzer;
 

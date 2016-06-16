@@ -3,13 +3,9 @@ package allow.simulator.adaptation;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.util.List;
 
-
-
 import allow.adaptation.DemoManagementSystem;
-
 import allow.adaptation.EnsembleManager;
 import allow.adaptation.ExperimentResult;
 import allow.adaptation.ExperimentRunner;
@@ -19,18 +15,15 @@ import allow.adaptation.Utilities;
 import allow.adaptation.api.CollectiveAdaptationEnsemble;
 import allow.adaptation.api.CollectiveAdaptationProblem;
 import allow.adaptation.api.CollectiveAdaptationRole;
-
-
+import allow.adaptation.api.RoleCommand;
 import allow.adaptation.presentation.CAWindow;
-
-import allow.simulator.adaptation.Issue;
 
 public class CollectiveAdaptation implements IAdaptationStrategy {
 
 	@Override
-	public void solveAdaptation(Issue issue, Ensemble ensemble) throws FileNotFoundException {
-		
-	
+	public void solveAdaptation(Issue issue, Ensemble ensemble)
+			throws FileNotFoundException {
+
 		// ROUTE A
 
 		List<CollectiveAdaptationRole> rolesRouteA = new ArrayList<CollectiveAdaptationRole>();
@@ -143,19 +136,27 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		rolesUMS.add(p23);
 
 		List<CollectiveAdaptationEnsemble> ensemblesCAP = new ArrayList<CollectiveAdaptationEnsemble>();
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("RouteA", rolesRouteA));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("RouteB", rolesRouteB));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("FlexiBusMngmt", rolesFBMngmt));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideA", rolesCPRideA));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideB", rolesCPRideB));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPCompany", rolesCPCompany));
+		ensemblesCAP
+				.add(new CollectiveAdaptationEnsemble("RouteA", rolesRouteA));
+		ensemblesCAP
+				.add(new CollectiveAdaptationEnsemble("RouteB", rolesRouteB));
+		ensemblesCAP.add(new CollectiveAdaptationEnsemble("FlexiBusMngmt",
+				rolesFBMngmt));
+		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideA",
+				rolesCPRideA));
+		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideB",
+				rolesCPRideB));
+		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPCompany",
+				rolesCPCompany));
 		ensemblesCAP.add(new CollectiveAdaptationEnsemble("UMS", rolesUMS));
 
-		CollectiveAdaptationProblem cap = new CollectiveAdaptationProblem("CAP_1", ensemblesCAP, null, null,
-			ensemblesCAP.get(1).getEnsembleName(), null);
+		CollectiveAdaptationProblem cap = new CollectiveAdaptationProblem(
+				"CAP_1", ensemblesCAP, null, null, ensemblesCAP.get(1)
+						.getEnsembleName(), null);
 
-		DemoManagementSystem dms = DemoManagementSystem.initializeSystem("scenario/Mobility/");
-	//	List<Treatment> treatments = createTreatmentMobility();
+		DemoManagementSystem dms = DemoManagementSystem
+				.initializeSystem("scenario/Mobility/");
+		// List<Treatment> treatments = createTreatmentMobility();
 
 		// Ensemble Creation - Instance of Ensemble 1
 		allow.adaptation.ensemble.Ensemble e1 = dms.getEnsemble("RouteA", cap);
@@ -166,7 +167,8 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		EnsembleManager e2Manager = new EnsembleManager(e2);
 
 		// Ensemble Creation - Instance of Ensemble 3
-		allow.adaptation.ensemble.Ensemble e3 = dms.getEnsemble("FlexiBusMngmt", cap);
+		allow.adaptation.ensemble.Ensemble e3 = dms.getEnsemble(
+				"FlexiBusMngmt", cap);
 		EnsembleManager e3Manager = new EnsembleManager(e3);
 
 		// Ensemble Creation - Instance of Ensemble 4
@@ -178,7 +180,8 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		EnsembleManager e5Manager = new EnsembleManager(e5);
 
 		// Ensemble Creation - Instance of Ensemble 6
-		allow.adaptation.ensemble.Ensemble e6 = dms.getEnsemble("CPCompany", cap);
+		allow.adaptation.ensemble.Ensemble e6 = dms.getEnsemble("CPCompany",
+				cap);
 		EnsembleManager e6Manager = new EnsembleManager(e6);
 
 		// Ensemble Creation - Instance of Ensemble 7
@@ -198,45 +201,57 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 
 		System.gc();
 		try {
-		    System.out.println("Experiment starting in 5 seconds...");
-		    Thread.sleep(5000);
+			System.out.println("Experiment starting in 5 seconds...");
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
-		
+
 		CAWindow window = null;
 		int id = 1;
-		
-		
+
 		runTreatment(cap, ensembles, window, id, "mobility");
 
-		// remove the first element of the treatments list
-		
-	//	Utilities.genericWriteFile(treatments, "treatmentsMobility.csv");
+		for (int j = 0; j < ensembles.size(); j++) {
+
+			EnsembleManager em = ensembles.get(j);
+			List<RoleManager> roleManagers = em.getRolesManagers();
+			for (int i = 0; i < roleManagers.size(); i++) {
+				RoleManager rm = roleManagers.get(i);
+				System.out.println("ROLE: " + rm.getRole().getType());
+				if (rm.getRoleCommands() != null) {
+					RoleCommand command = rm.getRoleCommands();
+					System.out.println("RoleCommand: "
+							+ command.getCommands().size());
+				} else {
+					System.out.println("RoleCommand: None");
+
+				}
+			}
+		}
+
+		// Utilities.genericWriteFile(treatments, "treatmentsMobility.csv");
 		System.out.println("END SIMULATION");
 		System.exit(1);
 
-	
-		
-		
-	    
- }
+	}
 
-		
-	
-	 static ExperimentResult runTreatment(CollectiveAdaptationProblem cap,
-			    List<EnsembleManager> ensembles, CAWindow window, int id, String scenario) {
-			
-			HashMap<RoleManager, HashMap<String, ArrayList<Integer>>> GlobalResult = new HashMap<RoleManager, HashMap<String, ArrayList<Integer>>>();
+	static ExperimentResult runTreatment(CollectiveAdaptationProblem cap,
+			List<EnsembleManager> ensembles, CAWindow window, int id,
+			String scenario) {
 
-			Treatment treatment =  createRandomTreatmentMobility(1,1);
-			System.out.println("" + id + " - " + treatment.toString());
-			System.out.println("ISSUE TYPE:"+treatment.getIssues().get(0).getIssueType());
-			return ExperimentRunner.getInstance().run(cap, treatment, ensembles, window, scenario, GlobalResult);
+		HashMap<RoleManager, HashMap<String, ArrayList<Integer>>> GlobalResult = new HashMap<RoleManager, HashMap<String, ArrayList<Integer>>>();
 
-}
+		Treatment treatment = createRandomTreatmentMobility(1, 1);
+		System.out.println("" + id + " - " + treatment.toString());
+		System.out.println("ISSUE TYPE:"
+				+ treatment.getIssues().get(0).getIssueType());
+		return ExperimentRunner.getInstance().run(cap, treatment, ensembles,
+				window, scenario, GlobalResult);
 
-	    static List<Treatment> createTreatmentMobility() {
+	}
+
+	static List<Treatment> createTreatmentMobility() {
 
 		List<Treatment> result = new ArrayList<Treatment>();
 		int treatmentsForSubject = 100;
@@ -248,24 +263,26 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		int currentTreatmentId = 1;
 
 		if (fullyRandom) {
-		    for (int i = 0; i < v1Values.length; i++) {
-			for (int t = 1; t <= treatmentsForSubject; t++) {
-			    result.add(createRandomTreatmentMobility(currentTreatmentId++, v1Values[i]));
-			}
-			System.gc();
-		    }
-		} else {
-		    // othersValues.length
-		    for (int i = 0; i < v1Values.length; i++) {
-			for (int issueIndex = 0; issueIndex <= othersValues.length; issueIndex++) {
-			    for (int j = 0; j < othersValues.length; j++) {
+			for (int i = 0; i < v1Values.length; i++) {
 				for (int t = 1; t <= treatmentsForSubject; t++) {
-				    result.add(createTreatmentMobility(currentTreatmentId++, v1Values[i], issueIndex,
-					    othersValues[j]));
+					result.add(createRandomTreatmentMobility(
+							currentTreatmentId++, v1Values[i]));
 				}
-			    }
+				System.gc();
 			}
-		    }
+		} else {
+			// othersValues.length
+			for (int i = 0; i < v1Values.length; i++) {
+				for (int issueIndex = 0; issueIndex <= othersValues.length; issueIndex++) {
+					for (int j = 0; j < othersValues.length; j++) {
+						for (int t = 1; t <= treatmentsForSubject; t++) {
+							result.add(createTreatmentMobility(
+									currentTreatmentId++, v1Values[i],
+									issueIndex, othersValues[j]));
+						}
+					}
+				}
+			}
 		}
 		// Collections.shuffle(result, new Random(System.nanoTime()));
 		// add a copy of the first element, it will be always at the beginning
@@ -273,17 +290,20 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		Treatment treatmentToAdd = ((Treatment) result.get(0)).clone();
 		result.add(treatmentToAdd);
 		return result;
-	    }
+	}
 
-	    static Treatment createTreatmentMobility(int id, int v1Value, int issueIndex, int othersValue) {
-		Treatment result = new Treatment(id, v1Value, issueIndex, othersValue, "Mobility");
+	static Treatment createTreatmentMobility(int id, int v1Value,
+			int issueIndex, int othersValue) {
+		Treatment result = new Treatment(id, v1Value, issueIndex, othersValue,
+				"Mobility");
 		result.populateMobility();
 		return result;
-	    }
-	    static Treatment createRandomTreatmentMobility(int id, int v1Value) {
-	    	Treatment result = new Treatment(id, v1Value, "Mobility");
-	    	result.populateMobility();
-	    	return result;
-	        }
+	}
+
+	static Treatment createRandomTreatmentMobility(int id, int v1Value) {
+		Treatment result = new Treatment(id, v1Value, "Mobility");
+		result.populateMobility();
+		return result;
+	}
 
 }

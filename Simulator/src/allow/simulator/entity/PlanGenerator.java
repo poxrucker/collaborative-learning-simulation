@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
+import allow.simulator.core.Simulator;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.person.PlanJourney;
 import allow.simulator.flow.activity.person.RegisterToFlexiBus;
@@ -12,10 +13,9 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
 import allow.simulator.world.StreetNode;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.DistrictLayer;
-import allow.simulator.world.layer.DistrictType;
-import allow.simulator.world.layer.Layer;
+import allow.simulator.world.overlay.Area;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.DistrictType;
 
 public class PlanGenerator {
 
@@ -117,7 +117,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_STUDENT[] = { 25, 5, 70, 0, 0, 0 };
 
 	private static void generateStudentDayPlan(Person person) {
-		DistrictLayer partitioning = (DistrictLayer) person.getContext().getWorld().getStreetMap().getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
@@ -278,7 +278,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_WORKER[] = { 15, 10, 75, 0, 0, 0 };
 
 	private static void generateWorkerDayPlan(Person person) {
-		DistrictLayer partitioning = (DistrictLayer) person.getContext().getWorld().getStreetMap().getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
@@ -405,7 +405,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_HOMEMAKER[] = { 30, 10, 60, 0, 0, 0 };
 
 	private static void generateHomemakerDayPlan(Person person) {
-		DistrictLayer partitioning = (DistrictLayer) person.getContext().getWorld().getStreetMap().getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
 
 		// Journey in the morning?
@@ -441,7 +441,7 @@ public class PlanGenerator {
 		}
 	}
 
-	private static Coordinate newLocation(DistrictLayer l, int distribution[]) {
+	private static Coordinate newLocation(DistrictOverlay l, int distribution[]) {
 		int r1 = ThreadLocalRandom.current().nextInt(100);
 		DistrictType types[] = DistrictType.values();
 		DistrictType t = types[0];

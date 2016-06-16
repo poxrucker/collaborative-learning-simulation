@@ -13,10 +13,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.DistrictLayer;
-import allow.simulator.world.layer.DistrictType;
-import allow.simulator.world.layer.Layer;
+import allow.simulator.world.overlay.Area;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.DistrictType;
 
 public class Main {
 	
@@ -47,13 +46,13 @@ public class Main {
 		// Now add schools.
 		Path base = Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world");
 		StreetMap map = new StreetMap(base.resolve("trento.world"));
-		map.addLayer(Layer.Type.DISTRICTS, base.resolve("partitioning.layer"));
+		DistrictOverlay districtOverlay = DistrictOverlay.parse(base.resolve("partitioning.layer"), map);
+		map.addOverlay(districtOverlay, "partitioning");
 		
-		DistrictLayer l = (DistrictLayer) map.getLayer(Layer.Type.DISTRICTS);
-		List<Area> residentialAreas = l.getAreasOfType(DistrictType.RESIDENTIAL);
+		List<Area> residentialAreas = districtOverlay.getAreasOfType(DistrictType.RESIDENTIAL);
 		
 		for (Area a : residentialAreas) {
-			List<StreetNode> nodes = l.getPointsInArea(a);
+			List<StreetNode> nodes = districtOverlay.getPointsInArea(a);
 			Coordinate c = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size())).getPosition();
 			
 			wr.write(a.getName() + " School" + ";;" + "School" + ";;" + c.x + " " + c.y + "\n");

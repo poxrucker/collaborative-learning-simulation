@@ -42,7 +42,7 @@ public class DistanceRelation extends Relation {
 	public void updateRelation(List<Entity> newEntities, Set<Long> blackList) {
 		// Get entities which are physically close.
 		closeEntityBuffer.clear();
-		entity.getContext().getWorld().getNearEntities(entity, DISTANCE, closeEntityBuffer);
+		//entity.getContext().getWorld().getNearEntities(entity, DISTANCE, closeEntityBuffer);
 
 		// Add all entities which are new (i.e. in the difference of closeEntities and entities).
 		for (Entity e : closeEntityBuffer) {

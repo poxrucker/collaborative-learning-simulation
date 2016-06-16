@@ -1,4 +1,4 @@
-package allow.simulator.world.layer;
+package allow.simulator.world.overlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +13,12 @@ import allow.simulator.util.Coordinate;
  */
 public final class SinglePointShape extends Shape {
 	// Point of the shape.
-	private Coordinate point; 
+	private final Coordinate point; 
 	
 	/**
-	 * Constructor.
 	 * Creates a new instance of a single point area given the point of interest.
 	 * 
-	 * @param point Point that representes the single point shape.
+	 * @param point Point that represents the single point shape
 	 */
 	public SinglePointShape(Coordinate point) {
 		this.point = point;

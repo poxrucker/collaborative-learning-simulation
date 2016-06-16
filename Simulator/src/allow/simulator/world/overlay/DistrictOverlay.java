@@ -1,5 +1,8 @@
-package allow.simulator.world.layer;
+package allow.simulator.world.overlay;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -17,17 +20,12 @@ import allow.simulator.world.StreetNode;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class DistrictLayer extends Layer {
-
-	// protected String name;
-	// protected StreetMap base;
+public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
+	// StreetMap
+	private StreetMap base;
 
 	// Mapping area types to areas.
 	private Map<DistrictType, List<Area>> areas;
-
-	// Mapping of area to nodes within that area.
-	// private Map<Area, List<StreetNode>> areaToNodesMapping;
-	// private Map<StreetNode, List<Area>> nodesToAreaMapping;
 
 	/**
 	 * Constructor. Creates a new layer on top of the specified StreetMap base
@@ -37,8 +35,9 @@ public class DistrictLayer extends Layer {
 	 * @param base StreetMap on top of which layer is created. All points will
 	 *             initially be added to a default area of type UNKNOWN.
 	 */
-	public DistrictLayer(Type name, StreetMap base) {
-		super(name, base);
+	public DistrictOverlay(Type name, StreetMap base) {
+		super(name);
+		this.base = base;
 		
 		// Create default area spanning whole bounding rectangle of underlying StreetMap.
 		double envelope[] = base.getDimensions();
@@ -110,5 +109,43 @@ public class DistrictLayer extends Layer {
 		// Update still default nodes.
 		stillDefault.clear();
 		stillDefault.addAll(util.values());
+	}
+
+	@Override
+	public boolean update() {
+		return false;
+	}
+	
+	public static DistrictOverlay parse(Path path, StreetMap map) throws IOException {
+		List<String> lines = Files.readAllLines(path);
+		DistrictOverlay newLayer = new DistrictOverlay(AbstractGraphOverlay.Type.DISTRICTS, map);
+		
+		for (String line : lines) {
+			String tokens[] = line.split(";;");
+			
+			// Parse vertices.
+			String vertices[] = tokens[2].split(",");
+			List<Coordinate> polygon = new ArrayList<Coordinate>(vertices.length);
+			
+			for (String vertex : vertices) {
+				String coord[] = vertex.split(" ");
+				polygon.add(new Coordinate(Double.parseDouble(coord[0]), Double.parseDouble(coord[1])));
+			}
+			
+			String areaTypes[] = tokens[1].split(",");
+			
+			for (String areaType : areaTypes) {
+				
+				if (polygon.size() == 0) 
+					throw new IllegalArgumentException("Error: Area " + tokens[0] 
+							+ " of district layer does not have a point or boundary.");
+				DistrictType type = DistrictType.fromString(areaType);
+				DistrictArea newArea = new DistrictArea(tokens[0], polygon, type);
+				newLayer.addArea(newArea);
+				System.out.println("    Adding area " + tokens[0] + " (" + polygon.size()
+						+ " boundary vertices, type " + type + ", nodes: " + newLayer.getPointsInArea(newArea).size() + ")");
+			}
+		}
+		return newLayer;
 	}
 }

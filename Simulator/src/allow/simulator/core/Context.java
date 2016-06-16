@@ -4,8 +4,8 @@ import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.statistics.Statistics;
-import allow.simulator.world.IWorld;
 import allow.simulator.world.Weather;
+import allow.simulator.world.World;
 
 /**
  * Represents context (i.e. world, time, a.s.o. shared by all entities) of 
@@ -16,8 +16,11 @@ import allow.simulator.world.Weather;
  */
 public final class Context {
 	// World including the StreetMap
-	private final IWorld world;
-		
+	private final World world;
+	
+	// EntityManager instance holding all entities
+	private final EntityManager entityManager;
+	
 	// Simulated time
 	private final Time time;
 	
@@ -49,7 +52,8 @@ public final class Context {
 	 * @param plannerService Planner services to be used.
 	 * @param weather Current weather.
 	 */
-	public Context(IWorld world,
+	public Context(World world,
+			EntityManager entityManager,
 			Time time,
 			JourneyPlanner journeyPlanner,
 			IDataService dataService,
@@ -57,6 +61,7 @@ public final class Context {
 			Statistics stats,
 			SimulationParameter params) {
 		this.world = world;
+		this.entityManager = entityManager;
 		this.time = time;
 		this.journeyPlanner = journeyPlanner;
 		this.dataService = dataService;
@@ -70,8 +75,12 @@ public final class Context {
 	 * 
 	 * @return World of the simulation.
 	 */
-	public IWorld getWorld() {
+	public World getWorld() {
 		return world;
+	}
+	
+	public EntityManager getEntityManager() {
+		return entityManager;
 	}
 	
 	/**

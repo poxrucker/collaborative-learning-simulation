@@ -21,8 +21,10 @@ public class EntityManager {
 	public void addEntity(Entity entity) {
 		Long2ObjectOpenHashMap<Entity> temp = (Long2ObjectOpenHashMap<Entity>) entities.get(entity.getType());
 		
-		if (temp == null)
+		if (temp == null) {
 			temp = new Long2ObjectOpenHashMap<Entity>();
+			entities.put(entity.getType(), temp);
+		}
 		
 		temp.put(entity.getId(), entity);
 	}
@@ -31,5 +33,4 @@ public class EntityManager {
 		Map<Long, Entity> temp = entities.get(type);
 		return (temp != null) ? Collections.unmodifiableCollection(temp.values()) : Collections.emptySet();
 	}
-	
 }

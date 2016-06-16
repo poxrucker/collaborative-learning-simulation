@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -22,18 +21,11 @@ import java.util.Set;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.DistrictArea;
-import allow.simulator.world.layer.DistrictLayer;
-import allow.simulator.world.layer.DistrictType;
-import allow.simulator.world.layer.Layer;
-import allow.simulator.world.layer.SafetyArea;
-import allow.simulator.world.layer.SafetyLayer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
-public final class StreetMap implements Observer {
+public final class StreetMap extends World implements Observer {
 	
 	private static final class StreetComparator implements Comparator<Street> {
 		
@@ -50,8 +42,6 @@ public final class StreetMap implements Observer {
 		}
 		
 	}
-	// Dimensions of street map.
-	private double envelope[];
 	
 	// Encodes network structure of StreetMap.
 	private Graph<StreetNode, StreetSegment> map;
@@ -64,14 +54,12 @@ public final class StreetMap implements Observer {
 	private Map<Long, Street> idStreets;
 	private List<StreetNode> temp;
 	private List<StreetNode> tempReduced;
-	Map<Layer.Type, Layer> layers;
 	
 	// Set of street segments to update after each time step.
 	private Set<Street> streetsToUpdate;
 	private Queue<Street> busiestStreets;
 	
 	public StreetMap(Path path) throws IOException {
-		envelope = new double[] { 180.0, -180.0, 90.0, -90.0 };
 		map = new DirectedSparseMultigraph<StreetNode, StreetSegment>();
 		mapReduced = new DirectedSparseMultigraph<StreetNode, Street>(); 
 		streets = new HashMap<String, Street>();
@@ -81,7 +69,6 @@ public final class StreetMap implements Observer {
 		idStreets = new HashMap<Long, Street>();
 		temp = new ArrayList<StreetNode>();
 		tempReduced = new ArrayList<StreetNode>();
-		layers = new EnumMap<Layer.Type, Layer>(Layer.Type.class);
 		busiestStreets = new LinkedList<Street>();
 		loadStreetNetwork(path);
 	}
@@ -89,7 +76,11 @@ public final class StreetMap implements Observer {
 	private void loadStreetNetwork(Path mapFile) throws IOException {
 		List<String> lines = Files.readAllLines(mapFile);
 		int offset = 0;
-		
+		dimensions[0] = 180.0;
+		dimensions[1] = -180.0;
+		dimensions[2] = 90.0;
+		dimensions[3] = -90.0;
+
 		// Read nodes.
 		String headerNodes = lines.get(offset++);
 		String tokens[] = headerNodes.split(" ");
@@ -101,10 +92,10 @@ public final class StreetMap implements Observer {
 			String temp = lines.get(offset++);
 			tokens = temp.split(";;");
 			Coordinate c = new Coordinate(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2]));
-			if (c.x < envelope[0]) envelope[0] = c.x;
-			if (c.x > envelope[1]) envelope[1] = c.x;
-			if (c.y < envelope[2]) envelope[2] = c.y;
-			if (c.y > envelope[3]) envelope[3] = c.y;
+			if (c.x < dimensions[0]) dimensions[0] = c.x;
+			if (c.x > dimensions[1]) dimensions[1] = c.x;
+			if (c.y < dimensions[2]) dimensions[2] = c.y;
+			if (c.y > dimensions[3]) dimensions[3] = c.y;
 			StreetNode n = new StreetNode(nodeIds++, tokens[0], c);
 			map.addVertex(n);
 			nodes.put(tokens[0], n);
@@ -172,105 +163,7 @@ public final class StreetMap implements Observer {
 		streetsToUpdate = new HashSet<Street>(streets.size() / 2);
 		temp = new ArrayList<StreetNode>(map.getVertices());
 		tempReduced = new ArrayList<StreetNode>(mapReduced.getVertices());
-		System.out.println(envelope[0] + " " + envelope[1] + " " + envelope[2] + " " + envelope[3]);
-	}
-	
-	public void addLayer(Layer.Type type, Path path) throws IOException {
-		Layer newLayer = null;
-		
-		switch (type) {
-		
-		case DISTRICTS:
-			if (layers.get(type) != null)
-				throw new IllegalStateException("Error: Cannot add a second districts layer.");
-			newLayer = loadDistrictLayer(path);
-			break;
-			
-		case SAFETY:
-			if (layers.get(type) != null)
-				throw new IllegalStateException("Error: Cannot add a second safety layer.");
-			newLayer = loadSafetyLayer(path);
-			break;
-			
-		default:
-			throw new IllegalArgumentException("Error: Unknown layer type " + type);
-		
-		}
-		layers.put(type, newLayer);
-	}
-	
-	private Layer loadDistrictLayer(Path path) throws IOException {
-		List<String> lines = Files.readAllLines(path);
-		DistrictLayer newLayer = new DistrictLayer(Layer.Type.DISTRICTS, this);
-		
-		for (String line : lines) {
-			String tokens[] = line.split(";;");
-			
-			// Parse vertices.
-			String vertices[] = tokens[2].split(",");
-			List<Coordinate> polygon = new ArrayList<Coordinate>(vertices.length);
-			
-			for (String vertex : vertices) {
-				String coord[] = vertex.split(" ");
-				polygon.add(new Coordinate(Double.parseDouble(coord[0]), Double.parseDouble(coord[1])));
-			}
-			
-			String areaTypes[] = tokens[1].split(",");
-			
-			for (String areaType : areaTypes) {
-				
-				if (polygon.size() == 0) 
-					throw new IllegalArgumentException("Error: Area " + tokens[0] 
-							+ " of district layer does not have a point or boundary.");
-				DistrictType type = DistrictType.fromString(areaType);
-				DistrictArea newArea = new DistrictArea(tokens[0], polygon, type);
-				newLayer.addArea(newArea);
-				
-				/*if (newArea.getType() == DistrictType.RESIDENTIAL) {
-					List<StreetNode> nodesTemp = newLayer.getPointsInArea(newArea);
-					System.out.println(newArea.getName() + " " + nodesTemp.get(ThreadLocalRandom.current().nextInt(nodesTemp.size())).getPosition());
-				}*/
-					
-				System.out.println("    Adding area " + tokens[0] + " (" + polygon.size()
-						+ " boundary vertices, type " + type + ", nodes: " + newLayer.getPointsInArea(newArea).size() + ")");
-			}
-		}
-		return newLayer;
-	}
-	
-	private Layer loadSafetyLayer(Path path) throws IOException {
-		List<String> lines = Files.readAllLines(path);
-		SafetyLayer newLayer = new SafetyLayer(Layer.Type.SAFETY, this);
-		
-		for (String line : lines) {
-			String tokens[] = line.split(";;");
-			
-			// Parse vertices.
-			String vertices[] = tokens[1].split(",");
-			List<Coordinate> polygon = new ArrayList<Coordinate>(vertices.length);
-			
-			for (String vertex : vertices) {
-				String coord[] = vertex.split(" ");
-				polygon.add(new Coordinate(Double.parseDouble(coord[0]), Double.parseDouble(coord[1])));
-			}
-			int safetyLevel = Integer.parseInt(tokens[2]);
-			Area newArea = new SafetyArea(tokens[0], polygon, safetyLevel);
-			newLayer.addArea(newArea);
-		}
-		return newLayer;
-	}
-	
-	public Layer getLayer(Layer.Type type) {
-		return layers.get(type);
-	}
-	
-	/**
-	 * Returns the physical dimensions of the street graph in 
-	 * 
-	 * @return
-	 */
-	public double[] getDimensions() {
-		return envelope;
+		System.out.println(dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
 	/**
@@ -321,7 +214,9 @@ public final class StreetMap implements Observer {
 	/**
 	 * Updates all street segments which 
 	 */
-	public void updateStreetSegments() {
+	@Override
+	public boolean update() {
+		boolean changed = false;
 		// Reset busiest streets queue. 
 		busiestStreets.clear();
 		
@@ -330,8 +225,10 @@ public final class StreetMap implements Observer {
 			
 			if (toUpdate.getNumberOfVehicles() > 0)
 				busiestStreets.add(toUpdate);
+			changed = true;
 		}
 		streetsToUpdate.clear();
+		return changed || super.update();
 	}
 	
 	public List<Street> getNBusiestStreets(int n) {

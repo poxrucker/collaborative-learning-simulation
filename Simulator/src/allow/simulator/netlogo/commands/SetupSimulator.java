@@ -16,6 +16,7 @@ import org.nlogo.api.Syntax;
 import allow.simulator.core.Configuration;
 import allow.simulator.core.SimulationParameter;
 import allow.simulator.core.Simulator;
+import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
 
 public class SetupSimulator extends DefaultReporter {
@@ -41,7 +42,8 @@ public class SetupSimulator extends DefaultReporter {
 		params.KnowledgeModel = args[2].getString();
 		
 		try {
-			Simulator.Instance().setup(config, params, (World) context.getAgent().world());
+			Simulator.Instance().setup(config, params);
+			NetLogoWrapper.initialize(Simulator.Instance(), (World) context.getAgent().world());
 			
 		} catch (IOException e) {
 			throw new ExtensionException(e.getMessage());

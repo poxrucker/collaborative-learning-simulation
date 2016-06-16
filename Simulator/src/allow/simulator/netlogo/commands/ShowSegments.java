@@ -10,12 +10,14 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.Simulator;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 
 public class ShowSegments extends DefaultCommand {
 	@Override
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
-		Collection<StreetSegment> s = Simulator.Instance().getContext().getWorld().getStreetMap().getStreetSegments();
+		StreetMap map = (StreetMap) Simulator.Instance().getContext().getWorld();
+		Collection<StreetSegment> s = map.getStreetSegments();
 	
 		for (StreetSegment seg : s) {
 			if (seg.getNumberOfVehicles() > 0) System.out.println(seg.getId() + " " + seg.getNumberOfVehicles());

@@ -14,16 +14,20 @@ import org.nlogo.api.AgentException;
 import allow.simulator.core.Context;
 import allow.simulator.core.EntityManager;
 import allow.simulator.core.IContextWrapper;
+import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
-import allow.simulator.world.IWorld;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Transformation;
 
-public final class NetLogoContextWrapper implements IContextWrapper {
+public final class NetLogoWrapper implements IContextWrapper {
+	// Static instance
+	private static NetLogoWrapper instance;
+	
 	// NetLogo world instance
 	private final World netLogoWorld;
 
@@ -34,16 +38,24 @@ public final class NetLogoContextWrapper implements IContextWrapper {
 	// Transformation to convert coordinates
 	private Transformation transformation;
 
-	public NetLogoContextWrapper(World netLogoWorld) {
+	public NetLogoWrapper(World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simToNetLogo = new Long2LongOpenHashMap();
 		this.netLogoToSim = new Long2LongOpenHashMap();
 	}
 
+	public Transformation getTransformation() {
+		return transformation;
+	}
+	
+	public World getWorld() {
+		return netLogoWorld;
+	}
+	
 	@Override
 	public void wrap(Context context) {
 		// Wrap world
-		wrapWorld(context.getWorld());
+		wrapWorld((StreetMap) context.getWorld());
 
 		// Wrap entities
 		try {
@@ -54,23 +66,23 @@ public final class NetLogoContextWrapper implements IContextWrapper {
 		}
 	}
 
-	private void wrapWorld(IWorld world) {
+	private void wrapWorld(StreetMap world) {
 		// Wrap world
 		double worldEnvelope[] = new double[] { netLogoWorld.minPxcor(),
 				netLogoWorld.maxPxcor(), netLogoWorld.minPycor(),
 				netLogoWorld.maxPxcor() };
 
 		// Get envelope of loaded world.
-		double gisEnvelope[] = world.getStreetMap().getDimensions();
+		double gisEnvelope[] = world.getDimensions();
 
 		// Set transformation between NetLogo and loaded world.
-		transformation.setTransformation(gisEnvelope, worldEnvelope);
+		transformation = new Transformation(gisEnvelope, worldEnvelope);
 
 		// Create NetLogo bindings for street nodes.
 		Coordinate temp = new Coordinate();
 		Map<Long, Turtle> util = new HashMap<Long, Turtle>();
 
-		for (StreetNode node : world.getStreetMap().getStreetNodes()) {
+		for (StreetNode node : world.getStreetNodes()) {
 			transformation.transform(node.getPosition(), temp);
 			Turtle newNode = new Turtle(netLogoWorld, netLogoWorld.getBreed("NODES"), temp.x, temp.y);
 			util.put(node.getId(), newNode);
@@ -79,12 +91,10 @@ public final class NetLogoContextWrapper implements IContextWrapper {
 		}
 
 		// Create NetLogo bindings for street segments.
-		Collection<StreetSegment> segments = world.getStreetMap()
-				.getStreetSegments();
+		Collection<StreetSegment> segments = world.getStreetSegments();
 
 		for (StreetSegment segment : segments) {
-			Pair<StreetNode, StreetNode> in = world.getStreetMap()
-					.getIncidentNodes(segment);
+			Pair<StreetNode, StreetNode> in = world.getIncidentNodes(segment);
 			Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()),
 					netLogoWorld.links());
 			netLogoWorld.links().add(newLink);
@@ -118,7 +128,7 @@ public final class NetLogoContextWrapper implements IContextWrapper {
 				case PUBLICTRANSPORTAGENCY:
 				case FLEXIBUSAGENCY:
 				case TAXIAGENCY:
-					NetLogoAgent newAgent = NetLogoAgent.createNetLogoAgent(netLogoWorld, entity);
+					NetLogoAgent newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
 					netLogoWorld.turtles().add(newAgent);
 
 					if (netLogoToSim.get(newAgent.id) != null)
@@ -137,5 +147,17 @@ public final class NetLogoContextWrapper implements IContextWrapper {
 				}
 			}
 		}
+	}
+	
+	public static NetLogoWrapper initialize(Simulator simulator, World world) {
+		instance = new NetLogoWrapper(world);
+		instance.wrap(simulator.getContext());
+		return instance;
+	}
+	
+	public static NetLogoWrapper Instance() {
+		if (instance == null)
+			throw new UnsupportedOperationException();
+		return instance;
 	}
 }

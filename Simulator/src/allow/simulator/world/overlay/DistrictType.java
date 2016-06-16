@@ -1,4 +1,4 @@
-package allow.simulator.world.layer;
+package allow.simulator.world.overlay;
 
 public enum DistrictType {
 	

@@ -42,10 +42,6 @@ public enum EntityType {
 	/**
 	 * FlexiBus agency providing dynamic on-request bus scheduling.
 	 */
-	FLEXIBUSAGENCY,
+	FLEXIBUSAGENCY;
 	
-	/**
-	 * The urban mobility system for smart journey planning.
-	 */
-	URBANMOBILITYSYSTEM
 }

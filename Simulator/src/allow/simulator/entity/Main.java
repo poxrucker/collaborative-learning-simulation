@@ -28,10 +28,9 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.DistrictLayer;
-import allow.simulator.world.layer.DistrictType;
-import allow.simulator.world.layer.Layer;
+import allow.simulator.world.overlay.Area;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.DistrictType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -39,7 +38,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class Main {
-		
+	
+	public static final String OVERLAY_DISTRICTS = "partitioning";
+	
 	public static class Worker implements Runnable {
 		
 		private Person buffer[];
@@ -96,7 +97,8 @@ public class Main {
 	public static void main(String args[]) throws IOException {
 		// Determine home location.
 		StreetMap map = new StreetMap(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/trento.world"));
-		map.addLayer(Layer.Type.DISTRICTS, Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/partitioning.layer"));
+		DistrictOverlay districtOverlay = DistrictOverlay.parse(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/partitioning.layer"), map);
+		map.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
 		long t1 = System.nanoTime();
 		int numberToGenerate = 5000;
@@ -201,7 +203,7 @@ public class Main {
 		//return LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(i.startTime)), ZoneId.of("UTC")).getHour() <= event.getTime().getHour();
 	}
 	
-	private static Coordinate newLocation(DistrictLayer l, int distribution[]) {
+	private static Coordinate newLocation(DistrictOverlay l, int distribution[]) {
 		int r1 = ThreadLocalRandom.current().nextInt(100);
 		DistrictType types[] = DistrictType.values();
 		DistrictType t = types[0];
@@ -254,7 +256,7 @@ public class Main {
 	}
 	
 	private static Person createChild(int id, StreetMap map, IPlannerService planner) {
-		DistrictLayer l = (DistrictLayer) map.getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
 		List<Area> schools = l.getAreasOfType(DistrictType.SCHOOL);
 		Coordinate home = null, school = null;
 		TravelEvent homeToWork = null, workToHome = null;
@@ -297,7 +299,7 @@ public class Main {
 	private static int PROP_CAR_HOMEMAKER = 80;
 	
 	private static Person createHomemaker(int id, StreetMap map, IPlannerService planner) {
-		DistrictLayer l = (DistrictLayer) map.getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
 		Coordinate home = null, second = null;
 		
 		//if (ThreadLocalRandom.current().nextInt(100) < 70) {
@@ -364,7 +366,7 @@ public class Main {
 	private static int PROP_BIKE_STUDENT = 80;
 
 	private static Person createStudent(int id, StreetMap map, IPlannerService planner) {
-		DistrictLayer l = (DistrictLayer) map.getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
 		boolean hasCar = (ThreadLocalRandom.current().nextInt(100) < PROP_CAR_STUDENT);
 		boolean hasBike = (ThreadLocalRandom.current().nextInt(100) < PROP_BIKE_STUDENT);
 		Coordinate home = null, university = null;
@@ -431,7 +433,7 @@ public class Main {
 	
 	private static Person createWorker(int id, StreetMap map, IPlannerService planner) {
 		// Get layer.
-		DistrictLayer l = (DistrictLayer) map.getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
 		
 		// Determine car availability.
 		boolean hasCar = (ThreadLocalRandom.current().nextInt(100) < PROP_CAR_WORKER);

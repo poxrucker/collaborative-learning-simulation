@@ -1,4 +1,4 @@
-package allow.simulator.world.layer;
+package allow.simulator.world.overlay;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 
 /**
@@ -17,7 +16,7 @@ import allow.simulator.world.StreetNode;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class Layer {
+public abstract class AbstractGraphOverlay {
 	
 	/**
 	 * Represents the type of layer.
@@ -44,9 +43,6 @@ public abstract class Layer {
 	// Name of the layer e.g. "partitioning" or "security"
 	protected Type type;
 	
-	// StreetMap the layer is overlaid.
-	protected StreetMap base;
-	
 	// Mapping of areas of the layer to nodes within that area.
 	protected Map<Area, List<StreetNode>> areaToNodesMapping;
 	
@@ -61,9 +57,8 @@ public abstract class Layer {
 	 * @param type Name/Identifier of the layer.
 	 * @param base StreetMap the layer is added to.
 	 */
-	protected Layer(Type type, StreetMap base) {
+	protected AbstractGraphOverlay(Type type) {
 		this.type = type;
-		this.base = base;
 		areaToNodesMapping = new HashMap<Area, List<StreetNode>>();
 		nodesToAreaMapping = new HashMap<StreetNode, List<Area>>();
 	}

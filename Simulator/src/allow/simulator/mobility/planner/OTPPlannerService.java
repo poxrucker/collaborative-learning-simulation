@@ -126,7 +126,7 @@ public final class OTPPlannerService extends AbstractOTPPlanner {
 				for (Leg l : nextIt.legs) {
 					mapTracesToStreets(l);
 				}
-				nextIt.initialWaitingTime = Math.max((nextIt.startTime - time.getTimestamp()) / 1000, 0);
+				nextIt.initialWaitingTime = (time != null) ? Math.max((nextIt.startTime - time.getTimestamp()) / 1000, 0) : 0;
 				itineraries.add(nextIt);
 			}
 			
@@ -141,7 +141,7 @@ public final class OTPPlannerService extends AbstractOTPPlanner {
 	
 	private void mapTracesToStreets(Leg leg) {
 		leg.streets = new ArrayList<Street>();
-		if (leg.mode == TType.CAR || leg.mode == TType.BICYCLE || leg.mode == TType.WALK) {
+		if (map != null && (leg.mode == TType.CAR || leg.mode == TType.BICYCLE || leg.mode == TType.WALK)) {
 
 			for (int j = 0; j < leg.osmNodes.size() - 1; j++) {
 				String first = normalize(leg.osmNodes.get(j), map);
@@ -152,7 +152,7 @@ public final class OTPPlannerService extends AbstractOTPPlanner {
 					leg.streets.add(street);
 			}
 
-		} else {
+		} else if (dataService != null && leg.mode == TType.BUS) {
 			List<String> allStops = new ArrayList<String>(leg.stops.size() + 2);
 			allStops.add(leg.stopIdFrom);
 			

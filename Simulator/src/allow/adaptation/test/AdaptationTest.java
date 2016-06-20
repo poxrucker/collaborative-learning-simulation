@@ -56,6 +56,12 @@ public class AdaptationTest {
 
 		// After adaptation, creator needs to destroy the ensemble
 		ensembleManager.terminateEnsemble("current-bus-trip-id-breakdown");
+		
+		try {
+			planner.shutdown();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

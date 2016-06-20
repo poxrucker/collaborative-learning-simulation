@@ -28,6 +28,7 @@ public final class Ensemble {
 	public Ensemble(Entity creator) {
 		this.creator = creator;
 		participants = new HashMap<Long, Entity>();
+		participants.put(creator.getId(), creator);
 	}
 	
 	/**

@@ -27,6 +27,7 @@ public class AdaptationTest {
 		Issue issue = Issue.BUS_BREAKDOWN;
 		try {
 			ca.solveAdaptation(issue, ensemble);
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

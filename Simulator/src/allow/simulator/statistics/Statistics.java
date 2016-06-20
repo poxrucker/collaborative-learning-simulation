@@ -246,7 +246,7 @@ public class Statistics {
 	}
 	
 	public synchronized void updateGlobalStatistics(Context simulationContext) {
-		Collection<Entity> persons = simulationContext.getWorld().getEntitiesOfType(EntityType.PERSON);
+		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityType.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
 	}

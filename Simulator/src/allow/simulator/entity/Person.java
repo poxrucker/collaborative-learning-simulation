@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Queue;
 
 import allow.simulator.core.Context;
+import allow.simulator.core.Simulator;
 import allow.simulator.entity.utility.IUtility;
 import allow.simulator.entity.utility.Preferences;
 import allow.simulator.entity.utility.UtilityWithoutPreferences;
@@ -14,8 +15,8 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.Layer;
+import allow.simulator.world.overlay.Area;
+import allow.simulator.world.overlay.DistrictOverlay;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -172,7 +173,7 @@ public final class Person extends Entity {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		Layer districts = context.getWorld().getStreetMap().getLayer(Layer.Type.DISTRICTS);
+		DistrictOverlay districts = (DistrictOverlay) context.getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		List<Area> areas = districts.getAreasContainingPoint(home);
 		Area temp = null;
 		

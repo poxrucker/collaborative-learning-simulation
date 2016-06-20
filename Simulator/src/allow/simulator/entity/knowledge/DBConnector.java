@@ -93,7 +93,7 @@ public class DBConnector {
 			// Reset tables if they exist.
 			con = DriverManager.getConnection(config.getModelPath() + config.getModelName(), config.getUser(), config.getPassword());
 			stmt = con.createStatement();
-			Collection<Entity> persons = Simulator.Instance().getContext().getWorld().getEntitiesOfType(EntityType.PERSON);
+			Collection<Entity> persons = Simulator.Instance().getContext().getEntityManager().getEntitiesOfType(EntityType.PERSON);
 			System.out.println(persons.size());
 			
 			for (Entity e : persons) {

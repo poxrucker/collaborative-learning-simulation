@@ -14,7 +14,6 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("create-persons", new CreatePersons());
 		primitiveManager.addPrimitive("execute-activities", new ExecuteActivities());
 		primitiveManager.addPrimitive("exchange-knowledge", new ExchangeKnowledge());
-		primitiveManager.addPrimitive("update-grid", new UpdateGrid());
 		primitiveManager.addPrimitive("execute-bus", new ExecuteBus());
 		primitiveManager.addPrimitive("show-activity", new ShowActivity());
 		primitiveManager.addPrimitive("show-segments", new ShowSegments());

@@ -12,8 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.nlogo.agent.World;
-
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.entity.FlexiBusAgency;
@@ -38,9 +36,11 @@ import allow.simulator.mobility.planner.OTPPlannerService;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.NetLogoWorld;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
-import allow.simulator.world.layer.Layer;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.IOverlay;
+import allow.simulator.world.overlay.RasterOverlay;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -48,50 +48,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
- * Main class of Allow Ensembles urban traffic simulation.
+ * Main class of simulator for collaborative learning in the scenario of
+ * personalized, multi-modal urban mobility.
  * 
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class Simulator {
-	// Instance of the simulator which can be accessed using getInstance() method.
+public final class Simulator {
+	// Instance of the simulator which can be accessed using Instance() method
 	private static Simulator instance;
 		
-	// Simulation context.
+	// Simulation context
 	private Context context;
 	
-	// Id counter for entities.
+	// Id counter for entities
 	private long ids;
 	
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
 	
-	public static final String LAYER_DISTRICTS = "partitioning";
-	public static final String LAYER_SAFTEY = "safety";
-	
+	public static final String OVERLAY_DISTRICTS = "partitioning";
+	public static final String OVERLAY_RASTER = "raster";
+
 	/**
 	 * Creates a new instance of the simulator.
 	 * @throws IOException 
 	 */
-	public void setup(Configuration config, SimulationParameter params, World netLogoWorld) throws IOException {
+	public void setup(Configuration config, SimulationParameter params) throws IOException {
 		// Reset Id counter.
 		ids = 0;
 		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// Setup world.
 		System.out.println("Loading world...");
-		NetLogoWorld world = new NetLogoWorld(netLogoWorld, config.getMapPath());
+		StreetMap world = new StreetMap(config.getMapPath());
 		
-		System.out.println("  Adding layer \"" + LAYER_DISTRICTS + "\"...");
-		Path l = config.getLayerPath(LAYER_DISTRICTS);
-		if (l == null) throw new IllegalStateException("Error: Missing layer with key \"" + LAYER_DISTRICTS + "\".");
-		world.getStreetMap().addLayer(Layer.Type.DISTRICTS, l);
+		System.out.println("  Adding layer \"" + OVERLAY_DISTRICTS + "\"...");
+		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
+		if (l == null)
+			throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
+		IOverlay rasterOverlay = new RasterOverlay();
+		IOverlay districtOverlay = DistrictOverlay.parse(l, world);
+		world.addOverlay(rasterOverlay, OVERLAY_RASTER);
+		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
-		System.out.println("  Adding layer \"" + LAYER_SAFTEY + "\"...");
-		l = config.getLayerPath(LAYER_SAFTEY);
-		if (l == null) throw new IllegalStateException("Error: Missing layer with key \"" + LAYER_SAFTEY + "\".");
-		world.getStreetMap().addLayer(Layer.Type.SAFETY, config.getLayerPath(LAYER_SAFTEY));
-
 		// Create data services.
 		System.out.println("Creating data services...");
 		List<IDataService> dataServices = new ArrayList<IDataService>();
@@ -105,7 +105,7 @@ public class Simulator {
 		
 			} else {
 				// For offline queries create mobility repository and offline service.
-				MobilityRepository repos = new MobilityRepository(Paths.get(dataConfig.getURL()), world.getStreetMap());
+				MobilityRepository repos = new MobilityRepository(Paths.get(dataConfig.getURL()), world);
 				dataServices.add(new OfflineDataService(repos));
 			}
 		}
@@ -120,7 +120,7 @@ public class Simulator {
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
 			Service plannerConfig = plannerConfigs.get(i);
-			plannerServices.add(new OTPPlannerService(plannerConfig.getURL(), plannerConfig.getPort(), world.getStreetMap(), dataServices.get(0), time));
+			plannerServices.add(new OTPPlannerService(plannerConfig.getURL(), plannerConfig.getPort(), world, dataServices.get(0), time));
 		}		
 		
 		// Create taxi planner service
@@ -137,7 +137,7 @@ public class Simulator {
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, time, planner, dataServices.get(0), weather, new Statistics(400), params);
+		context = new Context(world, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");
@@ -151,8 +151,8 @@ public class Simulator {
 		// Initialize EvoKnowlegde and setup logger.
 		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 		
-		// Update world grid.
-		world.updateGrid();
+		// Update world
+		world.update();
 	}
 	
 	private void loadEntitiesFromFile(Path config, String knowledgeModel) throws IOException {
@@ -166,20 +166,19 @@ public class Simulator {
 			Person p = mapper.readValue(line, Person.class);
 			p.setContext(context);
 			PlanGenerator.generateDayPlan(p);
-			context.getWorld().addEntity(p);
+			context.getEntityManager().addEntity(p);
 			ids = Math.max(ids, p.getId() + 1);
 		}
 	}
 	
 	/**
-	 * Get current instance of simulator parameters. 
-	 * Instance must be created with createInstance(...) before calling the function.
-	 * Otherwise an exception is thrown.
-	 * 
-	 * @return The current simulator parameters.
+	 * Returns the current instance of the Simulator.
+	 *  
+	 * @return Instance of the Simulator
 	 */
 	public static Simulator Instance() {
-		if (instance == null) instance = new Simulator();
+		if (instance == null)
+			instance = new Simulator();
 		return instance;
 	}
 
@@ -217,7 +216,7 @@ public class Simulator {
 			default:
 				throw new IllegalArgumentException("Error: Unknown entity type.");
 		}
-		context.getWorld().addEntity(newEntity);
+		context.getEntityManager().addEntity(newEntity);
 		return newEntity;
 	}
 	
@@ -227,18 +226,18 @@ public class Simulator {
 	 * @param deltaT Time interval for this step.
 	 */
 	public void tick(int deltaT) {
-		// Save current day to trigger routine scheduling.
+		// Save current day to trigger routine scheduling
 		int days = context.getTime().getDays();
 		
-		// Update time.
+		// Update time
 		context.getTime().tick(deltaT);
 		
-		// Update street network.
-		context.getWorld().getStreetMap().updateStreetSegments();
+		// Update world
+		context.getWorld().update();
 		
 		// Trigger routine scheduling.
 		if (days != context.getTime().getDays()) {
-			Collection<Entity> persons = context.getWorld().getEntitiesOfType(EntityType.PERSON);
+			Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
 
 			for (Entity p : persons) {
 				PlanGenerator.generateDayPlan((Person) p);
@@ -257,24 +256,10 @@ public class Simulator {
 	}
 	
 	/**
-	 * Removes an entity from the simulation given its Id.
+	 * Returns the context associated with this Simulator instance.
 	 * 
-	 * @param entityId Id of the entity.
+	 * @return Context of this Simulator instance
 	 */
-	public void removeEntity(long entityId) {
-		context.getWorld().removeEntity(entityId);
-	}
-
-	/**
-	 * Returns an entity of the simulation given its Id.
-	 * 
-	 * @param entityId Id of the entity.
-	 * @return Entity of simulation with given Id.
-	 */
-	public Entity getEntity(long entityId) {
-		return context.getWorld().getEntityById(entityId);	
-	}
-	
 	public Context getContext() {
 		return context;
 	}

@@ -15,24 +15,25 @@ import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.Simulator;
+import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
-import allow.simulator.world.layer.Area;
-import allow.simulator.world.layer.DistrictLayer;
-import allow.simulator.world.layer.DistrictType;
-import allow.simulator.world.layer.Layer.Type;
+import allow.simulator.world.Transformation;
+import allow.simulator.world.overlay.Area;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.DistrictType;
 
 public class GetRegions extends DefaultReporter
 {
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		LogoListBuilder bldr = new LogoListBuilder();
-		StreetMap map = Simulator.Instance().getContext().getWorld().getStreetMap();
+		StreetMap map = (StreetMap) Simulator.Instance().getContext().getWorld();
 		
 		if (map == null) 
 			throw new ExtensionException("Error: Simulator is not initialized.");
 		
-		DistrictLayer l = (DistrictLayer) map.getLayer(Type.DISTRICTS);
+		DistrictOverlay l = (DistrictOverlay) map.getOverlay(Simulator.OVERLAY_DISTRICTS);
 		Set<String> areas = new HashSet<String>();
 		HashMap<String, List<String>> types = new HashMap<String, List<String>>();
 		HashMap<String, Coordinate> centers = new HashMap<String, Coordinate>();
@@ -51,6 +52,7 @@ public class GetRegions extends DefaultReporter
 				temp.add(type.toString());
 			}
 		}
+		Transformation t = NetLogoWrapper.Instance().getTransformation();
 		
 		for (String area : areas) {
 			if (area.equals("default")) {
@@ -59,7 +61,7 @@ public class GetRegions extends DefaultReporter
 			LogoListBuilder bldr2 = new LogoListBuilder();
 			bldr2.add(area);
 			System.out.println(centers.get(area));
-			Coordinate center = Simulator.Instance().getContext().getWorld().getTransformation().GISToNetLogo(centers.get(area));
+			Coordinate center = t.transform(centers.get(area));
 			bldr2.add(center.x);
 			bldr2.add(center.y);
 			

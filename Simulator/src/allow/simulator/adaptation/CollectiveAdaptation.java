@@ -24,7 +24,11 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 	public void solveAdaptation(Issue issue, Ensemble ensemble)
 			throws FileNotFoundException {
 
-		// ROUTE A
+		String issueType = issue.toString();
+
+		String entityType = ensemble.getCreator().toString();
+
+		// BusRoute
 
 		List<CollectiveAdaptationRole> rolesRouteA = new ArrayList<CollectiveAdaptationRole>();
 
@@ -136,67 +140,65 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		rolesUMS.add(p23);
 
 		List<CollectiveAdaptationEnsemble> ensemblesCAP = new ArrayList<CollectiveAdaptationEnsemble>();
-		ensemblesCAP
-				.add(new CollectiveAdaptationEnsemble("RouteA", rolesRouteA));
-		ensemblesCAP
-				.add(new CollectiveAdaptationEnsemble("RouteB", rolesRouteB));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("FlexiBusMngmt",
-				rolesFBMngmt));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideA",
-				rolesCPRideA));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideB",
-				rolesCPRideB));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPCompany",
-				rolesCPCompany));
-		ensemblesCAP.add(new CollectiveAdaptationEnsemble("UMS", rolesUMS));
-
+		ensemblesCAP.add(new CollectiveAdaptationEnsemble("BusRoute",
+				rolesRouteA));
+		/*
+		 * ensemblesCAP .add(new CollectiveAdaptationEnsemble("RouteB",
+		 * rolesRouteB)); ensemblesCAP.add(new
+		 * CollectiveAdaptationEnsemble("FlexiBusMngmt", rolesFBMngmt));
+		 * ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPRideA",
+		 * rolesCPRideA)); ensemblesCAP.add(new
+		 * CollectiveAdaptationEnsemble("CPRideB", rolesCPRideB));
+		 * ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPCompany",
+		 * rolesCPCompany)); ensemblesCAP.add(new
+		 * CollectiveAdaptationEnsemble("UMS", rolesUMS));
+		 */
 		CollectiveAdaptationProblem cap = new CollectiveAdaptationProblem(
-				"CAP_1", ensemblesCAP, null, null, ensemblesCAP.get(1)
+				"CAP_1", ensemblesCAP, null, null, ensemblesCAP.get(0)
 						.getEnsembleName(), null);
 
 		DemoManagementSystem dms = DemoManagementSystem
-				.initializeSystem("scenario/Mobility/");
+				.initializeSystem("scenarioECAS/Mobility/");
 		// List<Treatment> treatments = createTreatmentMobility();
 
 		// Ensemble Creation - Instance of Ensemble 1
-		allow.adaptation.ensemble.Ensemble e1 = dms.getEnsemble("RouteA", cap);
+		allow.adaptation.ensemble.Ensemble e1 = dms
+				.getEnsemble("BusRoute", cap);
 		EnsembleManager e1Manager = new EnsembleManager(e1);
 
 		// Ensemble Creation - Instance of Ensemble 2
-		allow.adaptation.ensemble.Ensemble e2 = dms.getEnsemble("RouteB", cap);
-		EnsembleManager e2Manager = new EnsembleManager(e2);
-
-		// Ensemble Creation - Instance of Ensemble 3
-		allow.adaptation.ensemble.Ensemble e3 = dms.getEnsemble(
-				"FlexiBusMngmt", cap);
-		EnsembleManager e3Manager = new EnsembleManager(e3);
-
-		// Ensemble Creation - Instance of Ensemble 4
-		allow.adaptation.ensemble.Ensemble e4 = dms.getEnsemble("CPRideA", cap);
-		EnsembleManager e4Manager = new EnsembleManager(e4);
-
-		// Ensemble Creation - Instance of Ensemble 5
-		allow.adaptation.ensemble.Ensemble e5 = dms.getEnsemble("CPRideB", cap);
-		EnsembleManager e5Manager = new EnsembleManager(e5);
-
-		// Ensemble Creation - Instance of Ensemble 6
-		allow.adaptation.ensemble.Ensemble e6 = dms.getEnsemble("CPCompany",
-				cap);
-		EnsembleManager e6Manager = new EnsembleManager(e6);
-
-		// Ensemble Creation - Instance of Ensemble 7
-		allow.adaptation.ensemble.Ensemble e7 = dms.getEnsemble("UMS", cap);
-		EnsembleManager e7Manager = new EnsembleManager(e7);
-
+		/*
+		 * allow.adaptation.ensemble.Ensemble e2 = dms.getEnsemble("RouteB",
+		 * cap); EnsembleManager e2Manager = new EnsembleManager(e2);
+		 * 
+		 * // Ensemble Creation - Instance of Ensemble 3
+		 * allow.adaptation.ensemble.Ensemble e3 = dms.getEnsemble(
+		 * "FlexiBusMngmt", cap); EnsembleManager e3Manager = new
+		 * EnsembleManager(e3);
+		 * 
+		 * // Ensemble Creation - Instance of Ensemble 4
+		 * allow.adaptation.ensemble.Ensemble e4 = dms.getEnsemble("CPRideA",
+		 * cap); EnsembleManager e4Manager = new EnsembleManager(e4);
+		 * 
+		 * // Ensemble Creation - Instance of Ensemble 5
+		 * allow.adaptation.ensemble.Ensemble e5 = dms.getEnsemble("CPRideB",
+		 * cap); EnsembleManager e5Manager = new EnsembleManager(e5);
+		 * 
+		 * // Ensemble Creation - Instance of Ensemble 6
+		 * allow.adaptation.ensemble.Ensemble e6 = dms.getEnsemble("CPCompany",
+		 * cap); EnsembleManager e6Manager = new EnsembleManager(e6);
+		 * 
+		 * // Ensemble Creation - Instance of Ensemble 7
+		 * allow.adaptation.ensemble.Ensemble e7 = dms.getEnsemble("UMS", cap);
+		 * EnsembleManager e7Manager = new EnsembleManager(e7);
+		 */
 		List<EnsembleManager> ensembles = new ArrayList<EnsembleManager>();
 		ensembles.add(e1Manager);
-		ensembles.add(e2Manager);
-		ensembles.add(e3Manager);
-		ensembles.add(e4Manager);
-		ensembles.add(e5Manager);
-		ensembles.add(e6Manager);
-		ensembles.add(e7Manager);
-
+		/*
+		 * ensembles.add(e2Manager); ensembles.add(e3Manager);
+		 * ensembles.add(e4Manager); ensembles.add(e5Manager);
+		 * ensembles.add(e6Manager); ensembles.add(e7Manager);
+		 */
 		Utilities.buildSolversMapMobility(ensembles);
 
 		System.gc();
@@ -222,7 +224,7 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 				if (rm.getRoleCommands() != null) {
 					RoleCommand command = rm.getRoleCommands();
 					System.out.println("RoleCommand: "
-							+ command.getCommands().size());
+							+ command.getCommands().get(0));
 				} else {
 					System.out.println("RoleCommand: None");
 

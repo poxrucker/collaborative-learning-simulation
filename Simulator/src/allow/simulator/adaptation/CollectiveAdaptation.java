@@ -17,6 +17,10 @@ import allow.adaptation.api.CollectiveAdaptationProblem;
 import allow.adaptation.api.CollectiveAdaptationRole;
 import allow.adaptation.api.RoleCommand;
 import allow.adaptation.presentation.CAWindow;
+import allow.simulator.entity.Gender;
+import allow.simulator.entity.Profile;
+import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.util.Coordinate;
 
 public class CollectiveAdaptation implements IAdaptationStrategy {
 
@@ -223,8 +227,12 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 				System.out.println("ROLE: " + rm.getRole().getType());
 				if (rm.getRoleCommands() != null) {
 					RoleCommand command = rm.getRoleCommands();
+
 					System.out.println("RoleCommand: "
 							+ command.getCommands().get(0));
+					// for each RoleCommand retrieve the plan for each entity
+					// involved
+					this.executeCommand(command);
 				} else {
 					System.out.println("RoleCommand: None");
 
@@ -235,6 +243,31 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		// Utilities.genericWriteFile(treatments, "treatmentsMobility.csv");
 		System.out.println("END SIMULATION");
 		System.exit(1);
+
+	}
+
+	private void executeCommand(RoleCommand command) {
+		System.out.println("Generate Plan for the role: " + command.getRole());
+
+		String[] typeString = command.getRole().split("_");
+		String roleType = typeString[0];
+		if (roleType.equalsIgnoreCase("RoutePassenger")) {
+
+			Coordinate c1 = new Coordinate(11.5, 34.4);
+
+			allow.simulator.entity.Person entity = new allow.simulator.entity.Person(
+					0, Gender.MALE, Profile.WORKER, null, null, c1, false,
+					false, false, null, null);
+
+			List<Itinerary> itineraries = new ArrayList<Itinerary>();
+			entity.getContext().getJourneyPlanner().getTaxiPlannerService()
+					.requestSingleJourney(null, itineraries);
+
+			System.out.println("New Itinerary Calculated for role type: "
+					+ roleType);
+
+			// entity.getContext().getJourneyPlanner()
+		}
 
 	}
 

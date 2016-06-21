@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import allow.simulator.adaptation.EnsembleManager;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.entity.FlexiBusAgency;
@@ -137,7 +138,8 @@ public final class Simulator {
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(400), params);
+		context = new Context(world, new EntityManager(), new EnsembleManager(), time, planner, 
+				dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");

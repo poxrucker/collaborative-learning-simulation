@@ -2,6 +2,7 @@ package allow.simulator.flow.activity.publictransportation;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.TransportationEntity.State;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
@@ -46,6 +47,7 @@ public class ReturnToAgency extends Activity {
 		// Reset state and return to agency.
 		p.setCurrentStop(null);
 		p.setCurrentTrip(null);
+		p.setCurrentState(State.NORMAL);
 		setFinished();
 		return deltaT;
 	}

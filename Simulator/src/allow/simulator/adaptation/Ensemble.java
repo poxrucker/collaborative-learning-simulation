@@ -1,9 +1,9 @@
 package allow.simulator.adaptation;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import allow.simulator.entity.Entity;
 
@@ -12,7 +12,7 @@ public final class Ensemble {
 	private Entity creator;
 	
 	// Entities participating in the ensemble including the creator entity
-	private Map<Long, Entity> participants;
+	private Long2ObjectArrayMap<Entity> participants;
 	
 	/**
 	 * Creates a new instance of an ensemble structure with the specified
@@ -23,7 +23,8 @@ public final class Ensemble {
 	 */
 	Ensemble(Entity creator) {
 		this.creator = creator;
-		participants = new HashMap<Long, Entity>();
+		participants = new Long2ObjectArrayMap<Entity>();
+		participants.put(creator.getId(), creator);
 	}
 	
 	/**

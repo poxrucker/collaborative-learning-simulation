@@ -11,7 +11,6 @@ public class ExtensionManager extends DefaultClassManager {
 	
 	@Override
 	public void load(PrimitiveManager primitiveManager) throws ExtensionException {
-		primitiveManager.addPrimitive("create-persons", new CreatePersons());
 		primitiveManager.addPrimitive("execute-activities", new ExecuteActivities());
 		primitiveManager.addPrimitive("exchange-knowledge", new ExchangeKnowledge());
 		primitiveManager.addPrimitive("execute-bus", new ExecuteBus());

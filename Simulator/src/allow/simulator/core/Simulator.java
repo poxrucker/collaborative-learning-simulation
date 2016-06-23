@@ -12,19 +12,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import allow.simulator.adaptation.EnsembleManager;
+import allow.simulator.adaptation.AdaptationManager;
+import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
-import allow.simulator.entity.FlexiBusAgency;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
-import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.PublicTransportationAgency;
-import allow.simulator.entity.Taxi;
-import allow.simulator.entity.TaxiAgency;
 import allow.simulator.entity.knowledge.EvoKnowledge;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.MobilityRepository;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -61,10 +55,7 @@ public final class Simulator {
 		
 	// Simulation context
 	private Context context;
-	
-	// Id counter for entities
-	private long ids;
-	
+
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
 	
@@ -76,8 +67,6 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		// Reset Id counter.
-		ids = 0;
 		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// Setup world.
@@ -138,7 +127,7 @@ public final class Simulator {
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, new EntityManager(), new EnsembleManager(), time, planner, 
+		context = new Context(world, new EntityManager(), new AdaptationManager(new SelfishAdaptation()), time, planner, 
 				dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
@@ -147,7 +136,7 @@ public final class Simulator {
 		
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
-		TransportationRepository repos = TransportationRepository.loadPublicTransportation(this);
+		TransportationRepository repos = TransportationRepository.loadPublicTransportation(context);
 		context.setTransportationRepository(repos);
 		
 		// Initialize EvoKnowlegde and setup logger.
@@ -169,7 +158,6 @@ public final class Simulator {
 			p.setContext(context);
 			PlanGenerator.generateDayPlan(p);
 			context.getEntityManager().addEntity(p);
-			ids = Math.max(ids, p.getId() + 1);
 		}
 	}
 	
@@ -182,44 +170,6 @@ public final class Simulator {
 		if (instance == null)
 			instance = new Simulator();
 		return instance;
-	}
-
-	/**
-	 * Adds a new entity of given type to the simulation.
-	 * 
-	 * @param e Type of entity.
-	 * @return Instance of new entity of given type.
-	 */
-	public Entity addEntity(EntityType e) {
-		// Entity to add.
-		Entity newEntity = null;
-		
-		switch (e) {
-			case BUS:
-				newEntity = new PublicTransportation(ids++, new Utility(), new Preferences(), context, 25);
-				break;
-				
-			case TAXI:
-				newEntity = new Taxi(ids++, new Utility(), new Preferences(), context, 3);
-				break;
-				
-			case PUBLICTRANSPORTAGENCY:
-				newEntity = new PublicTransportationAgency(ids++, new Utility(), new Preferences(), context);
-				break;
-			
-			case FLEXIBUSAGENCY:
-				newEntity = new FlexiBusAgency(ids++, new Utility(), new Preferences(), context);
-				break;
-				
-			case TAXIAGENCY:
-				newEntity = new TaxiAgency(ids++, new Utility(), new Preferences(), context);
-				break;
-			
-			default:
-				throw new IllegalArgumentException("Error: Unknown entity type.");
-		}
-		context.getEntityManager().addEntity(newEntity);
-		return newEntity;
 	}
 	
 	/**
@@ -252,6 +202,10 @@ public final class Simulator {
 				&& context.getTime().getCurrentTime().getSecond() == 0) {
 			context.getStatistics().reset();
 		}
+		
+		// Run adaptations
+		context.getAdaptationManager().runAdaptations();
+		
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();
 		EvoKnowledge.cleanModel();

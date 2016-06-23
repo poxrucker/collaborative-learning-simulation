@@ -20,14 +20,18 @@ public final class PublicTransportationAgency extends TransportationAgency {
 		
 	// Buffer for next trips to schedule
 	private final List<PublicTransportationTrip> nextTrips;
-		
-	public PublicTransportationAgency(long id, Utility utility, Preferences prefs, Context context) {
-		super(id, EntityType.PUBLICTRANSPORTAGENCY, utility, prefs, context);
+	
+	// "Live" information about current trips and vehicles executing trips
+	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
+	
+	public PublicTransportationAgency(long id, Utility utility, Preferences prefs, Context context, String agencyId) {
+		super(id, EntityType.PUBLICTRANSPORTAGENCY, utility, prefs, context, agencyId);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();
 		
 		// Start scheduling next trips.
 		flow.addActivity(new StartNextTrips(this));
+		currentlyUsedVehicles = new HashMap<String, TransportationEntity>();
 	}
 
 	/**

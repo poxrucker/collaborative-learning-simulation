@@ -3,10 +3,8 @@ package allow.simulator.flow.activity.person;
 import java.time.LocalTime;
 import java.util.List;
 
-import allow.simulator.adaptation.Ensemble;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.TransportationEntity.State;
 import allow.simulator.entity.relation.Relation;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
@@ -71,12 +69,6 @@ public class UsePublicTransport extends Activity {
 		// Get entity.
 		Person person = (Person) entity;
 		
-		if (b != null && b.getCurrentState() == State.BROKE_DOWN) {
-			b.removePassenger(person);
-			Ensemble ensemble = person.getContext().getEnsembleManager().getEnsemble(trip.getTripId());
-			ensemble.addEntity(person);
-		}
-		
 		if (!reachedStop) {
 			// If person has not reached stop yet, set position, add person to waiting passengers, and set flag.
 			person.setPosition(in.getPosition());
@@ -88,6 +80,9 @@ public class UsePublicTransport extends Activity {
 			// Try to get transportation mean.
 			if (b == null) {
 				b = TransportationRepository.Instance().getGTFSTransportAgency(agencyId).getVehicleOfTrip(trip.getTripId());
+			
+				if (b != null)
+					person.getContext().getAdaptationManager().getEnsemble(trip.getTripId()).addEntity(person);
 			}
 			
 			// Reaching a stop needs zero time.

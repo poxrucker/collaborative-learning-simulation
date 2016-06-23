@@ -10,8 +10,8 @@ public class FlexiBusAgency extends TransportationAgency {
 	// Planner instance is required to poll trips to schedule. 
 	private FlexiBusPlanner planner;
 	
-	public FlexiBusAgency(long id, Utility utility, Preferences prefs, Context context) {
-		super(id, EntityType.FLEXIBUSAGENCY, utility, prefs, context);
+	public FlexiBusAgency(long id, Utility utility, Preferences prefs, Context context, String agencyId) {
+		super(id, EntityType.FLEXIBUSAGENCY, utility, prefs, context, agencyId);
 		planner = (FlexiBusPlanner) context.getJourneyPlanner().getFlexiBusPlannerService();
 		flow.addActivity(new StartNextTrips(this));
 	}

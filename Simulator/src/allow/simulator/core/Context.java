@@ -1,6 +1,6 @@
 package allow.simulator.core;
 
-import allow.simulator.adaptation.EnsembleManager;
+import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.JourneyPlanner;
@@ -23,7 +23,7 @@ public final class Context {
 	private final EntityManager entityManager;
 	
 	// EnsembleManager instance  for adaptation handling
-	private final EnsembleManager ensembleManager;
+	private final AdaptationManager ensembleManager;
 	
 	// Simulated time
 	private final Time time;
@@ -52,7 +52,7 @@ public final class Context {
 	 * 
 	 * @param world World instance
 	 * @param entityManager EntityManager instance
-	 * @param ensembleManager EnsembleManager instance for adaptation handling
+	 * @param adaptationManager AdaptationManager instance for adaptation handling
 	 * @param time Time instance
 	 * @param dataService Data service to be used
 	 * @param plannerService Planner services to be used.
@@ -60,7 +60,7 @@ public final class Context {
 	 */
 	public Context(World world,
 			EntityManager entityManager,
-			EnsembleManager ensembleManager,
+			AdaptationManager ensembleManager,
 			Time time,
 			JourneyPlanner journeyPlanner,
 			IDataService dataService,
@@ -97,11 +97,11 @@ public final class Context {
 	}
 	
 	/**
-	 * Returns the EnsembleManager instance of the simulation.
+	 * Returns the AdaptationManager instance of the simulation.
 	 * 
 	 * @return EnsembleManager instance
 	 */
-	public EnsembleManager getEnsembleManager() {
+	public AdaptationManager getAdaptationManager() {
 		return ensembleManager;
 	}
 	

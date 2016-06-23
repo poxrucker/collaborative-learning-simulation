@@ -21,8 +21,8 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @param context Context of the transportation mean.
 	 * @param capacity Capacity of the transportation mean.
 	 */
-	public PublicTransportation(long id, Utility utility, Preferences prefs, Context context, int capacity) {
-		super(id, EntityType.BUS, utility, prefs, context, capacity);
+	public PublicTransportation(long id, Utility utility, Preferences prefs, Context context, PublicTransportationAgency agency, int capacity) {
+		super(id, EntityType.BUS, utility, prefs, context, agency, capacity);
 	}
 	
 	/**
@@ -73,15 +73,6 @@ public final class PublicTransportation extends TransportationEntity {
 		return (PublicTransportationAgency) agency;
 	}
 
-	/**
-	 * Sets the agency the public transportation entity is used by.
-	 * 
-	 * @param agency Agency the public transportation entity is used by.
-	 */
-	public void setTransportAgency(PublicTransportationAgency agency) {
-		this.agency = agency;
-	}
-	
 	@Override
 	public String toString() {
 		return "[PublicTransportation" + id + "]";

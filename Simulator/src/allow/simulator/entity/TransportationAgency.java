@@ -1,7 +1,5 @@
 package allow.simulator.entity;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -23,9 +21,6 @@ public abstract class TransportationAgency extends Entity {
 	// List of transport entities used by this agency
 	protected final Queue<TransportationEntity> vehicles;
 	
-	// "Live" information about current trips and vehicles executing trips
-	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
-	
 	/**
 	 * Creates new instance of a transportation agency entity.
 	 * 
@@ -33,15 +28,10 @@ public abstract class TransportationAgency extends Entity {
 	 * @param utility Utility function
 	 * @param context Simulation context
 	 */
-	protected TransportationAgency(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
+	protected TransportationAgency(long id, EntityType type, IUtility utility, Preferences prefs, Context context, String agencyId) {
 		super(id, type, utility, prefs, context);
-		agencyId = "";
-		
-		// Create transportation entity repository
+		this.agencyId = agencyId;
 		vehicles = new ConcurrentLinkedQueue<TransportationEntity>();
-		
-		// "Live" information about trips and transportation entities executing trips
-		currentlyUsedVehicles = new HashMap<String, TransportationEntity>();
 	}
 	
 	/**
@@ -51,15 +41,6 @@ public abstract class TransportationAgency extends Entity {
 	 */
 	public String getAgencyId() {
 		return agencyId;
-	}
-	
-	/**
-	 * Sets the Id of this agency.
-	 * 
-	 * @param agencyId Id to set.
-	 */
-	public void setAgencyId(String agencyId) {
-		this.agencyId = agencyId;
 	}
 
 	@Override

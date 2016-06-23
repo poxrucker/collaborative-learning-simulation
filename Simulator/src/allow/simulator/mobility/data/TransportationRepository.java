@@ -5,13 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import allow.simulator.core.Simulator;
-import allow.simulator.entity.EntityType;
+import allow.simulator.core.Context;
 import allow.simulator.entity.FlexiBusAgency;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.PublicTransportationAgency;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
+import allow.simulator.entity.utility.Preferences;
+import allow.simulator.entity.utility.Utility;
 import allow.simulator.mobility.data.gtfs.GTFSAgency;
 import allow.simulator.mobility.data.gtfs.GTFSRoute;
 import allow.simulator.mobility.data.gtfs.GTFSStop;
@@ -30,14 +31,14 @@ public class TransportationRepository {
 	// Instance of object.
 	private static TransportationRepository instance;
 	
-	private TransportationRepository(Simulator simulator) {
+	private TransportationRepository(Context simulator) {
 		// Load GTFS agencies and FlexiBus.
 		reload(simulator);
 	}
 	
-	private void reload(Simulator simulator) {
+	private void reload(Context context) {
 		// Load public transportation from GTFS.
-		List<GTFSAgency> agencyInfos = simulator.getContext().getDataService().getAgencies();
+		List<GTFSAgency> agencyInfos = context.getDataService().getAgencies();
 		gtfsAgencies = new HashMap<String, PublicTransportationAgency>();
 		
 		for (int i = 0; i < agencyInfos.size(); i++) {
@@ -45,21 +46,21 @@ public class TransportationRepository {
 			GTFSAgency currentAgency = agencyInfos.get(i);
 			
 			// Create new public transportation agency.
-			PublicTransportationAgency newAgency = (PublicTransportationAgency) simulator.addEntity(EntityType.PUBLICTRANSPORTAGENCY);
-			newAgency.setAgencyId(currentAgency.getId());
-			
+			PublicTransportationAgency newAgency = new PublicTransportationAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, currentAgency.getId());
+			context.getEntityManager().addEntity(newAgency);
+
 			// Request available routes.
-			List<GTFSRoute> availableRoutes = simulator.getContext().getDataService().getRoutes(currentAgency.getId());
+			List<GTFSRoute> availableRoutes = context.getDataService().getRoutes(currentAgency.getId());
 		
 			for (Iterator<GTFSRoute> it = availableRoutes.iterator(); it.hasNext(); ) {
 				// Get Id of next route.				
 				String routeId = it.next().getId();
 				
 				// Get time table of this route.
-				TimeTable tt = simulator.getContext().getDataService().getTimeTable(routeId);
+				TimeTable tt = context.getDataService().getTimeTable(routeId);
 				
 				// Create stops of route from data service query.
-				List<GTFSStop> stops = simulator.getContext().getDataService().getStops(routeId);
+				List<GTFSStop> stops = context.getDataService().getStops(routeId);
 				Map<String, PublicTransportationStop> stopMap = new HashMap<String, PublicTransportationStop>(stops.size());
 				
 				for (GTFSStop current : stops) {
@@ -72,8 +73,8 @@ public class TransportationRepository {
 				newAgency.addRoute(newRoute);
 				
 				for (int k = 0; k < tt.getMaximalNumberOfTrips(); k++) {
-					PublicTransportation b = (PublicTransportation) simulator.addEntity(EntityType.BUS);
-					b.setTransportAgency(newAgency);
+					PublicTransportation b = new PublicTransportation(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, newAgency, 25);
+					context.getEntityManager().addEntity(b);
 					newAgency.addPublicTransportation(b);
 				}
 			}
@@ -81,9 +82,9 @@ public class TransportationRepository {
 		}
 		
 		// Create FlexiBus agency and assign buses.
-		flexiBusAgency = (FlexiBusAgency) simulator.addEntity(EntityType.FLEXIBUSAGENCY);
-		flexiBusAgency.setAgencyId("flexibusagency");
-		
+		flexiBusAgency = new FlexiBusAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, "flexibusagency");
+		context.getEntityManager().addEntity(flexiBusAgency);
+
 		for (int i = 0; i < 200; i++) {
 			// PublicTransportation b = (PublicTransportation) simulator.addEntity(Entity.Type.BUS);
 			//b.setTransportationAgency(flexiBusAgency);
@@ -91,18 +92,18 @@ public class TransportationRepository {
 		}
 		
 		// Create taxi agency and assign taxis
-		taxiAgency = (TaxiAgency) simulator.addEntity(EntityType.TAXIAGENCY);
-		taxiAgency.setAgencyId("taxiagency");
-		
+		taxiAgency = new TaxiAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, "taxiagency");
+		context.getEntityManager().addEntity(taxiAgency);
+
 		for (int i = 0; i < 400; i++) {
-			Taxi b = (Taxi) simulator.addEntity(EntityType.TAXI);
-			b.setTransportAgency(taxiAgency);
+			Taxi b = new Taxi(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, taxiAgency, 3);
+			context.getEntityManager().addEntity(b);
 			taxiAgency.addTaxi(b);
 		}
 	}
 	
-	public static TransportationRepository loadPublicTransportation(Simulator simulator) {
-		instance = new TransportationRepository(simulator);
+	public static TransportationRepository loadPublicTransportation(Context context) {
+		instance = new TransportationRepository(context);
 		return instance;
 	}
 	

@@ -2,7 +2,6 @@ package allow.simulator.flow.activity.publictransportation;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.TransportationEntity.State;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
@@ -44,10 +43,12 @@ public class ReturnToAgency extends Activity {
 		// Finish trip at agency.
 		p.getTransportationAgency().finishTrip(p.getCurrentTrip(), p);
 		
+		// Finish ensemble
+		p.getContext().getAdaptationManager().terminateEnsemble(p.getCurrentTrip().getTripId());
+
 		// Reset state and return to agency.
 		p.setCurrentStop(null);
 		p.setCurrentTrip(null);
-		p.setCurrentState(State.NORMAL);
 		setFinished();
 		return deltaT;
 	}

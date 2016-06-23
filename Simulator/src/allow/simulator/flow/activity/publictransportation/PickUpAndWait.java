@@ -5,13 +5,10 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.adaptation.IAdaptationStrategy;
 import allow.simulator.adaptation.Issue;
-import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.core.Time;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.TransportationEntity.State;
 import allow.simulator.entity.knowledge.Experience;
 import allow.simulator.entity.knowledge.StopExperience;
 import allow.simulator.flow.activity.Activity;
@@ -74,17 +71,11 @@ public class PickUpAndWait extends Activity {
 			p.setPosition(stop.getPosition());
 			stop.addPublicTransportation(p);
 			approached = true;
-			p.setCurrentState(ThreadLocalRandom.current().nextDouble() >= 0.95 ? State.BROKE_DOWN : State.NORMAL);
+			double n = ThreadLocalRandom.current().nextDouble();
 			
-			if (p.getCurrentState() == State.BROKE_DOWN) {
-				p.getContext().getEnsembleManager().createEnsemble(p, p.getCurrentTrip().getTripId());
-			}
-			return deltaT;
-		}
-		
-		if (p.getCurrentState() == State.BROKE_DOWN) {
-			IAdaptationStrategy adaptation = new SelfishAdaptation();
-			adaptation.solveAdaptation(Issue.BUS_BREAKDOWN, p.getContext().getEnsembleManager().getEnsemble(p.getCurrentTrip().getTripId()));
+			if (n >= 0.99)
+				p.triggerIssue(Issue.BUS_BREAKDOWN);
+
 			return deltaT;
 		}
 		

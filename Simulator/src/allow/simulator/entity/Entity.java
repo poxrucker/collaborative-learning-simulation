@@ -2,6 +2,8 @@ package allow.simulator.entity;
 
 import java.util.Observable;
 
+import allow.simulator.adaptation.IEnsembleParticipant;
+import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Context;
 import allow.simulator.entity.knowledge.EvoKnowledge;
 import allow.simulator.entity.relation.RelationGraph;
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class Entity extends Observable {
+public abstract class Entity extends Observable implements IEnsembleParticipant {
 	// Id of the entity.
 	protected final long id;
 	
@@ -52,6 +54,9 @@ public abstract class Entity extends Observable {
 	@JsonIgnore
 	protected Coordinate position;
 	
+	@JsonIgnore
+	protected Issue currentIssue;
+	
 	/**
 	 * Creates a new entity with in a given simulation context. Knowledge and
 	 * relations are newly initialized.
@@ -73,6 +78,7 @@ public abstract class Entity extends Observable {
 		this.utility = utility;
 		this.preferences = prefs;
 		setPosition(position);
+		currentIssue = Issue.NONE;
 	}
 
 	/**
@@ -86,16 +92,7 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 */
 	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs) {
-		// Initialize members.
-		this.id = id;
-		this.type = type;
-		position = new Coordinate(-1, -1);
-		knowledge = new EvoKnowledge(this);
-		relations = new RelationGraph(this);
-		flow = new Flow();
-		this.utility = utility;
-		this.preferences = prefs;
-		setPosition(position);
+		this(id, type, utility, prefs, null);
 	}
 	
 	/**
@@ -227,6 +224,18 @@ public abstract class Entity extends Observable {
 		Activity executedActivity = flow.getCurrentActivity();
 		flow.executeActivity(context.getTime().getDeltaT());
 		return executedActivity;
+	}
+	
+	public Issue getTriggeredIssue() {
+		return currentIssue;
+	}
+	
+	public void triggerIssue(Issue issue) {
+		currentIssue = issue;
+	}
+	
+	public long getParticipantId() {
+		return id;
 	}
 	
 	/**

@@ -20,11 +20,15 @@ public final class TaxiAgency extends TransportationAgency {
 	// Collection of trips which have been requested and are being executed
 	private final Map<String, TaxiTrip> currentTrips;
 	
-	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context) {
-		super(id, EntityType.TAXIAGENCY, utility, prefs, context);
+	// "Live" information about current trips and vehicles executing trips
+	private final Map<String, TransportationEntity> currentlyUsedVehicles;
+		
+	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context, String agencyId) {
+		super(id, EntityType.TAXIAGENCY, utility, prefs, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		tripsToSchedule = new ArrayList<TaxiTrip>();
 		currentTrips = new HashMap<String, TaxiTrip>();
+		currentlyUsedVehicles = new HashMap<String, TransportationEntity>();
 		
 		// Start scheduling next trips
 		flow.addActivity(new StartNextTaxiTrips(this));

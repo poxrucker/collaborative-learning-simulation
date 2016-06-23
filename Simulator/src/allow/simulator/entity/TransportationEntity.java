@@ -16,24 +16,6 @@ import allow.simulator.mobility.data.Trip;
  *
  */
 public abstract class TransportationEntity extends Entity {
-	
-	public enum State {
-		/**
-		 * Normal mode of operation, i.e. no delay and breakdown
-		 */
-		NORMAL,
-		
-		/**
-		 * Transportation entity is delay
-		 */
-		IN_DELAY,
-		
-		/**
-		 * Transportation entity is broke down
-		 */
-		BROKE_DOWN
-	}
-	
 	// Agency the bus is used by
 	protected TransportationAgency agency;
 	
@@ -53,9 +35,6 @@ public abstract class TransportationEntity extends Entity {
 	// Current delay
 	protected long currentDelay;
 	
-	// Current state of transportation entity
-	protected State state;
-	
 	/**
 	 * Creates a new instance of a transportation entity
 	 * 
@@ -65,29 +44,11 @@ public abstract class TransportationEntity extends Entity {
 	 * @param context Simulation context
 	 * @param capacity Capacity of entity
 	 */
-	protected TransportationEntity(long id, EntityType type, Utility utility, Preferences prefs, Context context, int capacity) {
+	protected TransportationEntity(long id, EntityType type, Utility utility, Preferences prefs, Context context, TransportationAgency agency, int capacity) {
 		super(id, type, utility, prefs, context);
 		this.capacity = capacity;
 		passengers = new ArrayList<Person>(capacity);
-		state = State.NORMAL;
-	}
-	
-	/**
-	 * Returns the current state of the transportation entity.
-	 * 
-	 * @return Current state of the transportation entity
-	 */
-	public State getCurrentState() {
-		return state;
-	}
-	
-	/**
-	 * Sets the current state of the transportation entity.
-	 * 
-	 * @param New state of the transportation entity
-	 */
-	public void setCurrentState(State state) {
-		this.state = state;
+		this.agency = agency;
 	}
 	
 	/**

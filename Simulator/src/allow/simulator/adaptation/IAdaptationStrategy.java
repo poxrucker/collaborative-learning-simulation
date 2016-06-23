@@ -11,6 +11,6 @@ public interface IAdaptationStrategy {
 	 * @param ensemble Ensemble of entities
 	 * @throws FileNotFoundException 
 	 */
-	void solveAdaptation(Issue issue, Ensemble ensemble) throws FileNotFoundException;
+	void solveAdaptation(Issue issue, Ensemble ensemble);
 	
 }

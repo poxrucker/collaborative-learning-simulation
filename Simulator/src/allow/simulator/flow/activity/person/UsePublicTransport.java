@@ -80,6 +80,9 @@ public class UsePublicTransport extends Activity {
 			// Try to get transportation mean.
 			if (b == null) {
 				b = TransportationRepository.Instance().getGTFSTransportAgency(agencyId).getVehicleOfTrip(trip.getTripId());
+			
+				if (b != null)
+					person.getContext().getAdaptationManager().getEnsemble(trip.getTripId()).addEntity(person);
 			}
 			
 			// Reaching a stop needs zero time.

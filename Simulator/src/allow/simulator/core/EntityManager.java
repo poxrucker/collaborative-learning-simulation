@@ -6,16 +6,25 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 
 public class EntityManager {
+	// Id enumerator
+	private final AtomicLong id;
+	
 	// Collection of entities grouped by their respective types
 	private final Map<EntityType, Map<Long, Entity>> entities;
 	
 	public EntityManager() {
 		entities = new EnumMap<EntityType, Map<Long, Entity>>(EntityType.class);
+		id = new AtomicLong(0);
+	}
+	
+	public long getNextId() {
+		return id.getAndIncrement();
 	}
 	
 	public void addEntity(Entity entity) {
@@ -26,7 +35,11 @@ public class EntityManager {
 			entities.put(entity.getType(), temp);
 		}
 		
+		if (temp.containsKey(entity.getId()))
+			throw new IllegalArgumentException("Error: Entity with id " + entity.getId() + " already exists.");
+		
 		temp.put(entity.getId(), entity);
+		id.set(Math.max(entity.getId() + 1, id.get()));
 	}
 	
 	public Collection<Entity> getEntitiesOfType(EntityType type) {

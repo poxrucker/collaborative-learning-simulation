@@ -3,8 +3,8 @@ package allow.adaptation.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
-import allow.simulator.adaptation.EnsembleManager;
 import allow.simulator.adaptation.Issue;
 import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Gender;
@@ -30,10 +30,10 @@ public class AdaptationTest {
 		JourneyPlanner planner = new JourneyPlanner(otpPlanners, taxiPlanner, bikeRentalPlanner, null);
 		
 		// EnsembleManager instance will be part of Context, too
-		EnsembleManager ensembleManager = new EnsembleManager();
-				
+		AdaptationManager ensembleManager = new AdaptationManager(new SelfishAdaptation(planner));
+		
 		// Create entities
-		PublicTransportation bus = new PublicTransportation(1, null, null, null, 25);
+		PublicTransportation bus = new PublicTransportation(1, null, null, null, null, 25);
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null, null, new Coordinate(11.1318021, 46.0465206), true, true, true, null, null);
 		passenger1.setCurrentItinerary(new Itinerary());
 		passenger1.getCurrentItinerary().to = new Coordinate(11.1076075, 46.0487277);
@@ -42,7 +42,7 @@ public class AdaptationTest {
 		passenger2.getCurrentItinerary().to = new Coordinate(11.1593422, 46.0875704);
 		
 		// Now, bus breakdown happens and bus driver creates ensemble
-		Issue issue = Issue.BUS_BREAKDOWN;
+		bus.triggerIssue(Issue.BUS_BREAKDOWN);
 		Ensemble ensemble = ensembleManager.createEnsemble(bus, "current-bus-trip-id-breakdown");
 		
 		// Passengers will add themselves once they realize the bus breakdown - happens locally at entities!
@@ -51,8 +51,7 @@ public class AdaptationTest {
 		Ensemble ensemble3 = ensembleManager.getEnsemble("current-bus-trip-id-breakdown");
 		ensemble3.addEntity(passenger2);
 
-		SelfishAdaptation ca = new SelfishAdaptation(planner);
-		ca.solveAdaptation(issue, ensemble);
+		ensembleManager.runAdaptations();
 
 		// After adaptation, creator needs to destroy the ensemble
 		ensembleManager.terminateEnsemble("current-bus-trip-id-breakdown");

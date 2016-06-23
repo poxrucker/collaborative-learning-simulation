@@ -50,7 +50,8 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 
 	private void solveBusBreakdown(Ensemble ensemble) {
 		
-		for (Entity entity : ensemble.getEntities()) {
+		for (IEnsembleParticipant participant : ensemble.getEntities()) {
+			Entity entity = (Entity) participant;
 			
 			if (entity.getType() == EntityType.BUS) {
 				// Public transportation will abort current trip and return to its agency

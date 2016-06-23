@@ -3,7 +3,9 @@ package allow.simulator.flow.activity.publictransportation;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
+import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Time;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
@@ -69,6 +71,11 @@ public class PickUpAndWait extends Activity {
 			p.setPosition(stop.getPosition());
 			stop.addPublicTransportation(p);
 			approached = true;
+			double n = ThreadLocalRandom.current().nextDouble();
+			
+			if (n >= 0.99)
+				p.triggerIssue(Issue.BUS_BREAKDOWN);
+
 			return deltaT;
 		}
 		

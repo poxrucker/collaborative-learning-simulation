@@ -25,8 +25,7 @@ import allow.simulator.util.Coordinate;
 public class CollectiveAdaptation implements IAdaptationStrategy {
 	
 	@Override
-	public void solveAdaptation(Issue issue, Ensemble ensemble)
-			throws FileNotFoundException {
+	public void solveAdaptation(Issue issue, Ensemble ensemble) {
 
 		String issueType = issue.toString();
 
@@ -161,8 +160,13 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 				"CAP_1", ensemblesCAP, null, null, ensemblesCAP.get(0)
 						.getEnsembleName(), null);
 
-		DemoManagementSystem dms = DemoManagementSystem
-				.initializeSystem("scenarioECAS/Mobility/");
+		DemoManagementSystem dms = null;
+		try {
+			dms = DemoManagementSystem
+					.initializeSystem("scenarioECAS/Mobility/");
+		} catch (FileNotFoundException e2) {
+			e2.printStackTrace();
+		}
 		// List<Treatment> treatments = createTreatmentMobility();
 
 		// Ensemble Creation - Instance of Ensemble 1

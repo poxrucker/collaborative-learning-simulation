@@ -43,6 +43,9 @@ public class ReturnToAgency extends Activity {
 		// Finish trip at agency.
 		p.getTransportationAgency().finishTrip(p.getCurrentTrip(), p);
 		
+		// Finish ensemble
+		p.getContext().getAdaptationManager().terminateEnsemble(p.getCurrentTrip().getTripId());
+
 		// Reset state and return to agency.
 		p.setCurrentStop(null);
 		p.setCurrentTrip(null);

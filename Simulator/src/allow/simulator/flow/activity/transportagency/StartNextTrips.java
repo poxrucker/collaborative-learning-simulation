@@ -28,7 +28,8 @@ public class StartNextTrips extends Activity {
 		for (PublicTransportationTrip t : nextTrips) {
 			// Get next free transportation vehicle.
 			PublicTransportation b = agency.scheduleTrip(t);
-			
+			b.getContext().getAdaptationManager().createEnsemble(b, t.getTripId());
+
 			// Assign new trip to vehicle.
 			b.getFlow().addActivity(new PrepareTrip(b, t));
 		}

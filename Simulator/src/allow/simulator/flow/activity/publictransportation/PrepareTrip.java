@@ -81,7 +81,6 @@ public class PrepareTrip extends Activity {
 		// Set trip.
 		p.setCurrentTrip(trip);
 		p.setCurrentDelay(0);
-		p.getContext().getAdaptationManager().createEnsemble(p, trip.getTripId());
 		setFinished();
 		return 0;
 	}

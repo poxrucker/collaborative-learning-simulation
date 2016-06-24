@@ -2,6 +2,7 @@ package allow.simulator.adaptation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -9,9 +10,7 @@ import java.util.concurrent.Future;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.person.RankAlternatives;
-import allow.simulator.flow.activity.publictransportation.ReturnToAgency;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyPlanner;
@@ -49,17 +48,12 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 	private static final TType taxiJourney[] = new TType[] { TType.TAXI };
 
 	private void solveBusBreakdown(Ensemble ensemble) {
+		Collection<IEnsembleParticipant> temp = new ArrayList<IEnsembleParticipant>(ensemble.getEntities());
 		
-		for (IEnsembleParticipant participant : ensemble.getEntities()) {
+		for (IEnsembleParticipant participant : temp) {
 			Entity entity = (Entity) participant;
 			
-			if (entity.getType() == EntityType.BUS) {
-				// Public transportation will abort current trip and return to its agency
-				PublicTransportation b = (PublicTransportation) entity;
-				b.getFlow().clear();
-				b.getFlow().addActivity(new ReturnToAgency(b));
-			
-			} else if (entity.getType() == EntityType.PERSON) {
+			if (entity.getType() == EntityType.PERSON) {
 				Person person = (Person) entity;
 				Coordinate start = person.getPosition();
 				Coordinate destination = person.getCurrentItinerary().to;  // Will come from current itinerary property
@@ -83,6 +77,7 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 				}
 				person.getFlow().clear();
 				person.getFlow().addActivity(new RankAlternatives(person, ret));
+				ensemble.removeEntity(person);
 			}
 		}
 	}

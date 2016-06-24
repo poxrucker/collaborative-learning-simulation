@@ -143,6 +143,7 @@ public class UsePublicTransport extends Activity {
 				if (b.getCurrentStop().getStopId().equals(out.getStopId())) {
 					b.removePassenger(person);
 					leftBus = true;
+					person.getContext().getAdaptationManager().getEnsemble(trip.getTripId()).removeEntity(person);
 					setFinished();
 				}
 			}

@@ -155,6 +155,10 @@ public class UsePublicTransport extends Activity {
 		return b;
 	}
 	
+	public LocalTime getEarliestStartingTime() {
+		return earliestStartingTime;
+	}
+	
 	public String toString() {
 		return "UsePublicTransport " + entity.toString() + " from " + in.getStopId() + " to " + out.getStopId() + " trip " + trip.getTripId() + " " + enteredBus + " " + leftBus + "earliest starting: " + earliestStartingTime.toString(); 
 	}

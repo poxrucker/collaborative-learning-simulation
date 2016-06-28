@@ -1,6 +1,7 @@
 package allow.simulator.adaptation;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +12,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.person.RankAlternatives;
+import allow.simulator.flow.activity.person.UsePublicTransport;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyPlanner;
@@ -55,11 +57,13 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 			
 			if (entity.getType() == EntityType.PERSON) {
 				Person person = (Person) entity;
+				UsePublicTransport activity = (UsePublicTransport) person.getFlow().getCurrentActivity();
+				LocalTime departure = activity.getEarliestStartingTime().plusMinutes(1);
 				Coordinate start = person.getPosition();
 				Coordinate destination = person.getCurrentItinerary().to;  // Will come from current itinerary property
 				
 				RequestId reqId = new RequestId();
-				LocalDateTime date = LocalDateTime.of(2014, 8, 25, 9, 32); // Will come from context
+				LocalDateTime date = person.getContext().getTime().getCurrentDateTime().toLocalDate().atTime(departure); // Will come from context
 
 				// Create requests
 				List<JourneyRequest> requests = new ArrayList<JourneyRequest>();

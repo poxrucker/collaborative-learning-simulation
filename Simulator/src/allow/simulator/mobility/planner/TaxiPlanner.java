@@ -1,7 +1,9 @@
 package allow.simulator.mobility.planner;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -219,10 +221,16 @@ public final class TaxiPlanner implements IPlannerService {
 	}
 	
 	private TaxiTrip createTaxiTrip(List<Leg> tripLegs) {
-		List<TaxiStop> stops = new ArrayList<TaxiStop>(3);
-		List<LocalTime> stopTimes = new ArrayList<LocalTime>(3);
-		List<List<Street>> traces = new ArrayList<List<Street>>(3);
+		final int nLegs = tripLegs.size();
+		List<TaxiStop> stops = new ArrayList<TaxiStop>(nLegs);
+		List<LocalTime> stopTimes = new ArrayList<LocalTime>(nLegs);
+		List<List<Street>> traces = new ArrayList<List<Street>>(nLegs);
 		
+		for (Leg l : tripLegs) {
+			stops.add(new TaxiStop(l.stopIdTo, l.to));	
+			stopTimes.add(LocalDateTime.ofInstant(Instant.ofEpochMilli(l.endTime), ZoneId.of("UTC+2")).toLocalTime());
+			traces.add(l.streets);
+		}
 		return new TaxiTrip(tripLegs.get(1).tripId, stops, stopTimes, traces);
 	}	
 }

@@ -92,6 +92,7 @@ public class UsePublicTransport extends Activity {
 			if (b != null && person.getContext().getTime().getCurrentTime().isAfter(earliestStartingTime.plusSeconds(b.getCurrentDelay() + 300))) {
 				person.getFlow().clear();
 				person.getFlow().addActivity(new Replan(person));
+				leaveEnsemble();
 				setFinished();
 				return 0.0;
 				
@@ -101,7 +102,8 @@ public class UsePublicTransport extends Activity {
 				person.getKnowledge().clear();
 				person.setPosition(person.getCurrentItinerary().to);
 				person.setCurrentItinerary(null);
-				
+				leaveEnsemble();
+
 				/*person.getFlow().clear();
 				person.getFlow().addActivity(new Replan(person));*/
 				setFinished();
@@ -128,6 +130,8 @@ public class UsePublicTransport extends Activity {
 						} else {
 							person.getFlow().clear();
 							person.getFlow().addActivity(new Replan(person));
+							leaveEnsemble();						
+							setFinished();
 						}
 					}
 				}
@@ -143,7 +147,7 @@ public class UsePublicTransport extends Activity {
 				if (b.getCurrentStop().getStopId().equals(out.getStopId())) {
 					b.removePassenger(person);
 					leftBus = true;
-					person.getContext().getAdaptationManager().getEnsemble(trip.getTripId()).removeEntity(person);
+					leaveEnsemble();
 					setFinished();
 				}
 			}
@@ -151,6 +155,13 @@ public class UsePublicTransport extends Activity {
 		return deltaT;
 	}
 
+	private void leaveEnsemble() {
+		Ensemble tripEnsemble = entity.getContext().getAdaptationManager().getEnsemble(trip.getTripId());
+		
+		if (tripEnsemble != null)
+			tripEnsemble.removeEntity(entity);
+	}
+	
 	public PublicTransportation getMeansOfTransportation() {
 		return b;
 	}

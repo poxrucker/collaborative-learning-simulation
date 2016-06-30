@@ -8,12 +8,15 @@ import java.util.List;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportationAgency;
+import allow.simulator.entity.Taxi;
+import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.Learn;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Route;
 import allow.simulator.mobility.data.TType;
+import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
@@ -105,15 +108,21 @@ public final class PrepareJourney extends Activity {
 				break;
 				
 			case CAR:
-			case TAXI:
-			case SHARED_TAXI:
 				if (l.streets.size() == 0)
 					continue;
 				
-				Activity drive = new Drive(person, l.streets, !(journey.itineraryType == TType.CAR));
+				Activity drive = new Drive(person, l.streets);
 				entity.getFlow().addActivity(drive);
 				break;
 				
+			case TAXI:
+			case SHARED_TAXI:
+				TaxiAgency taxiAgency = person.getContext().getTransportationRepository().getTaxiAgency();
+				Taxi taxi = taxiAgency.call(l.tripId);
+				TaxiStop in2 = taxiAgency.getTaxiStop(l.stopIdFrom);
+				TaxiStop out2 = taxiAgency.getTaxiStop(l.stopIdTo);
+				entity.getFlow().addActivity(new UseTaxi(person, in2, out2, taxi,
+						LocalDateTime.ofInstant(Instant.ofEpochMilli(l.startTime), ZoneId.of("UTC+2")).toLocalTime()));
 			case WALK:
 				if (l.streets.size() == 0)
 					continue;

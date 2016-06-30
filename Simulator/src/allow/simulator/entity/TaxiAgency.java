@@ -1,37 +1,33 @@
 package allow.simulator.entity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.utility.IUtility;
 import allow.simulator.entity.utility.Preferences;
-import allow.simulator.flow.activity.transportagency.StartNextTaxiTrips;
+import allow.simulator.flow.activity.taxi.PrepareTaxiTrip;
+import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
 
 public final class TaxiAgency extends TransportationAgency {
-	// Trips which have been requested by persons and need to be scheduled
-	private final List<TaxiTrip> tripsToSchedule;
-	
 	// Collection of trips which have been requested and are being executed
 	private final Map<String, TaxiTrip> currentTrips;
 	
 	// "Live" information about current trips and vehicles executing trips
 	private final Map<String, TransportationEntity> currentlyUsedVehicles;
-		
+	
+	// Taxi stop mapping for active taxi trips
+	private final Map<String, TaxiStop> taxiStops;
+	
 	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context, String agencyId) {
 		super(id, EntityType.TAXIAGENCY, utility, prefs, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
-		tripsToSchedule = new ArrayList<TaxiTrip>();
 		currentTrips = new HashMap<String, TaxiTrip>();
 		currentlyUsedVehicles = new HashMap<String, TransportationEntity>();
-		
-		// Start scheduling next trips
-		flow.addActivity(new StartNextTaxiTrips(this));
+		taxiStops = new HashMap<String, TaxiStop>();
 	}
 
 	@Override
@@ -39,12 +35,6 @@ public final class TaxiAgency extends TransportationAgency {
 		return false;
 	}
 
-	public List<TaxiTrip> getTripsToSchedule() {
-		List<TaxiTrip> ret = new ArrayList<TaxiTrip>(tripsToSchedule);
-		tripsToSchedule.clear();
-		return ret;
-	}
-	
 	public Taxi scheduleTrip(TaxiTrip taxiTrip) {
 		// Poll next free transportation entity
 		Taxi taxi = (Taxi) vehicles.poll();
@@ -52,20 +42,34 @@ public final class TaxiAgency extends TransportationAgency {
 		if (taxi == null)
 			throw new IllegalStateException("Error: No taxi left to schedule trip " + taxiTrip.getTripId());
 		currentlyUsedVehicles.put(taxiTrip.getTripId(), taxi);
+		currentTrips.put(taxiTrip.getTripId(), taxiTrip);
+
+		for (TaxiStop stop : taxiTrip.getTaxiStops()) {
+			taxiStops.put(stop.getStopId(), stop);
+		}
 		return taxi;
 	}
 	
 	public void finishTrip(String tripId, Taxi taxi) {
 		currentlyUsedVehicles.remove(tripId);
-		currentTrips.remove(tripId);
+		TaxiTrip trip = currentTrips.remove(tripId);
+		
+		for (TaxiStop stop : trip.getTaxiStops()) {
+			taxiStops.remove(stop.getStopId());
+		}
 		vehicles.add(taxi);
 	}
 	
-	public void call(String tripId) {
+	public Taxi call(String tripId) {
 		TaxiPlanner service = context.getJourneyPlanner().getTaxiPlannerService();
-		TaxiTrip trip = service.getTaxiTrip(tripId);
-		tripsToSchedule.add(trip);
-		currentTrips.put(tripId, trip);
+		TaxiTrip trip = service.getTaxiTrip(tripId);	
+		Taxi t = scheduleTrip(trip);
+		t.getFlow().addActivity(new PrepareTaxiTrip(t, trip));	
+		return t;
+	}
+	
+	public TaxiStop getTaxiStop(String stopId) {
+		return taxiStops.get(stopId);
 	}
 	
 	public void cancel(String tripId) {

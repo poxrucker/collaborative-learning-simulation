@@ -20,29 +20,19 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class Drive extends MovementActivity {
-	// Indicates whether taxi journey should be emulated
-	private boolean isTaxi;
-	
-	// Base costs per segment in case taxi journey is emulated
-	private double taxiBaseCostPerSegment;
-	
+public final class Drive extends MovementActivity {
+
 	/**
 	 * Creates new instance of the driving Activity.
 	 * 
 	 * @param person The person moving.
 	 * @param path The path to drive.
 	 */
-	public Drive(Person entity, List<Street> path, boolean isTaxi) {
+	public Drive(Person entity, List<Street> path) {
 		super(ActivityType.DRIVE, entity, path);
-		this.isTaxi = isTaxi;
 		
-		if (!path.isEmpty()) {
+		if (!path.isEmpty())
 			currentSegment.addVehicle();
-			
-			//if (isTaxi)
-			//	taxiBaseCostPerSegment = 3.0 / path.size();
-		}
 	}
 
 	@Override
@@ -85,7 +75,7 @@ public class Drive extends MovementActivity {
 		while (deltaT < travelTime && !isFinished()) {
 			// Get current state.
 			StreetSegment s = getCurrentSegment();
-			double v = isTaxi ? s.getDrivingSpeed() : s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
+			double v = s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
 			Coordinate p = getCurrentPosition();
 			
 			// Compute distance to next segment (i.e. end of current segment).
@@ -111,7 +101,7 @@ public class Drive extends MovementActivity {
 					
 					Experience newEx = new TravelExperience(street,
 							sumTravelTime,
-							(isTaxi ? (taxiBaseCostPerSegment + street.getLength() * 0.001/*0.0004*/) : (street.getLength() * 0.00035)),
+							street.getLength() * 0.00035,
 							TType.CAR, 
 							tStart,
 							tEnd,

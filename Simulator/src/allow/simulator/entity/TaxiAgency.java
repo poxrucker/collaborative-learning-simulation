@@ -17,7 +17,7 @@ public final class TaxiAgency extends TransportationAgency {
 	private final Map<String, TaxiTrip> currentTrips;
 	
 	// "Live" information about current trips and vehicles executing trips
-	private final Map<String, TransportationEntity> currentlyUsedVehicles;
+	private final Map<String, Taxi> currentlyUsedVehicles;
 	
 	// Taxi stop mapping for active taxi trips
 	private final Map<String, TaxiStop> taxiStops;
@@ -26,7 +26,7 @@ public final class TaxiAgency extends TransportationAgency {
 		super(id, EntityType.TAXIAGENCY, utility, prefs, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		currentTrips = new HashMap<String, TaxiTrip>();
-		currentlyUsedVehicles = new HashMap<String, TransportationEntity>();
+		currentlyUsedVehicles = new HashMap<String, Taxi>();
 		taxiStops = new HashMap<String, TaxiStop>();
 	}
 
@@ -61,6 +61,10 @@ public final class TaxiAgency extends TransportationAgency {
 	}
 	
 	public Taxi call(String tripId) {
+		// If trip has already been scheduled (shared taxi) return assigend taxi instance
+		if (currentTrips.containsKey(tripId))
+			return currentlyUsedVehicles.get(tripId);
+		
 		TaxiPlanner service = context.getJourneyPlanner().getTaxiPlannerService();
 		TaxiTrip trip = service.getTaxiTrip(tripId);	
 		Taxi t = scheduleTrip(trip);

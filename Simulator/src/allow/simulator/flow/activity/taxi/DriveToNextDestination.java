@@ -9,6 +9,7 @@ import allow.simulator.entity.knowledge.TravelExperience;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.mobility.data.TType;
+import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
@@ -103,7 +104,7 @@ public class DriveToNextDestination extends MovementActivity {
 					
 					Experience newEx = new TravelExperience(street,
 							sumTravelTime,
-							street.getLength() * 0.0008,
+							street.getLength() * TaxiPlanner.COST_PER_METER,
 							TType.TAXI, 
 							tStart,
 							tEnd,

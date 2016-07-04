@@ -15,10 +15,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 public final class Itinerary {
 
+	/**
+	 * Request identifier
+	 */
 	public long reqId;
 
+	/**
+	 * Request number
+	 */
 	public int reqNumber;
 
+	/**
+	 * Contains the concrete itineraries in case shared modalities are used
+	 */
+	public List<Itinerary> subItineraries;
+	
 	/**
 	 * Duration of the trip on this itinerary, in seconds
 	 */
@@ -48,14 +59,6 @@ public final class Itinerary {
 	 * Destination location
 	 */
 	public Coordinate to = null;
-
-	public Coordinate getTo() {
-		return to;
-	}
-
-	public void setTo(Coordinate to) {
-		this.to = to;
-	}
 
 	/**
 	 * How much time is spent walking, in seconds

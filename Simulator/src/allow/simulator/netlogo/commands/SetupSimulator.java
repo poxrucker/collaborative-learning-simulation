@@ -40,6 +40,7 @@ public class SetupSimulator extends DefaultReporter {
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
 		params.KnowledgeModel = args[2].getString();
+		params.AdaptationStrategy = args[3].getString();
 		
 		try {
 			Simulator.Instance().setup(config, params);
@@ -80,7 +81,7 @@ public class SetupSimulator extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType() };
+		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType(), Syntax.StringType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType() );
 	}
 }

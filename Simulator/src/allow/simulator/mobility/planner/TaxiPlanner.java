@@ -111,8 +111,7 @@ public final class TaxiPlanner implements IPlannerService {
 		ret.to = taxiLeg.to;
 		ret.transfers = 1;
 		ret.transitTime = ret.duration;
-		ret.legs = null;
-		ret.itineraryType = Itinerary.getItineraryType(ret);
+		ret.itineraryType = TType.TAXI;
 		return ret;
 	}
 	

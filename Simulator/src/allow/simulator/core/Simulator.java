@@ -13,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import allow.simulator.adaptation.AdaptationManager;
+import allow.simulator.adaptation.CollectiveAdaptation;
+import allow.simulator.adaptation.IAdaptationStrategy;
 import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
@@ -126,13 +128,29 @@ public final class Simulator {
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
+		// Create adaptation manager
+		IAdaptationStrategy adaptationStrategy = null;
+		
+		switch (params.AdaptationStrategy) {
+		case "selfish":
+			adaptationStrategy = new SelfishAdaptation(planner);
+			break;
+		case "collective":
+			adaptationStrategy = new CollectiveAdaptation();
+			break;
+			
+			default:
+				throw new IllegalArgumentException("Error: Unsupported adaptation strategy " + params.AdaptationStrategy);
+		}
+		AdaptationManager manager = new AdaptationManager(adaptationStrategy);
+		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, new EntityManager(), new AdaptationManager(new SelfishAdaptation(planner)), time, planner, 
+		context = new Context(world, new EntityManager(), manager, time, planner, 
 				dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");
-		loadEntitiesFromFile(config.getAgentConfigurationPath(), params.KnowledgeModel);
+		loadEntitiesFromFile(config.getAgentConfigurationPath());
 		
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
@@ -146,7 +164,7 @@ public final class Simulator {
 		world.update();
 	}
 	
-	private void loadEntitiesFromFile(Path config, String knowledgeModel) throws IOException {
+	private void loadEntitiesFromFile(Path config) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

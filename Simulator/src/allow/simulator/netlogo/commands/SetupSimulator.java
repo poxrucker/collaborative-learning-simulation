@@ -41,6 +41,13 @@ public class SetupSimulator extends DefaultReporter {
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
 		params.KnowledgeModel = args[2].getString();
 		
+		org.nlogo.api.World w = context.getAgent().world();
+		params.GridResX = w.worldWidth();
+		params.GridResY = w.worldHeight();
+		
+//		params.GridResX = 5;
+//		params.GridResY = 5;
+		
 		try {
 			Simulator.Instance().setup(config, params);
 			NetLogoWrapper.initialize(Simulator.Instance(), (World) context.getAgent().world());

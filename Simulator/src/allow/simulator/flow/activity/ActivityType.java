@@ -18,6 +18,8 @@ public enum ActivityType {
 	 */
 	USE_PUBLIC_TRANSPORT,
 	
+	USE_TAXI,
+	
 	PLAN_JOURNEY,
 	
 	FILTER_ALTERNATIVES,

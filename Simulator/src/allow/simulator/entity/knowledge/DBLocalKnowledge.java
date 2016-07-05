@@ -44,9 +44,9 @@ public class DBLocalKnowledge implements DBKnowledgeModel {
 			+ "weight=(%1$s.weight + 1)";
 	
 	private static final String MY_SQL_MERGE_SIMPLE = "CREATE TABLE IF NOT EXISTS %1$s AS SELECT * FROM %2$s; "
-			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality); "
-			+ ", startTime INT UNSIGNED, endTime INT UNSIGNED, "
-			+ "ALTER TABLE %1$s ADD INDEX(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
+			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
+			// + ", startTime INT UNSIGNED, endTime INT UNSIGNED, "
+			// + "ALTER TABLE %1$s ADD INDEX(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
 	
 	private static final String MY_SQL_MERGE_MUTUAL = 
 			"CREATE TEMPORARY TABLE ex AS (SELECT nodeId, prevNodeId, weather, "

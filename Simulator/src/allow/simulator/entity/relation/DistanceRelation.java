@@ -1,9 +1,10 @@
 package allow.simulator.entity.relation;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import allow.simulator.closeness.SpatialProximityMeasure;
 import allow.simulator.entity.Entity;
 
 /**
@@ -15,12 +16,10 @@ import allow.simulator.entity.Entity;
 public class DistanceRelation extends Relation {
 
 	/**
-	 * Distance threshold.
+	 * Distance threshold
 	 */
 	public static final double DISTANCE = 50.0;
-	
-	private List<Entity> closeEntityBuffer;
-	
+		
 	/**
 	 * Constructor.
 	 * Creates new entity relation based on physical distance.
@@ -29,7 +28,6 @@ public class DistanceRelation extends Relation {
 	 */
 	public DistanceRelation(Entity entity) {
 		super(Relation.Type.DISTANCE, entity);
-		closeEntityBuffer = new ArrayList<Entity>(128);
 	}
 
 	/**
@@ -40,21 +38,20 @@ public class DistanceRelation extends Relation {
 	 */
 	@Override
 	public void updateRelation(List<Entity> newEntities, Set<Long> blackList) {
-		// Get entities which are physically close.
-		closeEntityBuffer.clear();
-		//entity.getContext().getWorld().getNearEntities(entity, DISTANCE, closeEntityBuffer);
+		// Get entities which are physically close
+		Collection<Entity> closeEntities = SpatialProximityMeasure.Instance.getCloseEntities(entity, DISTANCE);
 
-		// Add all entities which are new (i.e. in the difference of closeEntities and entities).
-		for (Entity e : closeEntityBuffer) {
+		// Add all entities which are new (i.e. in the difference of closeEntities and entities)
+		for (Entity e : closeEntities) {
 			
 			if (!entities.containsKey(e.getId()) && !blackList.contains(e.getId())) {
 				newEntities.add(e);
 			}
 		}
-		
-		// Finally, update entities in this relation.
+		// Finally, update entities in this relation
 		entities.clear();
-		for (Entity e : closeEntityBuffer) {
+		
+		for (Entity e : closeEntities) {
 			entities.put(e.getId(), e);
 		}
 		return;

@@ -1,5 +1,7 @@
 package allow.simulator.world.overlay;
 
+import allow.simulator.core.Context;
+
 public interface IOverlay {
 
 	/**
@@ -8,6 +10,6 @@ public interface IOverlay {
 	 * 
 	 * @return True, if state changed, false otherwise
 	 */
-	boolean update();
+	boolean update(Context context);
 	
 }

@@ -5,5 +5,9 @@ public class SimulationParameter {
 	public int BehaviourSpaceRunNumber;
 	
 	public String KnowledgeModel;
+
+	public int GridResX;
+	
+	public int GridResY;
 	
 }

@@ -18,6 +18,7 @@ import java.util.Observer;
 import java.util.Queue;
 import java.util.Set;
 
+import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
@@ -215,7 +216,7 @@ public final class StreetMap extends World implements Observer {
 	 * Updates all street segments which 
 	 */
 	@Override
-	public boolean update() {
+	public boolean update(Context context) {
 		boolean changed = false;
 		// Reset busiest streets queue. 
 		busiestStreets.clear();
@@ -228,7 +229,7 @@ public final class StreetMap extends World implements Observer {
 			changed = true;
 		}
 		streetsToUpdate.clear();
-		return changed || super.update();
+		return changed || super.update(context);
 	}
 	
 	public List<Street> getNBusiestStreets(int n) {

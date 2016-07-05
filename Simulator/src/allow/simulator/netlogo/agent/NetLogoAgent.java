@@ -39,6 +39,7 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 		temp.put(ActivityType.FILTER_ALTERNATIVES, "person");
 		temp.put(ActivityType.PREPARE_JOURNEY, "person");
 		temp.put(ActivityType.USE_PUBLIC_TRANSPORT, "person");
+		temp.put(ActivityType.USE_TAXI, "person");
 		temp.put(ActivityType.WALK, "person");
 		temp.put(ActivityType.RANK_ALTERNATIVES, "person");
 		temp.put(ActivityType.LEARN, "person");

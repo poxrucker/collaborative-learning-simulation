@@ -28,7 +28,11 @@ public class ExchangeKnowledge extends DefaultCommand {
 			if (!p.getEntity().getFlow().isIdle()) {
 				ActivityType type = p.getEntity().getFlow().getCurrentActivity().getType();
 				
-				if (type == ActivityType.DRIVE || type == ActivityType.CYCLE || type == ActivityType.WALK || type == ActivityType.USE_PUBLIC_TRANSPORT) {
+				if (type == ActivityType.DRIVE 
+						|| type == ActivityType.CYCLE 
+						|| type == ActivityType.WALK 
+						|| type == ActivityType.USE_PUBLIC_TRANSPORT
+						|| type == ActivityType.USE_TAXI) {
 					p.exchangeKnowledge();
 				}
 			}

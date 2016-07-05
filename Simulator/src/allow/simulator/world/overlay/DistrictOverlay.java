@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
@@ -112,7 +113,7 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 	}
 
 	@Override
-	public boolean update() {
+	public boolean update(Context context) {
 		return false;
 	}
 	

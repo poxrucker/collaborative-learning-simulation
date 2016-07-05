@@ -8,4 +8,8 @@ public final class SimulationParameter {
 		
 	public String AdaptationStrategy;
 
+	public int GridResX;
+	
+	public int GridResY;
+	
 }

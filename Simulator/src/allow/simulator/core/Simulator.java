@@ -79,7 +79,7 @@ public final class Simulator {
 		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
 		if (l == null)
 			throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
-		IOverlay rasterOverlay = new RasterOverlay();
+		RasterOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY);
 		IOverlay districtOverlay = DistrictOverlay.parse(l, world);
 		world.addOverlay(rasterOverlay, OVERLAY_RASTER);
 		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
@@ -161,7 +161,7 @@ public final class Simulator {
 		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 		
 		// Update world
-		world.update();
+		world.update(context);
 	}
 	
 	private void loadEntitiesFromFile(Path config) throws IOException {
@@ -203,7 +203,7 @@ public final class Simulator {
 		context.getTime().tick(deltaT);
 		
 		// Update world
-		context.getWorld().update();
+		context.getWorld().update(context);
 		
 		// Trigger routine scheduling.
 		if (days != context.getTime().getDays()) {

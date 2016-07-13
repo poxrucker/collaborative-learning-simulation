@@ -154,20 +154,33 @@ public final class AdaptationManager {
 
 	public boolean NotInOtherGroups(IEnsembleParticipant p,
 			Map<Object, Group> otherGroups) {
-		boolean result = false;
+
+		boolean result = true;
 		for (Map.Entry<Object, Group> entry : otherGroups.entrySet()) {
 			Group current = entry.getValue();
 			List<IEnsembleParticipant> members = current.getParticipants();
-			if (!members.contains(p)) {
-				result = true;
-				break;
-			} else {
+			boolean find = false;
+			for (int i = 0; i < members.size(); i++) {
+				IEnsembleParticipant currentMember = members.get(i);
+				if (currentMember.getParticipantId() == p.getParticipantId()) {
+					// person already in a group
+					// System.out.println("PASSENGER " + p.getParticipantId()
+					// + " in GROUP "
+					// + current.getLeader().getParticipantId());
+					find = true;
+					break;
+				}
+			}
+			if (find) {
+
 				result = false;
+				break;
 			}
 
 		}
 
 		// TODO Auto-generated method stub
+
 		return result;
 	}
 
@@ -176,7 +189,7 @@ public final class AdaptationManager {
 		Coordinate cPos = ((Entity) p).getPosition();
 		double distanceFromCreator = distance(cPos.x, cPos.y, busPos.x,
 				busPos.y, "K");
-		if (distanceFromCreator < 2) {
+		if (distanceFromCreator < 30) {
 			result = true;
 		}
 		return result;
@@ -200,13 +213,13 @@ public final class AdaptationManager {
 		return result;
 	}
 
-	public void CreateGroups(IEnsembleParticipant lastLeader,
+	public Map<Object, Group> CreateGroups(IEnsembleParticipant lastLeader,
 			Ensemble ensemble, Map<Object, Group> finalGroups,
 			List<IEnsembleParticipant> notAssigned, int index) {
 
 		if (notAssigned == null) {
 			// all entities assigned to a group
-			return;
+			return finalGroups;
 		} else {
 			// current position of the last leader
 			Coordinate lastLeaderPosition = null;
@@ -237,53 +250,71 @@ public final class AdaptationManager {
 						.collect(
 								Collectors.groupingBy(p -> RightDistance(p,
 										lPos)));
-
-				// create group with the people assigned
-				List<IEnsembleParticipant> assigned = new ArrayList<IEnsembleParticipant>();
-				for (Map.Entry<Object, List<IEnsembleParticipant>> entry : result
-						.entrySet()) {
-					boolean key = (boolean) entry.getKey();
-
-					if (key) {
-						assigned = entry.getValue();
+				if (result.get(true) == null) {
+					if (notAssigned.size() > 0) {
+						// System.out.println("Passengers to assign");
+						// for (int i = 0; i < notAssigned.size(); i++) {
+						// System.out.println(notAssigned.get(i)
+						// .getParticipantId());
+						// }
+					} else {
+						System.out.println("All passengers assigned");
 					}
-				}
 
-				// System.out.println("assigned: " + assigned.toString());
-				if (assigned != null) {
-					Group group = new Group(nextLeader, assigned);
-					index = index + 1;
-					finalGroups.put(index, group);
-
-					// take all passengers not yet assigned
+				} else {
+					// System.out.println("passengers to accomodate yet: "
+					// + result.get(true));
+					// create group with the people assigned
+					List<IEnsembleParticipant> assigned = new ArrayList<IEnsembleParticipant>();
 					for (Map.Entry<Object, List<IEnsembleParticipant>> entry : result
 							.entrySet()) {
 						boolean key = (boolean) entry.getKey();
-						if (!key) {
-							// member not assigned yet
-							notAssigned = entry.getValue();
+
+						if (key) {
+							assigned = entry.getValue();
 						}
 					}
-					// System.out.println("not assigned: " +
-					// notAssigned.toString());
-					// recall the method recursively on not assigned
-					if (notAssigned.size() == 1) {
-						// group with only one participant
-						Group group1 = new Group(nextLeader, notAssigned);
-						index = index + 1;
-						finalGroups.put(index, group1);
 
+					// System.out.println("assigned: " + assigned.toString());
+					if (assigned != null) {
+						Group group = new Group(nextLeader, assigned);
+						index = index + 1;
+						finalGroups.put(index, group);
+
+						// take all passengers not yet assigned
+						for (Map.Entry<Object, List<IEnsembleParticipant>> entry : result
+								.entrySet()) {
+							boolean key = (boolean) entry.getKey();
+							if (!key) {
+								// member not assigned yet
+								notAssigned = entry.getValue();
+							}
+						}
+						// System.out.println("not assigned: " +
+						// notAssigned.toString());
+						// recall the method recursively on not assigned
+						if (notAssigned == null) {
+							return finalGroups;
+						} else if (notAssigned.size() == 1) {
+							// group with only one participant
+							Group group1 = new Group(nextLeader, notAssigned);
+							index = index + 1;
+							finalGroups.put(index, group1);
+
+						} else {
+
+							CreateGroups(nextLeader, ensemble, finalGroups,
+									notAssigned, index);
+						}
 					} else {
-						CreateGroups(nextLeader, ensemble, finalGroups,
-								notAssigned, index);
+						return finalGroups;
 					}
-				} else {
-					return;
+
 				}
 
 			}
-
 		}
-
+		return finalGroups;
 	}
+
 }

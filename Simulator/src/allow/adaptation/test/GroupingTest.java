@@ -106,34 +106,6 @@ public class GroupingTest {
 		passenger9.getCurrentItinerary().to = new Coordinate(46.066221,
 				11.154240);
 
-		Person passenger10 = new Person(11, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(56.067859, 11.171397), true, true, true,
-				null, null);
-		passenger10.setCurrentItinerary(new Itinerary());
-		passenger10.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
-
-		Person passenger11 = new Person(12, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(66.067859, 11.171397), true, true, true,
-				null, null);
-		passenger11.setCurrentItinerary(new Itinerary());
-		passenger11.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
-
-		Person passenger12 = new Person(13, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(66.067859, 11.171397), true, true, true,
-				null, null);
-		passenger12.setCurrentItinerary(new Itinerary());
-		passenger12.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
-
-		Person passenger13 = new Person(14, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(66.067859, 11.171397), true, true, true,
-				null, null);
-		passenger13.setCurrentItinerary(new Itinerary());
-		passenger13.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
-
 		// Create Ensemble
 		Ensemble ensemble = ensembleManager.createEnsemble(bus,
 				"current-bus-trip-id-breakdown");
@@ -146,10 +118,7 @@ public class GroupingTest {
 		ensemble.addEntity(passenger7);
 		ensemble.addEntity(passenger8);
 		ensemble.addEntity(passenger9);
-		ensemble.addEntity(passenger10);
-		ensemble.addEntity(passenger11);
-		ensemble.addEntity(passenger12);
-		ensemble.addEntity(passenger13);
+
 		ensemble.addEntity(bus);
 
 		// FINAL MAP OF GROUPS
@@ -200,15 +169,19 @@ public class GroupingTest {
 		// add groups of person already in the bus at the final result of groups
 		finalGroups.put(index, InBus);
 
-		// Group newGroup =
-		ensembleManager.CreateGroups(creator, ensemble, finalGroups,
-				notAssigned, index);
+		Map<Object, Group> Groups = ensembleManager.CreateGroups(creator,
+				ensemble, finalGroups, notAssigned, index);
 
-		// System.out.println("FINAL GROUPS: " + finalGroups.toString());
-		// System.out.println("Gruppo 1: "
-		// + finalGroups.get(1).getParticipants().toString());
-		// System.out.println("Gruppo 2: "
-		// + finalGroups.get(2).getParticipants().toString());
+		System.out.println(" ######## FINAL GROUPS ######## "
+				+ finalGroups.size());
+
+		for (int i = 1; i <= finalGroups.size(); i++) {
+			System.out.println("Group " + i + ": "
+					+ finalGroups.get(i).getParticipants().toString());
+			System.out.println("- Leader: "
+					+ finalGroups.get(i).getLeader().toString());
+
+		}
 
 	}
 }

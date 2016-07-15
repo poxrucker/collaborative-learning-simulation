@@ -73,37 +73,43 @@ public class GroupingTest {
 				null, new Coordinate(11.152867, 46.065194), true, true, true,
 				null, null);
 		passenger4.setCurrentItinerary(new Itinerary());
-		passenger4.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger4.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		Person passenger5 = new Person(6, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger5.setCurrentItinerary(new Itinerary());
-		passenger5.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger5.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		Person passenger6 = new Person(7, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger6.setCurrentItinerary(new Itinerary());
-		passenger6.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger6.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		Person passenger7 = new Person(8, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger7.setCurrentItinerary(new Itinerary());
-		passenger7.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger7.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		Person passenger8 = new Person(9, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger8.setCurrentItinerary(new Itinerary());
-		passenger8.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger8.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		Person passenger9 = new Person(10, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger9.setCurrentItinerary(new Itinerary());
-		passenger9.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
+		passenger9.getCurrentItinerary().to = new Coordinate(11.154240,
+				46.066221);
 
 		// Create Ensemble
 		Ensemble ensemble = ensembleManager.createEnsemble(bus,
@@ -183,8 +189,11 @@ public class GroupingTest {
 		}
 
 		// take a group as an example
-		Group g = finalGroups.get(2);
-		Person leader = (allow.simulator.entity.Person) g.getLeader();
+		Group g = finalGroups.get(1);
+		PublicTransportation leader = (allow.simulator.entity.PublicTransportation) g
+				.getLeader();
+		// Coordinate
+		// Person leader = (allow.simulator.entity.Person) g.getLeader();
 		Coordinate from = leader.getPosition();
 		;
 
@@ -192,7 +201,7 @@ public class GroupingTest {
 		for (int i = 0; i < g.getParticipants().size(); i++) {
 			Person p = (allow.simulator.entity.Person) g.getParticipants().get(
 					i);
-			if (p != leader) {
+			if (p.getClass() == allow.simulator.entity.Person.class) {
 				Coordinate to = p.getCurrentItinerary().to;
 				destinations.add(to);
 			}

@@ -49,67 +49,61 @@ public class GroupingTest {
 		// Create entities
 		PublicTransportation bus = new PublicTransportation(1, null, null,
 				null, null, 25);
-		bus.setPosition(new Coordinate(46.065194, 11.152867));
+		bus.setPosition(new Coordinate(11.152867, 46.065194));
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.065194, 11.152867), true, true, true,
+				null, new Coordinate(11.152867, 46.065194), true, true, true,
 				null, null);
 		passenger1.setCurrentItinerary(new Itinerary());
 		passenger1.getCurrentItinerary().to = new Coordinate(11.1076075,
 				46.0487277);
 		Person passenger2 = new Person(3, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.065194, 11.152867), true, true, true,
+				null, new Coordinate(11.152867, 46.065194), true, true, true,
 				null, null);
 		passenger2.setCurrentItinerary(new Itinerary());
 		passenger2.getCurrentItinerary().to = new Coordinate(11.1593422,
 				46.0875704);
 		Person passenger3 = new Person(4, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.065194, 11.152867), true, true, true,
+				null, new Coordinate(11.152867, 46.065194), true, true, true,
 				null, null);
 		passenger3.setCurrentItinerary(new Itinerary());
 		passenger3.getCurrentItinerary().to = new Coordinate(11.1593422,
 				46.0875704);
 
 		Person passenger4 = new Person(5, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.065194, 11.152867), true, true, true,
+				null, new Coordinate(11.152867, 46.065194), true, true, true,
 				null, null);
 		passenger4.setCurrentItinerary(new Itinerary());
-		passenger4.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger4.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		Person passenger5 = new Person(6, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.067859, 11.151397), true, true, true,
+				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger5.setCurrentItinerary(new Itinerary());
-		passenger5.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger5.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		Person passenger6 = new Person(7, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.067859, 11.151397), true, true, true,
+				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger6.setCurrentItinerary(new Itinerary());
-		passenger6.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger6.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		Person passenger7 = new Person(8, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.067859, 11.151397), true, true, true,
+				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger7.setCurrentItinerary(new Itinerary());
-		passenger7.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger7.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		Person passenger8 = new Person(9, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.067859, 11.151397), true, true, true,
+				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger8.setCurrentItinerary(new Itinerary());
-		passenger8.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger8.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		Person passenger9 = new Person(10, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.067859, 11.151397), true, true, true,
+				null, new Coordinate(11.151397, 46.067859), true, true, true,
 				null, null);
 		passenger9.setCurrentItinerary(new Itinerary());
-		passenger9.getCurrentItinerary().to = new Coordinate(46.066221,
-				11.154240);
+		passenger9.getCurrentItinerary().to = new Coordinate(11.154240, 46.066221);
 
 		// Create Ensemble
 		Ensemble ensemble = ensembleManager.createEnsemble(bus,

@@ -1,5 +1,7 @@
 package allow.adaptation.test;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +16,13 @@ import allow.simulator.entity.Gender;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
 import allow.simulator.entity.PublicTransportation;
+import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyPlanner;
+import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.OTPPlannerService;
+import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
 
@@ -182,6 +187,53 @@ public class GroupingTest {
 					+ finalGroups.get(i).getLeader().toString());
 
 		}
+
+		// take a group as an example
+		Group g = finalGroups.get(2);
+		Person leader = (allow.simulator.entity.Person) g.getLeader();
+		Coordinate from = leader.getPosition();
+		;
+
+		List<Coordinate> destinations = new ArrayList<Coordinate>();
+		for (int i = 0; i < g.getParticipants().size(); i++) {
+			Person p = (allow.simulator.entity.Person) g.getParticipants().get(
+					i);
+			if (p != leader) {
+				Coordinate to = p.getCurrentItinerary().to;
+				destinations.add(to);
+			}
+		}
+
+		RequestId reqId = new RequestId();
+
+		TType[] mean = new TType[1];
+		mean[0] = TType.SHARED_TAXI;
+		boolean arriveBy = false;
+
+		String str = "2016-07-12 12:30";
+		DateTimeFormatter formatter = DateTimeFormatter
+				.ofPattern("yyyy-MM-dd HH:mm");
+		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+
+		// For each group derive the journey for each participant
+		JourneyRequest r = JourneyRequest.createRequest(from, destinations,
+				dateTime, arriveBy, mean, reqId);
+
+		// Planning Instantiation
+		OTPPlannerService otp = new OTPPlannerService("localhost", 8010);
+		List<OTPPlannerService> planners = new ArrayList<OTPPlannerService>();
+		planners.add(otp);
+
+		// TaxiPlanner Instantiation
+		Coordinate taxiRank = new Coordinate(11.1198448, 46.0719489);
+		TaxiPlanner tp = new TaxiPlanner(planners, taxiRank);
+
+		// request taxi journey
+		List<Itinerary> resultItineraries = new ArrayList<Itinerary>();
+
+		tp.requestSingleJourney(r, resultItineraries);
+		System.out
+				.println("Number of Itineraries: " + resultItineraries.size());
 
 	}
 }

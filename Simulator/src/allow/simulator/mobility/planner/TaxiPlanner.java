@@ -189,7 +189,11 @@ public final class TaxiPlanner implements IPlannerService {
 			subIt.costs = leg.costs;
 			subItineraries.add(subIt);
 		}
-		ret.legs = legs;
+//		durationAcc += initialWaitingTime;
+//		Leg last = legs.get(legs.size() - 1);
+//		durationAcc += (last.endTime - last.startTime) / 1000;
+		ret.initialWaitingTime = initialWaitingTime;
+		ret.subItineraries = subItineraries;
 		ret.costs = totalCosts;
 		ret.duration = durationAcc;
 		ret.startTime = subItineraries.get(0).startTime;
@@ -231,6 +235,9 @@ public final class TaxiPlanner implements IPlannerService {
 				buffer.set(2 + i, c.get(i));
 			}
 			List<Leg> temp = createTripLegs(buffer, planner, req);
+			
+			if (temp == null)
+				continue;
 			
 			double time = 0.0;
 			for (int i = 0; i < temp.size() - 1; i++) {

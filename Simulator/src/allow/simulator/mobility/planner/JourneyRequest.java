@@ -47,6 +47,11 @@ public class JourneyRequest {
 	public Coordinate From;
 	
 	/**
+	 * Starting points
+	 */
+	public List<Coordinate> StartingPoints;
+	
+	/**
 	 * Destination
 	 */
 	public Coordinate To;
@@ -100,7 +105,8 @@ public class JourneyRequest {
 		return s;
 	}
 	
-	public static JourneyRequest createRequest(Coordinate from, List<Coordinate> to,
+	public static JourneyRequest createRequest(Coordinate pickupPoint,
+			List<Coordinate> from, List<Coordinate> to,
 			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
 		JourneyRequest s = new JourneyRequest();
 		s.ReqId = reqId.getRequestId();
@@ -111,9 +117,12 @@ public class JourneyRequest {
 			s.ArrivalTime = date.toLocalTime();
 		} else {
 			s.DepartureTime = date.toLocalTime();
-		}		
-		// Set starting position and destination.
-		s.From = from;
+		}
+		// Set pickup point
+		s.From = pickupPoint;
+		
+		// Set starting positions and destinations
+		s.StartingPoints = from;
 		s.Destinations = to;
 
 		// Set route type.

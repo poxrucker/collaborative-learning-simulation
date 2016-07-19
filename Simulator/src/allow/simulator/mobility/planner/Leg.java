@@ -13,6 +13,7 @@
 
 package allow.simulator.mobility.planner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.mobility.data.TType;
@@ -27,8 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * particular vehicle (or on foot).
  */
 
-public class Leg {
-
+public class Leg {	
     /**
      * The date and time this leg begins.
      */
@@ -120,4 +120,25 @@ public class Leg {
      * Costs of this leg.
      */
     public double costs;
+    
+    public Leg() {}
+    
+    public Leg(Leg other) {
+		startTime = other.startTime;
+		endTime = other.endTime;
+		distance = other.distance;
+		mode = other.mode;
+		routeId = other.routeId;
+		agencyId = other.agencyId;
+		tripId = other.tripId;
+		from = new Coordinate(other.from);
+		stopIdFrom = other.stopIdFrom;
+		to = new Coordinate(other.to);
+		stopIdTo = other.stopIdTo;
+		stops = (other.stops != null) ? new ArrayList<String>(other.stops) : null;
+		legGeometry = other.legGeometry;
+		osmNodes = (other.osmNodes != null) ? new ArrayList<String>(other.osmNodes) : null;
+		streets = (other.streets != null) ? new ArrayList<Street>(other.streets) : null;
+		costs = other.costs;
+	} 
 }

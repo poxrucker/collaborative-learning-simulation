@@ -197,14 +197,13 @@ public class GroupingTest {
 		Coordinate from = leader.getPosition();
 		;
 
+		List<Coordinate> startingPoints = new ArrayList<Coordinate>();
 		List<Coordinate> destinations = new ArrayList<Coordinate>();
+		
 		for (int i = 0; i < g.getParticipants().size(); i++) {
-			Person p = (allow.simulator.entity.Person) g.getParticipants().get(
-					i);
-			if (p.getClass() == allow.simulator.entity.Person.class) {
-				Coordinate to = p.getCurrentItinerary().to;
-				destinations.add(to);
-			}
+			Person p = (allow.simulator.entity.Person) g.getParticipants().get(i);
+			startingPoints.add(p.getPosition());
+			destinations.add(p.getCurrentItinerary().to);
 		}
 
 		RequestId reqId = new RequestId();
@@ -214,13 +213,12 @@ public class GroupingTest {
 		boolean arriveBy = false;
 
 		String str = "2016-07-12 12:30";
-		DateTimeFormatter formatter = DateTimeFormatter
-				.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 		// For each group derive the journey for each participant
-		JourneyRequest r = JourneyRequest.createRequest(from, destinations,
-				dateTime, arriveBy, mean, reqId);
+		JourneyRequest r = JourneyRequest.createRequest(from, startingPoints,
+				destinations, dateTime, arriveBy, mean, reqId);
 
 		// Planning Instantiation
 		OTPPlannerService otp = new OTPPlannerService("localhost", 8010);

@@ -9,14 +9,11 @@ public class HPersonAndPerson extends ExchangeHandler {
 	// private static final double PREFERENCE_CHANGE_STEP_WIDE = 0.0025;
 
 	@Override
-	public void exchange(Entity entity1, Entity entity2) {
+	public boolean exchange(Entity entity1, Entity entity2) {
 
 		if ((entity1 instanceof Person) && (entity2 instanceof Person)) {
-			boolean success = entity1.getKnowledge().exchangeKnowledge(entity2);
+			return entity1.getKnowledge().exchangeKnowledge(entity2);
 
-			if (success && (entity1.getId() == 11912 || entity2.getId() == 11912)) {
-				System.out.println(entity1 + " exchanging knowledge with " + entity2);
-			}
 			/*Preferences p1 = ((Person) entity1).getPreferences();
 			Preferences p2 = ((Person) entity2).getPreferences();
 
@@ -50,10 +47,7 @@ public class HPersonAndPerson extends ExchangeHandler {
 					}
 				}
 			}*/
-		} else if (next != null) {
-			next.exchange(entity1, entity2);
 		}
-
+		return (next != null) ? next.exchange(entity1, entity2) : false;
 	}
-
 }

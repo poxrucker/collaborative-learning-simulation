@@ -385,6 +385,6 @@ public final class Person extends Entity {
 
 	@Override
 	public boolean isActive() {
-		return true;
+		return (flow.getCurrentActivity() != null);
 	}
 }

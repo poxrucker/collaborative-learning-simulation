@@ -53,8 +53,6 @@ public abstract class ExchangeHandler {
 	 * @param entity1 First entity.
 	 * @param entity2 Second entity.
 	 */
-	public void exchange(Entity entity1, Entity entity2) {
-		
-	}
+	public abstract boolean exchange(Entity entity1, Entity entity2);
 	
 }

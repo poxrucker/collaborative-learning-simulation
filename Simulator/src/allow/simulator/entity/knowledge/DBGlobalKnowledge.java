@@ -17,13 +17,10 @@ public class DBGlobalKnowledge implements DBKnowledgeModel {
 	private static final String GLOBAL_TABLE_NAME = "global";
 
 	private static final String MY_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
-			+ "(entryNo INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY, nodeId INT, prevNodeId INT, "
-			+ "weather TINYINT UNSIGNED, weekday TINYINT UNSIGNED, "
-			+ "timeOfDay TINYINT UNSIGNED, modality TINYINT UNSIGNED, ttime FLOAT, prevttime FLOAT, fillLevel FLOAT, "
-			+ "weight DOUBLE, "
-			+ "PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality));%2$s"
-			+ ", startTime INT UNSIGNED, endTime INT UNSIGNED, "
-			+ "INDEX(nodeId, modality, timeOfDay, weekday, prevNodeId, prevttime));%2$s";
+			+ "(nodeId INT, prevNodeId INT, weather TINYINT UNSIGNED, weekday TINYINT UNSIGNED, "
+			+ "timeOfDay TINYINT UNSIGNED, modality TINYINT UNSIGNED, ttime FLOAT, prevttime FLOAT, "
+			+ "filllevel FLOAT, weight DOUBLE, "
+			+ "PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality));%2$s";
 	
 //	private static final String POSTGRE_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
 //			+ " (entryNo SERIAL PRIMARY KEY, nodeId INTEGER, prevNodeId INTEGER, "
@@ -45,7 +42,7 @@ public class DBGlobalKnowledge implements DBKnowledgeModel {
 			+ "ttime=(%1$s.ttime * %1$s.weight + VALUES(ttime)) / (%1$s.weight + 1), "
 			+ "prevttime=(%1$s.prevttime * %1$s.weight + VALUES(prevttime)) / (%1$s.weight + 1), "
 			+ "filllevel=(%1$s.filllevel * %1$s.weight + VALUES(filllevel)) / (%1$s.weight + 1), "
-			+ "weight=(%1$s.weight + 1)";
+			+ "weight=LN(EXP(%1$s.weight) + EXP(1))";
 	
 	private DBType type;
 	private String sqlCreateTables;

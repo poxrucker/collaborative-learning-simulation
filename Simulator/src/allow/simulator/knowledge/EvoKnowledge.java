@@ -46,7 +46,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	
 	// Buffer to store experiences of entities for learning.
 	private List<TravelExperience> travelExperienceBuffer;
-	private List<StopExperience> stopExperienceBuffer;
 	
 	// Buffer holding entities to exchange knowledge with.
 	private List<Entity> toExchangeBuffer;
@@ -71,7 +70,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 			handlerChain = ExchangeHandler.StandardBusChain;
 		}
 		travelExperienceBuffer = new ArrayList<TravelExperience>();
-		stopExperienceBuffer = new ArrayList<StopExperience>();
 	}
 	
 	public String getInstanceId() {
@@ -88,8 +86,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		
 		if (observation instanceof TravelExperience) {
 			travelExperienceBuffer.add((TravelExperience) observation);
-		} else if (observation instanceof StopExperience) {
-			stopExperienceBuffer.add((StopExperience) observation);
 		}
 	}
 	
@@ -397,6 +393,5 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	
 	public void clear() {
 		travelExperienceBuffer.clear();
-		stopExperienceBuffer.clear();
 	}
 }

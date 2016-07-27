@@ -58,7 +58,6 @@ public final class TravelExperience extends Experience {
 			double publicTranbsportationFillingLevel,
 			String publicTransportationTripId,
 			Weather.State weather) {
-		super(Experience.Type.TRAVEL);
 		this.segment = segment;
 		this.travelTime = travelTime;
 		this.costs = costs;
@@ -81,7 +80,6 @@ public final class TravelExperience extends Experience {
 			double publicTranbsportationFillingLevel,
 			String publicTransportationTripId,
 			Weather.State weather) {
-		super(Experience.Type.TRAVEL);
 		this.travelTime = travelTime;
 		this.costs = costs;
 		this.meansOfTransportation = meansOfTransportation;
@@ -94,9 +92,7 @@ public final class TravelExperience extends Experience {
 		this.weather = weather;
 	}
 	
-	private TravelExperience() {
-		super(Experience.Type.TRAVEL);
-	}
+	private TravelExperience() {}
 	
 	public long getSegmentId() {
 		return segment.getId();

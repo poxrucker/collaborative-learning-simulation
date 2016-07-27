@@ -3,8 +3,8 @@ package allow.simulator.utility;
 import java.util.Comparator;
 import java.util.List;
 
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.mobility.planner.TType;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

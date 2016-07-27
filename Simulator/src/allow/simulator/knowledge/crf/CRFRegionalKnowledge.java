@@ -9,10 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.knowledge.EvoEncoding;
 import allow.simulator.knowledge.TravelExperience;
 import allow.simulator.knowledge.crf.DBConnector.DBType;
-import allow.simulator.mobility.data.TType;
 
 public class CRFRegionalKnowledge implements CRFKnowledgeModel {
 	
@@ -199,10 +197,10 @@ public class CRFRegionalKnowledge implements CRFKnowledgeModel {
 				stmtString = stmtString.concat(firstSeg ? "" : ",");
 				stmtString = stmtString.concat("('" + nodeId + "',");
 				stmtString = stmtString.concat("'" + prevNodeId + "',");
-				stmtString = stmtString.concat(ex.getWeather().getEncoding() + ",");
-				stmtString = stmtString.concat(ex.getWeekday() + ",");
-				stmtString = stmtString.concat(EvoEncoding.getTimeOfDay(ex.getTStart().getHour()) + ",");
-				stmtString = stmtString.concat(TType.getEncoding(ex.getTransportationMean()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeWeather(ex.getWeather()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeDayOfWeek(ex.getWeekday()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeTimeOfDay(ex.getTStart()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeTType(ex.getTransportationMean()) + ",");
 				stmtString = stmtString.concat(duration + ",");
 				stmtString = stmtString.concat(prevDuration + ",");
 				stmtString = stmtString.concat(ex.getPublicTransportationFillingLevel() + ",");
@@ -280,8 +278,8 @@ public class CRFRegionalKnowledge implements CRFKnowledgeModel {
 				boolean foundMatch = false;
 
 				long nodeId = ex.getSegmentId();
-				byte modality = TType.getEncoding(ex.getTransportationMean());
-				byte timeOfDay = EvoEncoding.getTimeOfDay(ex.getTStart().getHour());
+				byte modality = DBEncoding.encodeTType(ex.getTransportationMean());
+				byte timeOfDay = DBEncoding.encodeTimeOfDay(ex.getTStart());
 				byte weekday = (byte) ex.getWeekday();
 				
 				// try the most detailed query first

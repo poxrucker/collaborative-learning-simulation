@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.knowledge.TravelExperience;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * An Itinerary is one complete way of getting from the start location to the end location.
  */
 public final class Itinerary {
-
 	/**
 	 * Request identifier
 	 */

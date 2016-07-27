@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-import allow.simulator.mobility.data.RType;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 
 /**

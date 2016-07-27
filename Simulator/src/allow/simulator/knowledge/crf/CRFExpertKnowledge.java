@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.EvoEncoding;
 import allow.simulator.knowledge.TravelExperience;
 import allow.simulator.knowledge.crf.DBConnector.DBType;
-import allow.simulator.mobility.data.TType;
 
 public class CRFExpertKnowledge implements CRFKnowledgeModel {
 	// Dictionary holding tables which have been
@@ -273,12 +271,10 @@ public class CRFExpertKnowledge implements CRFKnowledgeModel {
 			stmtStringRaw = stmtStringRaw.concat("'" + prevNodeId + "',");
 			stmtStringRaw = stmtStringRaw.concat(duration + ",");
 			stmtStringRaw = stmtStringRaw.concat(prevDuration + ",");
-			stmtStringRaw = stmtStringRaw.concat(ex.getWeather().getEncoding() + ",");
-			stmtStringRaw = stmtStringRaw.concat(ex.getWeekday() + ",");
-			stmtStringRaw = stmtStringRaw.concat(EvoEncoding.getTimeOfDay(ex
-					.getTStart().getHour()) + ",");
-			stmtStringRaw = stmtStringRaw.concat(TType.getEncoding(ex
-					.getTransportationMean()) + ",");
+			stmtStringRaw = stmtStringRaw.concat(DBEncoding.encodeWeather(ex.getWeather()) + ",");
+			stmtStringRaw = stmtStringRaw.concat(DBEncoding.encodeDayOfWeek(ex.getWeekday()) + ",");
+			stmtStringRaw = stmtStringRaw.concat(DBEncoding.encodeTimeOfDay(ex.getTStart()) + ",");
+			stmtStringRaw = stmtStringRaw.concat(DBEncoding.encodeTType(ex.getTransportationMean()) + ",");
 			// Density = Number of other entities on segment.
 			stmtStringRaw = stmtStringRaw.concat(ex.getPublicTransportationFillingLevel() + ","); 
 			stmtStringRaw = stmtStringRaw.concat(String.valueOf(start / 1000) + ",");
@@ -359,9 +355,9 @@ public class CRFExpertKnowledge implements CRFKnowledgeModel {
 			
 			//prepare content
 			long nodeId = ex.getSegmentId();
-			byte modality = TType.getEncoding(ex.getTransportationMean());  
-			byte timeOfDay = EvoEncoding.getTimeOfDay(ex.getTStart().getHour());
-			byte weekDay = (byte) ex.getWeekday(); 
+			byte modality = DBEncoding.encodeTType(ex.getTransportationMean());  
+			byte timeOfDay = DBEncoding.encodeTimeOfDay(ex.getTStart());
+			byte weekDay = DBEncoding.encodeDayOfWeek(ex.getWeekday()); 
 			
 			//Add a part of the where statement with the required level of detail
 			//for each part of the journey 

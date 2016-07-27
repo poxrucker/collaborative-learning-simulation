@@ -16,12 +16,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.OTPPlannerService;
 import allow.simulator.mobility.planner.RequestId;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.utility.Preferences;

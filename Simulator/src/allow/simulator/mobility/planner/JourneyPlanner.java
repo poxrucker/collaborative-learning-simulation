@@ -8,7 +8,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import scala.concurrent.forkjoin.ThreadLocalRandom;
-import allow.simulator.mobility.data.TType;
 
 public final class JourneyPlanner {
 	// Threadpool execution service

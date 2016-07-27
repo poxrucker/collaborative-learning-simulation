@@ -7,9 +7,9 @@ import java.util.concurrent.CountDownLatch;
 
 import allow.simulator.entity.Entity;
 import allow.simulator.knowledge.crf.DBConnector;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Weather;

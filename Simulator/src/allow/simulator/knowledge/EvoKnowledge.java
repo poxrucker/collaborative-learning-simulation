@@ -12,8 +12,8 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.knowledge.crf.DBConnector;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Pair;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -226,6 +226,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		clear();
 		return true;
 	}
+	
 	
 	private static ExperienceSummary createSummary(Entity e, Itinerary itinerary, List<TravelExperience> experiences) {
 		ExperienceSummary summary = new ExperienceSummary();

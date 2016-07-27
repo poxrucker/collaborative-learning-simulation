@@ -15,11 +15,11 @@ import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.person.RankAlternatives;
 import allow.simulator.flow.activity.person.UsePublicTransport;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.RequestId;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 
 public class SelfishAdaptation implements IAdaptationStrategy {

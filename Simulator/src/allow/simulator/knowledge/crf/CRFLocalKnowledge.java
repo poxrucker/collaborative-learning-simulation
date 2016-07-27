@@ -7,10 +7,8 @@ import java.sql.Statement;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.EvoEncoding;
 import allow.simulator.knowledge.TravelExperience;
 import allow.simulator.knowledge.crf.DBConnector.DBType;
-import allow.simulator.mobility.data.TType;
 
 public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	
@@ -159,10 +157,10 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 				stmtString = stmtString.concat(firstSeg ? "" : ",");
 				stmtString = stmtString.concat("('" + nodeId + "',");
 				stmtString = stmtString.concat("'" + prevNodeId + "',");
-				stmtString = stmtString.concat(ex.getWeather().getEncoding() + ",");
-				stmtString = stmtString.concat(ex.getWeekday() + ",");
-				stmtString = stmtString.concat(EvoEncoding.getTimeOfDay(ex.getTStart().getHour()) + ",");
-				stmtString = stmtString.concat(TType.getEncoding(ex.getTransportationMean()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeWeather(ex.getWeather()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeDayOfWeek(ex.getWeekday()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeTimeOfDay(ex.getTStart()) + ",");
+				stmtString = stmtString.concat(DBEncoding.encodeTType(ex.getTransportationMean()) + ",");
 				stmtString = stmtString.concat(duration + ",");
 				stmtString = stmtString.concat(prevDuration + ",");
 				stmtString = stmtString.concat(ex.getPublicTransportationFillingLevel() + ",");
@@ -240,9 +238,9 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 				double predictedFillLevel = 0.0;	
 				boolean foundMatch = false;
 				long nodeId = ex.getSegmentId();
-				byte modality = TType.getEncoding(ex.getTransportationMean());
-				byte timeOfDay = EvoEncoding.getTimeOfDay(ex.getTStart().getHour());
-				byte weekday = (byte) ex.getWeekday();
+				byte modality = DBEncoding.encodeTType(ex.getTransportationMean());
+				byte timeOfDay = DBEncoding.encodeTimeOfDay(ex.getTStart());
+				byte weekday = DBEncoding.encodeDayOfWeek(ex.getWeekday());
 				
 				// try the most detailed query first
 				if (!firstSeg && prevTTime != -1) {

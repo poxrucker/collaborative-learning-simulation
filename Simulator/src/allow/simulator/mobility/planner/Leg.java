@@ -15,7 +15,6 @@ package allow.simulator.mobility.planner;
 
 import java.util.List;
 
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 

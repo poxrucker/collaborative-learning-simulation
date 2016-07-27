@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.ActivityType;
@@ -58,7 +58,7 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 		for (IEnsembleParticipant participant : temp) {
 			Entity entity = (Entity) participant;
 			
-			if (entity.getType() == EntityType.PERSON) {
+			if (entity.getType() == EntityTypes.PERSON) {
 				Person person = (Person) entity;
 				
 				if (person.getFlow().getCurrentActivity().getType() != ActivityType.USE_PUBLIC_TRANSPORT) {

@@ -17,7 +17,7 @@ import allow.simulator.adaptation.CollectiveAdaptation;
 import allow.simulator.adaptation.IAdaptationStrategy;
 import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
 import allow.simulator.entity.knowledge.EvoKnowledge;
@@ -207,7 +207,7 @@ public final class Simulator {
 		
 		// Trigger routine scheduling.
 		if (days != context.getTime().getDays()) {
-			Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+			Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
 			for (Entity p : persons) {
 				PlanGenerator.generateDayPlan((Person) p);

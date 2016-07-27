@@ -25,7 +25,7 @@ public final class PublicTransportationAgency extends TransportationAgency {
 	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
 	
 	public PublicTransportationAgency(long id, Utility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, EntityType.PUBLICTRANSPORTAGENCY, utility, prefs, context, agencyId);
+		super(id, EntityTypes.PUBLIC_TRANSPORT_AGENCY, utility, prefs, context, agencyId);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();
 		

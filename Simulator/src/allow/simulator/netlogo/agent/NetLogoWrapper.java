@@ -16,7 +16,7 @@ import allow.simulator.core.EntityManager;
 import allow.simulator.core.IContextWrapper;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.world.StreetMap;
@@ -111,7 +111,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 		simToNetLogoTemp.clear();
 		netLogoToSimTemp.clear();
 
-		for (EntityType type : EntityType.values()) {
+		for (String type : entityManager.getEntityTypes()) {
 			// Get all entities of certain type
 			Collection<Entity> entities = entityManager.getEntitiesOfType(type);
 
@@ -121,13 +121,13 @@ public final class NetLogoWrapper implements IContextWrapper {
 			for (Entity entity : entities) {
 				
 				switch (type) {
-				case BUS:
-				case FLEXIBUS:
-				case PERSON:
-				case TAXI:
-				case PUBLICTRANSPORTAGENCY:
-				case FLEXIBUSAGENCY:
-				case TAXIAGENCY:
+				case EntityTypes.BUS:
+				case EntityTypes.FLEXIBUS:
+				case EntityTypes.PERSON:
+				case EntityTypes.TAXI:
+				case EntityTypes.PUBLIC_TRANSPORT_AGENCY:
+				case EntityTypes.FLEXIBUS_AGENCY:
+				case EntityTypes.TAXI_AGENCY:
 					NetLogoAgent newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
 					netLogoWorld.turtles().add(newAgent);
 

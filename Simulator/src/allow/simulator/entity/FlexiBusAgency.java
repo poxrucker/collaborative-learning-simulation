@@ -11,7 +11,7 @@ public class FlexiBusAgency extends TransportationAgency {
 	private FlexiBusPlanner planner;
 	
 	public FlexiBusAgency(long id, Utility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, EntityType.FLEXIBUSAGENCY, utility, prefs, context, agencyId);
+		super(id, EntityTypes.FLEXIBUS_AGENCY, utility, prefs, context, agencyId);
 		planner = (FlexiBusPlanner) context.getJourneyPlanner().getFlexiBusPlannerService();
 		flow.addActivity(new StartNextTrips(this));
 	}

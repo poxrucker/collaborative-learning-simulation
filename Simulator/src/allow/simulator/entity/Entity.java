@@ -26,7 +26,7 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	protected final long id;
 	
 	// Type of entity.
-	protected final EntityType type;
+	private final String entityType;
 	
 	// Utility module.
 	protected final IUtility utility;
@@ -67,9 +67,9 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
+	public Entity(long id, String type, IUtility utility, Preferences prefs, Context context) {
 		this.id = id;
-		this.type = type;
+		this.entityType = type;
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
 		relations = new RelationGraph(this);
@@ -91,7 +91,7 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs) {
+	protected Entity(long id, String type, IUtility utility, Preferences prefs) {
 		this(id, type, utility, prefs, null);
 	}
 	
@@ -109,8 +109,8 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * 
 	 * @return Type of the entity.
 	 */
-	public EntityType getType() {
-		return type;
+	public String getType() {
+		return entityType;
 	}
 	
 	/**

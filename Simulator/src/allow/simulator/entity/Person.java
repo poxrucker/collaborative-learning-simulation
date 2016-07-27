@@ -20,6 +20,7 @@ import allow.simulator.world.overlay.DistrictOverlay;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Andreas Poxrucker (DFKI)
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Person extends Entity {
 	// Gender of a person.
 	private Gender gender;
@@ -106,7 +108,7 @@ public final class Person extends Entity {
 			boolean useFlexiBus,
 			DailyRoutine dailyRoutine,
 			Context context) {
-		super(id, EntityType.PERSON, utility, prefs, context);
+		super(id, EntityTypes.PERSON, utility, prefs, context);
 		this.gender = gender;
 		this.profile = profile;
 		this.hasCar = hasCar;
@@ -149,7 +151,7 @@ public final class Person extends Entity {
 			@JsonProperty("hasBike") boolean hasBike,
 			@JsonProperty("useFlexiBus") boolean useFlexiBus,
 			@JsonProperty("dailyRoutine") DailyRoutine dailyRoutine) {
-		super(id, EntityType.PERSON, utility, prefs);
+		super(id, EntityTypes.PERSON, utility, prefs);
 		this.gender = gender;
 		this.profile = role;
 		this.hasCar = hasCar;

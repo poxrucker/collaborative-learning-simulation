@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.knowledge.TravelExperience;
 
 public class DBConnector {
@@ -98,7 +98,7 @@ public class DBConnector {
 			// Reset tables if they exist.
 			con = DriverManager.getConnection(config.getModelPath() + config.getModelName(), config.getUser(), config.getPassword());
 			stmt = con.createStatement();
-			Collection<Entity> persons = Simulator.Instance().getContext().getEntityManager().getEntitiesOfType(EntityType.PERSON);
+			Collection<Entity> persons = Simulator.Instance().getContext().getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 			System.out.println(persons.size());
 			
 			for (Entity e : persons) {

@@ -22,7 +22,7 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @param capacity Capacity of the transportation mean.
 	 */
 	public PublicTransportation(long id, Utility utility, Preferences prefs, Context context, PublicTransportationAgency agency, int capacity) {
-		super(id, EntityType.BUS, utility, prefs, context, agency, capacity);
+		super(id, EntityTypes.BUS, utility, prefs, context, agency, capacity);
 	}
 	
 	/**

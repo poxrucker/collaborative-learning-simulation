@@ -4,22 +4,21 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
 
 public class EntityManager {
 	// Id enumerator
 	private final AtomicLong id;
 	
 	// Collection of entities grouped by their respective types
-	private final Map<EntityType, Map<Long, Entity>> entities;
+	private final Map<String, Map<Long, Entity>> entities;
 	
 	public EntityManager() {
-		entities = new EnumMap<EntityType, Map<Long, Entity>>(EntityType.class);
+		entities = new HashMap<String, Map<Long, Entity>>();
 		id = new AtomicLong(0);
 	}
 	
@@ -42,7 +41,11 @@ public class EntityManager {
 		id.set(Math.max(entity.getId() + 1, id.get()));
 	}
 	
-	public Collection<Entity> getEntitiesOfType(EntityType type) {
+	public Collection<String> getEntityTypes() {
+		return Collections.unmodifiableCollection(entities.keySet());
+	}
+	
+	public Collection<Entity> getEntitiesOfType(String type) {
 		Map<Long, Entity> temp = entities.get(type);
 		return (temp != null) ? Collections.unmodifiableCollection(temp.values()) : Collections.emptySet();
 	}

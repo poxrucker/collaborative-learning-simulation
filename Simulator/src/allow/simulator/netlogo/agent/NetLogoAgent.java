@@ -11,6 +11,7 @@ import org.nlogo.agent.World;
 import org.nlogo.api.AgentException;
 
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
@@ -150,41 +151,37 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 		World world = wrapper.getWorld();
 		
 		switch (entity.getType()) {
-		case BUS:
+		case EntityTypes.BUS:
 			breed = world.getBreed("BUSSES");
 			break;
 			
-		case FLEXIBUS:
+		case EntityTypes.FLEXIBUS:
 			breed = world.getBreed("FLEXIBUSSES");
 			break;
 			
-		case FLEXIBUSAGENCY:
+		case EntityTypes.FLEXIBUS_AGENCY:
 			breed = world.getBreed("TRANSPORTAGENCIES");
 			canBeVisible = false;
 			break;
 			
-		case PERSON:
+		case EntityTypes.PERSON:
 			breed = world.getBreed("PERSONS");
 			color = (double) Math.random() * 149.0;
 			break;
 			
-		case PUBLICTRANSPORTAGENCY:
+		case EntityTypes.PUBLIC_TRANSPORT_AGENCY:
 			breed = world.getBreed("TRANSPORTAGENCIES");
 			canBeVisible = false;
 			break;
 			
-		case TAXI:
+		case EntityTypes.TAXI:
 			breed = world.getBreed("TAXIS");
 			color = 45.0;
 			break;
 			
-		case TAXIAGENCY:
+		case EntityTypes.TAXI_AGENCY:
 			breed = world.getBreed("TRANSPORTAGENCIES");
 			canBeVisible = false;
-			break;
-			
-		case TRAIN:
-			breed = world.getBreed("TRAINS");
 			break;
 		
 		default:

@@ -4,10 +4,10 @@ import java.time.LocalTime;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
-import allow.simulator.entity.relation.Relation;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.TaxiStop;
+import allow.simulator.relation.Relation;
 
 /**
  * Represents an activity to use public transport (bus).

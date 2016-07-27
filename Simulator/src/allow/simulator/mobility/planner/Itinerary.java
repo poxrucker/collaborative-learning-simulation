@@ -3,7 +3,7 @@ package allow.simulator.mobility.planner;
 import java.util.ArrayList;
 import java.util.List;
 
-import allow.simulator.entity.knowledge.TravelExperience;
+import allow.simulator.knowledge.TravelExperience;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 

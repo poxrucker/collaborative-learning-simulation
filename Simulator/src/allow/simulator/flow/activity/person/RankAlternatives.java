@@ -3,11 +3,11 @@ package allow.simulator.flow.activity.person;
 import java.util.List;
 
 import allow.simulator.entity.Person;
-import allow.simulator.entity.knowledge.EvoKnowledge;
-import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.utility.Preferences;
 
 public class RankAlternatives extends Activity {
 

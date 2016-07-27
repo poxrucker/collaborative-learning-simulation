@@ -9,10 +9,10 @@ import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Time;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.knowledge.Experience;
-import allow.simulator.entity.knowledge.StopExperience;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.knowledge.Experience;
+import allow.simulator.knowledge.StopExperience;
 import allow.simulator.mobility.data.PublicTransportationStop;
 
 /**

@@ -5,7 +5,7 @@ import java.util.Collection;
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
-import allow.simulator.entity.utility.Preferences;
+import allow.simulator.utility.Preferences;
 
 public class Statistics {
 	// Sliding windows covering mean prior and posterior travel time for

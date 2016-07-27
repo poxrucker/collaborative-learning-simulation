@@ -1,10 +1,10 @@
 package allow.simulator.entity;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.flow.activity.flexibusagency.StartNextTrips;
 import allow.simulator.mobility.planner.FlexiBusPlanner;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.Utility;
 
 public class FlexiBusAgency extends TransportationAgency {
 	// Planner instance is required to poll trips to schedule. 

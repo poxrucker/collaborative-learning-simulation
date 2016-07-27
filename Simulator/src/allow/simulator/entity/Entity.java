@@ -5,13 +5,13 @@ import java.util.Observable;
 import allow.simulator.adaptation.IEnsembleParticipant;
 import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Context;
-import allow.simulator.entity.knowledge.EvoKnowledge;
-import allow.simulator.entity.relation.RelationGraph;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
+import allow.simulator.knowledge.EvoKnowledge;
+import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
+import allow.simulator.utility.IUtility;
+import allow.simulator.utility.Preferences;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

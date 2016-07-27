@@ -1,10 +1,10 @@
 package allow.simulator.entity;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.Utility;
 
 public final class Taxi extends TransportationEntity {
 	

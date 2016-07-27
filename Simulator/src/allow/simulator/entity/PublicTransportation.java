@@ -1,10 +1,10 @@
 package allow.simulator.entity;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Trip;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.Utility;
 
 /**
  * Represents a bus entity which is a subtype of a transportation entity.

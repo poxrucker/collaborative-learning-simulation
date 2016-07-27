@@ -20,7 +20,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
-import allow.simulator.entity.knowledge.EvoKnowledge;
+import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.MobilityRepository;
 import allow.simulator.mobility.data.OfflineDataService;

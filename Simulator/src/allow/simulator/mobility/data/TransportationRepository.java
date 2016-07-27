@@ -11,12 +11,12 @@ import allow.simulator.entity.PublicTransportation;
 import allow.simulator.entity.PublicTransportationAgency;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.mobility.data.gtfs.GTFSAgency;
 import allow.simulator.mobility.data.gtfs.GTFSRoute;
 import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.util.Coordinate;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.Utility;
 
 public class TransportationRepository {
 	// Collection of available GTFS transportation agencies.

@@ -4,8 +4,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
+import allow.simulator.utility.IUtility;
+import allow.simulator.utility.Preferences;
 
 /**
  * Represents a transport agency entity managing a set of trips and vehicles

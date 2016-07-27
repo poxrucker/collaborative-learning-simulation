@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.Utility;
 import allow.simulator.flow.activity.transportagency.StartNextTrips;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 import allow.simulator.mobility.data.Route;
 import allow.simulator.mobility.data.Trip;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.Utility;
 
 public final class PublicTransportationAgency extends TransportationAgency {
 	// Routes managed by this public transportation agency

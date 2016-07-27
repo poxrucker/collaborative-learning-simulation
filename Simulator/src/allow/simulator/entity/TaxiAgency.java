@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.taxi.PrepareTaxiTrip;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
+import allow.simulator.utility.IUtility;
+import allow.simulator.utility.Preferences;
 
 public final class TaxiAgency extends TransportationAgency {
 	// Collection of trips which have been requested and are being executed

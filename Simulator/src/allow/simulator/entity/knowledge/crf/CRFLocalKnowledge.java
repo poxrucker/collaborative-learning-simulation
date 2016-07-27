@@ -1,23 +1,23 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.Person;
-import allow.simulator.entity.knowledge.DBConnector.DBType;
+import allow.simulator.entity.knowledge.EvoEncoding;
+import allow.simulator.entity.knowledge.TravelExperience;
+import allow.simulator.entity.knowledge.crf.DBConnector.DBType;
 import allow.simulator.mobility.data.TType;
 
-public class DBRegionalKnowledge implements DBKnowledgeModel {
+public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	
 	private static final String MY_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
 			+ "(nodeId INT, prevNodeId INT, weather TINYINT UNSIGNED, weekday TINYINT UNSIGNED, "
-			+ "timeOfDay TINYINT UNSIGNED, modality TINYINT UNSIGNED, ttime FLOAT,"
-			+ "prevttime FLOAT, fillLevel FLOAT, weight DOUBLE, "
+			+ "timeOfDay TINYINT UNSIGNED, modality TINYINT UNSIGNED, ttime FLOAT, prevttime FLOAT, "
+			+ "fillLevel FLOAT, weight DOUBLE, "
 			+ "PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality));%2$s";
 	
 //	private static final String POSTGRE_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
@@ -30,7 +30,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 //			+ "(nodeId, modality, timeOfDay, weekday, prevNodeId, prevttime)";
 	
 //	private static final String MY_SQL_SHOW_TABLES = "SHOW TABLES LIKE '%1$s'";
-
+	
 //	private static final String POSTGRE_SQL_SHOW_TABLES = "SELECT * FROM pg_catalog.pg_tables where "
 //			+ "tablename like '%1s'";
 	
@@ -45,7 +45,9 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			+ "weight=LN(EXP(%1$s.weight) + EXP(1))";
 	
 	private static final String MY_SQL_MERGE_SIMPLE = "CREATE TABLE IF NOT EXISTS %1$s AS SELECT * FROM %2$s; "
-			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality); ";
+			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
+			// + ", startTime INT UNSIGNED, endTime INT UNSIGNED, "
+			// + "ALTER TABLE %1$s ADD INDEX(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
 	
 	private static final String MY_SQL_MERGE_MUTUAL = 
 			"CREATE TEMPORARY TABLE ex AS (SELECT nodeId, prevNodeId, weather, "
@@ -55,7 +57,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			+ "ON DUPLICATE KEY UPDATE "
 			+ "ttime=(%1$s.ttime*%1$s.weight+VALUES(ttime)*VALUES(weight))/(%1$s.weight+VALUES(weight)), "
 			+ "prevttime=(%1$s.prevttime*%1$s.weight+VALUES(prevttime)*VALUES(weight))/(%1$s.weight+VALUES(weight)), "
-			+ "filllevel=(%1$s.filllevel*%1$s.weight+VALUES(filllevel))*VALUES(weight)/(%1$s.weight+VALUES(weight)), "
+			+ "filllevel=(%1$s.filllevel*%1$s.weight+VALUES(filllevel)*VALUES(weight))/(%1$s.weight+VALUES(weight)), "
 			+ "weight=LN(EXP(%1$s.weight)+EXP(VALUES(weight))); "
 			
 			+ "INSERT INTO %2$s (SELECT * FROM ex) "
@@ -64,7 +66,6 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			+ "prevttime=(%2$s.prevttime*%2$s.weight+VALUES(prevttime)*VALUES(weight))/(%2$s.weight+VALUES(weight)), "
 			+ "filllevel=(%2$s.filllevel*%2$s.weight+VALUES(filllevel)*VALUES(weight))/(%2$s.weight+VALUES(weight)), "
 			+ "weight=LN(EXP(%2$s.weight)+EXP(VALUES(weight))); ";
-	
 	
 	private DBType type;
 	private String tablePrefix;
@@ -76,11 +77,8 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 	private String sqlUpdateOnInsert;
 	private String sqlMergeSimple;
 	private String sqlMergeMutual;
-	
-	// Dictionary holding tables which have been 
-	private ConcurrentHashMap<String, Boolean> aIdTableExists = new ConcurrentHashMap<String, Boolean>();
-	
-	public DBRegionalKnowledge(DBType type, String tablePrefix, String modelName) {
+		
+	public CRFLocalKnowledge(DBType type, String tablePrefix, String modelName) {
 		this.type = type;
 		this.tablePrefix = tablePrefix;
 		this.modelName = modelName;
@@ -105,61 +103,21 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 		default:
 			throw new IllegalArgumentException("Error: Unknown DB type " + type);
 		}
-		initaIdTableExists();
-	}
-	
-	private void initaIdTableExists() {
-		aIdTableExists.clear();
-		Statement stmt = null;
-		Connection con = null;
-		ResultSet rs = null;
-		
-		String stmtString = "";
-		String tableName = tablePrefix + "_tbl_%";
-		
-		try {
-			// get connection
-			con = DSFactory.getConnection();
-			stmt = con.createStatement();
-			rs = stmt.executeQuery("SHOW TABLES FROM " + modelName + " LIKE '" + tableName + "'");
-			
-			while (rs.next()) {
-				String table = rs.getString(1);
-				String[] tokens = table.split("_");
-				aIdTableExists.put(tokens[tokens.length - 1], true);
-			}
-
-		} catch (SQLException e) {
-			System.out.println(stmtString);
-			// e.printStackTrace();
-
-		} finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-				if (con != null)
-					con.close();
-				if (rs != null)
-					rs.close();
-				
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	@Override
 	public boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> it, String tablePrefix) {
-		Person p = (Person) agent;
-		String tableName = tablePrefix + "_tbl_" + p.getHomeArea();
+		String agentId = String.valueOf(agent.getId());
+		String tableName = tablePrefix + "_tbl_" + agentId;
 
 		if (it.size() == 0) {
 			return false;
 		}
 		// check if table for agent already exists (hopefully saves database overhead)
-		boolean tableExists = aIdTableExists.get(tableName) == null ? false : true;
+		boolean tableExists = DBConnector.aIdTableExists.get(tableName) == null ? false : true;
 
-		// track error state to avoid having to nest too many try catch statements
+		// track error state to avoid having to nest too many try catch
+		// statements
 		boolean error = false;
 
 		// connection and statement for database query
@@ -168,6 +126,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 		String stmtString = "";
 		
 		try {
+
 			// get connection
 			con = DSFactory.getConnection();
 			stmt = con.createStatement();
@@ -183,10 +142,12 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 					con.close();
 					return false;
 				}
-				aIdTableExists.put(tableName, true);
+				DBConnector.aIdTableExists.put(tableName, true);
 			}
+
 			// parse the itinerary and add a line for each entry
 			stmtString = String.format(sqlInsertValues, tableName);
+
 			boolean firstSeg = true;
 			long prevNodeId = -1;
 			double prevDuration = -1;
@@ -194,6 +155,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			for (TravelExperience ex : it) {
 				long nodeId = ex.getSegmentId();
 				double duration = ex.getTravelTime();
+
 				stmtString = stmtString.concat(firstSeg ? "" : ",");
 				stmtString = stmtString.concat("('" + nodeId + "',");
 				stmtString = stmtString.concat("'" + prevNodeId + "',");
@@ -211,12 +173,14 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			}
 			stmtString = stmtString.concat(String.format(sqlUpdateOnInsert, tableName));
 			stmtString = stmtString.concat(";");
+
+			// System.out.println(stmtString);
 			stmt.execute(stmtString);
 
 		} catch (SQLException e) {
 			System.out.println(stmtString);
+			// e.printStackTrace();
 			error = true;
-			
 		} finally {
 			try {
 				if (stmt != null)
@@ -234,19 +198,19 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 
 	@Override
 	public List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it, String tablePrefix) {
-		Person p = (Person) agent;
-		String tableName = tablePrefix + "_tbl_" + p.getHomeArea();
+		String agentId = String.valueOf(agent.getId());
+		String tableName = tablePrefix + "_tbl_" + agentId;
 
 		// connection and statement for database query
 		Connection con = null;
 		Statement stmt = null;
 		ResultSet rs = null;
-		
-		boolean tableExists = aIdTableExists.get(tableName) == null ? false : true;
+		boolean tableExists = DBConnector.aIdTableExists.get(tableName) == null ? false : true;
 		
 		if (!tableExists) {
 			return it;
 		}
+		
 		try {
 			// get connection
 			con = DSFactory.getConnection();
@@ -259,24 +223,22 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 
 			String stmtString = null;
 			boolean firstSeg = true;
+
 			long prevNodeId = -1;
 			double prevTTime = -1;
 			long segmentTStart = 0;
 
 			for (TravelExperience ex : it) {
 				
-				if (firstSeg) {
+				if (firstSeg)
 					segmentTStart = ex.getStartingTime() / 1000;
-				}
 
-				if (ex.isTransient()) {
+				if (ex.isTransient())
 					continue;
-				}
-				double predictedTravelTime = ex.getTravelTime();
-				double predictedFillLevel = 0.0;
-				
-				boolean foundMatch = false;
 
+				double predictedTravelTime = ex.getTravelTime();
+				double predictedFillLevel = 0.0;	
+				boolean foundMatch = false;
 				long nodeId = ex.getSegmentId();
 				byte modality = TType.getEncoding(ex.getTransportationMean());
 				byte timeOfDay = EvoEncoding.getTimeOfDay(ex.getTStart().getHour());
@@ -314,8 +276,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 
 				// Try without weekday
 				if (!foundMatch) {
-					stmtString = String.format(stmt3, "AVG(ttime), AVG(fillLevel)", nodeId,
-							modality, timeOfDay);
+					stmtString = String.format(stmt3, "AVG(ttime), AVG(fillLevel)", nodeId, modality, timeOfDay);
 					rs = stmt.executeQuery(stmtString);
 
 					if (rs.next() && (rs.getDouble(1) > 0)) {
@@ -328,8 +289,7 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 
 				// Try without time of day
 				if (!foundMatch) {
-					stmtString = String.format(stmt2, "AVG(ttime), AVG(fillLevel)", nodeId,
-							modality);
+					stmtString = String.format(stmt2, "AVG(ttime), AVG(fillLevel)", nodeId, modality);
 					rs = stmt.executeQuery(stmtString);
 
 					if (rs.next() && (rs.getDouble(1) > 0)) {
@@ -352,9 +312,11 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 					}
 					rs.close();
 				}
+				// Estimate actual ttime
 				firstSeg = false;
 				prevNodeId = nodeId;
 				prevTTime = predictedTravelTime;
+
 				ex.setStartingTime(segmentTStart * 1000);
 				segmentTStart = segmentTStart
 						+ ((int) predictedTravelTime * 1000);
@@ -393,11 +355,11 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 	public boolean exchangeKnowledge(Entity agent1, Entity agent2, String tablePrefix) {
 		String agentId1 = String.valueOf(agent1.getId());
 		String tableName1 = tablePrefix + "_tbl_" + agentId1;
-		boolean tableExists1 = aIdTableExists.get(tableName1) == null ? false : true;
+		boolean tableExists1 = DBConnector.aIdTableExists.get(tableName1) == null ? false : true;
 		
 		String agentId2 = String.valueOf(agent2.getId());
 		String tableName2 = tablePrefix + "_tbl_" + agentId2;
-		boolean tableExists2 = aIdTableExists.get(tableName2) == null ? false : true;
+		boolean tableExists2 = DBConnector.aIdTableExists.get(tableName2) == null ? false : true;
 
 		if (!tableExists1 && !tableExists2)
 			return false;
@@ -412,13 +374,13 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			
 			if (tableExists1 && !tableExists2) {
 				stmtString = String.format(sqlMergeSimple, tableName2, tableName1);
-				aIdTableExists.put(tableName2, true);
+				DBConnector.aIdTableExists.put(tableName2, true);
 				stmt.execute(stmtString);
 			}
 
 			if (!tableExists1 && tableExists2) {
 				stmtString = String.format(sqlMergeSimple, tableName1, tableName2);
-				aIdTableExists.put(tableName1, true);
+				DBConnector.aIdTableExists.put(tableName1, true);
 				stmt.execute(stmtString);
 			}
 
@@ -428,8 +390,8 @@ public class DBRegionalKnowledge implements DBKnowledgeModel {
 			}
 			
 		} catch (SQLException e) {
-			//System.out.println(agentId1 + "->" + agentId2 + ": " + type);
-			System.out.println(agentId1 + "->" + agentId2 + ": " + e.getMessage());
+			System.out.println(agentId1 + "->" + agentId2 + ": ");
+			e.printStackTrace();
 		} finally {
 			try {
 				if (stmt != null)

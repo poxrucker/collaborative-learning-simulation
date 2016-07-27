@@ -1,11 +1,22 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.util.List;
 
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.knowledge.TravelExperience;
 
-public class DBNoKnowledge implements DBKnowledgeModel {
+public class CRFNoKnowledge implements CRFKnowledgeModel {
 
+	private static CRFNoKnowledge instance;
+	
+	private CRFNoKnowledge() { }
+	
+	public static CRFNoKnowledge getInstance() {
+		if (instance == null)
+			instance = new CRFNoKnowledge();
+		return instance;
+	}
+	
 	@Override
 	public boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> experiences, String tablePrefix) {
 		return true;

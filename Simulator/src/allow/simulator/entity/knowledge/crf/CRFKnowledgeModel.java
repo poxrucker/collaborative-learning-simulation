@@ -1,12 +1,13 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.util.List;
 
 import allow.simulator.entity.Entity;
+import allow.simulator.entity.knowledge.TravelExperience;
 
-public interface DBKnowledgeModel {
+public interface CRFKnowledgeModel {
 
-	boolean addEntry(Entity agent, List<TravelExperience> proir, List<TravelExperience> posterior, String tablePrefix);
+	boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> posterior, String tablePrefix);
 	
 	List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it, String tablePrefix);
 	

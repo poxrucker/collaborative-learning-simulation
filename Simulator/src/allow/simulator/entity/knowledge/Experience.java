@@ -1,5 +1,4 @@
-    package allow.simulator.entity.knowledge;
-
+package allow.simulator.entity.knowledge;
 
 public abstract class Experience {
 

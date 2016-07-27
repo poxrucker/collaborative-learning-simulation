@@ -1,4 +1,4 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

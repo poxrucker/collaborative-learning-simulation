@@ -1,4 +1,4 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.knowledge.DBConnector.DBType;
+import allow.simulator.entity.knowledge.EvoEncoding;
+import allow.simulator.entity.knowledge.TravelExperience;
+import allow.simulator.entity.knowledge.crf.DBConnector.DBType;
 import allow.simulator.mobility.data.TType;
 
-public class DBExpertKnowledge implements DBKnowledgeModel {
+public class CRFExpertKnowledge implements CRFKnowledgeModel {
 	// Dictionary holding tables which have been
 	//private static ConcurrentHashMap<String, Boolean> aIdTableExists = new ConcurrentHashMap<String, Boolean>();
 	public static List<Long> tableList = new ArrayList<Long>();	
@@ -47,7 +49,7 @@ public class DBExpertKnowledge implements DBKnowledgeModel {
 	private String sqlInsertValues;
 	private static final int MAXENTITYPERTABLE = 10000000;
 
-	public DBExpertKnowledge(DBType type) {
+	public CRFExpertKnowledge(DBType type) {
 		this.type = type;
 
 		switch (type) {

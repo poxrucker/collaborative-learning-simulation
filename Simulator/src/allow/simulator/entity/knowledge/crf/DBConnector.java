@@ -1,4 +1,4 @@
-package allow.simulator.entity.knowledge;
+package allow.simulator.entity.knowledge.crf;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,11 +7,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
+import allow.simulator.entity.knowledge.TravelExperience;
 
 public class DBConnector {
 	
@@ -21,13 +23,16 @@ public class DBConnector {
 		
 		POSTGRE;
 	}
+	
 	// Dictionary holding tables which have been 
-	// private static ConcurrentHashMap<String, Boolean> aIdTableExists = null;
 	private static String prefix = null;
 	private static EvoKnowledgeConfiguration config;
-	private static DBKnowledgeModel model;
+	private static CRFKnowledgeModel model;
 	private static DBType dbType;
 	
+	// Saves which tables already exist
+	public static ConcurrentHashMap<String, Boolean> aIdTableExists = new ConcurrentHashMap<String, Boolean>();
+
 	private static final String KNOWLEDGE_MODEL_NO_KNOWLEDGE = "without";
 	private static final String KNOWLEDGE_MODEL_LOCAL = "local";
 	private static final String KNOWLEDGE_MODEL_LOCAL_EXCHANGE = "local (with exchange)";
@@ -119,6 +124,46 @@ public class DBConnector {
 		}
 	}
 	
+	private static void initaIdTableExists() {
+		aIdTableExists.clear();
+		Statement stmt = null;
+		Connection con = null;
+		ResultSet rs = null;
+		
+		String stmtString = "";
+		String tableName = prefix + "_tbl_%";
+		
+		try {
+			// get connection
+			con = DSFactory.getConnection();
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("SHOW TABLES FROM " + config.getModelName() + " LIKE '" + tableName + "'");
+			
+			while (rs.next()) {
+				String table = rs.getString(1);
+				String[] tokens = table.split("_");
+				aIdTableExists.put(tokens[tokens.length - 1], true);
+			}
+
+		} catch (SQLException e) {
+			System.out.println(stmtString);
+			// e.printStackTrace();
+
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				if (con != null)
+					con.close();
+				if (rs != null)
+					rs.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private static void initDatabase() {
 		
 		if (config.getModelPath().contains("mysql")) {
@@ -143,35 +188,37 @@ public class DBConnector {
 		
 		switch (knowledgeModel) {
 			case KNOWLEDGE_MODEL_NO_KNOWLEDGE:
-				model = new DBNoKnowledge();
+				model = CRFNoKnowledge.getInstance();
 				break;
 				
 			case KNOWLEDGE_MODEL_LOCAL:
 			case KNOWLEDGE_MODEL_LOCAL_EXCHANGE:
 				initDatabase();
-				model = new DBLocalKnowledge(dbType, prefix, config.getModelName());
+				initaIdTableExists();
+				model = new CRFLocalKnowledge(dbType, prefix, config.getModelName());
 				break;
 				
 			case KNOWLEDGE_MODEL_GLOBAL_TEMPORAL:
 				initDatabase();
-				model = new DBGlobalKnowledge(dbType);
+				initaIdTableExists();
+				model = new CRFGlobalKnowledge(dbType);
 				break;
 			
 			case KNOWLEDGE_MODEL_EXPERT:
 				initDatabase();
-				model = new DBExpertKnowledge(dbType);
+				initaIdTableExists();
+				model = new CRFExpertKnowledge(dbType);
 				break;
 			
 			case KNOWLEGDE_MODEL_REGIONAL:
 				initDatabase();
-				model = new DBRegionalKnowledge(dbType, prefix, config.getModelName());
+				initaIdTableExists();
+				model = new CRFRegionalKnowledge(dbType, prefix, config.getModelName());
 				break;
 				
 			default:
 				throw new IllegalArgumentException("Error: Knowledge model \"" + knowledgeModel  + "\" unknown.");
-		}
-		
-		//aIdTableExists = new ConcurrentHashMap<String, Boolean>();
+		}		
 	}
 	
 	public static boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> posterior) {

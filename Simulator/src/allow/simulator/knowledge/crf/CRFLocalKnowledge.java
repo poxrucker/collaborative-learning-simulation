@@ -18,20 +18,6 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			+ "fillLevel FLOAT, weight DOUBLE, "
 			+ "PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality));%2$s";
 	
-//	private static final String POSTGRE_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
-//			+ " (entryNo SERIAL PRIMARY KEY, nodeId INTEGER, prevNodeId INTEGER, "
-//			+ "weather SMALLINT, weekday SMALLINT, "
-//			+ "timeOfDay SMALLINT, modality SMALLINT, ttime REAL, prevttime REAL, fillLevel REAL, "
-//			+ "number REAL, "
-//			+ "UNIQUE(nodeId, prevNodeId, weather, weekday, timeOfDay, modality)); "
-//			+ "CREATE INDEX on %2$s "
-//			+ "(nodeId, modality, timeOfDay, weekday, prevNodeId, prevttime)";
-	
-//	private static final String MY_SQL_SHOW_TABLES = "SHOW TABLES LIKE '%1$s'";
-	
-//	private static final String POSTGRE_SQL_SHOW_TABLES = "SELECT * FROM pg_catalog.pg_tables where "
-//			+ "tablename like '%1s'";
-	
 	private static final String SQL_INSERT_VALUES = "INSERT INTO %1$s "
 			+ " (nodeId, prevNodeId, weather, weekday, timeOfDay, modality, ttime, prevttime, fillLevel, weight)"
 			+ " VALUES ";
@@ -44,8 +30,6 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	
 	private static final String MY_SQL_MERGE_SIMPLE = "CREATE TABLE IF NOT EXISTS %1$s AS SELECT * FROM %2$s; "
 			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
-			// + ", startTime INT UNSIGNED, endTime INT UNSIGNED, "
-			// + "ALTER TABLE %1$s ADD INDEX(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
 	
 	private static final String MY_SQL_MERGE_MUTUAL = 
 			"CREATE TEMPORARY TABLE ex AS (SELECT nodeId, prevNodeId, weather, "

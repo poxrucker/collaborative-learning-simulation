@@ -49,42 +49,52 @@ public class GroupingTest {
 		// Create entities
 		PublicTransportation bus = new PublicTransportation(1, null, null,
 				null, null, 25);
-		bus.setPosition(new Coordinate(11.152867, 46.065194));
+		bus.setPosition(new Coordinate(46.072994, 11.161968));
+
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.152867, 46.065194), true, true, true,
+				null, new Coordinate(46.072994, 11.161968), true, true, true,
 				null, null);
 		passenger1.setCurrentItinerary(new Itinerary());
-		passenger1.getCurrentItinerary().to = new Coordinate(11.1076075,
-				46.0487277);
+
+		// to central station
+		passenger1.getCurrentItinerary().to = new Coordinate(46.072294,
+				11.120432);
+
 		Person passenger2 = new Person(3, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.152867, 46.065194), true, true, true,
+				null, new Coordinate(46.072994, 11.161968), true, true, true,
 				null, null);
 		passenger2.setCurrentItinerary(new Itinerary());
-		passenger2.getCurrentItinerary().to = new Coordinate(11.1593422,
-				46.0875704);
+
+		// to central station
+		passenger2.getCurrentItinerary().to = new Coordinate(46.072294,
+				11.120432);
+
+		// from Piazza Manci to Central Station
 		Person passenger3 = new Person(4, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.152867, 46.065194), true, true, true,
+				null, new Coordinate(46.070093, 11.122911), true, true, true,
 				null, null);
 		passenger3.setCurrentItinerary(new Itinerary());
-		passenger3.getCurrentItinerary().to = new Coordinate(11.1593422,
-				46.0875704);
+		passenger3.getCurrentItinerary().to = new Coordinate(46.072294,
+				11.120432);
 
+		// from Piazza Manci to Central Station
 		Person passenger4 = new Person(5, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.152867, 46.065194), true, true, true,
+				null, new Coordinate(46.070093, 11.122911), true, true, true,
 				null, null);
 		passenger4.setCurrentItinerary(new Itinerary());
-		passenger4.getCurrentItinerary().to = new Coordinate(11.154240,
-				46.066221);
+		passenger4.getCurrentItinerary().to = new Coordinate(46.072294,
+				11.120432);
 
 		Person passenger5 = new Person(6, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.151397, 46.067859), true, true, true,
+				null, new Coordinate(46.070093, 11.122911), true, true, true,
 				null, null);
 		passenger5.setCurrentItinerary(new Itinerary());
-		passenger5.getCurrentItinerary().to = new Coordinate(11.154240,
-				46.066221);
+		passenger5.getCurrentItinerary().to = new Coordinate(46.072294,
+				11.120432);
 
+		// to central station
 		Person passenger6 = new Person(7, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.151397, 46.067859), true, true, true,
+				null, new Coordinate(46.070093, 11.122911), true, true, true,
 				null, null);
 		passenger6.setCurrentItinerary(new Itinerary());
 		passenger6.getCurrentItinerary().to = new Coordinate(11.154240,
@@ -189,19 +199,20 @@ public class GroupingTest {
 		}
 
 		// take a group as an example
-		Group g = finalGroups.get(1);
-		PublicTransportation leader = (allow.simulator.entity.PublicTransportation) g
-				.getLeader();
+		Group g = finalGroups.get(2);
+		// PublicTransportation leader =
+		// (allow.simulator.entity.PublicTransportation) g
+		// .getLeader();
 		// Coordinate
-		// Person leader = (allow.simulator.entity.Person) g.getLeader();
+		Person leader = (allow.simulator.entity.Person) g.getLeader();
 		Coordinate from = leader.getPosition();
-		;
 
 		List<Coordinate> startingPoints = new ArrayList<Coordinate>();
 		List<Coordinate> destinations = new ArrayList<Coordinate>();
-		
+
 		for (int i = 0; i < g.getParticipants().size(); i++) {
-			Person p = (allow.simulator.entity.Person) g.getParticipants().get(i);
+			Person p = (allow.simulator.entity.Person) g.getParticipants().get(
+					i);
 			startingPoints.add(p.getPosition());
 			destinations.add(p.getCurrentItinerary().to);
 		}
@@ -212,8 +223,9 @@ public class GroupingTest {
 		mean[0] = TType.SHARED_TAXI;
 		boolean arriveBy = false;
 
-		String str = "2016-07-12 12:30";
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		String str = "2016-08-22 12:30";
+		DateTimeFormatter formatter = DateTimeFormatter
+				.ofPattern("yyyy-MM-dd HH:mm");
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 		// For each group derive the journey for each participant

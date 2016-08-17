@@ -135,7 +135,7 @@ public final class AdaptationManager {
 					double distanceFromCreator = distance(cPos.x, cPos.y,
 							busPos.x, busPos.y, "K");
 
-					if (distanceFromCreator < 1
+					if (distanceFromCreator < 5
 							&& NotInOtherGroups(current, finalGroups)) {
 						// return the first "nearest" passenger
 						result = current;
@@ -184,12 +184,28 @@ public final class AdaptationManager {
 		return result;
 	}
 
-	public boolean RightDistance(IEnsembleParticipant p, Coordinate busPos) {
+	public boolean RightDistanceFromBus(IEnsembleParticipant p,
+			Coordinate busPos) {
 		boolean result = false;
 		Coordinate cPos = ((Entity) p).getPosition();
 		double distanceFromCreator = distance(cPos.x, cPos.y, busPos.x,
 				busPos.y, "K");
-		if (distanceFromCreator < 30) {
+		if (distanceFromCreator < 3) {
+			result = true;
+		}
+		return result;
+	}
+
+	public boolean RightDistance(IEnsembleParticipant p,
+			IEnsembleParticipant leader) {
+		boolean result = true;
+		Coordinate cPos = ((Entity) p).getPosition();
+		Coordinate pPos = ((Entity) leader).getPosition();
+		double distanceFromLeader = distance(cPos.x, cPos.y, pPos.x, pPos.y,
+				"K");
+		// System.out.println("Distanza dal leader" + distanceFromLeader
+		// + "pass: " + p.getParticipantId());
+		if (distanceFromLeader < 4.0) {
 			result = true;
 		}
 		return result;
@@ -242,14 +258,17 @@ public final class AdaptationManager {
 				// retrieve passengers thare are <1Km from the next leader and
 				// are not in other groups
 
+				// && NotInOtherGroups(p,finalGroups)
+
 				Map<Object, List<IEnsembleParticipant>> result = ensemble
 						.getEntities()
 						.stream()
-						.filter(p -> (NotInBus(p, lPos) && NotInOtherGroups(p,
+						.filter(p -> (NotBus(p) && NotInOtherGroups(p,
 								finalGroups)))
 						.collect(
 								Collectors.groupingBy(p -> RightDistance(p,
-										lPos)));
+										leader)));
+
 				if (result.get(true) == null) {
 					if (notAssigned.size() > 0) {
 						// System.out.println("Passengers to assign");
@@ -315,6 +334,18 @@ public final class AdaptationManager {
 			}
 		}
 		return finalGroups;
+	}
+
+	private boolean NotBus(IEnsembleParticipant p) {
+		// TODO Auto-generated method stub
+		boolean result = true;
+		if (p.getClass() == allow.simulator.entity.Person.class) {
+			result = true;
+		} else {
+
+			result = false;
+		}
+		return result;
 	}
 
 }

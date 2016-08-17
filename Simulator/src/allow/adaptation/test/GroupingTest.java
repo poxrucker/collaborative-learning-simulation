@@ -49,73 +49,77 @@ public class GroupingTest {
 		// Create entities
 		PublicTransportation bus = new PublicTransportation(1, null, null,
 				null, null, 25);
-		bus.setPosition(new Coordinate(46.072994, 11.161968));
+		bus.setPosition(new Coordinate(11.161968, 46.072994));
 
+		// P1: from povo to central station
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.072994, 11.161968), true, true, true,
+				null, new Coordinate(11.161968, 46.072994), true, true, true,
 				null, null);
 		passenger1.setCurrentItinerary(new Itinerary());
+		passenger1.getCurrentItinerary().to = new Coordinate(11.120432,
+				46.072294);
 
-		// to central station
-		passenger1.getCurrentItinerary().to = new Coordinate(46.072294,
-				11.120432);
-
+		// P2: from povo to central station
 		Person passenger2 = new Person(3, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.072994, 11.161968), true, true, true,
+				null, new Coordinate(11.161968, 46.072994), true, true, true,
 				null, null);
+
 		passenger2.setCurrentItinerary(new Itinerary());
 
-		// to central station
-		passenger2.getCurrentItinerary().to = new Coordinate(46.072294,
-				11.120432);
+		passenger2.getCurrentItinerary().to = new Coordinate(11.120432,
+				46.072294);
 
-		// from Piazza Manci to Central Station
+		// from Mesiano to Central Station
 		Person passenger3 = new Person(4, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.070093, 11.122911), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger3.setCurrentItinerary(new Itinerary());
-		passenger3.getCurrentItinerary().to = new Coordinate(46.072294,
-				11.120432);
+		passenger3.getCurrentItinerary().to = new Coordinate(11.120432,
+				46.072294);
 
-		// from Piazza Manci to Central Station
+		// from Mesiano to Central Station
 		Person passenger4 = new Person(5, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.070093, 11.122911), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger4.setCurrentItinerary(new Itinerary());
-		passenger4.getCurrentItinerary().to = new Coordinate(46.072294,
-				11.120432);
+		passenger4.getCurrentItinerary().to = new Coordinate(11.120432,
+				46.072294);
 
+		// from Mesiano to Central Station
 		Person passenger5 = new Person(6, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.070093, 11.122911), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger5.setCurrentItinerary(new Itinerary());
-		passenger5.getCurrentItinerary().to = new Coordinate(46.072294,
-				11.120432);
+		passenger5.getCurrentItinerary().to = new Coordinate(11.120432,
+				46.072294);
 
-		// to central station
+		// from Mesiano to Central Station
 		Person passenger6 = new Person(7, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(46.070093, 11.122911), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger6.setCurrentItinerary(new Itinerary());
 		passenger6.getCurrentItinerary().to = new Coordinate(11.154240,
 				46.066221);
 
+		// from Mesiano to Central Station
 		Person passenger7 = new Person(8, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.151397, 46.067859), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger7.setCurrentItinerary(new Itinerary());
 		passenger7.getCurrentItinerary().to = new Coordinate(11.154240,
 				46.066221);
 
+		// from Mesiano to Central Station
 		Person passenger8 = new Person(9, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.151397, 46.067859), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger8.setCurrentItinerary(new Itinerary());
 		passenger8.getCurrentItinerary().to = new Coordinate(11.154240,
 				46.066221);
 
+		// from Mesiano to Central Station
 		Person passenger9 = new Person(10, Gender.MALE, Profile.WORKER, null,
-				null, new Coordinate(11.151397, 46.067859), true, true, true,
+				null, new Coordinate(11.142697, 46.065027), true, true, true,
 				null, null);
 		passenger9.setCurrentItinerary(new Itinerary());
 		passenger9.getCurrentItinerary().to = new Coordinate(11.154240,

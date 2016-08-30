@@ -161,7 +161,7 @@ public final class TaxiPlanner implements IPlannerService {
 		
 		// Create return itinerary
 		Itinerary ret = new Itinerary();
-		ret.subItineraries = new ArrayList<Itinerary>(req.Destinations.size());	
+		List<Itinerary> subItineraries = new ArrayList<Itinerary>(req.Destinations.size());	
 		String stopIdFrom = taxilegs.get(0).stopIdTo;
 		long durationAcc = 0;
 		double distAcc = 0.0;
@@ -229,24 +229,57 @@ public final class TaxiPlanner implements IPlannerService {
 				subIt.reqNumber = req.ReqNumber;
 				subIt.itineraryType = TType.TAXI;
 				subIt.costs = leg.costs;
-				ret.subItineraries.add(subIt);
+				subItineraries.add(subIt);
 			}
 		}
 		//ret.initialWaitingTime = initialWaitingTime;
 		//ret.subItineraries = subItineraries;
 		ret.costs = totalCosts;
 		ret.duration = durationAcc;
-		ret.startTime = ret.subItineraries.get(0).startTime;
-		ret.endTime = ret.subItineraries.get(ret.subItineraries.size() - 1).endTime;
-		ret.from = ret.subItineraries.get(0).from;
-		ret.to = ret.subItineraries.get(ret.subItineraries.size() - 1).to;
+		ret.startTime = subItineraries.get(0).startTime;
+		ret.endTime = subItineraries.get(subItineraries.size() - 1).endTime;
+		ret.from = subItineraries.get(0).from;
+		ret.to = subItineraries.get(subItineraries.size() - 1).to;
 		ret.transfers = 1;
 		ret.transitTime = ret.duration;
 		ret.reqId = req.ReqId;
 		ret.legs = null;
 		ret.reqNumber =req.ReqNumber;
 		ret.itineraryType = TType.SHARED_TAXI;
+		ret.subItineraries = reorderSubItineraries(req.StartingPoints, req.Destinations, subItineraries);
 		return ret;
+	}
+	
+	private List<Itinerary> reorderSubItineraries(List<Coordinate> start, List<Coordinate> dest, List<Itinerary> subIt) {
+		List<Integer> indices = new ArrayList<Integer>();
+		
+		for (Itinerary it : subIt) {
+			boolean added = false;
+			
+			for (int i = 0; i < start.size(); i++) {
+				final Coordinate s = start.get(i);
+				final Coordinate d = dest.get(i);
+				
+				if (!indices.contains(i) && it.from.equals(s) && it.to.equals(d)) {
+					indices.add(i);
+					added = true;
+					break;
+				}
+			}
+			
+			if (!added)
+				throw new IllegalStateException("Could not map itinerary.");
+		}
+		List<Itinerary> temp = new ArrayList<Itinerary>(subIt.size());
+
+		for (int i = 0; i < subIt.size(); i++) {
+			temp.add(null);
+		}
+		
+		for (int i = 0; i < subIt.size(); i++) {
+			temp.set(indices.get(i), subIt.get(i));
+		}
+		return temp;
 	}
 	
 	private void updateTaxiLegs(List<Leg> taxiLegs, long offset) {
@@ -400,8 +433,11 @@ public final class TaxiPlanner implements IPlannerService {
 		}
 				
 		if (candidateIt == null)
-			return null;			
-		return candidateIt.legs.get(0);
+			return null;
+		Leg l = candidateIt.legs.get(0);
+		l.from = from;
+		l.to = to;
+		return l;
 	}
 	
 	private TaxiTrip createTaxiTrip(List<Leg> tripLegs) {

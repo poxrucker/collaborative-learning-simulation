@@ -192,7 +192,7 @@ public class GroupingTest {
 				ensemble, finalGroups, notAssigned, index);
 
 		System.out.println(" ######## FINAL GROUPS ######## "
-				+ finalGroups.size());
+				+ finalGroups.size()); 
 
 		for (int i = 1; i <= finalGroups.size(); i++) {
 			System.out.println("Group " + i + ": "
@@ -233,7 +233,7 @@ public class GroupingTest {
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 		// For each group derive the journey for each participant
-		JourneyRequest r = JourneyRequest.createRequest(from, startingPoints,
+		JourneyRequest r = JourneyRequest.createSharedRequest(from, startingPoints,
 				destinations, dateTime, arriveBy, mean, reqId);
 
 		// Planning Instantiation

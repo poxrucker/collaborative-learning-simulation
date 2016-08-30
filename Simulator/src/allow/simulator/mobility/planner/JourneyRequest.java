@@ -55,7 +55,7 @@ public class JourneyRequest {
 	 * Destination
 	 */
 	public Coordinate To;
-	
+		
 	/**
 	 * Destinations in case of a shared taxi request
 	 */
@@ -105,19 +105,22 @@ public class JourneyRequest {
 		return s;
 	}
 	
-	public static JourneyRequest createRequest(Coordinate pickupPoint,
+	public static JourneyRequest createSharedRequest(Coordinate pickupPoint,
 			List<Coordinate> from, List<Coordinate> to,
 			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
+		
+		if (from.size() != to.size())
+			throw new IllegalArgumentException("Error: Number of starting points and destinations does not match.");
+		
 		JourneyRequest s = new JourneyRequest();
 		s.ReqId = reqId.getRequestId();
 		s.ReqNumber = reqId.getNextRequestNumber();
 		s.Date = date.toLocalDate();
 
-		if (arriveBy) {
+		if (arriveBy)
 			s.ArrivalTime = date.toLocalTime();
-		} else {
+		else
 			s.DepartureTime = date.toLocalTime();
-		}
 		// Set pickup point
 		s.From = pickupPoint;
 		

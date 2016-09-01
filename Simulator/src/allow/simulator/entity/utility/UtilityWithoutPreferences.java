@@ -58,12 +58,13 @@ public class UtilityWithoutPreferences implements IUtility {
 		return itineraries;
 	}
 	
+	private static final double WFACTOR = 1500;
 	private static final double TFACTOR = 1500;
 	private static final double CFACTOR = 2.5;
 	private static final double FFACTOR = 1.0;
 	
 	public double computeUtility(double travelTime, double costs, double walkingDistance, 
 			double fLevel, int transfers, Preferences prefs) {
-		return travelTime / TFACTOR + costs / CFACTOR + ((fLevel < 0.7) ? 0.0 : fLevel * FFACTOR);
+		return travelTime / TFACTOR + costs / CFACTOR + ((fLevel < 0.7) ? 0.0 : fLevel * FFACTOR) + walkingDistance / WFACTOR;
 	}
 }

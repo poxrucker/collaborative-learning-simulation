@@ -12,7 +12,7 @@ import allow.simulator.mobility.data.TType;
 
 public final class JourneyPlanner {
 	// Threadpool execution service
-	private ExecutorService service;
+	private ExecutorService threadpool;
 	
 	// OTP planner instances
 	private final List<OTPPlannerService> otpPlanner;
@@ -27,7 +27,9 @@ public final class JourneyPlanner {
 	private final BikeRentalPlanner bikeRentalPlanner;
 	
 	public JourneyPlanner(List<OTPPlannerService> otpPlanner, TaxiPlanner taxiPlanner, 
-			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner) {
+			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner,
+			ExecutorService threadpool) {
+		this.threadpool = threadpool;
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;
 		this.bikeRentalPlanner = bikeRentalPlanner;
@@ -35,9 +37,7 @@ public final class JourneyPlanner {
 	}
 	
 	public Future<List<Itinerary>> requestSingleJourney(List<JourneyRequest> requests, List<Itinerary> buffer) {
-		if (service == null)
-			initialize();
-		return service.submit(new Callable<List<Itinerary>>() {
+		return threadpool.submit(new Callable<List<Itinerary>>() {
 
 			@Override
 			public List<Itinerary> call() throws Exception {	
@@ -86,14 +86,5 @@ public final class JourneyPlanner {
 	
 	public BikeRentalPlanner getBikeRentalPlannerService() {
 		return bikeRentalPlanner;
-	}
-	
-	public void shutdown() throws InterruptedException {
-		service.shutdown();
-		service.awaitTermination(30, TimeUnit.SECONDS);
-	}
-	
-	private void initialize() {
-		service = Executors.newFixedThreadPool(32);
 	}
 }

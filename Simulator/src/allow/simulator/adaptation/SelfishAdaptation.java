@@ -13,7 +13,7 @@ import allow.simulator.entity.EntityType;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.flow.activity.person.RankAlternatives;
+import allow.simulator.flow.activity.person.PrepareJourney;
 import allow.simulator.flow.activity.person.UsePublicTransport;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
@@ -65,7 +65,8 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 					System.out.println(person);
 				}
 				UsePublicTransport activity = (UsePublicTransport) person.getFlow().getCurrentActivity();
-				LocalTime departure = activity.getEarliestStartingTime().plusMinutes(2);
+				//LocalTime departure = activity.getEarliestStartingTime().plusMinutes(2);
+				LocalTime departure = person.getContext().getTime().getCurrentTime().plusMinutes(2);
 				Coordinate start = person.getPosition();
 				Coordinate destination = person.getCurrentItinerary().to;  // Will come from current itinerary property
 				
@@ -75,7 +76,7 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 				// Create requests
 				List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
 				requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
-				requests.add(JourneyRequest.createRequest(start, destination, date, false, transitJourney, reqId));
+				// requests.add(JourneyRequest.createRequest(start, destination, date, false, transitJourney, reqId));
 				requests.add(JourneyRequest.createRequest(start, destination, date, false, walkJourney, reqId));
 				
 				List<Itinerary> ret = new ArrayList<Itinerary>();
@@ -89,7 +90,12 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 				bus.removePassenger(person);
 				person.getFlow().clear();
 				person.setReplanning(true);
-				person.getFlow().addActivity(new RankAlternatives(person, ret));
+				ret = person.getUtility().rankAlternatives(person.getPreferences(), ret);
+				
+				if (ret.get(0).itineraryType == TType.TAXI) {
+					person.getContext().getStatistics().reportAdaptation();
+				}
+				person.getFlow().addActivity(new PrepareJourney(person, ret.get(0)));	
 				ensemble.removeEntity(person);
 			}
 		}

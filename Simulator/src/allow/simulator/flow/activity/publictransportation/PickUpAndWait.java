@@ -71,10 +71,11 @@ public class PickUpAndWait extends Activity {
 			p.setPosition(stop.getPosition());
 			stop.addPublicTransportation(p);
 			approached = true;
-			double n = ThreadLocalRandom.current().nextDouble();
 			
-			if (n >= 0.999)
+			if (ThreadLocalRandom.current().nextDouble() >= 0.999) {
 				p.triggerIssue(Issue.BUS_BREAKDOWN);
+				p.getContext().getStatistics().reportIssue();
+			}
 
 			return deltaT;
 		}

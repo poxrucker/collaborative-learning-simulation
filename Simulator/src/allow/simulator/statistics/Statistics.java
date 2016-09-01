@@ -5,6 +5,7 @@ import java.util.Collection;
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
+import allow.simulator.entity.Taxi;
 import allow.simulator.entity.utility.Preferences;
 
 public class Statistics {
@@ -33,13 +34,16 @@ public class Statistics {
 	private long numberOfBikeJourneys;
 	private long numberOfWalkJourneys;
 	private long numberOfTaxiJourneys;
-	private long numberOfTaxiJourneysPerDay;
 	private double carJourneysRatio;
 	private double transitJourneysRatio;
 	private double bikeJourneysRatio;
 	private double walkJourneysRatio;
 	private double taxiJourneyRatio;
 	private int numberOfCongestedStreets;
+	
+	private long numberOfAdaptations;
+	private long numberOfReportedIssues;
+	private int numberOfAvailableTaxis;
 	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
@@ -66,14 +70,6 @@ public class Statistics {
 		
 		meanBusPreference = 0.5;
 		meanCarPreference = 0.5;
-		numberOfCarJourneys = 0;
-		numberOfTransitJourneys = 0;
-		numberOfBikeJourneys = 0;
-		numberOfWalkJourneys = 0;
-		numberOfTaxiJourneys = 0;
-		numberOfTaxiJourneysPerDay = 0;
-		
-		numberOfCongestedStreets = 0;
 	}
 	
 	public void reset() {
@@ -96,10 +92,8 @@ public class Statistics {
 		
 		priorUtilityBus.reset();
 		posteriorUtilityBus.reset();
-		
-		numberOfTaxiJourneysPerDay = 0;
-		
-		numberOfCongestedStreets = 0;
+				
+		numberOfCongestedStreets = 0;		
 	}
 	
 	public double getCarJourneyRatio() {
@@ -120,10 +114,6 @@ public class Statistics {
 	
 	public double getTaxiJourneyRatio() {
 		return taxiJourneyRatio;
-	}
-	
-	public double getNumberOfTaxiJourneysPerDay() {
-		return numberOfTaxiJourneysPerDay;
 	}
 	
 	public double getMeanPriorCarTravelTime() {
@@ -178,6 +168,14 @@ public class Statistics {
 		return numberOfCongestedStreets;
 	}
 	
+	public long getNumberOfAdaptations() {
+		return numberOfAdaptations;
+	}
+	
+	public long getNumberOfIssues() {
+		return numberOfReportedIssues;
+	}
+	
 	public synchronized void reportCarJourney() {
 		numberOfCarJourneys++;
 	}
@@ -196,11 +194,22 @@ public class Statistics {
 	
 	public synchronized void reportTaxiJourney() {
 		numberOfTaxiJourneys++;
-		numberOfTaxiJourneysPerDay++;
+	}
+	
+	public synchronized void reportIssue() {
+		numberOfReportedIssues++;
+	}
+	
+	public synchronized void reportAdaptation() {
+		numberOfAdaptations++;
 	}
 	
 	public synchronized void reportCongestedStreet() {
 		numberOfCongestedStreets++;
+	}
+	
+	public int getNumberOfAvailableTaxis() {
+		return numberOfAvailableTaxis;
 	}
 	
 	public void resetCongestedStreets() {
@@ -249,6 +258,17 @@ public class Statistics {
 		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityType.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
+		Collection<Entity> taxis = simulationContext.getEntityManager().getEntitiesOfType(EntityType.TAXI);
+		
+		int available = 0;
+		
+		for (Entity e : taxis) {
+			Taxi taxi = (Taxi) e;
+			
+			if (taxi.getCurrentTrip() == null)
+				available++;
+		}
+		numberOfAvailableTaxis = available;
 	}
 	
 	private void updateMeanTransportPreferences(Collection<Entity> persons) {

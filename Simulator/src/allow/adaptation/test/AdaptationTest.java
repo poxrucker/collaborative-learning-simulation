@@ -2,6 +2,9 @@ package allow.adaptation.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
@@ -27,7 +30,8 @@ public class AdaptationTest {
 		otpPlanners.add(otpPlanner);
 		TaxiPlanner taxiPlanner = new TaxiPlanner(otpPlanners, new Coordinate(11.1198448, 46.0719489));
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(otpPlanners, new Coordinate(11.1248895,46.0711398));
-		JourneyPlanner planner = new JourneyPlanner(otpPlanners, taxiPlanner, bikeRentalPlanner, null);
+		ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		JourneyPlanner planner = new JourneyPlanner(otpPlanners, taxiPlanner, bikeRentalPlanner, null, threadpool);
 		
 		// EnsembleManager instance will be part of Context, too
 		AdaptationManager ensembleManager = new AdaptationManager(new SelfishAdaptation(planner));
@@ -57,7 +61,8 @@ public class AdaptationTest {
 		ensembleManager.terminateEnsemble("current-bus-trip-id-breakdown");
 		
 		try {
-			planner.shutdown();
+			threadpool.shutdown();
+			threadpool.awaitTermination(2, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

@@ -48,6 +48,9 @@ public class Tick extends DefaultReporter {
 		listBuilder.add(s.getTaxiJourneyRatio());
 		listBuilder.add(s.getMeanReplaningWaitingTime());
 		listBuilder.add((double) s.getNumberOfCongestedStreets());
+		listBuilder.add((double) s.getNumberOfAdaptations());
+		listBuilder.add((double) s.getNumberOfIssues());
+		listBuilder.add((double) s.getNumberOfAvailableTaxis());
 		ctx.getStatistics().resetCongestedStreets();
 
 		return listBuilder.toLogoList();

@@ -110,7 +110,6 @@ public final class TaxiPlanner implements IPlannerService {
 		ret.from = taxiLeg.from;
 		ret.startTime = taxiLeg.startTime;
 		ret.to = taxiLeg.to;
-		ret.transfers = 1;
 		ret.transitTime = ret.duration;
 		ret.itineraryType = TType.TAXI;
 		return ret;
@@ -240,7 +239,6 @@ public final class TaxiPlanner implements IPlannerService {
 		ret.endTime = subItineraries.get(subItineraries.size() - 1).endTime;
 		ret.from = subItineraries.get(0).from;
 		ret.to = subItineraries.get(subItineraries.size() - 1).to;
-		ret.transfers = 1;
 		ret.transitTime = ret.duration;
 		ret.reqId = req.ReqId;
 		ret.legs = null;

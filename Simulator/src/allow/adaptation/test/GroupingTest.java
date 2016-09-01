@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
@@ -39,8 +41,9 @@ public class GroupingTest {
 				11.1198448, 46.0719489));
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(
 				otpPlanners, new Coordinate(11.1248895, 46.0711398));
+		ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		JourneyPlanner planner = new JourneyPlanner(otpPlanners, taxiPlanner,
-				bikeRentalPlanner, null);
+				bikeRentalPlanner, null, threadpool);
 
 		// EnsembleManager instance will be part of Context, too
 		AdaptationManager ensembleManager = new AdaptationManager(
@@ -251,6 +254,7 @@ public class GroupingTest {
 		tp.requestSingleJourney(r, resultItineraries);
 		System.out
 				.println("Number of Itineraries: " + resultItineraries.size());
+		threadpool.shutdown();
 
 	}
 }

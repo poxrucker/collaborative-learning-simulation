@@ -268,10 +268,17 @@ public class GroupingTest {
 				.println("Number of Itineraries: " + resultItineraries.size());
 		System.out.println("Trip Type : "
 				+ resultItineraries.get(0).itineraryType);
-		System.out.println("From : " + resultItineraries.get(0).from);
-		System.out.println("To : " + resultItineraries.get(0).to);
-		System.out.println("Walking Distance : "
-				+ resultItineraries.get(0).walkDistance);
+		for (int i = 0; i < resultItineraries.size(); i++) {
+			System.out.println("Itinerary  : "
+					+ resultItineraries.get(i).toString());
+
+		}
+		for (int i = 0; i < resultItineraries.get(0).subItineraries.size(); i++) {
+			System.out
+					.println("Sub Itinerary  : "
+							+ resultItineraries.get(0).subItineraries.get(i)
+									.toString());
+		}
 
 		// print the result using a map
 		ShowOnMapNew(resultItineraries);
@@ -296,13 +303,13 @@ public class GroupingTest {
 		DefaultWaypoint[] waypoints = new DefaultWaypoint[0];
 
 		for (int i = 0; i < itineraries.get(0).subItineraries.size(); i++) {
-			System.out.println(i);
-			System.out.println("worker: "
-					+ itineraries.get(0).subItineraries.get(i).reqId);
+			// System.out.println(i);
+			// System.out.println("worker: "
+			// + itineraries.get(0).subItineraries.get(i).reqId);
 			GeoPosition position = new GeoPosition(
 					itineraries.get(0).subItineraries.get(i).from.y,
 					itineraries.get(0).subItineraries.get(i).from.x);
-			System.out.println("position: " + position);
+			// System.out.println("position: " + position);
 			positions = addElement(positions, position);
 			DefaultWaypoint point = new DefaultWaypoint(position);
 			waypoints = addPoint(waypoints, point);

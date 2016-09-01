@@ -3,9 +3,25 @@ package allow.adaptation.test;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JFrame;
+
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.painter.CompoundPainter;
+import org.jxmapviewer.painter.Painter;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.DefaultWaypoint;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
+import org.jxmapviewer.viewer.WaypointPainter;
 
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
@@ -227,7 +243,7 @@ public class GroupingTest {
 		mean[0] = TType.SHARED_TAXI;
 		boolean arriveBy = false;
 
-		String str = "2016-08-22 12:30";
+		String str = "2016-08-25 12:30";
 		DateTimeFormatter formatter = DateTimeFormatter
 				.ofPattern("yyyy-MM-dd HH:mm");
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
@@ -247,10 +263,78 @@ public class GroupingTest {
 
 		// request taxi journey
 		List<Itinerary> resultItineraries = new ArrayList<Itinerary>();
-
 		tp.requestSingleJourney(r, resultItineraries);
 		System.out
 				.println("Number of Itineraries: " + resultItineraries.size());
+		System.out.println("Number of participants : "
+				+ resultItineraries.get(0).subItineraries.get(0).costs);
+		System.out.println("From : " + resultItineraries.get(0).from);
+		System.out.println("To : " + resultItineraries.get(0).to);
+		System.out.println("Walking Distance : "
+				+ resultItineraries.get(0).walkDistance);
 
+		// print the result using a map
+		ShowOnMap(resultItineraries);
+
+	}
+
+	private static void ShowOnMap(List<Itinerary> itineraries) {
+		JXMapViewer mapViewer = new JXMapViewer();
+
+		// Create a TileFactoryInfo for OpenStreetMap
+		TileFactoryInfo info = new OSMTileFactoryInfo();
+		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+		tileFactory.setThreadPoolSize(8);
+		mapViewer.setTileFactory(tileFactory);
+
+		// GeoPosition frankfurt = new GeoPosition(50, 7, 0, 8, 41, 0);
+		GeoPosition trento = new GeoPosition(46.0719489, 11.1198448);
+		GeoPosition bus = new GeoPosition(46.072994, 11.161968);
+		GeoPosition p1 = new GeoPosition(46.072994, 11.161968);
+		GeoPosition p2 = new GeoPosition(46.072994, 11.161968);
+		GeoPosition p3 = new GeoPosition(46.072994, 11.161968);
+		GeoPosition p4 = new GeoPosition(46.065027, 11.142697);
+		GeoPosition p5 = new GeoPosition(46.065027, 11.142697);
+
+		/*
+		 * p4 11.142697, 46.065027 p5 11.142697, 46.065027 p6 11.142697,
+		 * 46.065027 p7 11.142697, 46.065027 p8 11.142697, 46.065027 p9
+		 * 11.142697, 46.065027 p10 11.142697, 46.065027
+		 */
+
+		// Set the focus
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(trento);
+
+		// Create a track from the geo-positions
+		List<GeoPosition> track = Arrays.asList(bus, p1, p2, p3, p4, p5);
+		RoutePainter routePainter = new RoutePainter(track);
+
+		// Create waypoints from the geo-positions
+		Set<Waypoint> waypoints = new HashSet<Waypoint>(Arrays.asList(
+				new DefaultWaypoint(bus), new DefaultWaypoint(p1),
+				new DefaultWaypoint(p2), new DefaultWaypoint(p3),
+				new DefaultWaypoint(p4), new DefaultWaypoint(p5)));
+
+		// Create a waypoint painter that takes all the waypoints
+		WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
+		waypointPainter.setWaypoints(waypoints);
+
+		// Create a compound painter that uses both the route-painter and the
+		// waypoint-painter
+		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
+		painters.add(routePainter);
+		painters.add(waypointPainter);
+
+		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(
+				painters);
+		mapViewer.setOverlayPainter(painter);
+
+		// Display the viewer in a JFrame
+		JFrame frame = new JFrame("Collective Adaptation");
+		frame.getContentPane().add(mapViewer);
+		frame.setSize(800, 600);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 }

@@ -278,6 +278,9 @@ public class GroupingTest {
 					.println("Sub Itinerary  : "
 							+ resultItineraries.get(0).subItineraries.get(i)
 									.toString());
+			System.out
+					.println("Walking Distance  : "
+							+ resultItineraries.get(0).subItineraries.get(i).walkDistance);
 		}
 
 		// print the result using a map

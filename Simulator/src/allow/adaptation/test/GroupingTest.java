@@ -281,6 +281,8 @@ public class GroupingTest {
 			System.out
 					.println("Walking Distance  : "
 							+ resultItineraries.get(0).subItineraries.get(i).walkDistance);
+			System.out.println("Walking Time  : "
+					+ resultItineraries.get(0).subItineraries.get(i).walkTime);
 		}
 
 		// print the result using a map

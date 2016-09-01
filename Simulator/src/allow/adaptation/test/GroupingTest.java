@@ -208,7 +208,7 @@ public class GroupingTest {
 				ensemble, finalGroups, notAssigned, index);
 
 		System.out.println(" ######## FINAL GROUPS ######## "
-				+ finalGroups.size()); 
+				+ finalGroups.size());
 
 		for (int i = 1; i <= finalGroups.size(); i++) {
 			System.out.println("Group " + i + ": "
@@ -249,8 +249,8 @@ public class GroupingTest {
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 		// For each group derive the journey for each participant
-		JourneyRequest r = JourneyRequest.createSharedRequest(from, startingPoints,
-				destinations, dateTime, arriveBy, mean, reqId);
+		JourneyRequest r = JourneyRequest.createSharedRequest(from,
+				startingPoints, destinations, dateTime, arriveBy, mean, reqId);
 
 		// Planning Instantiation
 		OTPPlannerService otp = new OTPPlannerService("localhost", 8010);
@@ -266,19 +266,19 @@ public class GroupingTest {
 		tp.requestSingleJourney(r, resultItineraries);
 		System.out
 				.println("Number of Itineraries: " + resultItineraries.size());
-		System.out.println("Number of participants : "
-				+ resultItineraries.get(0).subItineraries.get(0).costs);
+		System.out.println("Trip Type : "
+				+ resultItineraries.get(0).itineraryType);
 		System.out.println("From : " + resultItineraries.get(0).from);
 		System.out.println("To : " + resultItineraries.get(0).to);
 		System.out.println("Walking Distance : "
 				+ resultItineraries.get(0).walkDistance);
 
 		// print the result using a map
-		ShowOnMap(resultItineraries);
+		ShowOnMapNew(resultItineraries);
 
 	}
 
-	private static void ShowOnMap(List<Itinerary> itineraries) {
+	private static void ShowOnMapNew(List<Itinerary> itineraries) {
 		JXMapViewer mapViewer = new JXMapViewer();
 
 		// Create a TileFactoryInfo for OpenStreetMap
@@ -287,38 +287,38 @@ public class GroupingTest {
 		tileFactory.setThreadPoolSize(8);
 		mapViewer.setTileFactory(tileFactory);
 
-		// GeoPosition frankfurt = new GeoPosition(50, 7, 0, 8, 41, 0);
+		// Set the focus on Trento
 		GeoPosition trento = new GeoPosition(46.0719489, 11.1198448);
-		GeoPosition bus = new GeoPosition(46.072994, 11.161968);
-		GeoPosition p1 = new GeoPosition(46.072994, 11.161968);
-		GeoPosition p2 = new GeoPosition(46.072994, 11.161968);
-		GeoPosition p3 = new GeoPosition(46.072994, 11.161968);
-		GeoPosition p4 = new GeoPosition(46.065027, 11.142697);
-		GeoPosition p5 = new GeoPosition(46.065027, 11.142697);
-
-		/*
-		 * p4 11.142697, 46.065027 p5 11.142697, 46.065027 p6 11.142697,
-		 * 46.065027 p7 11.142697, 46.065027 p8 11.142697, 46.065027 p9
-		 * 11.142697, 46.065027 p10 11.142697, 46.065027
-		 */
-
-		// Set the focus
 		mapViewer.setZoom(7);
 		mapViewer.setAddressLocation(trento);
 
-		// Create a track from the geo-positions
-		List<GeoPosition> track = Arrays.asList(bus, p1, p2, p3, p4, p5);
+		GeoPosition[] positions = new GeoPosition[0];
+		DefaultWaypoint[] waypoints = new DefaultWaypoint[0];
+
+		for (int i = 0; i < itineraries.get(0).subItineraries.size(); i++) {
+			System.out.println(i);
+			System.out.println("worker: "
+					+ itineraries.get(0).subItineraries.get(i).reqId);
+			GeoPosition position = new GeoPosition(
+					itineraries.get(0).subItineraries.get(i).from.y,
+					itineraries.get(0).subItineraries.get(i).from.x);
+			System.out.println("position: " + position);
+			positions = addElement(positions, position);
+			DefaultWaypoint point = new DefaultWaypoint(position);
+			waypoints = addPoint(waypoints, point);
+
+		}
+
+		List<GeoPosition> track = Arrays.asList(positions);
 		RoutePainter routePainter = new RoutePainter(track);
 
 		// Create waypoints from the geo-positions
-		Set<Waypoint> waypoints = new HashSet<Waypoint>(Arrays.asList(
-				new DefaultWaypoint(bus), new DefaultWaypoint(p1),
-				new DefaultWaypoint(p2), new DefaultWaypoint(p3),
-				new DefaultWaypoint(p4), new DefaultWaypoint(p5)));
+		Set<Waypoint> waypointsSet = new HashSet<Waypoint>(
+				Arrays.asList(waypoints));
 
 		// Create a waypoint painter that takes all the waypoints
 		WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
-		waypointPainter.setWaypoints(waypoints);
+		waypointPainter.setWaypoints(waypointsSet);
 
 		// Create a compound painter that uses both the route-painter and the
 		// waypoint-painter
@@ -336,5 +336,20 @@ public class GroupingTest {
 		frame.setSize(800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+
+	}
+
+	private static GeoPosition[] addElement(GeoPosition[] positions,
+			GeoPosition position) {
+		GeoPosition[] result = Arrays.copyOf(positions, positions.length + 1);
+		result[positions.length] = position;
+		return result;
+	}
+
+	private static DefaultWaypoint[] addPoint(DefaultWaypoint[] points,
+			DefaultWaypoint point) {
+		DefaultWaypoint[] result = Arrays.copyOf(points, points.length + 1);
+		result[points.length] = point;
+		return result;
 	}
 }

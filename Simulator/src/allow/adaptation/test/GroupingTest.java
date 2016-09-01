@@ -3,11 +3,28 @@ package allow.adaptation.test;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.Set;
+
+import javax.swing.JFrame;
+
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.painter.CompoundPainter;
+import org.jxmapviewer.painter.Painter;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.DefaultWaypoint;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
+import org.jxmapviewer.viewer.WaypointPainter;
+
 
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
@@ -195,7 +212,7 @@ public class GroupingTest {
 				ensemble, finalGroups, notAssigned, index);
 
 		System.out.println(" ######## FINAL GROUPS ######## "
-				+ finalGroups.size()); 
+				+ finalGroups.size());
 
 		for (int i = 1; i <= finalGroups.size(); i++) {
 			System.out.println("Group " + i + ": "
@@ -230,14 +247,14 @@ public class GroupingTest {
 		mean[0] = TType.SHARED_TAXI;
 		boolean arriveBy = false;
 
-		String str = "2016-08-22 12:30";
+		String str = "2016-08-25 12:30";
 		DateTimeFormatter formatter = DateTimeFormatter
 				.ofPattern("yyyy-MM-dd HH:mm");
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
 		// For each group derive the journey for each participant
-		JourneyRequest r = JourneyRequest.createSharedRequest(from, startingPoints,
-				destinations, dateTime, arriveBy, mean, reqId);
+		JourneyRequest r = JourneyRequest.createSharedRequest(from,
+				startingPoints, destinations, dateTime, arriveBy, mean, reqId);
 
 		// Planning Instantiation
 		OTPPlannerService otp = new OTPPlannerService("localhost", 8010);
@@ -250,11 +267,105 @@ public class GroupingTest {
 
 		// request taxi journey
 		List<Itinerary> resultItineraries = new ArrayList<Itinerary>();
-
 		tp.requestSingleJourney(r, resultItineraries);
 		System.out
 				.println("Number of Itineraries: " + resultItineraries.size());
 		threadpool.shutdown();
 
+		System.out.println("Trip Type : "
+				+ resultItineraries.get(0).itineraryType);
+		for (int i = 0; i < resultItineraries.size(); i++) {
+			System.out.println("Itinerary  : "
+					+ resultItineraries.get(i).toString());
+
+		}
+		for (int i = 0; i < resultItineraries.get(0).subItineraries.size(); i++) {
+			System.out
+					.println("Sub Itinerary  : "
+							+ resultItineraries.get(0).subItineraries.get(i)
+									.toString());
+			System.out
+					.println("Walking Distance  : "
+							+ resultItineraries.get(0).subItineraries.get(i).walkDistance);
+		}
+
+		// print the result using a map
+		ShowOnMapNew(resultItineraries);
+
+	}
+
+	private static void ShowOnMapNew(List<Itinerary> itineraries) {
+		JXMapViewer mapViewer = new JXMapViewer();
+
+		// Create a TileFactoryInfo for OpenStreetMap
+		TileFactoryInfo info = new OSMTileFactoryInfo();
+		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+		tileFactory.setThreadPoolSize(8);
+		mapViewer.setTileFactory(tileFactory);
+
+		// Set the focus on Trento
+		GeoPosition trento = new GeoPosition(46.0719489, 11.1198448);
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(trento);
+
+		GeoPosition[] positions = new GeoPosition[0];
+		DefaultWaypoint[] waypoints = new DefaultWaypoint[0];
+
+		for (int i = 0; i < itineraries.get(0).subItineraries.size(); i++) {
+			// System.out.println(i);
+			// System.out.println("worker: "
+			// + itineraries.get(0).subItineraries.get(i).reqId);
+			GeoPosition position = new GeoPosition(
+					itineraries.get(0).subItineraries.get(i).from.y,
+					itineraries.get(0).subItineraries.get(i).from.x);
+			// System.out.println("position: " + position);
+			positions = addElement(positions, position);
+			DefaultWaypoint point = new DefaultWaypoint(position);
+			waypoints = addPoint(waypoints, point);
+
+		}
+
+		List<GeoPosition> track = Arrays.asList(positions);
+		RoutePainter routePainter = new RoutePainter(track);
+
+		// Create waypoints from the geo-positions
+		Set<Waypoint> waypointsSet = new HashSet<Waypoint>(
+				Arrays.asList(waypoints));
+
+		// Create a waypoint painter that takes all the waypoints
+		WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
+		waypointPainter.setWaypoints(waypointsSet);
+
+		// Create a compound painter that uses both the route-painter and the
+		// waypoint-painter
+		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
+		painters.add(routePainter);
+		painters.add(waypointPainter);
+
+		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(
+				painters);
+		mapViewer.setOverlayPainter(painter);
+
+		// Display the viewer in a JFrame
+		JFrame frame = new JFrame("Collective Adaptation");
+		frame.getContentPane().add(mapViewer);
+		frame.setSize(800, 600);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+
+	}
+
+	private static GeoPosition[] addElement(GeoPosition[] positions,
+			GeoPosition position) {
+		GeoPosition[] result = Arrays.copyOf(positions, positions.length + 1);
+		result[positions.length] = position;
+		return result;
+	}
+
+	private static DefaultWaypoint[] addPoint(DefaultWaypoint[] points,
+			DefaultWaypoint point) {
+		DefaultWaypoint[] result = Arrays.copyOf(points, points.length + 1);
+		result[points.length] = point;
+		return result;
 	}
 }

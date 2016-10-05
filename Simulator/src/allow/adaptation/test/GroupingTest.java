@@ -1,5 +1,9 @@
 package allow.adaptation.test;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,14 +12,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.MouseInputListener;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.CenterMapListener;
+import org.jxmapviewer.input.PanKeyListener;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
@@ -24,7 +38,6 @@ import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
-
 
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
@@ -47,6 +60,18 @@ import allow.simulator.util.Coordinate;
 
 public class GroupingTest {
 
+	private final static int hGap = 5;
+	private final static int vGap = 5;
+	private static String[] borderConstraints = { BorderLayout.PAGE_START,
+			BorderLayout.LINE_START, BorderLayout.CENTER,
+			BorderLayout.LINE_END, BorderLayout.PAGE_END };
+
+	private static JButton[] buttons;
+
+	private static GridBagConstraints gbc;
+
+	private static JPanel gridPanel;
+
 	public static void main(String[] args) {
 		// Create JourneyPlanner instance - will be available through COntext
 		// during simulation
@@ -58,7 +83,8 @@ public class GroupingTest {
 				11.1198448, 46.0719489));
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(
 				otpPlanners, new Coordinate(11.1248895, 46.0711398));
-		ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService threadpool = Executors.newFixedThreadPool(Runtime
+				.getRuntime().availableProcessors());
 		JourneyPlanner planner = new JourneyPlanner(otpPlanners, taxiPlanner,
 				bikeRentalPlanner, null, threadpool);
 
@@ -295,35 +321,70 @@ public class GroupingTest {
 	}
 
 	private static void ShowOnMapNew(List<Itinerary> itineraries) {
-		JXMapViewer mapViewer = new JXMapViewer();
+		JXMapViewer mapViewer1 = new JXMapViewer();
+		mapViewer1.setSize(400, 300);
+		JXMapViewer mapViewer2 = new JXMapViewer();
+		mapViewer2.setSize(400, 300);
 
 		// Create a TileFactoryInfo for OpenStreetMap
 		TileFactoryInfo info = new OSMTileFactoryInfo();
 		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
 		tileFactory.setThreadPoolSize(8);
-		mapViewer.setTileFactory(tileFactory);
+		mapViewer1.setTileFactory(tileFactory);
+		mapViewer2.setTileFactory(tileFactory);
 
 		// Set the focus on Trento
 		GeoPosition trento = new GeoPosition(46.0719489, 11.1198448);
-		mapViewer.setZoom(7);
-		mapViewer.setAddressLocation(trento);
+		mapViewer1.setZoom(7);
+		mapViewer1.setAddressLocation(trento);
+		mapViewer2.setZoom(7);
+		mapViewer2.setAddressLocation(trento);
+
+		// Add interactions
+		MouseInputListener mia = new PanMouseInputListener(mapViewer1);
+		mapViewer1.addMouseListener(mia);
+		mapViewer1.addMouseMotionListener(mia);
+
+		mapViewer1.addMouseListener(new CenterMapListener(mapViewer1));
+
+		mapViewer1.addMouseWheelListener(new ZoomMouseWheelListenerCursor(
+				mapViewer1));
+
+		mapViewer1.addKeyListener(new PanKeyListener(mapViewer1));
+
+		// Add a selection painter
+		SelectionAdapter sa = new SelectionAdapter(mapViewer1);
+		SelectionPainter sp = new SelectionPainter(sa);
+		mapViewer1.addMouseListener(sa);
+		mapViewer1.addMouseMotionListener(sa);
+		mapViewer1.setOverlayPainter(sp);
 
 		GeoPosition[] positions = new GeoPosition[0];
 		DefaultWaypoint[] waypoints = new DefaultWaypoint[0];
 
-		for (int i = 0; i < itineraries.get(0).subItineraries.size(); i++) {
-			// System.out.println(i);
-			// System.out.println("worker: "
-			// + itineraries.get(0).subItineraries.get(i).reqId);
-			GeoPosition position = new GeoPosition(
-					itineraries.get(0).subItineraries.get(i).from.y,
-					itineraries.get(0).subItineraries.get(i).from.x);
-			// System.out.println("position: " + position);
-			positions = addElement(positions, position);
-			DefaultWaypoint point = new DefaultWaypoint(position);
-			waypoints = addPoint(waypoints, point);
+		// FIRST WORKER
+		// for (int i = 0; i < itineraries.get(0).subItineraries.size(); i++) {
+		// System.out.println(i);
 
-		}
+		GeoPosition positionFrom = new GeoPosition(
+				itineraries.get(0).subItineraries.get(0).from.y,
+				itineraries.get(0).subItineraries.get(0).from.x);
+
+		System.out.println("positionFrom: " + positionFrom);
+		positions = addElement(positions, positionFrom);
+		DefaultWaypoint point = new DefaultWaypoint(positionFrom);
+		waypoints = addPoint(waypoints, point);
+
+		// TO
+		GeoPosition positionTo = new GeoPosition(
+				itineraries.get(0).subItineraries.get(0).to.y,
+				itineraries.get(0).subItineraries.get(0).to.x);
+		System.out.println("positionTo: " + positionTo);
+		positions = addElement(positions, positionTo);
+		DefaultWaypoint point1 = new DefaultWaypoint(positionTo);
+		waypoints = addPoint(waypoints, point1);
+
+		// }
 
 		List<GeoPosition> track = Arrays.asList(positions);
 		RoutePainter routePainter = new RoutePainter(track);
@@ -344,13 +405,46 @@ public class GroupingTest {
 
 		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(
 				painters);
-		mapViewer.setOverlayPainter(painter);
+		mapViewer1.setOverlayPainter(painter);
+		mapViewer1.addMouseListener(new MapMouseListener(mapViewer1,
+				waypointsSet));
 
-		// Display the viewer in a JFrame
-		JFrame frame = new JFrame("Collective Adaptation");
-		frame.getContentPane().add(mapViewer);
-		frame.setSize(800, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// table for running issue resolutions
+		String[] columnNames = { "First Name", "Last Name", "Sport" };
+		Object[][] data = { { "CAP_ID", "Ensemble", "Issue Type" },
+				{ "1", "E1", "Issue1" }, { "2", "E2", "Issue2" },
+				{ "3", "E1", "Issue3" }, { "4", "E3", "Issue4" } };
+		JTable table = new JTable(data, columnNames);
+		JScrollPane scrollPane = new JScrollPane(table);
+		table.setFillsViewportHeight(true);
+
+		JFrame frame = new JFrame("Collective Adaptation Demo");
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		JPanel contentPane = new JPanel(new GridLayout(0, 1, hGap, vGap));
+		contentPane.setBorder(BorderFactory.createEmptyBorder(hGap, vGap, hGap,
+				vGap));
+		gridPanel = new JPanel(new GridLayout(1, 3, hGap, vGap));
+		gridPanel.setBorder(BorderFactory
+				.createTitledBorder("Issue Resolutions"));
+		gridPanel.setOpaque(true);
+		gridPanel.setBackground(Color.WHITE);
+		// gridPanel.add(table.getTableHeader(), BorderLayout.NORTH);
+		gridPanel.add(table, BorderLayout.NORTH);
+		gridPanel.add(mapViewer1, BorderLayout.CENTER);
+		gridPanel.add(mapViewer2, BorderLayout.EAST);
+
+		// add table of issues
+		// gridPanel.add(table.getTableHeader(), BorderLayout.PAGE_START);
+		// gridPanel.add(table, BorderLayout.CENTER);
+
+		// add grid to the main container
+		contentPane.add(gridPanel);
+
+		frame.setSize(1800, 600);
+		frame.setContentPane(contentPane);
+		frame.pack();
+		frame.setLocationByPlatform(true);
 		frame.setVisible(true);
 
 	}

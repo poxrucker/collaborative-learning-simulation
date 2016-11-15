@@ -1,7 +1,19 @@
 package allow.simulator.utility;
 
+/**
+ * 
+ * @author Andreas Poxrucker (DFKI)
+ *
+ * @param <V>
+ * @param <E>
+ */
 public interface IDecisionFunction<V, E> {
 
-	E reason(V arguments);
+	/**
+	 * 
+	 * @param input
+	 * @return
+	 */
+	E reason(V input);
 	
 }

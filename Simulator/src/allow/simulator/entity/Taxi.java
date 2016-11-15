@@ -3,13 +3,11 @@ package allow.simulator.entity;
 import allow.simulator.core.Context;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
-import allow.simulator.utility.Preferences;
-import allow.simulator.utility.Utility;
 
 public final class Taxi extends TransportationEntity {
 	
-	public Taxi(long id, Utility utility, Preferences prefs, Context context, TaxiAgency agency, int capacity) {
-		super(id, EntityTypes.TAXI, utility, prefs, context, agency, capacity);
+	public Taxi(long id, Context context, TaxiAgency agency, int capacity) {
+		super(id, EntityTypes.TAXI, context, agency, capacity);
 	}
 
 	/**

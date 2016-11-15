@@ -1,7 +1,7 @@
 package allow.simulator.knowledge;
 
-public interface ITrainable<V> {
+public interface ITrainable<V, E> {
 	
-	void learn(V input);
+	E learn(V input);
 	
 }

@@ -13,8 +13,9 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
 import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
-import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Pair;
+import allow.simulator.utility.ItineraryParams;
+import allow.simulator.utility.Preferences;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -114,71 +115,56 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 			Person p = (Person) entity;
 			Itinerary it = p.getCurrentItinerary();
 			DBConnector.addEntry(entity, it.priorSegmentation, travelExperienceBuffer);
-			
-			/*if (it.priorSegmentation.size() != travelExperienceBuffer.size()) {
-				for (TravelExperience e : it.priorSegmentation) {
-					if (!e.isTransient()) System.out.print(e.getSegmentId() + " ");
-				}
-				System.out.println();
-				for (TravelExperience e : travelExperienceBuffer) {
-					if (!e.isTransient()) System.out.print(e.getSegmentId() + " ");
-				}
-				System.out.println(it.priorSegmentation.size() + " " + travelExperienceBuffer.size());
-			}*/
-			ExperienceSummary summary = createSummary(p, it, travelExperienceBuffer);
+			ItineraryParams summary = EvoKnowledgeUtil.createFromExperiences(it, travelExperienceBuffer);
 			double estimatedTravelTime = it.duration + it.initialWaitingTime; // - p.getCurrentItinerary().waitingTime;
+			Preferences prefs = p.getRankingFunction().getPreferences();
+			double posteriorUtility = p.getRankingFunction().getUtilityFunction().computeUtility(summary, prefs);
 
 			switch (it.itineraryType) {
 			
 				case CAR:
 				case TAXI:
+				case SHARED_TAXI:
 					double actualCarTravelTime = summary.travelTime + it.initialWaitingTime;
-					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);
-					p.getContext().getStatistics().reportPriorAndPosteriorUtilityCar(it.utility, summary.utility);
-					double carPreference = p.getPreferences().getCarPreference();
+					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);					
+					p.getContext().getStatistics().reportPriorAndPosteriorUtilityCar(it.utility, posteriorUtility);
+					double carPreference = prefs.getCarPreference();
 					double delay = actualCarTravelTime - estimatedTravelTime;
 
 					if (delay > CAR_PREFERENCE_CHANGE_THRESHOLD3) {
-						p.getPreferences().setCarPreference(carPreference - delay * CAR_PREFERENCE_CHANGE_STEP3 / CAR_PREFERENCE_CHANGE_THRESHOLD3);
+						prefs.setCarPreference(carPreference - delay * CAR_PREFERENCE_CHANGE_STEP3 / CAR_PREFERENCE_CHANGE_THRESHOLD3);
 					
 					} else if (delay > CAR_PREFERENCE_CHANGE_THRESHOLD2) {
-						p.getPreferences().setCarPreference(carPreference - CAR_PREFERENCE_CHANGE_STEP2 / CAR_PREFERENCE_CHANGE_THRESHOLD2);
+						prefs.setCarPreference(carPreference - CAR_PREFERENCE_CHANGE_STEP2 / CAR_PREFERENCE_CHANGE_THRESHOLD2);
 					
 					} else if (delay > CAR_PREFERENCE_CHANGE_THRESHOLD1) {
-						p.getPreferences().setCarPreference(carPreference - CAR_PREFERENCE_CHANGE_STEP1 / CAR_PREFERENCE_CHANGE_THRESHOLD1);
+						prefs.setCarPreference(carPreference - CAR_PREFERENCE_CHANGE_STEP1 / CAR_PREFERENCE_CHANGE_THRESHOLD1);
 
 					}
 					
-					/*if (delay > CAR_PREFERENCE_CHANGE_THRESHOLD1) {
-						p.getPreferences().setCarPreference(carPreference - delay * CAR_PREFERENCE_CHANGE_STEP1 / CAR_PREFERENCE_CHANGE_THRESHOLD1);
-					}*/
 					// Reduce experienced bus filling level
-					double prevFillingLevel = p.getPreferences().getLastExperiencedBusFillingLevel();
-					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel - 0.2, 0));
+					double prevFillingLevel = prefs.getLastExperiencedBusFillingLevel();
+					prefs.setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel - 0.2, 0));
 					break;
 				
 				case BUS:
 					double actualBusTravelTime = summary.travelTime + it.initialWaitingTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorTransitTravelTimes(estimatedTravelTime, actualBusTravelTime);
-					p.getContext().getStatistics().reportPriorAndPosteriorUtilityBus(p.getCurrentItinerary().utility, summary.utility);
+					p.getContext().getStatistics().reportPriorAndPosteriorUtilityBus(p.getCurrentItinerary().utility, posteriorUtility);
 
-					double fillingLevel = getBusFillingLevel(travelExperienceBuffer);
-					p.getContext().getStatistics().reportBusFillingLevel(fillingLevel);
-					p.getPreferences().setLastExperiencedBusFillingLevel(fillingLevel);
-					double busPreference = p.getPreferences().getBusPreference();
+					p.getContext().getStatistics().reportBusFillingLevel(summary.maxBusFillingLevel);
+					prefs.setLastExperiencedBusFillingLevel(summary.maxBusFillingLevel);
+					double busPreference = prefs.getBusPreference();
 					
-					if (fillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD3) {
-						p.getPreferences().setBusPreference(busPreference - fillingLevel * BUS_PREFERENCE_CHANGE_STEP3 / BUS_PREFERENCE_CHANGE_THRESHOLD3);
+					if (summary.maxBusFillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD3) {
+						prefs.setBusPreference(busPreference - summary.maxBusFillingLevel * BUS_PREFERENCE_CHANGE_STEP3 / BUS_PREFERENCE_CHANGE_THRESHOLD3);
 						
-					} else if (fillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD2) {
-						p.getPreferences().setBusPreference(busPreference - BUS_PREFERENCE_CHANGE_STEP2 / BUS_PREFERENCE_CHANGE_THRESHOLD2);
+					} else if (summary.maxBusFillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD2) {
+						prefs.setBusPreference(busPreference - BUS_PREFERENCE_CHANGE_STEP2 / BUS_PREFERENCE_CHANGE_THRESHOLD2);
 						
-					} else if (fillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD1) {
-						p.getPreferences().setBusPreference(busPreference - BUS_PREFERENCE_CHANGE_STEP1 / BUS_PREFERENCE_CHANGE_THRESHOLD1);
+					} else if (summary.maxBusFillingLevel >= BUS_PREFERENCE_CHANGE_THRESHOLD1) {
+						prefs.setBusPreference(busPreference - BUS_PREFERENCE_CHANGE_STEP1 / BUS_PREFERENCE_CHANGE_THRESHOLD1);
 					}
-					/*if (fillingLevel > BUS_PREFERENCE_CHANGE_THRESHOLD1) {
-						p.getPreferences().setBusPreference(busPreference - fillingLevel * BUS_PREFERENCE_CHANGE_STEP1);
-					}*/
 					break;
 					
 				case BICYCLE:
@@ -187,8 +173,8 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 					p.getContext().getStatistics().reportPriorAndPosteriorBikeTravelTimes(estimatedTravelTime, actualBikeTravelTime);
 					
 					// Reduce experienced bus filling level
-					double prevFillingLevel2 = p.getPreferences().getLastExperiencedBusFillingLevel();
-					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel2 - 0.2, 0));
+					double prevFillingLevel2 = prefs.getLastExperiencedBusFillingLevel();
+					prefs.setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel2 - 0.2, 0));
 					break;
 					
 				case WALK:
@@ -196,8 +182,8 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 					p.getContext().getStatistics().reportPriorAndPosteriorWalkTravelTimes(estimatedTravelTime, actualWalkTravelTime);
 					
 					// Reduce experienced bus filling level
-					double prevFillingLevel3 = p.getPreferences().getLastExperiencedBusFillingLevel();
-					p.getPreferences().setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel3 - 0.2, 0));
+					double prevFillingLevel3 = prefs.getLastExperiencedBusFillingLevel();
+					prefs.setLastExperiencedBusFillingLevel(Math.max(prevFillingLevel3 - 0.2, 0));
 					break;
 					
 				default:
@@ -207,124 +193,9 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 						}
 						System.out.println();
 			}
-
-			// Compute and log posterior utility.
-			/*summary.utility = p.getUtility().computeUtility(p.getPreferences(),
-					summary.travelTime,
-					summary.costs,
-					summary.walkingDistance,
-					summary.numberOfLegs);
-			
-			try {
-				logUtility(currentTime, p, p.getCurrentItinerary(), summary);
-				
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			p.setCurrentItinerary(null);*/
 		}
 		clear();
 		return true;
-	}
-	
-	
-	private static ExperienceSummary createSummary(Entity e, Itinerary itinerary, List<TravelExperience> experiences) {
-		ExperienceSummary summary = new ExperienceSummary();
-		summary.transfers = itinerary.transfers;
-		
-		switch (itinerary.itineraryType) {
-		
-		case CAR:
-		case TAXI:
-		case SHARED_TAXI:
-			summary.type = 0;
-			summary.travelTime = (long) summarizeTravelTime(experiences);
-			summary.costs = summarizeCosts(experiences);
-			summary.numberOfLegs = itinerary.legs.size();
-			summary.walkingDistance = 0.0;
-			break;
-		
-		case BUS:
-			summary.type = 1;
-			summary.travelTime = (long) summarizeTravelTime(experiences);
-			summary.costs = 1.2;
-			summary.numberOfLegs = itinerary.legs.size();
-			summary.walkingDistance = summarizeWalkingDistance(experiences);
-			summary.maxBusFillingLevel = getBusFillingLevel(experiences);
-			break;
-			
-		case BICYCLE:
-		case SHARED_BICYCLE:
-			summary.type = 2;
-			summary.travelTime = (long) summarizeTravelTime(experiences);
-			summary.costs = summarizeCosts(experiences);
-			summary.numberOfLegs = itinerary.legs.size();
-			summary.walkingDistance = summarizeWalkingDistance(experiences);
-			break;
-			
-		case WALK:
-			summary.type = 3;
-			summary.travelTime = (long) summarizeTravelTime(experiences);
-			summary.costs = 0;
-			summary.numberOfLegs = itinerary.legs.size();
-			summary.walkingDistance = summarizeWalkingDistance(experiences);
-			break;
-			
-		default:
-			throw new IllegalArgumentException("Illegal journey type " + itinerary.itineraryType);
-		}
-		summary.utility = e.getUtility().computeUtility(summary.travelTime, summary.costs,
-				summary.walkingDistance, summary.maxBusFillingLevel, summary.transfers, e.getPreferences());
-		return summary;
-		
-	}
-	
-	private static double summarizeTravelTime(List<TravelExperience> experiences) {
-		double actualTravelTime = 0.0;
-		int experiencesSize = experiences.size();
-		
-		for (int i = 0; i < experiencesSize; i++) {
-			actualTravelTime += experiences.get(i).getTravelTime();
-		}
-		return actualTravelTime;
-	}
-	
-	private static double summarizeWalkingDistance(List<TravelExperience> experiences) {
-		double walkingDistance = 0.0;
-		int experiencesSize = experiences.size();
-		
-		for (int i = 0; i < experiencesSize; i++) {
-			TravelExperience ex = experiences.get(i);
-			
-			if (ex.getTransportationMean() == TType.WALK) {
-				walkingDistance += ex.getSegmentLength();
-			}
-		}
-		return walkingDistance;
-	}
-	
-	private static double summarizeCosts(List<TravelExperience> experiences) {
-		double actualCosts = 0.0;
-		int experiencesSize = experiences.size();
-		
-		for (int i = 0; i < experiencesSize; i++) {
-			actualCosts += experiences.get(i).getCosts();
-		}
-		return actualCosts;
-	}
-	
-	private static double getBusFillingLevel(List<TravelExperience> experiences) {
-		double max = 0.0;
-		int experiencesSize = experiences.size();
-		
-		for (int i = 0; i < experiencesSize; i++) {
-			TravelExperience ex = (TravelExperience) experiences.get(i);
-			
-			if (ex.getTransportationMean() == TType.BUS) {
-				max = Math.max(max, ex.getPublicTransportationFillingLevel());
-			}
-		}
-		return max;
 	}
 	
 	/**

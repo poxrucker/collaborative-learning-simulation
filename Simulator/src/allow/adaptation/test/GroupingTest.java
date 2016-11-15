@@ -42,8 +42,7 @@ public class GroupingTest {
 				new SelfishAdaptation(planner));
 
 		// Create entities
-		PublicTransportation bus = new PublicTransportation(1, null, null,
-				null, null, 25);
+		PublicTransportation bus = new PublicTransportation(1, null, null, 25);
 		bus.setPosition(new Coordinate(46.065194, 11.152867));
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null,
 				null, new Coordinate(46.065194, 11.152867), true, true, true,

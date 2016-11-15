@@ -9,8 +9,6 @@ import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
-import allow.simulator.utility.IUtility;
-import allow.simulator.utility.Preferences;
 
 public final class TaxiAgency extends TransportationAgency {
 	// Collection of trips which have been requested and are being executed
@@ -22,8 +20,8 @@ public final class TaxiAgency extends TransportationAgency {
 	// Taxi stop mapping for active taxi trips
 	private final Map<String, TaxiStop> taxiStops;
 	
-	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, EntityTypes.TAXI_AGENCY, utility, prefs, context, agencyId);
+	public TaxiAgency(long id, Context context, String agencyId) {
+		super(id, EntityTypes.TAXI_AGENCY, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		currentTrips = new HashMap<String, TaxiTrip>();
 		currentlyUsedVehicles = new HashMap<String, Taxi>();

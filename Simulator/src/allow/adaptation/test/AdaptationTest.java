@@ -33,7 +33,7 @@ public class AdaptationTest {
 		AdaptationManager ensembleManager = new AdaptationManager(new SelfishAdaptation(planner));
 		
 		// Create entities
-		PublicTransportation bus = new PublicTransportation(1, null, null, null, null, 25);
+		PublicTransportation bus = new PublicTransportation(1, null, null, 25);
 		Person passenger1 = new Person(2, Gender.MALE, Profile.WORKER, null, null, new Coordinate(11.1318021, 46.0465206), true, true, true, null, null);
 		passenger1.setCurrentItinerary(new Itinerary());
 		passenger1.getCurrentItinerary().to = new Coordinate(11.1076075, 46.0487277);

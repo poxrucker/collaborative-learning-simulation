@@ -5,6 +5,7 @@ import java.util.Collection;
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
+import allow.simulator.entity.Person;
 import allow.simulator.utility.Preferences;
 
 public class Statistics {
@@ -257,8 +258,9 @@ public class Statistics {
 		double busPrefAcc = 0.0;
 		double carPrefAcc = 0.0;
 		
-		for (Entity person : persons) {
-			Preferences p = person.getPreferences();
+		for (Entity entity : persons) {
+			Person person = (Person) entity;
+			Preferences p = person.getRankingFunction().getPreferences();
 			
 			/*if (p.getBusPreference() >= p.getCarPreference()) {
 				busPrefAcc++;

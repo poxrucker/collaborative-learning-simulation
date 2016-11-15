@@ -11,8 +11,6 @@ import allow.simulator.flow.activity.transportagency.StartNextTrips;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 import allow.simulator.mobility.data.Route;
 import allow.simulator.mobility.data.Trip;
-import allow.simulator.utility.Preferences;
-import allow.simulator.utility.Utility;
 
 public final class PublicTransportationAgency extends TransportationAgency {
 	// Routes managed by this public transportation agency
@@ -24,8 +22,8 @@ public final class PublicTransportationAgency extends TransportationAgency {
 	// "Live" information about current trips and vehicles executing trips
 	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
 	
-	public PublicTransportationAgency(long id, Utility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, EntityTypes.PUBLIC_TRANSPORT_AGENCY, utility, prefs, context, agencyId);
+	public PublicTransportationAgency(long id, Context context, String agencyId) {
+		super(id, EntityTypes.PUBLIC_TRANSPORT_AGENCY, context, agencyId);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();
 		

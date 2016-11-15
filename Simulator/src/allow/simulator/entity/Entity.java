@@ -10,8 +10,6 @@ import allow.simulator.flow.activity.Flow;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
-import allow.simulator.utility.IUtility;
-import allow.simulator.utility.Preferences;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,12 +25,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	
 	// Type of entity.
 	private final String entityType;
-	
-	// Utility module.
-	protected final IUtility utility;
-		
-	// Preferences of the entity, e.g. weights for travel time, costs, etc.
-	protected final Preferences preferences;
 		
 	// Simulation context.
 	@JsonIgnore 
@@ -67,7 +59,7 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, String type, IUtility utility, Preferences prefs, Context context) {
+	public Entity(long id, String type, Context context) {
 		this.id = id;
 		this.entityType = type;
 		position = new Coordinate(-1, -1);
@@ -75,8 +67,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 		relations = new RelationGraph(this);
 		this.context = context;
 		flow = new Flow();
-		this.utility = utility;
-		this.preferences = prefs;
 		setPosition(position);
 		currentIssue = Issue.NONE;
 	}
@@ -91,8 +81,8 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id, String type, IUtility utility, Preferences prefs) {
-		this(id, type, utility, prefs, null);
+	protected Entity(long id, String type) {
+		this(id, type, null);
 	}
 	
 	/**
@@ -173,24 +163,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 */
 	public void setContext(Context context) {
 		this.context = context;
-	}
-	
-	/**
-	 * Returns the utility function of this entity.
-	 * 
-	 * @return Utility function of this entity.
-	 */
-	public IUtility getUtility() {
-		return utility;
-	}
-	
-	/**
-	 * Returns the preferences of this entity e.g. for utility computation.
-	 * 
-	 * @return Preferences of this entity.
-	 */
-	public Preferences getPreferences() {
-		return preferences;
 	}
 	
 	/**

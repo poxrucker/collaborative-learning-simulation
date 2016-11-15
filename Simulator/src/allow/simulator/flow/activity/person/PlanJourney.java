@@ -16,6 +16,7 @@ import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.utility.Preferences;
 
 /**
  * Class representing an Activity to request a journey.
@@ -56,9 +57,10 @@ public final class PlanJourney extends Activity {
 		
 		// Update preferences
 		double dist = Geometry.haversineDistance(start, destination);
-		person.getPreferences().setTmax(1500);
-		person.getPreferences().setCmax(2.5);
-		person.getPreferences().setWmax(Math.min(dist, 1000));
+		Preferences prefs = person.getRankingFunction().getPreferences();
+		prefs.setTmax(1500);
+		prefs.setCmax(2.5);
+		prefs.setWmax(Math.min(dist, 1000));
 		
 		if (requestFuture == null) {
 			RequestId reqId = new RequestId();
@@ -71,7 +73,7 @@ public final class PlanJourney extends Activity {
 			if (person.getProfile() != Profile.CHILD) {
 				
 				if ((!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar()))) {
-					requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
+					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
 					requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, reqId));

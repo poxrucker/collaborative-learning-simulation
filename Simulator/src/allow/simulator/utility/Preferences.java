@@ -6,33 +6,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * 
- * @author UOC
- *
- */
-public class Preferences {
-	/*The total sum of the weights should be 1
-	  ttweight + cweight + wdweight + ncweight = 1*/
-	/*weight for travel time - Value range:[0,1]*/
+public final class Preferences extends Weights {
+	// Weight for travel time
 	private double ttweight;
 	
-	/*weight for cost - Value range:[0,1]*/
+	// Weight for cost
 	private double cweight;
 	
-	/*weight for walking distance - Value range:[0,1]*/
+	// Weight for walking distance
 	private double wdweight;
 	
-	/*weight for number of changes - Value range:[0,1]*/
+	// Weight for number of changes
 	private double ncweight;
 	
-	/*maximum of travel duration - in seconds*/
+	// Maximum acceptable travel duration in seconds
 	private long tmax;
 	
-	/*maximum of cost*/
+	// Maximum acceptable costs
 	private double cmax;
 	
-	/*maximum walking distance - in meters*/
+	// Maximum acceptable walking distance
 	private double wmax;
 	
 	private double busPreference;

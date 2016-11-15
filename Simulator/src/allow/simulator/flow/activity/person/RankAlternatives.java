@@ -27,7 +27,8 @@ public class RankAlternatives extends Activity {
 			updateItineraryParameters();
 			return deltaT;
 		}
-		toRank = entity.getUtility().rankAlternatives(entity.getPreferences(), toRank);
+		Person person = (Person) entity;
+		toRank = person.getRankingFunction().reason(toRank);
 		entity.getFlow().addActivity(new PrepareJourney((Person) entity, toRank.get(0)));
 		setFinished();
 		return 0.0;
@@ -40,6 +41,7 @@ public class RankAlternatives extends Activity {
 	}
 	
 	private void updatePreferences() {
+		Person person = (Person) entity;
 		long minTTime = Long.MAX_VALUE;
 		double minCosts = Double.MAX_VALUE;
 		double minWalking = Double.MAX_VALUE;
@@ -51,7 +53,7 @@ public class RankAlternatives extends Activity {
 			if (it.costs > 0 && it.costs < minCosts) minCosts = it.costs;
 			if (it.walkDistance > 0 && it.walkDistance < minWalking) minWalking = it.walkDistance;
 		}
-		Preferences prefs = entity.getPreferences();
+		Preferences prefs = person.getRankingFunction().getPreferences();
 		prefs.setTmax((long) (minTTime * 1.2));
 		prefs.setCmax(minCosts * 1.2);
 		prefs.setWmax(minWalking * 1.2);

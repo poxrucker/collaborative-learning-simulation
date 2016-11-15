@@ -15,8 +15,6 @@ import allow.simulator.mobility.data.gtfs.GTFSAgency;
 import allow.simulator.mobility.data.gtfs.GTFSRoute;
 import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.util.Coordinate;
-import allow.simulator.utility.Preferences;
-import allow.simulator.utility.Utility;
 
 public class TransportationRepository {
 	// Collection of available GTFS transportation agencies.
@@ -46,7 +44,7 @@ public class TransportationRepository {
 			GTFSAgency currentAgency = agencyInfos.get(i);
 			
 			// Create new public transportation agency.
-			PublicTransportationAgency newAgency = new PublicTransportationAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, currentAgency.getId());
+			PublicTransportationAgency newAgency = new PublicTransportationAgency(context.getEntityManager().getNextId(), context, currentAgency.getId());
 			context.getEntityManager().addEntity(newAgency);
 
 			// Request available routes.
@@ -73,7 +71,7 @@ public class TransportationRepository {
 				newAgency.addRoute(newRoute);
 				
 				for (int k = 0; k < tt.getMaximalNumberOfTrips(); k++) {
-					PublicTransportation b = new PublicTransportation(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, newAgency, 25);
+					PublicTransportation b = new PublicTransportation(context.getEntityManager().getNextId(), context, newAgency, 25);
 					context.getEntityManager().addEntity(b);
 					newAgency.addPublicTransportation(b);
 				}
@@ -82,7 +80,7 @@ public class TransportationRepository {
 		}
 		
 		// Create FlexiBus agency and assign buses.
-		flexiBusAgency = new FlexiBusAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, "flexibusagency");
+		flexiBusAgency = new FlexiBusAgency(context.getEntityManager().getNextId(), context, "flexibusagency");
 		context.getEntityManager().addEntity(flexiBusAgency);
 
 		for (int i = 0; i < 200; i++) {
@@ -92,11 +90,11 @@ public class TransportationRepository {
 		}
 		
 		// Create taxi agency and assign taxis
-		taxiAgency = new TaxiAgency(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, "taxiagency");
+		taxiAgency = new TaxiAgency(context.getEntityManager().getNextId(), context, "taxiagency");
 		context.getEntityManager().addEntity(taxiAgency);
 
 		for (int i = 0; i < 400; i++) {
-			Taxi b = new Taxi(context.getEntityManager().getNextId(), new Utility(), new Preferences(), context, taxiAgency, 3);
+			Taxi b = new Taxi(context.getEntityManager().getNextId(), context, taxiAgency, 3);
 			context.getEntityManager().addEntity(b);
 			taxiAgency.addTaxi(b);
 		}

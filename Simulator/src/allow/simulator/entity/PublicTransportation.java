@@ -3,8 +3,6 @@ package allow.simulator.entity;
 import allow.simulator.core.Context;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Trip;
-import allow.simulator.utility.Preferences;
-import allow.simulator.utility.Utility;
 
 /**
  * Represents a bus entity which is a subtype of a transportation entity.
@@ -21,8 +19,8 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @param context Context of the transportation mean.
 	 * @param capacity Capacity of the transportation mean.
 	 */
-	public PublicTransportation(long id, Utility utility, Preferences prefs, Context context, PublicTransportationAgency agency, int capacity) {
-		super(id, EntityTypes.BUS, utility, prefs, context, agency, capacity);
+	public PublicTransportation(long id, Context context, PublicTransportationAgency agency, int capacity) {
+		super(id, EntityTypes.BUS, context, agency, capacity);
 	}
 	
 	/**

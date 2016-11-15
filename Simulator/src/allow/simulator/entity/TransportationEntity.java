@@ -7,7 +7,7 @@ import allow.simulator.core.Context;
 import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.utility.Preferences;
-import allow.simulator.utility.Utility;
+import allow.simulator.utility.ExponentialUtility;
 
 /**
  * Abstract class modelling a transportation entity.
@@ -40,12 +40,11 @@ public abstract class TransportationEntity extends Entity {
 	 * 
 	 * @param id Id of entity
 	 * @param type Type of entity
-	 * @param utility Utility function
 	 * @param context Simulation context
 	 * @param capacity Capacity of entity
 	 */
-	protected TransportationEntity(long id, String type, Utility utility, Preferences prefs, Context context, TransportationAgency agency, int capacity) {
-		super(id, type, utility, prefs, context);
+	protected TransportationEntity(long id, String type, Context context, TransportationAgency agency, int capacity) {
+		super(id, type, context);
 		this.capacity = capacity;
 		passengers = new ArrayList<Person>(capacity);
 		this.agency = agency;

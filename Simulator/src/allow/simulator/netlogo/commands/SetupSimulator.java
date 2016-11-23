@@ -10,7 +10,6 @@ import org.nlogo.api.Context;
 import org.nlogo.api.DefaultReporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoList;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
@@ -83,9 +82,6 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add(s.getTaxiJourneyRatio());
 		listBuilder.add(s.getMeanReplaningWaitingTime());
 		listBuilder.add((double) s.getNumberOfCongestedStreets());
-		listBuilder.add((double) s.getNumberOfAdaptations());
-		listBuilder.add((double) s.getNumberOfIssues());
-		listBuilder.add((double) s.getNumberOfAvailableTaxis());
 		return listBuilder.toLogoList();
 	}
 

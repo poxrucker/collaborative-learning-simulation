@@ -64,7 +64,7 @@ public class PlanGenerator {
 	
 	private static void generateDailyRoutine(Person person) {
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
-		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
+		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(day);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
 
 		// Add daily routine travel events.
@@ -81,7 +81,7 @@ public class PlanGenerator {
 	private static void generateChildDayPlan(Person person) {
 		int day = person.getContext().getTime().getCurrentDateTime()
 				.getDayOfWeek().getValue();
-		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
+		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(day);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
 
 		// Add daily routine travel events.
@@ -119,7 +119,7 @@ public class PlanGenerator {
 	private static void generateStudentDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
-		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
+		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(day);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
 		
 		// 1. Home to work/university.
@@ -280,7 +280,7 @@ public class PlanGenerator {
 	private static void generateWorkerDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
-		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
+		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(day);
 		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
 
 		// 1. Going to work in the morning.

@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import allow.simulator.adaptation.AdaptationManager;
-import allow.simulator.adaptation.CollectiveAdaptation;
 import allow.simulator.adaptation.IAdaptationStrategy;
 import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
@@ -61,6 +60,12 @@ public final class Simulator {
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
 	
+	// Configuration
+	private Configuration config;
+	
+	// Sampler instance for logging
+	private Sampler sampler;
+	
 	public static final String OVERLAY_DISTRICTS = "partitioning";
 	public static final String OVERLAY_RASTER = "raster";
 
@@ -69,6 +74,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
+		this.config = config;
 		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// Setup world.
@@ -129,19 +135,7 @@ public final class Simulator {
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
 		// Create adaptation manager
-		IAdaptationStrategy adaptationStrategy = null;
-		
-		switch (params.AdaptationStrategy) {
-		case "selfish":
-			adaptationStrategy = new SelfishAdaptation(planner);
-			break;
-		case "collective":
-			adaptationStrategy = new CollectiveAdaptation();
-			break;
-			
-			default:
-				throw new IllegalArgumentException("Error: Unsupported adaptation strategy " + params.AdaptationStrategy);
-		}
+		IAdaptationStrategy adaptationStrategy = new SelfishAdaptation(planner);
 		AdaptationManager manager = new AdaptationManager(adaptationStrategy);
 		
 		// Create global context from world, time, planner and data services, and weather.
@@ -162,6 +156,13 @@ public final class Simulator {
 		
 		// Update world
 		world.update(context);
+		
+		// Create sampler
+		sampler = new Sampler(context, params.SamplingRateInMinutes);
+		
+		// Write agent sample
+		sampler.writePopulation(config.getSamplingPath());
+		sampler.writePopulationSample(config.getSamplingPath());
 	}
 	
 	private void loadEntitiesFromFile(Path config) throws IOException {
@@ -224,6 +225,13 @@ public final class Simulator {
 		// Run adaptations
 		context.getAdaptationManager().runAdaptations();
 		
+		// Log 
+		try {
+			sampler.writePopulationSample(config.getSamplingPath());
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();
 		EvoKnowledge.cleanModel();

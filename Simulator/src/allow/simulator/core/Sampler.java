@@ -87,7 +87,7 @@ public class Sampler {
 		BufferedWriter writer = Files.newBufferedWriter(samplePath, Charset.defaultCharset(), StandardOpenOption.APPEND);
 		
 		if (!exists)
-			writer.write("id,timestamp,loc_lon,loc_lat,activity,density_2,density_5,density_10");
+			writer.write("id,timestamp,loc_lon,loc_lat,activity,density_2,density_5,density_10\n");
 		
 		Collection<Entity> entities = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
 		RasterOverlay raster = (RasterOverlay) context.getWorld().getOverlay(Simulator.OVERLAY_RASTER);

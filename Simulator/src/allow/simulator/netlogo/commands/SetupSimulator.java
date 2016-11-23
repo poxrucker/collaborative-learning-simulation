@@ -40,14 +40,13 @@ public class SetupSimulator extends DefaultReporter {
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
 		params.KnowledgeModel = args[2].getString();
-		params.AdaptationStrategy = args[3].getString();
-		
+		params.SamplingRateInMinutes = args[3].getIntValue();
+		params.RandomSample = args[4].getBooleanValue();
+		params.SampleSizePercent = args[5].getIntValue();
+
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
-		
-//		params.GridResX = 5;
-//		params.GridResY = 5;
 		
 		try {
 			Simulator.Instance().setup(config, params);
@@ -88,7 +87,8 @@ public class SetupSimulator extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType(), Syntax.StringType() };
+		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType(), Syntax.NumberType(),
+				Syntax.BooleanType(), Syntax.NumberType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType() );
 	}
 }

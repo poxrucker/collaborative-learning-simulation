@@ -71,7 +71,7 @@ public final class PlanJourney extends Activity {
 			if (person.getProfile() != Profile.CHILD) {
 				
 				if ((!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar()))) {
-					requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
+					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
 					requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, reqId));

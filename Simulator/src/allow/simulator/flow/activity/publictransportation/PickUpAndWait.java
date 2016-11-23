@@ -73,8 +73,8 @@ public class PickUpAndWait extends Activity {
 			approached = true;
 			double n = ThreadLocalRandom.current().nextDouble();
 			
-			if (n >= 0.999)
-				p.triggerIssue(Issue.BUS_BREAKDOWN);
+			//if (n >= 0.999)
+			//	p.triggerIssue(Issue.BUS_BREAKDOWN);
 
 			return deltaT;
 		}

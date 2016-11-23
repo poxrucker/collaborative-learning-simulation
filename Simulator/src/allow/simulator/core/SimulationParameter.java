@@ -6,10 +6,13 @@ public final class SimulationParameter {
 		
 	public String KnowledgeModel;
 		
-	public String AdaptationStrategy;
-
+	public int SamplingRateInMinutes;
+	
+	public boolean RandomSample;
+	
+	public int SampleSizePercent;
+	
 	public int GridResX;
 	
 	public int GridResY;
-	
 }

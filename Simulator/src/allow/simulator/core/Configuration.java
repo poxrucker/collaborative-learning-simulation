@@ -20,29 +20,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 public class Configuration {
-	// Starting date of the simulation.
+	// Starting date of the simulation
 	private final LocalDateTime startingDate;
 	
-	// Configuration of planner service.
+	// Configuration of planner service
 	private final List<Service> plannerServiceConfiguration;
 	private final boolean allowParallelClientRequests;
 	
-	// Configuration of data service.
+	// Configuration of data service
 	private final List<Service> dataServiceConfiguration;
 	
-	// Path to world file.
+	// Path to world file
 	private final WorldConfiguration worldConfiguration;
 		
-	// Path to agent configuration file.
+	// Path to agent configuration file
 	private final AgentConfiguration agentConfiguration;
 	
-	// EvoKnowledge configuration information.
+	// EvoKnowledge configuration information
 	private final EvoKnowledgeConfiguration evoConfiguration;
 	
-	// Path to logging output.
-	private final String loggingPath;
+	// Path to sampling output
+	private final String samplingPath;
 	
-	// Path to input data sources.
+	// Path to input data sources
 	private final String dataPath;
 	
 	/**
@@ -53,7 +53,7 @@ public class Configuration {
 	 * @param startingDate Starting date of the simulation.
 	 * @param plannerService Planner service configuration.
 	 * @param dataService Data service configuration.
-	 * @param loggingPath Path to file to write logging output to.
+	 * @param samplingPath Path to file to write logging output to.
 	 * @param worldPath Path containing simulated world.
 	 * @throws ParseException 
 	 */
@@ -66,7 +66,7 @@ public class Configuration {
 			@JsonProperty("world") WorldConfiguration worldConfig,
 			@JsonProperty("agents") AgentConfiguration agentConfig,
 			@JsonProperty("evoknowledge") EvoKnowledgeConfiguration evoConfig,
-			@JsonProperty("loggingpath") String loggingPath) throws ParseException {
+			@JsonProperty("samplingpath") String samplingPath) throws ParseException {
 		this.dataPath = dataPath;
 		this.startingDate = LocalDateTime.parse(startingDate, DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm:ss", Locale.ITALY));
 		this.plannerServiceConfiguration = plannerServices;
@@ -75,7 +75,7 @@ public class Configuration {
 		this.worldConfiguration = worldConfig;
 		this.agentConfiguration = agentConfig;
 		this.evoConfiguration = evoConfig;
-		this.loggingPath = loggingPath;
+		this.samplingPath = samplingPath;
 	}
 	
 	/**
@@ -102,10 +102,6 @@ public class Configuration {
 	
 	public EvoKnowledgeConfiguration getEvoKnowledgeConfiguration() {
 		return evoConfiguration;
-	}
-	
-	public Path getTracesOutputPath() {
-		return Paths.get(loggingPath, "traces");
 	}
 	
 	/**
@@ -152,8 +148,8 @@ public class Configuration {
 	 * 
 	 * @return Path to file to store logging output.
 	 */
-	public Path getLoggingOutputPath() {
-		return Paths.get(loggingPath);
+	public Path getSamplingPath() {
+		return Paths.get(samplingPath);
 	}
 	
 	/**

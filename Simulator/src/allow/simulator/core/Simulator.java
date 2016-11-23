@@ -12,14 +12,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import allow.simulator.adaptation.AdaptationManager;
-import allow.simulator.adaptation.IAdaptationStrategy;
-import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
-import allow.simulator.entity.knowledge.EvoKnowledge;
+import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.MobilityRepository;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -60,12 +57,6 @@ public final class Simulator {
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
 	
-	// Configuration
-	private Configuration config;
-	
-	// Sampler instance for logging
-	private Sampler sampler;
-	
 	public static final String OVERLAY_DISTRICTS = "partitioning";
 	public static final String OVERLAY_RASTER = "raster";
 
@@ -74,8 +65,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		this.config = config;
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
 		System.out.println("Loading world...");
@@ -132,14 +122,10 @@ public final class Simulator {
 		Weather weather = new Weather(config.getWeatherPath(), time);
 		
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
-				bikeRentalPlanner, new FlexiBusPlanner());
-		
-		// Create adaptation manager
-		IAdaptationStrategy adaptationStrategy = new SelfishAdaptation(planner);
-		AdaptationManager manager = new AdaptationManager(adaptationStrategy);
+				bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, new EntityManager(), manager, time, planner, 
+		context = new Context(world, new EntityManager(), time, planner, 
 				dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
@@ -156,13 +142,6 @@ public final class Simulator {
 		
 		// Update world
 		world.update(context);
-		
-		// Create sampler
-		sampler = new Sampler(context, params.SamplingRateInMinutes);
-		
-		// Write agent sample
-		sampler.writePopulation(config.getSamplingPath());
-		sampler.writePopulationSample(config.getSamplingPath());
 	}
 	
 	private void loadEntitiesFromFile(Path config) throws IOException {
@@ -208,7 +187,7 @@ public final class Simulator {
 		
 		// Trigger routine scheduling.
 		if (days != context.getTime().getDays()) {
-			Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+			Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
 			for (Entity p : persons) {
 				PlanGenerator.generateDayPlan((Person) p);
@@ -222,16 +201,6 @@ public final class Simulator {
 			context.getStatistics().reset();
 		}
 		
-		// Run adaptations
-		context.getAdaptationManager().runAdaptations();
-		
-		// Log 
-		try {
-			sampler.writePopulationSample(config.getSamplingPath());
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();
 		EvoKnowledge.cleanModel();

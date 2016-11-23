@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-import allow.simulator.mobility.data.RType;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 
 /**
@@ -47,10 +45,15 @@ public class JourneyRequest {
 	public Coordinate From;
 	
 	/**
+	 * Starting points
+	 */
+	public List<Coordinate> StartingPoints;
+	
+	/**
 	 * Destination
 	 */
 	public Coordinate To;
-	
+		
 	/**
 	 * Destinations in case of a shared taxi request
 	 */
@@ -100,20 +103,27 @@ public class JourneyRequest {
 		return s;
 	}
 	
-	public static JourneyRequest createRequest(Coordinate from, List<Coordinate> to,
+	public static JourneyRequest createSharedRequest(Coordinate pickupPoint,
+			List<Coordinate> from, List<Coordinate> to,
 			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
+		
+		if (from.size() != to.size())
+			throw new IllegalArgumentException("Error: Number of starting points and destinations does not match.");
+		
 		JourneyRequest s = new JourneyRequest();
 		s.ReqId = reqId.getRequestId();
 		s.ReqNumber = reqId.getNextRequestNumber();
 		s.Date = date.toLocalDate();
 
-		if (arriveBy) {
+		if (arriveBy)
 			s.ArrivalTime = date.toLocalTime();
-		} else {
+		else
 			s.DepartureTime = date.toLocalTime();
-		}		
-		// Set starting position and destination.
-		s.From = from;
+		// Set pickup point
+		s.From = pickupPoint;
+		
+		// Set starting positions and destinations
+		s.StartingPoints = from;
 		s.Destinations = to;
 
 		// Set route type.

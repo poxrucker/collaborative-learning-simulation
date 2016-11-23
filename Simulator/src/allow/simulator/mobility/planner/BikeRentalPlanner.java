@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 
 public class BikeRentalPlanner implements IPlannerService {

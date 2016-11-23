@@ -15,11 +15,11 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.Learn;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.Route;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 

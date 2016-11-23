@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.taxi.PrepareTaxiTrip;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
@@ -22,8 +20,8 @@ public final class TaxiAgency extends TransportationAgency {
 	// Taxi stop mapping for active taxi trips
 	private final Map<String, TaxiStop> taxiStops;
 	
-	public TaxiAgency(long id, IUtility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, EntityType.TAXIAGENCY, utility, prefs, context, agencyId);
+	public TaxiAgency(long id, Context context, String agencyId) {
+		super(id, EntityTypes.TAXI_AGENCY, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		currentTrips = new HashMap<String, TaxiTrip>();
 		currentlyUsedVehicles = new HashMap<String, Taxi>();

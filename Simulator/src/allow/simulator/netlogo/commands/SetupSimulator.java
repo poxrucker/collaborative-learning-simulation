@@ -60,7 +60,6 @@ public class SetupSimulator extends DefaultReporter {
 		LogoListBuilder listBuilder = new LogoListBuilder();
 		allow.simulator.core.Context ctx = Simulator.Instance().getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);
-		
 		listBuilder.add(ctx.getTime().toString());
 		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
 		Statistics s = ctx.getStatistics();

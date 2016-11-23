@@ -21,7 +21,6 @@ import org.apache.http.util.EntityUtils;
 
 import allow.simulator.core.Time;
 import allow.simulator.mobility.data.IDataService;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;

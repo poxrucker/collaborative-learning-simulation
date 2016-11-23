@@ -4,11 +4,11 @@ import java.util.List;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
-import allow.simulator.entity.knowledge.Experience;
-import allow.simulator.entity.knowledge.TravelExperience;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
-import allow.simulator.mobility.data.TType;
+import allow.simulator.knowledge.Experience;
+import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;

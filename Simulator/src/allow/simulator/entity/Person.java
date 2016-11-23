@@ -8,18 +8,21 @@ import java.util.Queue;
 
 import allow.simulator.core.Context;
 import allow.simulator.core.Simulator;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.UtilityWithoutPreferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
+import allow.simulator.utility.IUtility;
+import allow.simulator.utility.ItineraryParams;
+import allow.simulator.utility.JourneyRankingFunction;
+import allow.simulator.utility.NormalizedLinearUtility;
+import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -32,7 +35,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Andreas Poxrucker (DFKI)
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Person extends Entity {
+	// Function for ranking journeys according to the person's preferences
+	private JourneyRankingFunction rankingFunction;
+	
 	// Gender of a person.
 	private Gender gender;
 	
@@ -79,7 +86,6 @@ public final class Person extends Entity {
 	private String homeAreaName;
 	
 	/**
-	 * Constructor.
 	 * Creates new instance of a person.
 	 * 
 	 * @param id Id of this person.
@@ -98,7 +104,7 @@ public final class Person extends Entity {
 	public Person(long id,
 			Gender gender,
 			Profile profile,
-			IUtility utility,
+			IUtility<ItineraryParams, Preferences> utility,
 			Preferences prefs,
 			Coordinate homeLocation,
 			boolean hasCar,
@@ -106,7 +112,8 @@ public final class Person extends Entity {
 			boolean useFlexiBus,
 			DailyRoutine dailyRoutine,
 			Context context) {
-		super(id, EntityType.PERSON, utility, prefs, context);
+		super(id, EntityTypes.PERSON, context);
+		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = profile;
 		this.hasCar = hasCar;
@@ -123,7 +130,6 @@ public final class Person extends Entity {
 	}
 	
 	/**
-	 * Constructor.
 	 * Creates new instance of a person.
 	 * 
 	 * @param id Id of this person.
@@ -142,14 +148,15 @@ public final class Person extends Entity {
 	public Person(@JsonProperty("id") long id,
 			@JsonProperty("gender") Gender gender,
 			@JsonProperty("role") Profile role,
-			@JsonProperty("utility") UtilityWithoutPreferences utility,
+			@JsonProperty("utility") NormalizedLinearUtility utility,
 			@JsonProperty("preferences") Preferences prefs,
 			@JsonProperty("home") Coordinate homeLocation,
 			@JsonProperty("hasCar") boolean hasCar,
 			@JsonProperty("hasBike") boolean hasBike,
 			@JsonProperty("useFlexiBus") boolean useFlexiBus,
 			@JsonProperty("dailyRoutine") DailyRoutine dailyRoutine) {
-		super(id, EntityType.PERSON, utility, prefs);
+		super(id, EntityTypes.PERSON);
+		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = role;
 		this.hasCar = hasCar;
@@ -189,6 +196,10 @@ public final class Person extends Entity {
 		if (homeAreaName == null) {
 			homeAreaName = "default";
 		}
+	}
+	
+	public JourneyRankingFunction getRankingFunction() {
+		return rankingFunction;
 	}
 	
 	/**
@@ -272,7 +283,7 @@ public final class Person extends Entity {
 	 * @return True, if person uses FlexiBus for travelling, false otherwise.
 	 */
 	public boolean useFlexiBus() {
-		return useFlexiBus;
+		return false;
 	}
 	
 	/**

@@ -4,8 +4,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import allow.simulator.core.Context;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
 
 /**
  * Represents a transport agency entity managing a set of trips and vehicles
@@ -25,11 +23,10 @@ public abstract class TransportationAgency extends Entity {
 	 * Creates new instance of a transportation agency entity.
 	 * 
 	 * @param id Id of the transportation agency entity
-	 * @param utility Utility function
 	 * @param context Simulation context
 	 */
-	protected TransportationAgency(long id, EntityType type, IUtility utility, Preferences prefs, Context context, String agencyId) {
-		super(id, type, utility, prefs, context);
+	protected TransportationAgency(long id, String type, Context context, String agencyId) {
+		super(id, type, context);
 		this.agencyId = agencyId;
 		vehicles = new ConcurrentLinkedQueue<TransportationEntity>();
 	}

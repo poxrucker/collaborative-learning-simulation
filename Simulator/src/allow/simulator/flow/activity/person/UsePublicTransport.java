@@ -3,15 +3,14 @@ package allow.simulator.flow.activity.person;
 import java.time.LocalTime;
 import java.util.List;
 
-import allow.simulator.adaptation.Ensemble;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.relation.Relation;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.PublicTransportationStop;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.data.Trip;
+import allow.simulator.relation.Relation;
 
 /**
  * Represents an activity to use public transport (bus).
@@ -81,18 +80,11 @@ public class UsePublicTransport extends Activity {
 			// Try to get transportation mean.
 			if (b == null) {
 				b = TransportationRepository.Instance().getGTFSTransportAgency(agencyId).getVehicleOfTrip(trip.getTripId());
-			
-				if (b != null) {
-					//person.getContext().getAdaptationManager().getEnsemble(trip.getTripId()).addEntity(person);
-					Ensemble ensemble = person.getContext().getAdaptationManager().getEnsemble(trip.getTripId());
-					ensemble.addEntity(person);
-				}
 			}
 			// Reaching a stop needs zero time.
 			if (b != null && person.getContext().getTime().getCurrentTime().isAfter(earliestStartingTime.plusSeconds(b.getCurrentDelay() + 300))) {
 				person.getFlow().clear();
 				person.getFlow().addActivity(new Replan(person));
-				leaveEnsemble();
 				setFinished();
 				return 0.0;
 				
@@ -102,7 +94,6 @@ public class UsePublicTransport extends Activity {
 				person.getKnowledge().clear();
 				person.setPosition(person.getCurrentItinerary().to);
 				person.setCurrentItinerary(null);
-				leaveEnsemble();
 
 				/*person.getFlow().clear();
 				person.getFlow().addActivity(new Replan(person));*/
@@ -130,7 +121,6 @@ public class UsePublicTransport extends Activity {
 						} else {
 							person.getFlow().clear();
 							person.getFlow().addActivity(new Replan(person));
-							leaveEnsemble();						
 							setFinished();
 						}
 					}
@@ -147,19 +137,11 @@ public class UsePublicTransport extends Activity {
 				if (b.getCurrentStop().getStopId().equals(out.getStopId())) {
 					b.removePassenger(person);
 					leftBus = true;
-					leaveEnsemble();
 					setFinished();
 				}
 			}
 		}
 		return deltaT;
-	}
-
-	private void leaveEnsemble() {
-		Ensemble tripEnsemble = entity.getContext().getAdaptationManager().getEnsemble(trip.getTripId());
-		
-		if (tripEnsemble != null)
-			tripEnsemble.removeEntity(entity);
 	}
 	
 	public PublicTransportation getMeansOfTransportation() {

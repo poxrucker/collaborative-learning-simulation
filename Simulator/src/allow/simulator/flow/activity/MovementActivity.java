@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.knowledge.Experience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;

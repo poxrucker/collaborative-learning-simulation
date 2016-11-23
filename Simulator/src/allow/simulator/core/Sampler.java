@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
 import allow.simulator.entity.TravelEvent;
@@ -40,7 +40,7 @@ public class Sampler {
 		BufferedWriter writer = Files.newBufferedWriter(samplePath);
 		writer.write("id,gender,home_lon,home_lat,profile,[work_lon;work_lat]\n");
 		
-		Collection<Entity> entities = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+		Collection<Entity> entities = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
 		for (Entity entity : entities) {
 			Person person = (Person) entity;
@@ -89,7 +89,7 @@ public class Sampler {
 		if (!exists)
 			writer.write("id,timestamp,loc_lon,loc_lat,activity,density_2,density_5,density_10\n");
 		
-		Collection<Entity> entities = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+		Collection<Entity> entities = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		RasterOverlay raster = (RasterOverlay) context.getWorld().getOverlay(Simulator.OVERLAY_RASTER);
 		
 		for (Entity entity : entities) {

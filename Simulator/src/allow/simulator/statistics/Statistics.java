@@ -4,8 +4,9 @@ import java.util.Collection;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
-import allow.simulator.entity.utility.Preferences;
+import allow.simulator.entity.EntityTypes;
+import allow.simulator.entity.Person;
+import allow.simulator.utility.Preferences;
 
 public class Statistics {
 	// Sliding windows covering mean prior and posterior travel time for
@@ -246,7 +247,7 @@ public class Statistics {
 	}
 	
 	public synchronized void updateGlobalStatistics(Context simulationContext) {
-		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
 	}
@@ -257,8 +258,9 @@ public class Statistics {
 		double busPrefAcc = 0.0;
 		double carPrefAcc = 0.0;
 		
-		for (Entity person : persons) {
-			Preferences p = person.getPreferences();
+		for (Entity entity : persons) {
+			Person person = (Person) entity;
+			Preferences p = person.getRankingFunction().getPreferences();
 			
 			/*if (p.getBusPreference() >= p.getCarPreference()) {
 				busPrefAcc++;

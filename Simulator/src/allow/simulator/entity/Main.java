@@ -16,16 +16,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.entity.utility.Preferences;
-import allow.simulator.entity.utility.UtilityWithoutPreferences;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.OTPPlannerService;
 import allow.simulator.mobility.planner.RequestId;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.utility.Preferences;
+import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import allow.simulator.world.overlay.Area;
@@ -289,7 +289,7 @@ public class Main {
 		double busPreference = 1.0 - carPreference;
 		Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
 		//Preferences prefs = new Preferences(ttweight, cweight, wweight, tweight, 0, 0, 0, busPreference, carPreference);
-		Person newChild = new Person(id, gender, Profile.CHILD, new UtilityWithoutPreferences(), prefs, home, false, hasBike, false, r);
+		Person newChild = new Person(id, gender, Profile.CHILD, new NormalizedLinearUtility(), prefs, home, false, hasBike, false, r);
 		return newChild;
 	}
 	
@@ -330,7 +330,7 @@ public class Main {
 			double busPreference = 1.0 - carPreference;
 			Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
 			// Preferences prefs = new Preferences(ttweight, cweight, wweight, tweight, 0, 0, 0, busPreference, carPreference);
-			Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, new UtilityWithoutPreferences(), prefs, home, hasCar, hasBike, useFlexiBus, new DailyRoutine());
+			Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, new NormalizedLinearUtility(), prefs, home, hasCar, hasBike, useFlexiBus, new DailyRoutine());
 			return newHomemaker;
 			
 		/*} /*else {
@@ -415,7 +415,7 @@ public class Main {
 		Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
 		// Preferences prefs = new Preferences(ttweight, cweight, wweight, tweight, 0, 0, 0, busPreference, carPreference);
 		boolean useFlexiBus = false; // ThreadLocalRandom.current().nextBoolean();
-		Person newStudent = new Person(id, gender, Profile.STUDENT, new UtilityWithoutPreferences(), prefs, home, hasCar, hasBike, useFlexiBus, r);
+		Person newStudent = new Person(id, gender, Profile.STUDENT, new NormalizedLinearUtility(), prefs, home, hasCar, hasBike, useFlexiBus, r);
 		return newStudent;
 	}
 	
@@ -476,7 +476,7 @@ public class Main {
 		Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
 		//Preferences prefs = new Preferences(ttweight, cweight, wweight, tweight, 0, 0, 0, busPreference, carPreference);
 		boolean useFlexiBus = false; // ThreadLocalRandom.current().nextBoolean();
-		Person newWorker = new Person(id, gender, Profile.WORKER, new UtilityWithoutPreferences(), prefs, home, hasCar, hasBike, useFlexiBus, r);
+		Person newWorker = new Person(id, gender, Profile.WORKER, new NormalizedLinearUtility(), prefs, home, hasCar, hasBike, useFlexiBus, r);
 		return newWorker;
 	}
 	

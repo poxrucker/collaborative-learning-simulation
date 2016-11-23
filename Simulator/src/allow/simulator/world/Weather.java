@@ -27,8 +27,7 @@ public class Weather {
 	 * @author Andreas Poxrucker (DFKI)
 	 *
 	 */
-	public static class State {
-	
+	public static class State {	
 		// Speed reduction factor.
 		private double speedFactor;
 		
@@ -38,12 +37,8 @@ public class Weather {
 		// Weather flags.
 		private boolean flags[];
 		
-		// Encoding of the flags;
-		private byte encoding;
-		
 		/**
-		 * Constructor.
-		 * Creates a new weather state of the enum.
+		 * Creates a new weather state of the class.
 		 * 
 		 * @param speedFactor Speed reduction factor.
 		 * @param description Textual description.
@@ -51,13 +46,6 @@ public class Weather {
 		protected State(String description, boolean fog, boolean rain, boolean snow, boolean thunderstorm) {
 			this.description = description;
 			flags = new boolean[] { fog, rain, snow, thunderstorm };
-			encoding = 0;
-			
-			if (fog) encoding |= 1;
-			if (rain) encoding |= 2;
-			if (snow) encoding |= 4;
-			if (thunderstorm) encoding |= 8;
-			
 			speedFactor = 1.0;
 			
 			/*if (rain) speedFactor = 0.85;
@@ -122,20 +110,6 @@ public class Weather {
 		 */
 		public boolean getThunderstorm() {
 			return flags[3];
-		}
-		
-		/**
-		 * Returns the weather state in an encoded form:
-		 * For fog the first bit is set.
-		 * For rain the second bit is set.
-		 * For snow the third bit is set.
-		 * For thunderstorm the fourth bit is set.
-		 * Combinations are possible, too.
-		 * 
-		 * @return Encoded weather state.
-		 */
-		public byte getEncoding() {
-			return encoding;
 		}
 		
 		public String toString() {

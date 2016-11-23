@@ -2,15 +2,9 @@ package allow.simulator.flow.activity.publictransportation;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Time;
-import allow.simulator.entity.Entity;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.knowledge.Experience;
-import allow.simulator.entity.knowledge.StopExperience;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.PublicTransportationStop;
@@ -71,11 +65,6 @@ public class PickUpAndWait extends Activity {
 			p.setPosition(stop.getPosition());
 			stop.addPublicTransportation(p);
 			approached = true;
-			double n = ThreadLocalRandom.current().nextDouble();
-			
-			//if (n >= 0.999)
-			//	p.triggerIssue(Issue.BUS_BREAKDOWN);
-
 			return deltaT;
 		}
 		
@@ -86,13 +75,6 @@ public class PickUpAndWait extends Activity {
 			// Remove transportation from current stop.
 			stop.removePublicTransportation(p);
 			p.setCurrentStop(null);
-			
-			Experience newEx = new StopExperience(stop,
-					new ArrayList<Entity>(p.getPassengers()),
-					tStart,
-					p.getContext().getTime().getTimestamp(),
-					p.getContext().getWeather().getCurrentState());
-			p.getKnowledge().collect(newEx);
 			setFinished();
 			
 			// Update delay when departing.

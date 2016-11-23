@@ -7,7 +7,7 @@ import java.util.List;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityType;
+import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 
@@ -42,7 +42,7 @@ public class RasterOverlay implements IOverlay {
 	@Override
 	public boolean update(Context context) {
 		resetRaster();
-		Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityType.PERSON);
+		Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		mapToGrid(persons);
 		return true;
 	}

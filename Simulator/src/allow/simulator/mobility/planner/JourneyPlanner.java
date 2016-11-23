@@ -3,12 +3,9 @@ package allow.simulator.mobility.planner;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import scala.concurrent.forkjoin.ThreadLocalRandom;
-import allow.simulator.mobility.data.TType;
 
 public final class JourneyPlanner {
 	// Threadpool execution service
@@ -27,16 +24,16 @@ public final class JourneyPlanner {
 	private final BikeRentalPlanner bikeRentalPlanner;
 	
 	public JourneyPlanner(List<OTPPlannerService> otpPlanner, TaxiPlanner taxiPlanner, 
-			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner) {
+			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner,
+			ExecutorService service) {
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;
 		this.bikeRentalPlanner = bikeRentalPlanner;
 		this.flexiBusPlanner = flexiBusPlanner;
+		this.service = service;
 	}
 	
 	public Future<List<Itinerary>> requestSingleJourney(List<JourneyRequest> requests, List<Itinerary> buffer) {
-		if (service == null)
-			initialize();
 		return service.submit(new Callable<List<Itinerary>>() {
 
 			@Override
@@ -88,12 +85,4 @@ public final class JourneyPlanner {
 		return bikeRentalPlanner;
 	}
 	
-	public void shutdown() throws InterruptedException {
-		service.shutdown();
-		service.awaitTermination(30, TimeUnit.SECONDS);
-	}
-	
-	private void initialize() {
-		service = Executors.newFixedThreadPool(32);
-	}
 }

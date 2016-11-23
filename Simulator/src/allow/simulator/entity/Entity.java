@@ -2,15 +2,11 @@ package allow.simulator.entity;
 
 import java.util.Observable;
 
-import allow.simulator.adaptation.IEnsembleParticipant;
-import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Context;
-import allow.simulator.entity.knowledge.EvoKnowledge;
-import allow.simulator.entity.relation.RelationGraph;
-import allow.simulator.entity.utility.IUtility;
-import allow.simulator.entity.utility.Preferences;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
+import allow.simulator.knowledge.EvoKnowledge;
+import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,18 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class Entity extends Observable implements IEnsembleParticipant {
+public abstract class Entity extends Observable {
 	// Id of the entity.
 	protected final long id;
 	
 	// Type of entity.
-	protected final EntityType type;
-	
-	// Utility module.
-	protected final IUtility utility;
-		
-	// Preferences of the entity, e.g. weights for travel time, costs, etc.
-	protected final Preferences preferences;
+	private final String entityType;
 		
 	// Simulation context.
 	@JsonIgnore 
@@ -54,9 +44,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	@JsonIgnore
 	protected Coordinate position;
 	
-	@JsonIgnore
-	protected Issue currentIssue;
-	
 	/**
 	 * Creates a new entity with in a given simulation context. Knowledge and
 	 * relations are newly initialized.
@@ -67,18 +54,15 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, EntityType type, IUtility utility, Preferences prefs, Context context) {
+	public Entity(long id, String type, Context context) {
 		this.id = id;
-		this.type = type;
+		this.entityType = type;
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
 		relations = new RelationGraph(this);
 		this.context = context;
 		flow = new Flow();
-		this.utility = utility;
-		this.preferences = prefs;
 		setPosition(position);
-		currentIssue = Issue.NONE;
 	}
 
 	/**
@@ -91,8 +75,8 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id, EntityType type, IUtility utility, Preferences prefs) {
-		this(id, type, utility, prefs, null);
+	protected Entity(long id, String type) {
+		this(id, type, null);
 	}
 	
 	/**
@@ -109,8 +93,8 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * 
 	 * @return Type of the entity.
 	 */
-	public EntityType getType() {
-		return type;
+	public String getType() {
+		return entityType;
 	}
 	
 	/**
@@ -176,24 +160,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	}
 	
 	/**
-	 * Returns the utility function of this entity.
-	 * 
-	 * @return Utility function of this entity.
-	 */
-	public IUtility getUtility() {
-		return utility;
-	}
-	
-	/**
-	 * Returns the preferences of this entity e.g. for utility computation.
-	 * 
-	 * @return Preferences of this entity.
-	 */
-	public Preferences getPreferences() {
-		return preferences;
-	}
-	
-	/**
 	 * Returns the relations of this entity.
 	 * 
 	 * @return Relations of this entity.
@@ -218,24 +184,13 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @return Type of executed activity 
 	 */
 	public Activity execute() {
-		if (flow.isIdle()) {
+		
+		if (flow.isIdle())
 			return null;
-		}
+		
 		Activity executedActivity = flow.getCurrentActivity();
 		flow.executeActivity(context.getTime().getDeltaT());
 		return executedActivity;
-	}
-	
-	public Issue getTriggeredIssue() {
-		return currentIssue;
-	}
-	
-	public void triggerIssue(Issue issue) {
-		currentIssue = issue;
-	}
-	
-	public long getParticipantId() {
-		return id;
 	}
 	
 	/**

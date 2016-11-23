@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import allow.simulator.mobility.data.TType;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.core.JsonParseException;

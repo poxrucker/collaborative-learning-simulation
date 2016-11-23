@@ -10,12 +10,13 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.RequestId;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.utility.Preferences;
 
 /**
  * Class representing an Activity to request a journey.
@@ -56,9 +57,10 @@ public final class PlanJourney extends Activity {
 		
 		// Update preferences
 		double dist = Geometry.haversineDistance(start, destination);
-		person.getPreferences().setTmax(1500);
-		person.getPreferences().setCmax(2.5);
-		person.getPreferences().setWmax(Math.min(dist, 1000));
+		Preferences prefs = person.getRankingFunction().getPreferences();
+		prefs.setTmax(1500);
+		prefs.setCmax(2.5);
+		prefs.setWmax(Math.min(dist, 1000));
 		
 		if (requestFuture == null) {
 			RequestId reqId = new RequestId();

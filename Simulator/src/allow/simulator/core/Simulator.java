@@ -65,7 +65,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
 		System.out.println("Loading world...");
@@ -122,7 +122,7 @@ public final class Simulator {
 		Weather weather = new Weather(config.getWeatherPath(), time);
 		
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
-				bikeRentalPlanner, new FlexiBusPlanner());
+				bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 		
 		// Create global context from world, time, planner and data services, and weather.
 		context = new Context(world, new EntityManager(), time, planner, 

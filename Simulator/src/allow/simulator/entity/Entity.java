@@ -2,8 +2,6 @@ package allow.simulator.entity;
 
 import java.util.Observable;
 
-import allow.simulator.adaptation.IEnsembleParticipant;
-import allow.simulator.adaptation.Issue;
 import allow.simulator.core.Context;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
@@ -19,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class Entity extends Observable implements IEnsembleParticipant {
+public abstract class Entity extends Observable {
 	// Id of the entity.
 	protected final long id;
 	
@@ -46,9 +44,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	@JsonIgnore
 	protected Coordinate position;
 	
-	@JsonIgnore
-	protected Issue currentIssue;
-	
 	/**
 	 * Creates a new entity with in a given simulation context. Knowledge and
 	 * relations are newly initialized.
@@ -68,7 +63,6 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 		this.context = context;
 		flow = new Flow();
 		setPosition(position);
-		currentIssue = Issue.NONE;
 	}
 
 	/**
@@ -190,24 +184,13 @@ public abstract class Entity extends Observable implements IEnsembleParticipant 
 	 * @return Type of executed activity 
 	 */
 	public Activity execute() {
-		if (flow.isIdle()) {
+		
+		if (flow.isIdle())
 			return null;
-		}
+		
 		Activity executedActivity = flow.getCurrentActivity();
 		flow.executeActivity(context.getTime().getDeltaT());
 		return executedActivity;
-	}
-	
-	public Issue getTriggeredIssue() {
-		return currentIssue;
-	}
-	
-	public void triggerIssue(Issue issue) {
-		currentIssue = issue;
-	}
-	
-	public long getParticipantId() {
-		return id;
 	}
 	
 	/**

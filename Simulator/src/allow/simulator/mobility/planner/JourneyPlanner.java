@@ -93,6 +93,6 @@ public final class JourneyPlanner {
 	}
 	
 	private void initialize() {
-		service = Executors.newFixedThreadPool(32);
+		service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 }

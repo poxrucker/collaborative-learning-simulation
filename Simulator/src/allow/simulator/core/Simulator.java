@@ -12,10 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import allow.simulator.adaptation.AdaptationManager;
-import allow.simulator.adaptation.CollectiveAdaptation;
-import allow.simulator.adaptation.IAdaptationStrategy;
-import allow.simulator.adaptation.SelfishAdaptation;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
@@ -128,24 +124,8 @@ public final class Simulator {
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
 				bikeRentalPlanner, new FlexiBusPlanner());
 		
-		// Create adaptation manager
-		IAdaptationStrategy adaptationStrategy = null;
-		
-		switch (params.AdaptationStrategy) {
-		case "selfish":
-			adaptationStrategy = new SelfishAdaptation(planner);
-			break;
-		case "collective":
-			adaptationStrategy = new CollectiveAdaptation();
-			break;
-			
-			default:
-				throw new IllegalArgumentException("Error: Unsupported adaptation strategy " + params.AdaptationStrategy);
-		}
-		AdaptationManager manager = new AdaptationManager(adaptationStrategy);
-		
 		// Create global context from world, time, planner and data services, and weather.
-		context = new Context(world, new EntityManager(), manager, time, planner, 
+		context = new Context(world, new EntityManager(), time, planner, 
 				dataServices.get(0), weather, new Statistics(400), params);
 		
 		// Setup entities.
@@ -220,9 +200,6 @@ public final class Simulator {
 				&& context.getTime().getCurrentTime().getSecond() == 0) {
 			context.getStatistics().reset();
 		}
-		
-		// Run adaptations
-		context.getAdaptationManager().runAdaptations();
 		
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();

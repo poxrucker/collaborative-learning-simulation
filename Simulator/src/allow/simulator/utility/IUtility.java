@@ -7,7 +7,7 @@ package allow.simulator.utility;
  *
  * @param <V>
  */
-public interface IUtility<V, E extends Weights> {
+public interface IUtility<V, E> {
 
 	/**
 	 * Computes a utility value from a given generic input.

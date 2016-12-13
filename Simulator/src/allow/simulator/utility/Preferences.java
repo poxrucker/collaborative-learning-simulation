@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class Preferences extends Weights {
+public final class Preferences {
 	// Weight for travel time
 	private double ttweight;
 	
@@ -33,19 +33,7 @@ public final class Preferences extends Weights {
 	private double carPreference;
 	
 	@JsonIgnore
-	private int nBusPreferenceChanges;
-	
-	@JsonIgnore
-	private int nCarPreferenceChanges; 
-	
-	@JsonIgnore
 	private double lastExperiencedBusFillingLevel;
-	
-	@JsonIgnore
-	private double busPenalty;
-	
-	@JsonIgnore
-	private double carPenalty;
 	
 	@JsonCreator
 	public Preferences(@JsonProperty("ttweight") double ttw, 
@@ -66,8 +54,6 @@ public final class Preferences extends Weights {
 		this.wmax = wmax;
 		busPreference = pBus;
 		carPreference = pCar;
-		nBusPreferenceChanges = 0;
-		nCarPreferenceChanges = 0;
 	}
 	
 	public Preferences() {
@@ -79,16 +65,8 @@ public final class Preferences extends Weights {
 		tmax = 0;
 		cmax = 0;
 		wmax = 0;
-		
-		/*if (cweight > ttweight) {
-			busPreference = ThreadLocalRandom.current().nextDouble(0.5, 1.0);
-			carPreference = 1.0 - busPreference;
-		} else {*/
-			carPreference = ThreadLocalRandom.current().nextDouble(0, 0.7);
-			busPreference = 1.0 - carPreference;
-		//}
-		nBusPreferenceChanges = 0;
-		nCarPreferenceChanges = 0;
+		carPreference = ThreadLocalRandom.current().nextDouble(0, 0.7);
+		busPreference = 1.0 - carPreference;
 	}
 	
 	private static double[] createNormVec() {
@@ -165,21 +143,10 @@ public final class Preferences extends Weights {
 	public double getCarPreference() {
 		return carPreference;
 	}
-
-	@JsonIgnore
-	public int getNBusPreferenceChanges() {
-		return nBusPreferenceChanges;
-	}
-	
-	@JsonIgnore
-	public int getNCarPreferenceChanges() {
-		return nCarPreferenceChanges;
-	}
 	
 	public void setBusPreference(double newPreference) {
 		busPreference = Math.max(Math.min(1, newPreference), 0);
 		carPreference = 1.0 - busPreference;
-		nBusPreferenceChanges++;
 	}
 	
 	public void adjustBusPreference(double newPreference) {
@@ -190,7 +157,6 @@ public final class Preferences extends Weights {
 	public void setCarPreference(double newPreference) {
 		carPreference = Math.max(Math.min(1, newPreference), 0);
 		busPreference = 1.0 - carPreference;
-		nCarPreferenceChanges++;
 	}
 	
 	public void adjustCarPreference(double newPreference) {

@@ -2,8 +2,8 @@ package allow.simulator.utility;
 
 import allow.simulator.mobility.planner.TType;
 
-public class ItineraryParams {
-
+public final class ItineraryParams {
+	
 	public TType type;
 	public long travelTime;
 	public double costs;

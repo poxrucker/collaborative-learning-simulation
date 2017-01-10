@@ -61,10 +61,10 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 			if (entity.getType() == EntityType.PERSON) {
 				Person person = (Person) entity;
 				
-				if (person.getFlow().getCurrentActivity().getType() != ActivityType.USE_PUBLIC_TRANSPORT) {
+				/*if (person.getFlow().getCurrentActivity().getType() != ActivityType.USE_PUBLIC_TRANSPORT) {
 					System.out.println(person);
 				}
-				UsePublicTransport activity = (UsePublicTransport) person.getFlow().getCurrentActivity();
+				UsePublicTransport activity = (UsePublicTransport) person.getFlow().getCurrentActivity();*/
 				//LocalTime departure = activity.getEarliestStartingTime().plusMinutes(2);
 				LocalTime departure = person.getContext().getTime().getCurrentTime().plusMinutes(2);
 				Coordinate start = person.getPosition();

@@ -25,7 +25,6 @@ public class Configuration {
 	
 	// Configuration of planner service
 	private final List<Service> plannerServiceConfiguration;
-	private final boolean allowParallelClientRequests;
 	
 	// Configuration of data service
 	private final List<Service> dataServiceConfiguration;
@@ -36,9 +35,12 @@ public class Configuration {
 	// Path to agent configuration file
 	private final AgentConfiguration agentConfiguration;
 	
-	// EvoKnowledge configuration information
-	private final EvoKnowledgeConfiguration evoConfiguration;
+	// EvoKnowledge DB configuration
+	private final DBConfiguration evoConfiguration;
 	
+	// Logging DB configuration
+	private final DBConfiguration loggingConfiguration;
+		
 	// Path to sampling output
 	private final String samplingPath;
 	
@@ -61,20 +63,20 @@ public class Configuration {
 	public Configuration(@JsonProperty("datapath") String dataPath,
 			@JsonProperty("startingdate") String startingDate, 
 			@JsonProperty("plannerservice") List<Service> plannerServices,
-			@JsonProperty("allowParallelClientRequests") boolean allowParallelClientRequests,
 			@JsonProperty("dataservice") List<Service> dataServices,
 			@JsonProperty("world") WorldConfiguration worldConfig,
 			@JsonProperty("agents") AgentConfiguration agentConfig,
-			@JsonProperty("evoknowledge") EvoKnowledgeConfiguration evoConfig,
-			@JsonProperty("samplingpath") String samplingPath) throws ParseException {
+			@JsonProperty("evoknowledge") DBConfiguration evoConfig,
+			@JsonProperty("samplingpath") String samplingPath,
+			@JsonProperty("loggingpath") DBConfiguration loggingConfiguration) throws ParseException {
 		this.dataPath = dataPath;
 		this.startingDate = LocalDateTime.parse(startingDate, DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm:ss", Locale.ITALY));
 		this.plannerServiceConfiguration = plannerServices;
-		this.allowParallelClientRequests = allowParallelClientRequests;
 		this.dataServiceConfiguration = dataServices;
 		this.worldConfiguration = worldConfig;
 		this.agentConfiguration = agentConfig;
 		this.evoConfiguration = evoConfig;
+		this.loggingConfiguration = loggingConfiguration;
 		this.samplingPath = samplingPath;
 	}
 	
@@ -100,8 +102,12 @@ public class Configuration {
 		return Paths.get(dataPath, agentConfiguration.getAgentConfigurationFile());
 	}
 	
-	public EvoKnowledgeConfiguration getEvoKnowledgeConfiguration() {
+	public DBConfiguration getEvoKnowledgeConfiguration() {
 		return evoConfiguration;
+	}
+	
+	public DBConfiguration getLoggingConfiguration() {
+		return loggingConfiguration;
 	}
 	
 	/**
@@ -122,17 +128,6 @@ public class Configuration {
 		return plannerServiceConfiguration;
 	}
 	
-	/**
-	 * Returns whether parallel client requests to the planner instances are
-	 * possible or not. This flag is used for backwards compatibility of old
-	 * OTP versions (< 0.11) which allow only one client to query a planner
-	 * instance at a time.
-	 * 
-	 * @return True, if parallel client requests are possible, false otherwise.
-	 */
-	public boolean allowParallelClientRequests() {
-		return allowParallelClientRequests;
-	}
 	
 	/**
 	 * Returns the data service configuration.

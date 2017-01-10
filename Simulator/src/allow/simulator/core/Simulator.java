@@ -57,6 +57,12 @@ public final class Simulator {
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
 	
+	// Configuration
+	private Configuration config;
+	
+	// sampler insance for logging
+	private DBLogger sampler;
+	
 	public static final String OVERLAY_DISTRICTS = "partitioning";
 	public static final String OVERLAY_RASTER = "raster";
 
@@ -65,6 +71,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
+		this.config = config;
 		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
@@ -142,6 +149,13 @@ public final class Simulator {
 		
 		// Update world
 		world.update(context);
+		
+		// Create sampler
+		sampler = new DBLogger(context, params.SamplingRateInMinutes, config.getLoggingConfiguration());
+		
+		// Write agent sample
+		sampler.writePopulation();
+		sampler.writePopulationSample();
 	}
 	
 	private void loadEntitiesFromFile(Path config) throws IOException {
@@ -201,6 +215,13 @@ public final class Simulator {
 			context.getStatistics().reset();
 		}
 		
+		// Log
+		try {
+			sampler.writePopulationSample();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();
 		EvoKnowledge.cleanModel();
@@ -217,7 +238,8 @@ public final class Simulator {
 	
 	public void finish() {
 		threadpool.shutdown();
-
+		sampler.close();
+		
 		try {
 			threadpool.awaitTermination(10, TimeUnit.SECONDS);
 			

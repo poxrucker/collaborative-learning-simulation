@@ -22,7 +22,7 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.overlay.RasterOverlay;
 
-public class Sampler {
+public class Logger {
 
 	private static DateTimeFormatter format = DateTimeFormatter.ofPattern("dd_MM_yyyy");
 
@@ -30,7 +30,7 @@ public class Sampler {
 	private LocalDateTime lastWrite;
 	private int samplingRateInMinutes;
 	
-	public Sampler(Context context, int samplingRateInMinutes) {
+	public Logger(Context context, int samplingRateInMinutes) {
 		this.context = context;
 		this.samplingRateInMinutes = samplingRateInMinutes;
 	}
@@ -78,7 +78,7 @@ public class Sampler {
 		if (!first && lastWrite.until(context.getTime().getCurrentDateTime(), ChronoUnit.MINUTES) <= (samplingRateInMinutes - 1))
 			return;
 		
-		Path samplePath = path.resolve("day_" + context.getTime().getDays() + ".txt");
+		Path samplePath = path.resolve("day_" + String.format("%03d", context.getTime().getDays()) + ".txt");
 		boolean exists = Files.exists(samplePath);
 		
 		if (!exists)

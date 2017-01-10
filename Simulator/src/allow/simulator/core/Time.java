@@ -69,6 +69,12 @@ public class Time {
 		int tempYear = currentDateTime.getYear();
 		currentDateTime = currentDateTime.plusSeconds(deltaT);
 		
+		if (currentDateTime.getDayOfWeek() == DayOfWeek.SATURDAY)
+			currentDateTime = currentDateTime.plusDays(1);
+		
+		if (currentDateTime.getDayOfWeek() == DayOfWeek.SUNDAY)
+			currentDateTime = currentDateTime.plusDays(1);
+		
 		// Register changes of day.
 		if (tempDay != currentDateTime.getDayOfWeek()) {
 			days++;

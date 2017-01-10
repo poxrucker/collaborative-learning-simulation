@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.core.DBConfiguration;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
@@ -26,7 +26,7 @@ public class DBConnector {
 	
 	// Dictionary holding tables which have been 
 	private static String prefix = null;
-	private static EvoKnowledgeConfiguration config;
+	private static DBConfiguration config;
 	private static CRFKnowledgeModel model;
 	private static DBType dbType;
 	
@@ -50,16 +50,16 @@ public class DBConnector {
 			Class.forName("com.mysql.jdbc.Driver");
 			
 			// Creating database
-			con = DriverManager.getConnection(config.getModelPath(), config.getUser(), config.getPassword());
+			con = DriverManager.getConnection(config.getDBPath(), config.getUser(), config.getPassword());
 			stmt = con.createStatement();
-			stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + config.getModelName());
+			stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + config.getDBName());
 			
 			queries = stmt.executeQuery("SELECT CONCAT(\"DROP TABLE \", table_name, \";\") "
-					+ "FROM information_schema.tables WHERE table_schema = \"" + config.getModelName() + "\" "
+					+ "FROM information_schema.tables WHERE table_schema = \"" + config.getDBName() + "\" "
 					+ "AND table_name LIKE \"" + prefix + "%\";");
 
 			// Deleting previous tables
-			con2 = DriverManager.getConnection(config.getModelPath() + config.getModelName(), config.getUser(), config.getPassword());
+			con2 = DriverManager.getConnection(config.getDBPath() + config.getDBName(), config.getUser(), config.getPassword());
 			stmt2 = con2.createStatement();
 			
 			while (queries.next()) {
@@ -96,7 +96,7 @@ public class DBConnector {
 			Class.forName("org.postgresql.Driver");
 			
 			// Reset tables if they exist.
-			con = DriverManager.getConnection(config.getModelPath() + config.getModelName(), config.getUser(), config.getPassword());
+			con = DriverManager.getConnection(config.getDBPath() + config.getDBName(), config.getUser(), config.getPassword());
 			stmt = con.createStatement();
 			Collection<Entity> persons = Simulator.Instance().getContext().getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 			System.out.println(persons.size());
@@ -137,7 +137,7 @@ public class DBConnector {
 			// get connection
 			con = DSFactory.getConnection();
 			stmt = con.createStatement();
-			rs = stmt.executeQuery("SHOW TABLES FROM " + config.getModelName() + " LIKE '" + tableName + "'");
+			rs = stmt.executeQuery("SHOW TABLES FROM " + config.getDBName() + " LIKE '" + tableName + "'");
 			
 			while (rs.next()) {
 				String table = rs.getString(1);
@@ -166,11 +166,11 @@ public class DBConnector {
 	
 	private static void initDatabase() {
 		
-		if (config.getModelPath().contains("mysql")) {
+		if (config.getDBPath().contains("mysql")) {
 			dbType = DBType.MYSQL;
 			initMySQL();
 			
-		} else if (config.getModelPath().contains("postgres")) {
+		} else if (config.getDBPath().contains("postgres")) {
 			dbType = DBType.POSTGRE;
 			throw new UnsupportedOperationException("Error: Postgresql currently not supported.");
 			//initPostgre();
@@ -181,7 +181,7 @@ public class DBConnector {
 		System.out.println("EvoKnowledge database connector initialized.");
 	}
 	
-	public static void init(EvoKnowledgeConfiguration config, String knowledgeModel, String prefix) {
+	public static void init(DBConfiguration config, String knowledgeModel, String prefix) {
 		DBConnector.prefix = prefix;
 		DBConnector.config = config;
 		DSFactory.init(config);
@@ -195,7 +195,7 @@ public class DBConnector {
 			case KNOWLEDGE_MODEL_LOCAL_EXCHANGE:
 				initDatabase();
 				initaIdTableExists();
-				model = new CRFLocalKnowledge(dbType, prefix, config.getModelName());
+				model = new CRFLocalKnowledge(dbType, prefix, config.getDBName());
 				break;
 				
 			case KNOWLEDGE_MODEL_GLOBAL_TEMPORAL:
@@ -213,7 +213,7 @@ public class DBConnector {
 			case KNOWLEGDE_MODEL_REGIONAL:
 				initDatabase();
 				initaIdTableExists();
-				model = new CRFRegionalKnowledge(dbType, prefix, config.getModelName());
+				model = new CRFRegionalKnowledge(dbType, prefix, config.getDBName());
 				break;
 				
 			default:

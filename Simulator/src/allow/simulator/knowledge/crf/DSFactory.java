@@ -4,18 +4,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.core.DBConfiguration;
 
 public class DSFactory {
 
-	private static EvoKnowledgeConfiguration config = null;
+	private static DBConfiguration config = null;
 	
-	public static void init(EvoKnowledgeConfiguration config) {
+	public static void init(DBConfiguration config) {
 		DSFactory.config = config;
 	}
 	
 	public static Connection getConnection() throws SQLException {
-		Connection conn = DriverManager.getConnection(config.getModelPath() + config.getModelName() + "?allowMultiQueries=true", config.getUser(), config.getPassword());
+		Connection conn = DriverManager.getConnection(config.getDBPath() + config.getDBName() + "?allowMultiQueries=true", config.getUser(), config.getPassword());
 		return conn;
     }
 	

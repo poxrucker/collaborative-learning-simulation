@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 public final class Ensemble {
-	// Ensemble participant which created the ensemble (responsible for
+	// Ensemble participant which leads the ensemble (responsible for
 	// terminating it afterwards)
-	private IEnsembleParticipant creator;
+	private IEnsembleParticipant leader;
 	
 	// Entities participating in the ensemble including the creator
 	private Long2ObjectArrayMap<IEnsembleParticipant> participants;
@@ -18,12 +18,12 @@ public final class Ensemble {
 	 * participant set as creator which is responsible to terminate the ensemble
 	 * in the end.
 	 * 
-	 * @param creator Participant which creates the ensemble
+	 * @param leader Participant which creates the ensemble
 	 */
-	public Ensemble(IEnsembleParticipant creator) {
-		this.creator = creator;
+	public Ensemble(IEnsembleParticipant leader) {
+		this.leader = leader;
 		participants = new Long2ObjectArrayMap<IEnsembleParticipant>();
-		participants.put(creator.getParticipantId(), creator);
+		participants.put(leader.getParticipantId(), leader);
 	}
 	
 	/**
@@ -52,8 +52,8 @@ public final class Ensemble {
 	 * 
 	 * @return Participant which has created the ensemble
 	 */
-	public IEnsembleParticipant getCreator() {
-		return creator;
+	public IEnsembleParticipant getLeader() {
+		return leader;
 	}
 	
 	/**

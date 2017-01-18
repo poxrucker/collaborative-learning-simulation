@@ -12,9 +12,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityType;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PublicTransportation;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.person.PrepareJourney;
-import allow.simulator.flow.activity.person.UsePublicTransport;
 import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyPlanner;
@@ -53,7 +51,7 @@ public class SelfishAdaptation implements IAdaptationStrategy {
 
 	private void solveBusBreakdown(Ensemble ensemble) {
 		Collection<IEnsembleParticipant> temp = new ArrayList<IEnsembleParticipant>(ensemble.getEntities());
-		PublicTransportation bus = (PublicTransportation) ensemble.getCreator();
+		PublicTransportation bus = (PublicTransportation) ensemble.getLeader();
 		
 		for (IEnsembleParticipant participant : temp) {
 			Entity entity = (Entity) participant;

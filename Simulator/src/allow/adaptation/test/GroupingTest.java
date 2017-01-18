@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,8 +42,9 @@ import org.jxmapviewer.viewer.WaypointPainter;
 import allow.simulator.adaptation.AdaptationManager;
 import allow.simulator.adaptation.Ensemble;
 import allow.simulator.adaptation.Group;
-import allow.simulator.adaptation.IEnsembleParticipant;
+import allow.simulator.adaptation.IGroupingAlgorithm;
 import allow.simulator.adaptation.SelfishAdaptation;
+import allow.simulator.adaptation.SharedTaxiGrouping;
 import allow.simulator.entity.Gender;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
@@ -186,70 +187,25 @@ public class GroupingTest {
 
 		ensemble.addEntity(bus);
 
-		// FINAL MAP OF GROUPS
-
-		Map<Object, Group> finalGroups = new HashMap<Object, Group>();
-
-		// Retrieve the bus (creator) of the ensemble
-		PublicTransportation creator = (PublicTransportation) ensemble
-				.getCreator();
-
-		Coordinate busPos = creator.getPosition();
-
-		// retrieve passengers already in the bus
-
-		List<IEnsembleParticipant> personInBus = new ArrayList<IEnsembleParticipant>();
-		ensemble.getEntities()
-				.forEach(
-						(temp) -> {
-							if (temp.getClass() == allow.simulator.entity.Person.class) {
-								Person p = (allow.simulator.entity.Person) temp;
-								Coordinate cPos = p.getPosition();
-								double distanceFromCreator = ensembleManager
-										.distance(cPos.x, cPos.y, busPos.x,
-												busPos.y, "K");
-								if (distanceFromCreator == 0) {
-									personInBus.add(p);
-								}
-							}
-
-						});
-
-		Group InBus = new Group(creator, personInBus);
-
-		// retrieve entities not in the bus
-		List<IEnsembleParticipant> notAssigned = new ArrayList<IEnsembleParticipant>();
-
-		ensemble.getEntities()
-				.forEach(
-						(temp) -> {
-							if (!personInBus.contains(temp)
-									&& (temp.getClass() == allow.simulator.entity.Person.class)) {
-								notAssigned.add(temp);
-							}
-
-						});
-
-		int index = 1;
-		// add groups of person already in the bus at the final result of groups
-		finalGroups.put(index, InBus);
-
-		Map<Object, Group> Groups = ensembleManager.CreateGroups(creator,
-				ensemble, finalGroups, notAssigned, index);
-
-		System.out.println(" ######## FINAL GROUPS ######## "
-				+ finalGroups.size());
-
-		for (int i = 1; i <= finalGroups.size(); i++) {
-			System.out.println("Group " + i + ": "
-					+ finalGroups.get(i).getParticipants().toString());
-			System.out.println("- Leader: "
-					+ finalGroups.get(i).getLeader().toString());
-
+		// Build groups
+		IGroupingAlgorithm sharedtaxiGrouping = new SharedTaxiGrouping(5);
+		Collection<Group> groups = sharedtaxiGrouping.formGroups(ensemble);
+		
+		System.out.println(" ######## FINAL GROUPS ######## " + groups.size());
+		int j = 1;
+		
+		for (Group g : groups) {
+			System.out.println("Group " + j + ": " + g.getParticipants().toString());
+			System.out.println("- Leader: " + g.getLeader().toString());
 		}
 
-		// take a group as an example
-		Group g = finalGroups.get(2);
+		// Take a group as an example
+		if (groups.size() == 0)
+			return;
+		
+		Group temp[] = groups.toArray(new Group[groups.size()]);
+		Group g = temp[ThreadLocalRandom.current().nextInt(temp.length)];
+		
 		// PublicTransportation leader =
 		// (allow.simulator.entity.PublicTransportation) g
 		// .getLeader();

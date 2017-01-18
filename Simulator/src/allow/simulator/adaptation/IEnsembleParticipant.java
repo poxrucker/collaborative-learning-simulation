@@ -1,5 +1,6 @@
 package allow.simulator.adaptation;
 
+
 public interface IEnsembleParticipant {
 
 	long getParticipantId();
@@ -7,5 +8,5 @@ public interface IEnsembleParticipant {
 	Issue getTriggeredIssue();
 	
 	void triggerIssue(Issue issue);
-	
+		
 }

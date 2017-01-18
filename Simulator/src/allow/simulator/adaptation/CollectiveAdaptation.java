@@ -1,39 +1,131 @@
 package allow.simulator.adaptation;
 
-import java.io.FileNotFoundException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-import allow.adaptation.DemoManagementSystem;
 import allow.adaptation.EnsembleManager;
 import allow.adaptation.ExperimentResult;
 import allow.adaptation.ExperimentRunner;
 import allow.adaptation.RoleManager;
 import allow.adaptation.Treatment;
-import allow.adaptation.Utilities;
-import allow.adaptation.api.CollectiveAdaptationEnsemble;
 import allow.adaptation.api.CollectiveAdaptationProblem;
-import allow.adaptation.api.CollectiveAdaptationRole;
 import allow.adaptation.api.RoleCommand;
 import allow.adaptation.presentation.CAWindow;
 import allow.simulator.entity.Gender;
+import allow.simulator.entity.Person;
 import allow.simulator.entity.Profile;
+import allow.simulator.entity.PublicTransportation;
+import allow.simulator.flow.activity.person.CorrectPosition;
+import allow.simulator.flow.activity.person.PrepareJourney;
+import allow.simulator.mobility.data.TType;
 import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.mobility.planner.JourneyRequest;
+import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.util.Coordinate;
 
 public class CollectiveAdaptation implements IAdaptationStrategy {
 	
+	private IGroupingAlgorithm sharedtaxiGrouping;
+
+	public CollectiveAdaptation() {
+		sharedtaxiGrouping = new SharedTaxiGrouping(250);
+	}
+	
 	@Override
 	public void solveAdaptation(Issue issue, Ensemble ensemble) {
-
 		String issueType = issue.toString();
+		String entityType = ensemble.getLeader().toString();
 
-		String entityType = ensemble.getCreator().toString();
+		if (ensemble.getEntities().size() <= 1)
+			return;
+		
+		Collection<Group> adaptationGroups = sharedtaxiGrouping.formGroups(ensemble);
+		List<Coordinate> from = new ArrayList<Coordinate>();
+		List<Coordinate> to = new ArrayList<Coordinate>();
+		PublicTransportation leader = (PublicTransportation)ensemble.getLeader();
+		
+		for (Group group : adaptationGroups) {
+			// Group leader position
+			Person groupLeader = (Person)group.getLeader();
+			
+			JourneyRequest req;
+			RequestId reqId = new RequestId();
+			LocalDateTime departure = groupLeader.getContext().getTime().getCurrentDateTime();
+			
+			if (group.getParticipants().size() == 1) {
+				
+				req = JourneyRequest.createRequest(groupLeader.getPosition(), groupLeader.getCurrentItinerary().to, departure, false, new TType[] { TType.TAXI }, reqId);
 
+			} else {
+				// Create a request to shred taxi planner for each group
+				for (IEnsembleParticipant p : group.getParticipants()) {
+					from.add(((Person)p).getPosition());
+					to.add(((Person)p).getCurrentItinerary().to);
+				}
+				req = JourneyRequest.createSharedRequest(groupLeader.getPosition(), from, to, departure, false, new TType[] { TType.SHARED_TAXI }, reqId);
+
+			}
+			List<JourneyRequest> reqs = new ArrayList<JourneyRequest>(1);
+			reqs.add(req);
+			Future<List<Itinerary>> fut = groupLeader.getContext().getJourneyPlanner().requestSingleJourney(reqs, new ArrayList<Itinerary>());
+			
+			try {
+				List<Itinerary> it = fut.get();
+				
+				if (group.getParticipants().size() == 1) {
+					groupLeader.getFlow().clear();
+					leader.removePassenger(groupLeader);
+					ensemble.removeEntity(groupLeader);
+					
+					if (it.size() > 0)
+						groupLeader.getFlow().addActivity(new PrepareJourney(groupLeader, it.get(0)));
+					else {
+						groupLeader.getFlow().addActivity(new CorrectPosition(groupLeader, groupLeader.getCurrentItinerary().to));
+						groupLeader.setCurrentItinerary(null);
+					}
+					
+				} else {
+					
+					for (int i = 0; i < group.participants.size(); i++) {
+						Person p = (Person) group.participants.get(i);
+						p.getFlow().clear();
+						leader.removePassenger(p);
+						ensemble.removeEntity(group.participants.get(i));
+						
+						if (it.size() > 0)
+							p.getFlow().addActivity(new PrepareJourney(p, it.get(0).subItineraries.get(i)));
+						else {
+							p.getFlow().addActivity(new CorrectPosition(p, p.getCurrentItinerary().to));
+							p.setCurrentItinerary(null);
+						}
+					}
+				}
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			} 
+			from.clear();
+			to.clear();
+		}
+		//IEnsembleParticipant leader = ensemble.getCreator();
+		
+		//List<Group> groups = Group.createGrouping(ensemble);
+		
+		//for (Group g : groups) {
+		//	System.out.println(g);
+		//}
+		
+		
 		// BusRoute
 
-		List<CollectiveAdaptationRole> rolesRouteA = new ArrayList<CollectiveAdaptationRole>();
+		/*List<CollectiveAdaptationRole> rolesRouteA = new ArrayList<CollectiveAdaptationRole>();
 
 		CollectiveAdaptationRole p1 = new CollectiveAdaptationRole();
 		p1.setRole("RoutePassenger_33");
@@ -155,7 +247,7 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		 * ensemblesCAP.add(new CollectiveAdaptationEnsemble("CPCompany",
 		 * rolesCPCompany)); ensemblesCAP.add(new
 		 * CollectiveAdaptationEnsemble("UMS", rolesUMS));
-		 */
+		 
 		CollectiveAdaptationProblem cap = new CollectiveAdaptationProblem(
 				"CAP_1", ensemblesCAP, null, null, ensemblesCAP.get(0)
 						.getEnsembleName(), null);
@@ -199,14 +291,14 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 		 * // Ensemble Creation - Instance of Ensemble 7
 		 * allow.adaptation.ensemble.Ensemble e7 = dms.getEnsemble("UMS", cap);
 		 * EnsembleManager e7Manager = new EnsembleManager(e7);
-		 */
+		 
 		List<EnsembleManager> ensembles = new ArrayList<EnsembleManager>();
 		ensembles.add(e1Manager);
 		/*
 		 * ensembles.add(e2Manager); ensembles.add(e3Manager);
 		 * ensembles.add(e4Manager); ensembles.add(e5Manager);
 		 * ensembles.add(e6Manager); ensembles.add(e7Manager);
-		 */
+		 
 		Utilities.buildSolversMapMobility(ensembles);
 
 		System.gc();
@@ -246,7 +338,7 @@ public class CollectiveAdaptation implements IAdaptationStrategy {
 
 		// Utilities.genericWriteFile(treatments, "treatmentsMobility.csv");
 		System.out.println("END SIMULATION");
-		System.exit(1);
+		System.exit(1);*/
 
 	}
 

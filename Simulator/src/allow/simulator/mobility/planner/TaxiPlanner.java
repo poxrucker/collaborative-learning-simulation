@@ -184,7 +184,7 @@ public final class TaxiPlanner implements IPlannerService {
 
 				for (Leg l : walkingLegs) {
 					
-					if (l.to.equals(currentStart))
+					if (l.from.equals(currentStart))
 						walkingLeg = l;
 				}
 				Itinerary subIt = new Itinerary();
@@ -417,7 +417,7 @@ public final class TaxiPlanner implements IPlannerService {
 	private Leg createLeg(Coordinate from, Coordinate to, TType type, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
 		LocalTime t = req2.ArrivalTime != null ? req2.ArrivalTime : req2.DepartureTime;
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, t), false, new TType[] { TType.CAR }, reqId);
+		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, t), false, new TType[] { type }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;

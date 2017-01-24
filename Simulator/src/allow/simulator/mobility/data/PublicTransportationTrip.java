@@ -24,7 +24,7 @@ public final class PublicTransportationTrip extends Trip {
 		 */
 		public PublicTransportationTrip(String tripId, LocalDate starting, LocalDate ending,
 				List<GTFSServiceException> exceptions, 
-				List<PublicTransportationStop> stops,
+				List<BusStop> stops,
 				List<LocalTime> stopTimes,
 				List<List<Street>> trace) {
 			super(tripId, new ArrayList<Stop>(stops), stopTimes, trace);
@@ -33,11 +33,11 @@ public final class PublicTransportationTrip extends Trip {
 			this.exceptions = exceptions;
 		}
 		
-		public List<PublicTransportationStop> getStops() {
-			List<PublicTransportationStop> ret = new ArrayList<PublicTransportationStop>(stops.size());
+		public List<BusStop> getStops() {
+			List<BusStop> ret = new ArrayList<BusStop>(stops.size());
 			
 			for (Stop s : stops) {
-				ret.add((PublicTransportationStop) s);
+				ret.add((BusStop) s);
 			}
 			return ret;
 		}

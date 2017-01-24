@@ -2,8 +2,8 @@ package allow.simulator.flow.activity.transportagency;
 
 import java.util.List;
 
-import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.PublicTransportationAgency;
+import allow.simulator.entity.Bus;
+import allow.simulator.entity.BusAgency;
 import allow.simulator.entity.TransportationAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
@@ -19,7 +19,7 @@ public class StartNextTrips extends Activity {
 	@Override
 	public double execute(double deltaT) {
 		// Agency entity.
-		PublicTransportationAgency agency = (PublicTransportationAgency) entity;
+		BusAgency agency = (BusAgency) entity;
 		
 		// Get next trips from agency.
 		List<PublicTransportationTrip> nextTrips = agency.getTripsToSchedule(agency.getContext().getTime().getCurrentDateTime());
@@ -27,7 +27,7 @@ public class StartNextTrips extends Activity {
 		// Schedule a new bus for each trip.
 		for (PublicTransportationTrip t : nextTrips) {
 			// Get next free transportation vehicle.
-			PublicTransportation b = agency.scheduleTrip(t);
+			Bus b = agency.scheduleTrip(t);
 
 			// Assign new trip to vehicle.
 			b.getFlow().addActivity(new PrepareTrip(b, t));

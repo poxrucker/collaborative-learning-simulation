@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Pair;
@@ -67,7 +67,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		if (entity instanceof Person) {
 			handlerChain = ExchangeHandler.StandardPersonChain;
 			
-		} else if (entity instanceof PublicTransportation) {
+		} else if (entity instanceof Bus) {
 			handlerChain = ExchangeHandler.StandardBusChain;
 		}
 		travelExperienceBuffer = new ArrayList<TravelExperience>();

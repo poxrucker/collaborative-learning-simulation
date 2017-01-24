@@ -3,7 +3,7 @@ package allow.simulator.mobility.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.entity.TransportationEntity;
 import allow.simulator.util.Coordinate;
 
@@ -13,18 +13,18 @@ import allow.simulator.util.Coordinate;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class PublicTransportationStop extends Stop {
+public class BusStop extends Stop {
 	// Name of stop
 	private String name;
 	
 	/** 
-	 * Creates new instance of a public transportation stop.
+	 * Creates new instance of a bus stop.
 	 * 
 	 * @param name Name of the stop
 	 * @param stopId Id of the stop
 	 * @param position Position of the stop
 	 */
-	public PublicTransportationStop(String name, String stopId, Coordinate position) {
+	public BusStop(String name, String stopId, Coordinate position) {
 		super(stopId, position);
 		this.name = name;
 	}
@@ -43,7 +43,7 @@ public class PublicTransportationStop extends Stop {
 	 * 
 	 * @return True if there is a waiting public transportation entity, false otherwise.
 	 */
-	public boolean hasWaitingPublicTransportationEntities() {
+	public boolean hasWaitingBusses() {
 		return !transportationEntities.isEmpty();
 	}
 	
@@ -52,11 +52,11 @@ public class PublicTransportationStop extends Stop {
 	 * 
 	 * @return Waiting public transportation entity
 	 */
-	public List<PublicTransportation> getPublicTransportationEntities() {
-		List<PublicTransportation> ret = new ArrayList<PublicTransportation>(transportationEntities.size());
+	public List<Bus> getPublicTransportationEntities() {
+		List<Bus> ret = new ArrayList<Bus>(transportationEntities.size());
 		
 		for (TransportationEntity transportation : transportationEntities) {
-			ret.add((PublicTransportation) transportation);
+			ret.add((Bus) transportation);
 		}
 		return ret;
 	}
@@ -66,7 +66,7 @@ public class PublicTransportationStop extends Stop {
 	 * 
 	 * @param b Public transportation entity to be added to this stop.
 	 */
-	public void addPublicTransportation(PublicTransportation b) {
+	public void addPublicTransportation(Bus b) {
 		transportationEntities.add(b);
 	}
 	
@@ -75,7 +75,7 @@ public class PublicTransportationStop extends Stop {
 	 * 
 	 * @param b Public transportation entity to remove from this stop.
 	 */
-	public void removePublicTransportation(PublicTransportation b) {
+	public void removePublicTransportation(Bus b) {
 		transportationEntities.remove(b);
 	}
 	

@@ -3,7 +3,7 @@ package allow.simulator.flow.activity.publictransportation;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
@@ -25,7 +25,7 @@ public class DriveToNextStop extends MovementActivity {
 
 	private double fillingLevel;
 	
-	public DriveToNextStop(PublicTransportation entity, List<Street> path) {
+	public DriveToNextStop(Bus entity, List<Street> path) {
 		// Constructor of super class.
 		super(ActivityType.DRIVE_TO_NEXT_STOP, entity, path);
 		
@@ -44,12 +44,12 @@ public class DriveToNextStop extends MovementActivity {
 		// Note tStart.
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
-			PublicTransportation t = (PublicTransportation) entity;
+			Bus t = (Bus) entity;
 			fillingLevel = ((double) t.getPassengers().size()) / t.getCapacity();
 		}
 				
 		// Transportation entity.
-		PublicTransportation p = (PublicTransportation) entity;
+		Bus p = (Bus) entity;
 				
 		// Register relations update.
 		//p.getRelations().addToUpdate(Relation.Type.BUS);		
@@ -124,7 +124,7 @@ public class DriveToNextStop extends MovementActivity {
 							tEnd,
 							s.getNumberOfVehicles(),
 							fillingLevel,
-							((PublicTransportation) entity).getCurrentTrip().getTripId(),
+							((Bus) entity).getCurrentTrip().getTripId(),
 							entity.getContext().getWeather().getCurrentState());
 					experiences.add(newEx);
 					streetTravelTime = 0.0;

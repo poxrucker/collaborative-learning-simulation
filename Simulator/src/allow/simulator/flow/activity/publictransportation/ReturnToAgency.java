@@ -1,7 +1,7 @@
 package allow.simulator.flow.activity.publictransportation;
 
 import allow.simulator.entity.Person;
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
@@ -13,7 +13,7 @@ import allow.simulator.flow.activity.ActivityType;
  */
 public class ReturnToAgency extends Activity {
 		
-	public ReturnToAgency(PublicTransportation entity) {
+	public ReturnToAgency(Bus entity) {
 		// Constructor of super class.
 		super(ActivityType.RETURN_TO_AGENCY, entity);
 	}
@@ -26,7 +26,7 @@ public class ReturnToAgency extends Activity {
 		}
 				
 		// Transportation entity.
-		PublicTransportation p = (PublicTransportation) entity;
+		Bus p = (Bus) entity;
 				
 		// Register relations update.
 		// p.getRelations().addToUpdate(Relation.Type.BUS);

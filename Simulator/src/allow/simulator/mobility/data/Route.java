@@ -21,7 +21,7 @@ public class Route {
 	private String routeId;
 	
 	// Stops of this route.
-	private Map<String, PublicTransportationStop> stops;
+	private Map<String, BusStop> stops;
 	
 	// Trips of this route ordered chronological by day.
 	private List<List<PublicTransportationTrip>> trips;
@@ -37,7 +37,7 @@ public class Route {
 	 * @param routeId Id of this route.
 	 * @param timeTable Time table of this route.
 	 */
-	public Route(String routeId, TimeTable timeTable, Map<String, PublicTransportationStop> stops) {
+	public Route(String routeId, TimeTable timeTable, Map<String, BusStop> stops) {
 		this.routeId = routeId;
 		this.stops = stops;
 		timeTableToTrips(timeTable);
@@ -64,7 +64,7 @@ public class Route {
 
 				// Allocate lists for times and stops and copy them.
 				List<LocalTime> tripTimes = new ArrayList<LocalTime>(info.getStopIds().length);
-				List<PublicTransportationStop> tripStops = new ArrayList<PublicTransportationStop>(info.getStopIds().length);
+				List<BusStop> tripStops = new ArrayList<BusStop>(info.getStopIds().length);
 				
 				for (int k = 0; k < info.getStopIds().length; k++) {
 					tripStops.add(stops.get(info.getStopIds()[k]));
@@ -75,8 +75,8 @@ public class Route {
 				List<List<Street>> traces = new ArrayList<List<Street>>(tripStops.size() - 1);
 
 				for (int l = 0; l < tripStops.size() - 1; l++) {
-					PublicTransportationStop curr = tripStops.get(l);
-					PublicTransportationStop next = tripStops.get(l + 1);
+					BusStop curr = tripStops.get(l);
+					BusStop next = tripStops.get(l + 1);
 					List<Street> routing = service.getBusstopRoutingStreet(curr.getStopId(), next.getStopId());
 					
 					if (routing == null) routing = new ArrayList<Street>(0);
@@ -146,7 +146,7 @@ public class Route {
 		return tripsToReturn;
 	}
 	
-	public PublicTransportationStop getStop(String stopId) {
+	public BusStop getStop(String stopId) {
 		return stops.get(stopId);
 	}
 	

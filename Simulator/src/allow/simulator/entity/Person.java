@@ -56,6 +56,7 @@ public final class Person extends Entity {
 	private boolean hasBike;
 	
 	// True, if person will send requests to the FlexiBus planner, false otherwise.
+	@JsonIgnore
 	private boolean useFlexiBus;
 	
 	// Daily routine of this person, i.e. set of travelling events which are
@@ -112,7 +113,7 @@ public final class Person extends Entity {
 			boolean useFlexiBus,
 			DailyRoutine dailyRoutine,
 			Context context) {
-		super(id, EntityTypes.PERSON, context);
+		super(id, context);
 		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = profile;
@@ -155,13 +156,12 @@ public final class Person extends Entity {
 			@JsonProperty("hasBike") boolean hasBike,
 			@JsonProperty("useFlexiBus") boolean useFlexiBus,
 			@JsonProperty("dailyRoutine") DailyRoutine dailyRoutine) {
-		super(id, EntityTypes.PERSON);
+		super(id);
 		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = role;
 		this.hasCar = hasCar;
 		this.hasBike = hasBike;
-		this.useFlexiBus = useFlexiBus;
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
@@ -397,5 +397,10 @@ public final class Person extends Entity {
 	@Override
 	public boolean isActive() {
 		return (flow.getCurrentActivity() != null);
+	}
+
+	@Override
+	public String getType() {
+		return EntityTypes.PERSON;
 	}
 }

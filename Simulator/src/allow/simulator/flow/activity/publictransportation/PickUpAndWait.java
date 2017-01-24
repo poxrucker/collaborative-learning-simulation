@@ -4,10 +4,10 @@ import java.time.Duration;
 import java.time.LocalTime;
 
 import allow.simulator.core.Time;
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.PublicTransportationStop;
+import allow.simulator.mobility.data.BusStop;
 
 /**
  * Represents an activity for a means of public transportation to approach a
@@ -18,7 +18,7 @@ import allow.simulator.mobility.data.PublicTransportationStop;
  */
 public class PickUpAndWait extends Activity {
 	// Stop to approach.
-	private PublicTransportationStop stop;
+	private BusStop stop;
 	
 	// Time stop trip departs from this stop.
 	private LocalTime time;
@@ -36,7 +36,7 @@ public class PickUpAndWait extends Activity {
 	 * @param stop Stop to approach.
 	 * @param time Time to depart form the stop.
 	 */
-	public PickUpAndWait(PublicTransportation entity, PublicTransportationStop stop, LocalTime time) {
+	public PickUpAndWait(Bus entity, BusStop stop, LocalTime time) {
 		// Constructor of super class.
 		super(ActivityType.PICKUP_AND_WAIT, entity);
 		
@@ -52,7 +52,7 @@ public class PickUpAndWait extends Activity {
 	@Override
 	public double execute(double deltaT) {	
 		// Bus entity
-		PublicTransportation p = (PublicTransportation) entity;
+		Bus p = (Bus) entity;
 		
 		// Register relations update.
 		// p.getRelations().addToUpdate(Relation.Type.BUS);

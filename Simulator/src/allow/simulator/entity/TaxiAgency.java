@@ -21,7 +21,7 @@ public final class TaxiAgency extends TransportationAgency {
 	private final Map<String, TaxiStop> taxiStops;
 	
 	public TaxiAgency(long id, Context context, String agencyId) {
-		super(id, EntityTypes.TAXI_AGENCY, context, agencyId);
+		super(id, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		currentTrips = new HashMap<String, TaxiTrip>();
 		currentlyUsedVehicles = new HashMap<String, Taxi>();
@@ -97,5 +97,8 @@ public final class TaxiAgency extends TransportationAgency {
 		return "[Taxi" + id + "]";
 	}
 
-	
+	@Override
+	public String getType() {
+		return EntityTypes.TAXI_AGENCY;
+	}
 }

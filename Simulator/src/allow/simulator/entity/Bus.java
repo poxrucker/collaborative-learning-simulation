@@ -1,16 +1,16 @@
 package allow.simulator.entity;
 
 import allow.simulator.core.Context;
-import allow.simulator.mobility.data.PublicTransportationStop;
+import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.Trip;
 
 /**
- * Represents a bus entity which is a subtype of a transportation entity.
+ * Represents a bus entity which is a subtype of a TransportationEntity.
  * 
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class PublicTransportation extends TransportationEntity {
+public final class Bus extends TransportationEntity {
 	/**
 	 * Creates new instance of a public transportation mean.
 	 * 
@@ -19,8 +19,8 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @param context Context of the transportation mean.
 	 * @param capacity Capacity of the transportation mean.
 	 */
-	public PublicTransportation(long id, Context context, PublicTransportationAgency agency, int capacity) {
-		super(id, EntityTypes.BUS, context, agency, capacity);
+	public Bus(long id, Context context, BusAgency agency, int capacity) {
+		super(id, context, agency, capacity);
 	}
 	
 	/**
@@ -29,8 +29,8 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @return Stop the public transportation entity is currently waiting at or null, 
 	 * if entity is inactive or moving.
 	 */
-	public PublicTransportationStop getCurrentStop() {
-		return (PublicTransportationStop) currentStop;
+	public BusStop getCurrentStop() {
+		return (BusStop) currentStop;
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public final class PublicTransportation extends TransportationEntity {
 	 * @param s Stop the public transportation entity is waiting at. Can be null to
 	 * indicate that the public transportation entity is inactive or driving.
 	 */
-	public void setCurrentStop(PublicTransportationStop s) {
+	public void setCurrentStop(BusStop s) {
 		currentStop = s;
 	}
 	
@@ -67,12 +67,17 @@ public final class PublicTransportation extends TransportationEntity {
 	 * 
 	 * @return Agency the public transportation entity is used by.
 	 */
-	public PublicTransportationAgency getTransportationAgency() {
-		return (PublicTransportationAgency) agency;
+	public BusAgency getTransportationAgency() {
+		return (BusAgency) agency;
 	}
 
 	@Override
 	public String toString() {
 		return "[PublicTransportation" + id + "]";
+	}
+
+	@Override
+	public String getType() {
+		return EntityTypes.BUS;
 	}
 }

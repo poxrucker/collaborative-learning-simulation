@@ -4,11 +4,11 @@ import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
 
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.Learn;
-import allow.simulator.mobility.data.PublicTransportationStop;
+import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 import allow.simulator.world.Street;
 
@@ -31,7 +31,7 @@ public class PrepareTrip extends Activity {
 	 * @param entity Public transportation entity to execute the trip.
 	 * @param trip Trip to execute.
 	 */
-	public PrepareTrip(PublicTransportation entity, PublicTransportationTrip trip) {
+	public PrepareTrip(Bus entity, PublicTransportationTrip trip) {
 		super(ActivityType.PREPARE_TRIP, entity);
 		this.trip = trip;
 	}
@@ -45,10 +45,10 @@ public class PrepareTrip extends Activity {
 	@Override
 	public double execute(double deltaT) {
 		// Get entity.
-		PublicTransportation p = (PublicTransportation) entity;
+		Bus p = (Bus) entity;
 		
 		// Check trip.
-		List<PublicTransportationStop> tripStops = trip.getStops();
+		List<BusStop> tripStops = trip.getStops();
 		List<LocalTime> tripStopTimes = trip.getStopTimes();
 		
 		if ((tripStops.size() != tripStopTimes.size()) || tripStops.size() == 0
@@ -60,7 +60,7 @@ public class PrepareTrip extends Activity {
 		}
 		// Prepare trip by creating a PickUpAndWait activity for each stop and
 		// a DriveToNextStop for each trace, and finally set transport trip.
-		Iterator<PublicTransportationStop> stopIterator = trip.getStops().iterator();
+		Iterator<BusStop> stopIterator = trip.getStops().iterator();
 		Iterator<LocalTime> timesIterator = trip.getStopTimes().iterator();
 		Iterator<List<Street>> tracesIterator = trip.getTraces().iterator();
 

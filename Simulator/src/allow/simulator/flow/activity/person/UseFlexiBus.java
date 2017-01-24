@@ -3,25 +3,25 @@ package allow.simulator.flow.activity.person;
 import java.time.LocalTime;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.PublicTransportation;
+import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.PublicTransportationStop;
+import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.Trip;
 
 public class UseFlexiBus extends Activity {
 	// The stops to get in and out.
-	private PublicTransportationStop in;
-	private PublicTransportationStop out;
+	private BusStop in;
+	private BusStop out;
 	private Trip trip;
 		
 	// The bus a person entered.
-	private PublicTransportation b;
+	private Bus b;
 		
 	// Earliest starting time of the activity.
 	private LocalTime earliestStartingTime;
 		
-	public UseFlexiBus(Entity entity, PublicTransportationStop start, PublicTransportationStop dest, Trip trip, LocalTime departure) {
+	public UseFlexiBus(Entity entity, BusStop start, BusStop dest, Trip trip, LocalTime departure) {
 		super(ActivityType.USE_FLEXIBUS, entity);
 		this.in = start;
 		this.out = dest;

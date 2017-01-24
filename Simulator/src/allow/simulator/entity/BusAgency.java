@@ -12,7 +12,7 @@ import allow.simulator.mobility.data.PublicTransportationTrip;
 import allow.simulator.mobility.data.Route;
 import allow.simulator.mobility.data.Trip;
 
-public final class PublicTransportationAgency extends TransportationAgency {
+public final class BusAgency extends TransportationAgency {
 	// Routes managed by this public transportation agency
 	private final Map<String, Route> routes;
 		
@@ -22,8 +22,8 @@ public final class PublicTransportationAgency extends TransportationAgency {
 	// "Live" information about current trips and vehicles executing trips
 	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
 	
-	public PublicTransportationAgency(long id, Context context, String agencyId) {
-		super(id, EntityTypes.PUBLIC_TRANSPORT_AGENCY, context, agencyId);
+	public BusAgency(long id, Context context, String agencyId) {
+		super(id, context, agencyId);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();
 		
@@ -46,7 +46,7 @@ public final class PublicTransportationAgency extends TransportationAgency {
 	 * 
 	 * @param transportation Public transportation entity to be added to the agency
 	 */
-	public void addPublicTransportation(PublicTransportation transportation) {
+	public void addPublicTransportation(Bus transportation) {
 		vehicles.add(transportation);
 	}
 	
@@ -77,9 +77,9 @@ public final class PublicTransportationAgency extends TransportationAgency {
 		return nextTrips;
 	}
 	
-	public PublicTransportation scheduleTrip(Trip trip) {
+	public Bus scheduleTrip(Trip trip) {
 		// Poll next free transportation entity
-		PublicTransportation transportationEntity = (PublicTransportation) vehicles.poll();
+		Bus transportationEntity = (Bus) vehicles.poll();
 		
 		if (transportationEntity == null)
 			throw new IllegalStateException("Error: No vehicle left to schedule trip " + trip.getTripId());
@@ -92,13 +92,18 @@ public final class PublicTransportationAgency extends TransportationAgency {
 		vehicles.add(vehicle);
 	}
 	
-	public PublicTransportation getVehicleOfTrip(String tripId) {
-		return (PublicTransportation) currentlyUsedVehicles.get(tripId);
+	public Bus getVehicleOfTrip(String tripId) {
+		return (Bus) currentlyUsedVehicles.get(tripId);
 	}
 	
 	@Override
 	public String toString() {
 		return "[PublicTransportationAgency" + id + "]";
+	}
+
+	@Override
+	public String getType() {
+		return EntityTypes.PUBLIC_TRANSPORT_AGENCY;
 	}
 	
 }

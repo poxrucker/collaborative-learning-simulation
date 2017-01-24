@@ -52,6 +52,6 @@ public class TaxiStop extends Stop {
 	}
 	
 	public String toString() {
-		return "[PublicTransportationStop" + stopId + "]";
+		return "[TaxiStop" + stopId + "]";
 	}
 }

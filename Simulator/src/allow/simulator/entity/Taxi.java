@@ -7,7 +7,7 @@ import allow.simulator.mobility.data.TaxiTrip;
 public final class Taxi extends TransportationEntity {
 	
 	public Taxi(long id, Context context, TaxiAgency agency, int capacity) {
-		super(id, EntityTypes.TAXI, context, agency, capacity);
+		super(id, context, agency, capacity);
 	}
 
 	/**
@@ -71,5 +71,9 @@ public final class Taxi extends TransportationEntity {
 	public String toString() {
 		return "[Taxi" + id + "]";
 	}
-	
+
+	@Override
+	public String getType() {
+		return EntityTypes.TAXI;
+	}	
 }

@@ -9,7 +9,7 @@ public class FlexiBusAgency extends TransportationAgency {
 	private FlexiBusPlanner planner;
 	
 	public FlexiBusAgency(long id, Context context, String agencyId) {
-		super(id, EntityTypes.FLEXIBUS_AGENCY, context, agencyId);
+		super(id, context, agencyId);
 		planner = (FlexiBusPlanner) context.getJourneyPlanner().getFlexiBusPlannerService();
 		flow.addActivity(new StartNextTrips(this));
 	}
@@ -30,5 +30,10 @@ public class FlexiBusAgency extends TransportationAgency {
 	@Override
 	public String toString() {
 		return "[FlexiBusAgency" + id + "]";
+	}
+
+	@Override
+	public String getType() {
+		return EntityTypes.FLEXIBUS_AGENCY;
 	}
 }

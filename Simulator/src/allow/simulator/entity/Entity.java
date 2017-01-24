@@ -18,29 +18,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  */
 public abstract class Entity extends Observable {
-	// Id of the entity.
+	// Id of the entity
 	protected final long id;
-	
-	// Type of entity.
-	private final String entityType;
 		
-	// Simulation context.
+	// Simulation context
 	@JsonIgnore 
 	protected Context context;
 	
-	// Knowledge of the entity.
+	// Knowledge of the entity
 	@JsonIgnore
 	protected final EvoKnowledge knowledge;
 	
-	// Relations of the entity.
+	// Relations of the entity
 	@JsonIgnore
 	protected final RelationGraph relations;
 	
-	// Flow of activities to execute.
+	// Flow of activities to execute
 	@JsonIgnore
 	protected final Flow flow;
 	
-	// Position of an entity.
+	// Position of an entity
 	@JsonIgnore
 	protected Coordinate position;
 	
@@ -54,9 +51,8 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, String type, Context context) {
+	public Entity(long id, Context context) {
 		this.id = id;
-		this.entityType = type;
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
 		relations = new RelationGraph(this);
@@ -75,8 +71,8 @@ public abstract class Entity extends Observable {
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id, String type) {
-		this(id, type, null);
+	protected Entity(long id) {
+		this(id, null);
 	}
 	
 	/**
@@ -93,9 +89,7 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Type of the entity.
 	 */
-	public String getType() {
-		return entityType;
-	}
+	public abstract String getType();
 	
 	/**
 	 * Get current position of entity.

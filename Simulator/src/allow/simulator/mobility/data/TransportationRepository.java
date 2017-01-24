@@ -7,8 +7,8 @@ import java.util.Map;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.FlexiBusAgency;
-import allow.simulator.entity.PublicTransportation;
-import allow.simulator.entity.PublicTransportationAgency;
+import allow.simulator.entity.Bus;
+import allow.simulator.entity.BusAgency;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.mobility.data.gtfs.GTFSAgency;
@@ -18,7 +18,7 @@ import allow.simulator.util.Coordinate;
 
 public class TransportationRepository {
 	// Collection of available GTFS transportation agencies.
-	private Map<String, PublicTransportationAgency> gtfsAgencies;
+	private Map<String, BusAgency> gtfsAgencies;
 
 	// FlexiBus agency providing dynamic on-request bus scheduling.
 	private FlexiBusAgency flexiBusAgency;
@@ -37,14 +37,14 @@ public class TransportationRepository {
 	private void reload(Context context) {
 		// Load public transportation from GTFS.
 		List<GTFSAgency> agencyInfos = context.getDataService().getAgencies();
-		gtfsAgencies = new HashMap<String, PublicTransportationAgency>();
+		gtfsAgencies = new HashMap<String, BusAgency>();
 		
 		for (int i = 0; i < agencyInfos.size(); i++) {
 			// Current agency.
 			GTFSAgency currentAgency = agencyInfos.get(i);
 			
 			// Create new public transportation agency.
-			PublicTransportationAgency newAgency = new PublicTransportationAgency(context.getEntityManager().getNextId(), context, currentAgency.getId());
+			BusAgency newAgency = new BusAgency(context.getEntityManager().getNextId(), context, currentAgency.getId());
 			context.getEntityManager().addEntity(newAgency);
 
 			// Request available routes.
@@ -59,10 +59,10 @@ public class TransportationRepository {
 				
 				// Create stops of route from data service query.
 				List<GTFSStop> stops = context.getDataService().getStops(routeId);
-				Map<String, PublicTransportationStop> stopMap = new HashMap<String, PublicTransportationStop>(stops.size());
+				Map<String, BusStop> stopMap = new HashMap<String, BusStop>(stops.size());
 				
 				for (GTFSStop current : stops) {
-					PublicTransportationStop s = new PublicTransportationStop(current.getName(), current.getId(), new Coordinate(current.getLon(), current.getLat()));
+					BusStop s = new BusStop(current.getName(), current.getId(), new Coordinate(current.getLon(), current.getLat()));
 					stopMap.put(current.getId(), s);
 				}
 				
@@ -71,7 +71,7 @@ public class TransportationRepository {
 				newAgency.addRoute(newRoute);
 				
 				for (int k = 0; k < tt.getMaximalNumberOfTrips(); k++) {
-					PublicTransportation b = new PublicTransportation(context.getEntityManager().getNextId(), context, newAgency, 25);
+					Bus b = new Bus(context.getEntityManager().getNextId(), context, newAgency, 25);
 					context.getEntityManager().addEntity(b);
 					newAgency.addPublicTransportation(b);
 				}
@@ -112,7 +112,7 @@ public class TransportationRepository {
 		return instance;
 	}
 	
-	public PublicTransportationAgency getGTFSTransportAgency(String agencyId) {
+	public BusAgency getGTFSTransportAgency(String agencyId) {
 		return gtfsAgencies.get(agencyId);
 	}
 	
@@ -124,7 +124,7 @@ public class TransportationRepository {
 		return taxiAgency;
 	}
 	
-	public Map<String, PublicTransportationAgency> getGTFSTransportAgencies() {
+	public Map<String, BusAgency> getGTFSTransportAgencies() {
 		return gtfsAgencies;
 	}
 }

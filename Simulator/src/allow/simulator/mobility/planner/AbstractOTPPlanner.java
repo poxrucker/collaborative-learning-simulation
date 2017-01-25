@@ -17,9 +17,12 @@ public abstract class AbstractOTPPlanner implements IPlannerService {
 	// Json mapper to parse planner responses.
 	protected static final ObjectMapper mapper = new ObjectMapper();
 
-	// URI to send requests to.
-	private static final String routingURI = "/otp/routers/default/plan";
+	// General URL to send requests to.
+	private static final String RoutingURL = "/otp/routers/%1$s/plan";
 
+	// Special default URL, if no router ID is provided
+	private static final String DefaultRoutingURL = String.format(RoutingURL, "default");
+	
 	// DateFormat to format departure date.
 	private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 					
@@ -146,7 +149,12 @@ public abstract class AbstractOTPPlanner implements IPlannerService {
 	
 	protected static String createQueryString(JourneyRequest request) {
 		StringBuilder paramBuilder = new StringBuilder();
-		paramBuilder.append(routingURI);
+		
+		if ((request.OTPRouterID == null) || request.OTPRouterID.equals(""))
+			paramBuilder.append(DefaultRoutingURL);
+		else
+			paramBuilder.append(String.format(DefaultRoutingURL, request.OTPRouterID));
+
 		paramBuilder.append("?toPlace=");
 		paramBuilder.append(request.To.y + "," + request.To.x);
 		paramBuilder.append("&fromPlace=");

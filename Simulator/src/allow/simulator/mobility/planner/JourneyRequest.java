@@ -25,6 +25,11 @@ public class JourneyRequest {
 	public int ReqNumber;
 	
 	/**
+	 * Specifies the OTP router to use
+	 */
+	public String OTPRouterID;
+	
+	/**
 	 * Arrival date of the journey
 	 */
 	public LocalDate Date;

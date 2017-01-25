@@ -13,7 +13,6 @@ import org.nlogo.api.AgentException;
 
 import allow.simulator.core.Context;
 import allow.simulator.core.EntityManager;
-import allow.simulator.core.IContextWrapper;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;

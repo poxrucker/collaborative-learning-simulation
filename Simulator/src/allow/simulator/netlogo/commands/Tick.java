@@ -14,12 +14,9 @@ import allow.simulator.statistics.Statistics;
 public class Tick extends DefaultReporter {
 
 	@Override
-	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		// Get deltaT.
-		int deltaT = args[0].getIntValue();
-		
-		// Update simulator.
-		Simulator.Instance().tick(deltaT);
+	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {		
+		// Update simulator
+		Simulator.Instance().tick();
 		
 		// Return context and statistics.
 		LogoListBuilder listBuilder = new LogoListBuilder();

@@ -45,11 +45,8 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	@JsonBackReference
 	private Entity entity; 
 	
-	// Buffer to store experiences of entities for learning.
-	private List<TravelExperience> travelExperienceBuffer;
-	
 	// Buffer holding entities to exchange knowledge with.
-	private List<Entity> toExchangeBuffer;
+	private ArrayList<Entity> toExchangeBuffer;
 	
 	// Chain of handlers to execute knowledge exchange.
 	private ExchangeHandler handlerChain;
@@ -70,7 +67,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		} else if (entity instanceof Bus) {
 			handlerChain = ExchangeHandler.StandardBusChain;
 		}
-		travelExperienceBuffer = new ArrayList<TravelExperience>();
 	}
 	
 	public String getInstanceId() {
@@ -83,12 +79,12 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	 * 
 	 * @param observation New experience.
 	 */
-	public void collect(Experience observation) {
+	/*public void collect(Experience observation) {
 		
 		if (observation instanceof TravelExperience) {
 			travelExperienceBuffer.add((TravelExperience) observation);
 		}
-	}
+	}*/
 	
 	private static final double CAR_PREFERENCE_CHANGE_THRESHOLD1 = 600;
 	private static final double CAR_PREFERENCE_CHANGE_THRESHOLD2 = 1200;
@@ -107,15 +103,15 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	/**
 	 * Update EvoKnowledge from the collected observations.
 	 */
-	public boolean learn() {
+	public boolean learn(List<Experience> experiences) {
 		// long currentTime = System.currentTimeMillis();
 
 		// Handle statistics learning.
 		if (entity instanceof Person) {
 			Person p = (Person) entity;
 			Itinerary it = p.getCurrentItinerary();
-			DBConnector.addEntry(entity, it.priorSegmentation, travelExperienceBuffer);
-			ItineraryParams summary = EvoKnowledgeUtil.createFromExperiences(it, travelExperienceBuffer);
+			DBConnector.addEntry(entity, experiences);
+			ItineraryParams summary = EvoKnowledgeUtil.createFromExperiences(it, experiences);
 			double estimatedTravelTime = it.duration + it.initialWaitingTime; // - p.getCurrentItinerary().waitingTime;
 			Preferences prefs = p.getRankingFunction().getPreferences();
 			double posteriorUtility = p.getRankingFunction().getUtilityFunction().computeUtility(summary, prefs);
@@ -194,7 +190,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 						System.out.println();
 			}
 		}
-		clear();
 		return true;
 	}
 	
@@ -251,19 +246,14 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	public void exchangeKnowledge() {
 		// Get relations.
 		entity.getRelations().updateRelations(toExchangeBuffer);
+		
 		// Execute knowledge exchange.
-		if (toExchangeBuffer.size() > 0) {
-
-			for (Entity other : toExchangeBuffer) {
+		for (Entity other : toExchangeBuffer) {
 				handlerChain.exchange(entity, other);
 				entity.getRelations().addToBlackList(other);
 			}
-		}
 		// Clear relations buffer.
 		toExchangeBuffer.clear();
-	}
-	
-	public void clear() {
-		travelExperienceBuffer.clear();
+		toExchangeBuffer.trimToSize();
 	}
 }

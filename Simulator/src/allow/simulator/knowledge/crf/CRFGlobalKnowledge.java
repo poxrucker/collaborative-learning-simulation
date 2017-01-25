@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.knowledge.crf.DBConnector.DBType;
 
 public class CRFGlobalKnowledge implements CRFKnowledgeModel {
@@ -21,19 +21,7 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 			+ "timeOfDay TINYINT UNSIGNED, modality TINYINT UNSIGNED, ttime FLOAT, prevttime FLOAT, "
 			+ "filllevel FLOAT, weight DOUBLE, "
 			+ "PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality));%2$s";
-	
-//	private static final String POSTGRE_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
-//			+ " (entryNo SERIAL PRIMARY KEY, nodeId INTEGER, prevNodeId INTEGER, "
-//			+ "ttime REAL, prevttime REAL, weather SMALLINT, weekday SMALLINT, "
-//			+ "timeOfDay SMALLINT, modality SMALLINT, density REAL, startTime INTEGER, "
-//			+ "endTime INTEGER); CREATE INDEX on %2$s "
-//			+ "(nodeId, modality, timeOfDay, weekday, prevNodeId, prevttime)";
-	
-//	private static final String MY_SQL_SHOW_TABLES = "SHOW TABLES LIKE '%1$s'";
-	
-//	private static final String POSTGRE_SQL_SHOW_TABLES = "SELECT * FROM pg_catalog.pg_tables where "
-//			+ "tablename like '%1s'";
-	
+		
 	private static final String SQL_INSERT_VALUES = "INSERT INTO %1$s "
 			+ " (nodeId, prevNodeId, weather, weekday, timeOfDay, modality, ttime, prevttime, fillLevel, weight)"
 			+ " VALUES ";
@@ -75,8 +63,8 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 	}
 	
 	@Override
-	public boolean addEntry(Entity agentId, List<TravelExperience> prior, List<TravelExperience> it, String tablePrefix) {
-		if (it.size() == 0) {
+	public boolean addEntry(Entity agentId, List<Experience> entries, String tablePrefix) {
+		if (entries.size() == 0) {
 			return false;
 		}
 		String tableName = tablePrefix + "_tbl_" + GLOBAL_TABLE_NAME;
@@ -120,7 +108,7 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 			long prevNodeId = -1;
 			double prevDuration = -1;
 
-			for (TravelExperience ex : it) {
+			for (Experience ex : entries) {
 				long nodeId = ex.getSegmentId();
 				double duration = ex.getTravelTime();
 				stmtString = stmtString.concat(firstSeg ? "" : ",");
@@ -162,7 +150,7 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 	}
 
 	@Override
-	public List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it, String tablePrefix) {
+	public List<Experience> getPredictedItinerary(Entity agent, List<Experience> it, String tablePrefix) {
 		// connection and statement for database query
 		Connection con = null;
 		Statement stmt = null;
@@ -193,7 +181,8 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 
 			long segmentTStart = 0;
 
-			for (TravelExperience ex : it) {
+			for (Experience ex : it) {
+				
 				if (firstSeg) {
 					segmentTStart = ex.getStartingTime() / 1000;
 				}

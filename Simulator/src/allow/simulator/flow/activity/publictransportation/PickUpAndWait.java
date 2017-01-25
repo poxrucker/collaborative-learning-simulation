@@ -53,9 +53,6 @@ public class PickUpAndWait extends Activity {
 	public double execute(double deltaT) {	
 		// Bus entity
 		Bus p = (Bus) entity;
-		
-		// Register relations update.
-		// p.getRelations().addToUpdate(Relation.Type.BUS);
 				
 		// If stop has not been approached yet (first time execute is called)
 		// set transport to stop and return.

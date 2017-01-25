@@ -91,7 +91,8 @@ public class UsePublicTransport extends Activity {
 			} else if (person.getContext().getTime().getCurrentTime().isAfter(earliestStartingTime.plusSeconds(1800))) {
 				// Dirty error handling for missed busses
 				person.getFlow().clear();
-				person.getKnowledge().clear();
+				person.getExperienceBuffer().clear();
+				person.getExperienceBuffer().trimToSize();
 				person.setPosition(person.getCurrentItinerary().to);
 				person.setCurrentItinerary(null);
 

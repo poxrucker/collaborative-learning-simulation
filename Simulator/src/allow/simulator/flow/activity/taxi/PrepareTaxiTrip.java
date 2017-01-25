@@ -7,7 +7,7 @@ import java.util.List;
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.flow.activity.Learn;
+import allow.simulator.flow.activity.person.Learn;
 import allow.simulator.mobility.data.TaxiStop;
 import allow.simulator.mobility.data.TaxiTrip;
 import allow.simulator.world.Street;

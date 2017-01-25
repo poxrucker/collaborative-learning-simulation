@@ -13,7 +13,7 @@ import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 
 public class DBConnector {
 	
@@ -37,7 +37,6 @@ public class DBConnector {
 	private static final String KNOWLEDGE_MODEL_LOCAL = "local";
 	private static final String KNOWLEDGE_MODEL_LOCAL_EXCHANGE = "local (with exchange)";
 	private static final String KNOWLEDGE_MODEL_GLOBAL_TEMPORAL = "global";
-	private static final String KNOWLEDGE_MODEL_EXPERT = "expert";
 	private static final String KNOWLEGDE_MODEL_REGIONAL = "regional";
 	
 	private static void initMySQL() {
@@ -204,12 +203,6 @@ public class DBConnector {
 				model = new CRFGlobalKnowledge(dbType);
 				break;
 			
-			case KNOWLEDGE_MODEL_EXPERT:
-				initDatabase();
-				initaIdTableExists();
-				model = new CRFExpertKnowledge(dbType);
-				break;
-			
 			case KNOWLEGDE_MODEL_REGIONAL:
 				initDatabase();
 				initaIdTableExists();
@@ -221,11 +214,11 @@ public class DBConnector {
 		}		
 	}
 	
-	public static boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> posterior) {
-		return model.addEntry(agent, prior, posterior, prefix);
+	public static boolean addEntry(Entity agent, List<Experience> entries) {
+		return model.addEntry(agent, entries, prefix);
 	}
 	
-	public static List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it) {
+	public static List<Experience> getPredictedItinerary(Entity agent, List<Experience> it) {
 		return model.getPredictedItinerary(agent, it, prefix);
 	}
 	

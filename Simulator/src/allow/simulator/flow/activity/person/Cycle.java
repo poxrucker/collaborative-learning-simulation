@@ -6,7 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;
@@ -38,20 +38,23 @@ public final class Cycle extends MovementActivity {
 		if (isFinished()) 
 			return 0.0;
 		
+		// Get person entity
+		Person p = (Person) entity;
+		
 		// Note tStart.
 		if (tStart == -1) {
-			tStart = entity.getContext().getTime().getTimestamp();
+			tStart = p.getContext().getTime().getTimestamp();
 		}
 
 		// Register for knowledge exchange.
-		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		entity.setPosition(getCurrentPosition());
+		p.setPosition(getCurrentPosition());
 
 		if (isFinished()) {
 			
 			for (Experience ex : experiences) {
-				entity.getKnowledge().collect(ex);
+				p.getExperienceBuffer().add(ex);
 			}
 		}
 		return rem;
@@ -94,7 +97,7 @@ public final class Cycle extends MovementActivity {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					
-					Experience newEx = new TravelExperience(street,
+					Experience newEx = new Experience(street,
 							sumTravelTime,
 							street.getLength() * 0.000005,
 							TType.BICYCLE, 

@@ -7,7 +7,7 @@ import java.util.List;
 import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.flow.activity.Learn;
+import allow.simulator.flow.activity.person.Learn;
 import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 import allow.simulator.world.Street;

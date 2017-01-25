@@ -8,7 +8,7 @@ import allow.simulator.utility.ItineraryParams;
 
 public final class EvoKnowledgeUtil {
 
-	public static ItineraryParams createFromExperiences(Itinerary prior, List<TravelExperience> ex) {
+	public static ItineraryParams createFromExperiences(Itinerary prior, List<Experience> ex) {
 		
 		switch (prior.itineraryType) {
 		
@@ -32,13 +32,13 @@ public final class EvoKnowledgeUtil {
 		}
 	}
 	
-	private static ItineraryParams summarizeCarItinerary(Itinerary it, List<TravelExperience> ex) {
+	private static ItineraryParams summarizeCarItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double costs = 0.0;
 		int numberOfTransfers = 0;
 		double walkingDistance = 0.0;
 		
-		for (TravelExperience e : ex) {
+		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			costs += e.getCosts();
 			numberOfTransfers = 0;
@@ -50,12 +50,12 @@ public final class EvoKnowledgeUtil {
 				walkingDistance, numberOfTransfers);
 	}
 	
-	private static ItineraryParams summarizeBusItinerary(Itinerary it, List<TravelExperience> ex) {
+	private static ItineraryParams summarizeBusItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double busFillingLevel = 0.0;
 		double walkingDistance = 0.0;
 		
-		for (TravelExperience e : ex) {
+		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			
 			if (e.getTransportationMean() == TType.WALK)
@@ -68,12 +68,12 @@ public final class EvoKnowledgeUtil {
 				walkingDistance, it.transfers);
 	}
 	
-	private static ItineraryParams summarizeBicycleItinerary(Itinerary it, List<TravelExperience> ex) {
+	private static ItineraryParams summarizeBicycleItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double costs = 0.0;
 		double walkingDistance = 0.0;
 		
-		for (TravelExperience e : ex) {
+		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			costs += e.getCosts();
 			
@@ -84,11 +84,11 @@ public final class EvoKnowledgeUtil {
 				walkingDistance, 0);
 	}
 	
-	private static ItineraryParams summarizeWalkItinerary(Itinerary it, List<TravelExperience> ex) {
+	private static ItineraryParams summarizeWalkItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double walkingDistance = 0.0;
 		
-		for (TravelExperience e : ex) {
+		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			
 			if (e.getTransportationMean() == TType.WALK)

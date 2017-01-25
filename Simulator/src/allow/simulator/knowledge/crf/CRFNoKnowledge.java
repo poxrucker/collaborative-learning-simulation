@@ -3,7 +3,7 @@ package allow.simulator.knowledge.crf;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 
 public class CRFNoKnowledge implements CRFKnowledgeModel {
 
@@ -18,12 +18,12 @@ public class CRFNoKnowledge implements CRFKnowledgeModel {
 	}
 	
 	@Override
-	public boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> experiences, String tablePrefix) {
+	public boolean addEntry(Entity agent, List<Experience> entries, String tablePrefix) {
 		return true;
 	}
 
 	@Override
-	public List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it, String tablePrefix) {
+	public List<Experience> getPredictedItinerary(Entity agent, List<Experience> it, String tablePrefix) {
 		return it;
 	}
 	

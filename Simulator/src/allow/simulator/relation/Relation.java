@@ -1,8 +1,8 @@
 package allow.simulator.relation;
 
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import allow.simulator.entity.Entity;
@@ -37,12 +37,11 @@ public abstract class Relation {
 	protected Entity entity;
 		
 	// Entities in this relation.
-	protected Map<Long, Entity> entities;
+	protected Long2ObjectOpenHashMap<Entity> entities;
 	
-	protected Relation(Type type, Entity entity) {
+	protected Relation(Entity entity) {
 		this.entity = entity;
-		this.type = type;
-		entities = new HashMap<Long, Entity>();
+		entities = new Long2ObjectOpenHashMap<Entity>();
 	}
 	
 	public abstract void updateRelation(List<Entity> newEntities, Set<Long> blackList);
@@ -51,8 +50,4 @@ public abstract class Relation {
 		entities.clear();
 	}
 	
-	public Type getType() {
-		return type;
-	}
-
 }

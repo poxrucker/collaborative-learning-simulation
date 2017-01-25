@@ -16,7 +16,8 @@ public final class Replan extends Activity {
 		
 		// Clear flow of activities and knowledge.
 		p.getFlow().clear();
-		p.getKnowledge().clear();
+		p.getExperienceBuffer().clear();
+		p.getExperienceBuffer().trimToSize();
 		
 		// Add new planning activity.
 		p.getFlow().addActivity(new PlanJourney(p, p.getPosition(), p.getCurrentItinerary().to));

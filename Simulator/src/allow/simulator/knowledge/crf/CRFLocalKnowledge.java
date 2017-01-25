@@ -7,7 +7,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.knowledge.crf.DBConnector.DBType;
 
 public class CRFLocalKnowledge implements CRFKnowledgeModel {
@@ -88,11 +88,11 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	}
 	
 	@Override
-	public boolean addEntry(Entity agent, List<TravelExperience> prior, List<TravelExperience> it, String tablePrefix) {
+	public boolean addEntry(Entity agent, List<Experience> entries, String tablePrefix) {
 		String agentId = String.valueOf(agent.getId());
 		String tableName = tablePrefix + "_tbl_" + agentId;
 
-		if (it.size() == 0) {
+		if (entries.size() == 0) {
 			return false;
 		}
 		// check if table for agent already exists (hopefully saves database overhead)
@@ -134,7 +134,7 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			long prevNodeId = -1;
 			double prevDuration = -1;
 
-			for (TravelExperience ex : it) {
+			for (Experience ex : entries) {
 				long nodeId = ex.getSegmentId();
 				double duration = ex.getTravelTime();
 
@@ -179,7 +179,7 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	}
 
 	@Override
-	public List<TravelExperience> getPredictedItinerary(Entity agent, List<TravelExperience> it, String tablePrefix) {
+	public List<Experience> getPredictedItinerary(Entity agent, List<Experience> it, String tablePrefix) {
 		String agentId = String.valueOf(agent.getId());
 		String tableName = tablePrefix + "_tbl_" + agentId;
 
@@ -210,7 +210,7 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			double prevTTime = -1;
 			long segmentTStart = 0;
 
-			for (TravelExperience ex : it) {
+			for (Experience ex : it) {
 				
 				if (firstSeg)
 					segmentTStart = ex.getStartingTime() / 1000;

@@ -27,9 +27,6 @@ public class ReturnToAgency extends Activity {
 				
 		// Transportation entity.
 		Bus p = (Bus) entity;
-				
-		// Register relations update.
-		// p.getRelations().addToUpdate(Relation.Type.BUS);
 		
 		if (p.getPassengers().size() > 0) {
 			System.out.println("Warning: Passengers still on public transportation " + p.toString() + " of trip " + p.getCurrentTrip().getTripId());

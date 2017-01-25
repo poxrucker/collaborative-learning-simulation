@@ -6,7 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;
@@ -46,14 +46,15 @@ public final class Drive extends MovementActivity {
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
-		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		Person p = (Person)entity;
+		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		entity.setPosition(getCurrentPosition());
+		p.setPosition(getCurrentPosition());
 		
 		if (isFinished()) {
 			
 			for (Experience entry : experiences) {
-				entity.getKnowledge().collect(entry);
+				p.getExperienceBuffer().add(entry);
 			}
 		} else {
 			currentSegment = getCurrentSegment();
@@ -99,7 +100,7 @@ public final class Drive extends MovementActivity {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					
-					Experience newEx = new TravelExperience(street,
+					Experience newEx = new Experience(street,
 							sumTravelTime,
 							street.getLength() * 0.00035,
 							TType.CAR, 

@@ -3,7 +3,6 @@ package allow.simulator.mobility.planner;
 import java.util.ArrayList;
 import java.util.List;
 
-import allow.simulator.knowledge.TravelExperience;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -107,8 +106,6 @@ public final class Itinerary {
 	public double maxFillingLevel;
 
 	public TType itineraryType;
-
-	public List<TravelExperience> priorSegmentation;
 
 	public static TType getItineraryType(Itinerary it) {
 		if (it.legs.size() == 1)

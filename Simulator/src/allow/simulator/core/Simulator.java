@@ -175,12 +175,12 @@ public final class Simulator {
 	 * 
 	 * @param deltaT Time interval for this step.
 	 */
-	public void tick(int deltaT) {
+	public void tick() {
 		// Save current day to trigger routine scheduling
 		int days = context.getTime().getDays();
 		
 		// Update time
-		context.getTime().tick(deltaT);
+		context.getTime().tick();
 		
 		// Update world
 		context.getWorld().update(context);

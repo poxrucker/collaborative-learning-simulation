@@ -21,7 +21,7 @@ public final class BusRelation extends Relation {
 	 * @param entity Entity
 	 */
 	public BusRelation(Entity entity) {
-		super(Relation.Type.BUS, entity);
+		super(entity);
 		
 	}
 

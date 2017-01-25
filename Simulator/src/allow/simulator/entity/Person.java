@@ -1,5 +1,7 @@
 package allow.simulator.entity;
 
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+
 import java.time.LocalTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.Queue;
 import allow.simulator.core.Context;
 import allow.simulator.core.Simulator;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
@@ -76,6 +79,10 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private boolean isReplanning;
 	
+	// Buffer to store experiences of entities for learning
+	@JsonIgnore
+	private ArrayList<Experience> experienceBuffer;
+		
 	@JsonIgnore
 	private List<Itinerary> buffer;
 	
@@ -124,7 +131,8 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		buffer = new ArrayList<Itinerary>(8);
+		buffer = new ReferenceArrayList<Itinerary>(6);
+		experienceBuffer = new ArrayList<Experience>(); 
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -166,7 +174,8 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
-		buffer = new ArrayList<Itinerary>(8);
+		buffer = new ReferenceArrayList<Itinerary>(6);
+		experienceBuffer = new ArrayList<Experience>();
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
@@ -237,6 +246,10 @@ public final class Person extends Entity {
 	
 	public List<Itinerary> getBuffer() {
 		return buffer;
+	}
+	
+	public ArrayList<Experience> getExperienceBuffer() {
+		return experienceBuffer;
 	}
 	
 	/**

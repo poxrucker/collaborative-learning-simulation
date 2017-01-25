@@ -12,9 +12,9 @@ import java.time.format.DateTimeFormatter;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class Time {
+public final class Time {
 	// Output format.	
-	private static DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM. HH:mm:ss");
+	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM. HH:mm:ss");
 	
 	// Current date and time.
 	private LocalDateTime currentDateTime;
@@ -27,14 +27,11 @@ public class Time {
 	// Number of simulated days.
 	private int days;
 	
-	public Time(LocalDateTime startingDate, int deltaT) {
-		// Setup calendar.
+	public Time(LocalDateTime startingDate, int initialDeltaT) {
 		currentDateTime = startingDate;
 		currentTime = currentDateTime.toLocalTime();
 		timestamp = Timestamp.valueOf(currentDateTime).getTime();
-
-		// Setup time step interval.
-		this.deltaT = deltaT;
+		deltaT = initialDeltaT;
 		days = 0;
 	}
 
@@ -63,8 +60,7 @@ public class Time {
 	/**
 	 * Increases current time by deltaT seconds.
 	 */
-	public void tick(int deltaT) {
-		this.deltaT = deltaT;
+	public void tick() {
 		DayOfWeek tempDay = currentDateTime.getDayOfWeek();
 		int tempYear = currentDateTime.getYear();
 		currentDateTime = currentDateTime.plusSeconds(deltaT);

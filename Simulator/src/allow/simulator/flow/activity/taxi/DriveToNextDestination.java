@@ -7,7 +7,7 @@ import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
@@ -52,10 +52,10 @@ public class DriveToNextDestination extends MovementActivity {
 		if (isFinished()) {
 					
 			for (Experience ex : experiences) {
-				taxi.getKnowledge().collect(ex);
+				//taxi.getKnowledge().collect(ex);
 				
 				for (Person pass : taxi.getPassengers()) {
-					pass.getKnowledge().collect(ex);
+					pass.getExperienceBuffer().add(ex);
 				}
 			}
 		} else {
@@ -102,7 +102,7 @@ public class DriveToNextDestination extends MovementActivity {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					
-					Experience newEx = new TravelExperience(street,
+					Experience newEx = new Experience(street,
 							sumTravelTime,
 							street.getLength() * TaxiPlanner.COST_PER_METER,
 							TType.TAXI, 

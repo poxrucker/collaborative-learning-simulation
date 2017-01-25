@@ -38,16 +38,16 @@ public class Worker implements Callable<List<Itinerary>> {
 	public List<Itinerary> call() throws Exception {
 		
 		for (Itinerary it : toUpdate) {
-			List<TravelExperience> ex = itineraryToTravelExperience(entity, it);
+			List<Experience> ex = itineraryToTravelExperience(entity, it);
 			
 			try {
 				DBConnector.getPredictedItinerary(entity, ex);
 				
-				it.priorSegmentation = new ArrayList<TravelExperience>(ex.size());
+				/*it.priorSegmentation = new ArrayList<TravelExperience>(ex.size());
 				
 				for (TravelExperience e : ex) {
 					it.priorSegmentation.add(e.clone());
-				}
+				}*/
 				updateItineraryFromTravelExperience(it, ex);
 				
 			} catch (Exception e) {
@@ -58,8 +58,8 @@ public class Worker implements Callable<List<Itinerary>> {
 		return toUpdate;
 	}
 	
-	private static List<TravelExperience> itineraryToTravelExperience(Entity e, Itinerary it) {
-		List<TravelExperience> ret = new ArrayList<TravelExperience>();
+	private static List<Experience> itineraryToTravelExperience(Entity e, Itinerary it) {
+		List<Experience> ret = new ArrayList<Experience>();
 		Weather.State currentWeather = e.getContext().getWeather().getCurrentState();
 		
 		for (Leg l : it.legs) {
@@ -71,7 +71,7 @@ public class Worker implements Callable<List<Itinerary>> {
 								: ((l.mode == TType.BICYCLE || l.mode == TType.SHARED_BICYCLE)
 										? StreetSegment.CYCLING_SPEED : StreetSegment.DEFAULT_DRIVING_SPEED);
 				tEnd = (long) (tStart + l.distance / v);
-				ret.add(new TravelExperience(tEnd - tStart, 0.0, l.mode, tStart, tEnd, -1, -1, null, currentWeather));
+				ret.add(new Experience(tEnd - tStart, 0.0, l.mode, tStart, tEnd, -1, -1, null, currentWeather));
 				continue;
 			}
 			
@@ -84,7 +84,7 @@ public class Worker implements Callable<List<Itinerary>> {
 				double travelTime = street.getLength() / v;
 				double costs = l.costs * (street.getLength() / l.distance);
 				tEnd = (long) (tStart + travelTime * 1000);
-				TravelExperience t = new TravelExperience(street, travelTime,
+				Experience t = new Experience(street, travelTime,
 						costs, l.mode, tStart, tEnd, -1, -1, l.tripId,
 						currentWeather);
 				ret.add(t);
@@ -94,7 +94,7 @@ public class Worker implements Callable<List<Itinerary>> {
 		return ret;
 	}
 
-	private static void updateItineraryFromTravelExperience(Itinerary it, List<TravelExperience> ex) {
+	private static void updateItineraryFromTravelExperience(Itinerary it, List<Experience> ex) {
 		if (ex.size() == 0) {
 			return;
 		}
@@ -115,8 +115,8 @@ public class Worker implements Callable<List<Itinerary>> {
 			}
 			
 			int added = 0;
-			for (int i = exIndex; i < ex.size(); i++) {
-				TravelExperience e = ex.get(i);
+			for (int i = exIndex; i < ex.size(); i++) {		
+				Experience e = ex.get(i);
 				
 				if (e.isTransient())
 					break;

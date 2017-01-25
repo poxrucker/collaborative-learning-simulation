@@ -1,5 +1,8 @@
 package allow.simulator.relation;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +25,7 @@ public class RelationGraph {
 	// List of relations to update.
 	Set<Relation.Type> toUpdate;
 	
-	Set<Long> blackList;
+	LongSet blackList;
 	
 	/**
 	 * Constructor.
@@ -32,7 +35,7 @@ public class RelationGraph {
 		// Create relations map.
 		relations = new EnumMap<Relation.Type, Relation>(Relation.Type.class);
 		toUpdate = new HashSet<Relation.Type>();
-		blackList = new HashSet<Long>();
+		blackList = new LongOpenHashSet();
 		
 		// Initialize map for each relation type.
 		relations.put(Relation.Type.DISTANCE, new DistanceRelation(entity));

@@ -27,7 +27,7 @@ public class DistanceRelation extends Relation {
 	 * @param entity Entity.
 	 */
 	public DistanceRelation(Entity entity) {
-		super(Relation.Type.DISTANCE, entity);
+		super(entity);
 	}
 
 	/**

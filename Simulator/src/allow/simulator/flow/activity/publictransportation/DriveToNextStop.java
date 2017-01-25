@@ -2,12 +2,13 @@ package allow.simulator.flow.activity.publictransportation;
 
 import java.util.List;
 
-import allow.simulator.entity.Entity;
 import allow.simulator.entity.Bus;
+import allow.simulator.entity.Entity;
+import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.TravelExperience;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -50,10 +51,6 @@ public class DriveToNextStop extends MovementActivity {
 				
 		// Transportation entity.
 		Bus p = (Bus) entity;
-				
-		// Register relations update.
-		//p.getRelations().addToUpdate(Relation.Type.BUS);		
-		//p.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		
 		// Move public transportation and passengers.
 		double rem = travel(deltaT);
@@ -66,10 +63,10 @@ public class DriveToNextStop extends MovementActivity {
 		if (isFinished()) {
 					
 			for (Experience ex : experiences) {
-				p.getKnowledge().collect(ex);
+				//p.getKnowledge().collect(ex);
 				
-				for (Entity pass : p.getPassengers()) {
-					pass.getKnowledge().collect(ex);
+				for (Person pass : p.getPassengers()) {
+					pass.getExperienceBuffer().add(ex);
 				}
 			}
 		} else {
@@ -116,7 +113,7 @@ public class DriveToNextStop extends MovementActivity {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					
-					Experience newEx = new TravelExperience(street,
+					Experience newEx = new Experience(street,
 							sumTravelTime,
 							street.getLength() * 0.0008,
 							TType.BUS, 

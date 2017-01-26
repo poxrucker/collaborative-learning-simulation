@@ -31,6 +31,9 @@ public class Street extends Observable implements Observer {
 	// Subsegments this street is divided into.
 	private List<StreetSegment> subSegments;
 	
+	// Indicates that street is blocked and cannot be used
+	private boolean blocked;
+	
 	/**
 	 * Constructor.
 	 * Creates a new instance of a street.
@@ -135,6 +138,19 @@ public class Street extends Observable implements Observer {
 		return subSegments;
 	}
 
+	public boolean isBlocked() {
+		return blocked;
+	}
+	
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
+		
+		if (!hasChanged()) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
 	public String toString() {
 		return "[Street" + id + ", " + name + " " + length + "]";
 	}

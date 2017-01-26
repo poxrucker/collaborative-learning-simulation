@@ -224,8 +224,8 @@ public final class StreetMap extends World implements Observer {
 		for (Street toUpdate : streetsToUpdate) {
 			toUpdate.updatePossibleSpeedOnSegments();
 			
-			if (toUpdate.getNumberOfVehicles() > 0)
-				busiestStreets.add(toUpdate);
+			/*if (toUpdate.getNumberOfVehicles() > 0)
+				busiestStreets.add(toUpdate);*/
 			changed = true;
 		}
 		streetsToUpdate.clear();
@@ -257,6 +257,9 @@ public final class StreetMap extends World implements Observer {
 		return streets.get(first + ";;" + second);
 	}
 
+	public Collection<Street> getStreets() {
+		return Collections.unmodifiableCollection(streets.values());
+	}
 	public Street getStreetReduced(StreetNode first, StreetNode second) {
 		return mapReduced.findEdge(first, second);
 	}

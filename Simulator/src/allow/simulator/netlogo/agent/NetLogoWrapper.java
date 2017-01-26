@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.nlogo.agent.Link;
@@ -18,6 +19,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
+import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
@@ -89,17 +91,22 @@ public final class NetLogoWrapper implements IContextWrapper {
 			newNode.hidden(true);
 		}
 
-		// Create NetLogo bindings for street segments.
-		Collection<StreetSegment> segments = world.getStreetSegments();
-
-		for (StreetSegment segment : segments) {
-			Pair<StreetNode, StreetNode> in = world.getIncidentNodes(segment);
-			Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()),
-					netLogoWorld.links());
-			netLogoWorld.links().add(newLink);
-			newLink.colorDouble(5.0);
-			newLink.lineThickness(0.05);
-			newLink.hidden(false);
+		// Create NetLogo bindings for streets
+		Collection<Street> streets = world.getStreets();
+		
+		for (Street street : streets) {		
+			List<StreetSegment> segs = street.getSubSegments();
+			double color = street.isBlocked() ? 15.0 : 5.0;
+			
+			for (StreetSegment seg : segs) {
+				Pair<StreetNode, StreetNode> in = world.getIncidentNodes(seg);
+				Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()),
+						netLogoWorld.links());
+				netLogoWorld.links().add(newLink);
+				newLink.colorDouble(color);
+				newLink.lineThickness(0.05);
+				newLink.hidden(false);
+			}
 		}
 	}
 

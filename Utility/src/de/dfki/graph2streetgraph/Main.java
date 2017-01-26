@@ -1,30 +1,67 @@
 package de.dfki.graph2streetgraph;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.Graph.LoadLevel;
-import org.opentripplanner.routing.graph.Vertex;
-
+import allow.simulator.util.Geometry;
+import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
+import allow.simulator.world.StreetSegment;
 
 public class Main {
 
 	public static void main(String args[]) throws ClassNotFoundException, IOException {
+		// Load street graphs
+		Map<String, StreetNode> trento_node1 = new HashMap<String, StreetNode>();
+		Map<String, Street> trento_street1 = new HashMap<String, Street>();
+		loadGraph(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/trento.world"), trento_node1, trento_street1);
+		
+		Map<String, StreetNode> trento_node2 = new HashMap<String, StreetNode>();
+		Map<String, Street> trento_street2 = new HashMap<String, Street>();
+		loadGraph(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/trento2.world"), trento_node2, trento_street2);
+		
+		//mergeStreetMaps(trento_node1, trento_street1, trento_node2, trento_street2);
+		
+		mergeStreetMaps(trento_node2, trento_street2, trento_node1, trento_street1);
+		
+		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Andi/Documents/trento_merged.world")));
+		
+		wr.write("NODES " + trento_node1.size() + "\n");
+		
+		for (StreetNode node : trento_node1.values()) {
+			wr.write(node.getLabel() + ";;" + node.getPosition().x + ";;" + node.getPosition().y + "\n");
+		}
+		wr.write("\n");
+		
+		wr.write("LINKS " + trento_street1.size() + "\n");
+		
+		for (Street s : trento_street1.values()) {
+			wr.write(s.getStartingNode().getLabel() + "->" + s.getEndNode().getLabel() + ";;");
+			wr.write(s.getStartingNode().getLabel() + ";;");
+			wr.write(s.getEndNode().getLabel() + ";;");
+			wr.write(s.getName() + ";;");
+			wr.write(s.getSubSegments().get(0).getMaxSpeed() + ";;");
+			
+			for (int i = 0; i < s.getSubSegments().size() - 1; i++) {
+				wr.write(s.getSubSegments().get(i).getStartingNode().getLabel() + " ");
+			}
+			wr.write(s.getSubSegments().get(s.getSubSegments().size() - 1).getStartingNode().getLabel() + " " + s.getSubSegments().get(s.getSubSegments().size() - 1).getEndingNode().getLabel() + "\n");
+			//wr.write(s.segs[s.segs.length - 1] + "\n");
+		}
+		wr.close();
+
+	}
 		//Graph g = Graph.load(new File("/Users/Andi/otprepos/Graph/Graph.obj"), LoadLevel.FULL);
-		Graph g = Graph.load(new File("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/OpentripPlanner/Graph.obj"), LoadLevel.FULL);
+		/*Graph g = Graph.load(new File("/Users/Andi/Documents/DFKI/OpenTripPlanner/copy/Graph.obj"), LoadLevel.FULL);
 		Map<String, StreetNode> nodes = new HashMap<String, StreetNode>();
 		Map<String, Segment> segments = new HashMap<String, Segment>();
 		
@@ -39,15 +76,14 @@ public class Main {
 				StreetEdge link = (StreetEdge) e;
 				StreetTraversalPermission p = link.getPermission();
 				if ((p == StreetTraversalPermission.ALL)
-						// || (p == StreetTraversalPermission.BICYCLE)
-						// || (p == StreetTraversalPermission.BICYCLE_AND_CAR)
-						// || (p == StreetTraversalPermission.CAR)
+						|| (p == StreetTraversalPermission.BICYCLE)
+						|| (p == StreetTraversalPermission.BICYCLE_AND_CAR)
+						|| (p == StreetTraversalPermission.CAR)
 						|| (p == StreetTraversalPermission.PEDESTRIAN)
 						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE)
 						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE_AND_CAR)
 						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_CAR)
-						//|| (p == StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE)
-						) {
+						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE)) {
 					
 					Vertex v1 = link.getFromVertex();
 					StreetNode n1;
@@ -88,11 +124,11 @@ public class Main {
 					s.speed = link.getCarSpeed();
 					s.length = link.getDistance();
 					segments.put(n1.getLabel() + "->" + n2.getLabel(), s);
-				}
+				//}
 			}
 		}
 
-		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("matching_graph_walk")));
+		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Andi/Documents/trento2.world")));
 		
 		wr.write("NODES " + nodes.size() + "\n");
 		
@@ -115,7 +151,7 @@ public class Main {
 			}
 			wr.write(s.segs[s.segs.length - 1] + "\n");
 		}
-		wr.close();
+		wr.close();*/
 		/*Graph g = Graph.load(new File("/var/otp/graphs/Graph.obj"), LoadLevel.FULL);
 		Map<String, StreetNode> nodes = new HashMap<String, StreetNode>();
 		Map<Long, Segment> segments = new HashMap<Long, Segment>();
@@ -138,13 +174,14 @@ public class Main {
 				StreetTraversalPermission p = link.getPermission();
 				
 				if ((p == StreetTraversalPermission.ALL)
-						|| (p == StreetTraversalPermission.ALL_DRIVING)
-						|| (p == StreetTraversalPermission.BICYCLE_AND_DRIVING)
+						//|| (p == StreetTraversalPermission.ALL_DRIVING)
+						//|| (p == StreetTraversalPermission.BICYCLE_AND_DRIVING)
 						|| (p == StreetTraversalPermission.BICYCLE_AND_CAR)
 						|| (p == StreetTraversalPermission.CAR)
 						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE_AND_CAR)
 						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_CAR)
-						|| (p == StreetTraversalPermission.PEDESTRIAN_AND_DRIVING)) {
+						//|| (p == StreetTraversalPermission.PEDESTRIAN_AND_DRIVING
+						) {
 					
 					Vertex v1 = link.getFromVertex();
 					StreetNode n1;
@@ -165,7 +202,6 @@ public class Main {
 					} else {
 						n2 = nodes.get(v2.getLabel());
 					}
-				
 					Segment s = new Segment();
 					s.id = segId++;
 					s.fromId = n1.getId();
@@ -207,7 +243,84 @@ public class Main {
 			}
 			wr.write(s.segs[s.segs.length - 1].x + " " + s.segs[s.segs.length - 1].y + "\n");
 		}
-		wr.close();*/
-	}
+		wr.close();
+	}*/
 
+	private static void loadGraph(Path path, Map<String, StreetNode> nodes, Map<String, Street> streets) throws IOException {
+		List<String> lines = Files.readAllLines(path);
+		int offset = 0;
+		
+		// Read nodes.
+		String headerNodes = lines.get(offset++);
+		String tokens[] = headerNodes.split(" ");
+		int numberOfNodes = Integer.parseInt(tokens[1]);
+		// nodes = new HashMap<String, StreetNode>();
+		long nodeIds = 0;
+			
+		for (int i = 0; i < numberOfNodes; i++) {
+			String temp = lines.get(offset++);
+			tokens = temp.split(";;");
+			allow.simulator.util.Coordinate c = new allow.simulator.util.Coordinate(Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2]));
+			StreetNode n = new StreetNode(nodeIds++, tokens[0], c);
+			nodes.put(tokens[0], n);
+		}
+		offset++;
+
+		// Read links.
+		String headerLinks = lines.get(offset++);
+		tokens = headerLinks.split(" ");
+		int numberOfLinks = Integer.parseInt(tokens[1]);
+		long linkIds = 1;
+		double mphTomps = 1.609 / 3.6;
+		
+		for (int i = 0; i < numberOfLinks; i++) {
+			String temp = lines.get(offset++);
+			tokens = temp.split(";;");
+			String idStart = tokens[1];
+			String idEnd = tokens[2];
+			String name = tokens[3];
+			double speedLimit = Double.parseDouble(tokens[4]);
+			String subSegs[] = tokens[5].split(" ");
+				
+			StreetNode source = nodes.get(idStart);
+			StreetNode dest = nodes.get(idEnd);
+			
+			// Add a new street from the loaded segments.						
+			List<StreetSegment> segments = new ArrayList<StreetSegment>();
+			
+			for (int j = 0; j < subSegs.length - 1; j++) {
+				StreetNode n1 = nodes.get(subSegs[j]);
+				StreetNode n2 = nodes.get(subSegs[j + 1]);
+				StreetSegment seg = new StreetSegment(linkIds++, n1, n2, speedLimit, Geometry.haversineDistance(n1.getPosition(), n2.getPosition()));
+				segments.add(seg);
+			}
+			Street s = new Street(linkIds++, name, segments);
+			streets.put(source.getLabel() + "->" + dest.getLabel(), s);
+
+		}
+	}
+	
+	private static void mergeStreetMaps(Map<String, StreetNode> n1, Map<String, Street> s1, Map<String, StreetNode> n2, Map<String, Street> s2) {
+		int missingNodes = 0;
+		
+		for (String key : n1.keySet()) {
+			
+			if (!n2.containsKey(key)) {
+				n2.put(key, n1.get(key));
+				missingNodes++;
+			}
+		}
+		System.out.println("Missing nodes: " + missingNodes);
+		
+		int missingStreets = 0;
+
+		for (String key : s1.keySet()) {
+			if (!s2.containsKey(key)) {
+				missingStreets++;
+				s2.put(key, s1.get(key));
+			}
+			
+		}
+		System.out.println("Missing streets: " + missingStreets);
+	}
 }

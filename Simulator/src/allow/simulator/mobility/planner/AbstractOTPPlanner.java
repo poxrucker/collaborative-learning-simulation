@@ -149,11 +149,12 @@ public abstract class AbstractOTPPlanner implements IPlannerService {
 	
 	protected static String createQueryString(JourneyRequest request) {
 		StringBuilder paramBuilder = new StringBuilder();
+		//request.OTPRouterID = "construction";
 		
 		if ((request.OTPRouterID == null) || request.OTPRouterID.equals(""))
 			paramBuilder.append(DefaultRoutingURL);
 		else
-			paramBuilder.append(String.format(DefaultRoutingURL, request.OTPRouterID));
+			paramBuilder.append(String.format(RoutingURL, request.OTPRouterID));
 
 		paramBuilder.append("?toPlace=");
 		paramBuilder.append(request.To.y + "," + request.To.x);

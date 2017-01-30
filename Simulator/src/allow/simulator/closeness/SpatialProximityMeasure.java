@@ -27,10 +27,12 @@ public final class SpatialProximityMeasure implements IProximityMeasure {
 		Collection<Entity> ret = new ArrayList<Entity>();
 		
 		for (Entity e : close) {
-			if (e.isActive() && e.getId() != entity.getId())
-				ret.add(e);
+			
+			if (!e.isActive() || e.getId() == entity.getId())
+				continue;
+			
+			ret.add(e);
 		}
 		return ret;
 	}
-
 }

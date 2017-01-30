@@ -4,9 +4,11 @@ public final class SimulationParameter {
 
 	public int BehaviourSpaceRunNumber;
 		
-	public String KnowledgeModel;
+	public int PercentInitiallyInformed;
 		
-	public String AdaptationStrategy;
+	public int PercentParticipating;
+	
+	public int PercentSharing;
 
 	public int GridResX;
 	

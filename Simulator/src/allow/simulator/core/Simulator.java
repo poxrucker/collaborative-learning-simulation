@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import allow.simulator.entity.Entity;
@@ -80,6 +81,15 @@ public final class Simulator {
 		world.addOverlay(rasterOverlay, OVERLAY_RASTER);
 		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
+		// Close roads
+		world.getStreet("osm:node:278180296", "osm:node:339334743").setBlocked(true);
+		world.getStreet("osm:node:339334743", "osm:node:339334723").setBlocked(true);
+		world.getStreet("osm:node:339334723", "osm:node:1797200899").setBlocked(true);
+		world.getStreet("osm:node:1797200899", "osm:node:1797200783").setBlocked(true);
+		world.getStreet("osm:node:1797200783", "osm:node:1797200897").setBlocked(true);
+
+		world.getStreet("osm:node:256827486", "osm:node:1797200899").setBlocked(true);
+
 		// Create data services.
 		System.out.println("Creating data services...");
 		List<IDataService> dataServices = new ArrayList<IDataService>();
@@ -130,7 +140,7 @@ public final class Simulator {
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");
-		loadEntitiesFromFile(config.getAgentConfigurationPath());
+		loadEntitiesFromFile(config.getAgentConfigurationPath(), params.PercentInitiallyInformed, params.PercentParticipating, params.PercentSharing);
 		
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
@@ -138,23 +148,33 @@ public final class Simulator {
 		context.setTransportationRepository(repos);
 		
 		// Initialize EvoKnowlegde and setup logger.
-		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
+		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), "without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 		
 		// Update world
 		world.update(context);
 	}
 	
-	private void loadEntitiesFromFile(Path config) throws IOException {
+	private void loadEntitiesFromFile(Path config, int percentInitiallyInformed, int percentParticipating, int percentSharing) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		
 		List<String> lines = Files.readAllLines(config, Charset.defaultCharset());
-		
 		for (String line : lines) {
 			Person p = mapper.readValue(line, Person.class);
 			p.setContext(context);
 			PlanGenerator.generateDayPlan(p);
+			p.setInformed(ThreadLocalRandom.current().nextInt(100) < percentInitiallyInformed);
+			
+			if (ThreadLocalRandom.current().nextInt(100) < percentParticipating) {
+				
+				if (ThreadLocalRandom.current().nextInt(100) < percentSharing) {
+					p.setSharing();
+				} else {
+					p.setReceiving();
+				}
+			} 
+
 			context.getEntityManager().addEntity(p);
 		}
 	}

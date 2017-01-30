@@ -75,10 +75,6 @@ public class RelationGraph {
 			Relation rel = relations.get(it.next());
 			rel.updateRelation(newEntities, blackList);
 		}
-		
-		for (Entity e : newEntities) {
-			e.getRelations().addToBlackList(entity);
-		}
 		toUpdate.clear();
 	}
 	

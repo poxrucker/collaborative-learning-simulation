@@ -88,6 +88,12 @@ public class JourneyRequest {
 
 	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
 			LocalDateTime date, boolean arriveBy, TType modes[], RequestId reqId) {
+		return createRequest(from, to, date, arriveBy, modes, reqId, "");
+	}
+	
+	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, TType modes[], RequestId reqId,
+			String routerId) {
 		JourneyRequest s = new JourneyRequest();
 		s.ReqId = reqId.getRequestId();
 		s.ReqNumber = reqId.getNextRequestNumber();
@@ -105,6 +111,7 @@ public class JourneyRequest {
 		s.TransportTypes = modes;
 		s.ResultsNumber = 1;
 		s.MaximumWalkDistance = 1000;
+		s.OTPRouterID = routerId;
 		return s;
 	}
 	

@@ -249,8 +249,10 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		
 		// Execute knowledge exchange.
 		for (Entity other : toExchangeBuffer) {
-				handlerChain.exchange(entity, other);
-				entity.getRelations().addToBlackList(other);
+				boolean exchanged = handlerChain.exchange(entity, other);
+				
+				if (exchanged)
+					entity.getRelations().addToBlackList(other);
 			}
 		// Clear relations buffer.
 		toExchangeBuffer.clear();

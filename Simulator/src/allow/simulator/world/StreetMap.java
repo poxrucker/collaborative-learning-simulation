@@ -146,6 +146,9 @@ public final class StreetMap extends World implements Observer {
 			
 			//if (!streets.containsKey(source.getLabel() + ";;" + dest.getLabel())) {
 				s.addObserver(this);
+				
+				if (source.getLabel().equals("osm:node:278180296") && dest.getLabel().equals("osm:node:339334743"))
+					System.out.println();
 				streets.put(source.getLabel() + ";;" + dest.getLabel(), s);
 				idStreets.put(s.getId(), s);
 				mapReduced.addEdge(s, segments.get(0).getStartingNode(), segments.get(segments.size() - 1).getEndingNode());

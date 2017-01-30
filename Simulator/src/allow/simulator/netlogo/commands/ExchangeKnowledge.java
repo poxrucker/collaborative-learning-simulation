@@ -22,25 +22,18 @@ public class ExchangeKnowledge extends DefaultCommand {
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
 		Agent a = (Agent) context.getAgent();
 		
-		if (a instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) a;
-			
-			if (!p.getEntity().getFlow().isIdle()) {
-				ActivityType type = p.getEntity().getFlow().getCurrentActivity().getType();
-				
-				if (type == ActivityType.DRIVE 
-						|| type == ActivityType.CYCLE 
-						|| type == ActivityType.WALK 
-						|| type == ActivityType.USE_PUBLIC_TRANSPORT
-						|| type == ActivityType.USE_TAXI) {
-					p.exchangeKnowledge();
-				}
-			}
-			
-		} else {
-			throw new ExtensionException("Error: Calling agent must be a valid Allow entity.");
-		}
+		if (!(a instanceof IAgentAdapter)) 
+			throw new ExtensionException("Error: Calling agent must be an extension agent.");
 		
+		IAgentAdapter p = (IAgentAdapter) a;
+			
+		/*if (p.getEntity().getFlow().isIdle())
+			return;
+		
+		ActivityType type = p.getEntity().getFlow().getCurrentActivity().getType();
+				
+		if (type == ActivityType.DRIVE)*/
+			p.exchangeKnowledge();	
 	}
 
 }

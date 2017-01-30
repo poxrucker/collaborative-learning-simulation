@@ -6,7 +6,6 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;
@@ -95,7 +94,18 @@ public final class Drive extends MovementActivity {
 				segmentIndex++;
 				
 				Street street = getCurrentStreet();
-
+				
+				if (street.isBlocked() && (entity instanceof Person)) {
+					Person person = (Person) entity;
+					person.setInformed(true);
+					person.getContext().getStatistics().reportDiscovery();
+					person.getContext().getStatistics().reportReplaning();
+					person.getFlow().clear();
+					person.getFlow().addActivity(new Replan((Person) entity));
+					setFinished();
+					return deltaT;
+				}
+				
 				if (segmentIndex == street.getNumberOfSubSegments()) {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;

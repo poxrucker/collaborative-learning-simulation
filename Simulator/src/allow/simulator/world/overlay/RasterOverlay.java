@@ -1,9 +1,10 @@
 package allow.simulator.world.overlay;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
@@ -20,7 +21,7 @@ public class RasterOverlay implements IOverlay {
 	private final double spacingYInM;
 	private final int nRows;
 	private final int nCols;
-	private final List<Entity>[] raster;
+	private final ReferenceOpenHashSet<Entity>[] raster;
 	
 	@SuppressWarnings("unchecked")
  	public RasterOverlay(double[] areaBounds, int nRows, int nCols) {
@@ -32,10 +33,10 @@ public class RasterOverlay implements IOverlay {
 		final Coordinate bottomLeft = new Coordinate(areaBounds[0], areaBounds[2]);
 		spacingXInM = Geometry.haversineDistance(bottomLeft, new Coordinate(areaBounds[1], areaBounds[2])) / (nCols - 1);
 		spacingYInM = Geometry.haversineDistance(bottomLeft, new Coordinate(areaBounds[0], areaBounds[3])) / (nRows - 1);
-		raster = (List<Entity>[]) new ArrayList[nRows * nCols];
+		raster = (ReferenceOpenHashSet<Entity>[]) new ReferenceOpenHashSet[nRows * nCols];
 		
 		for (int i = 0; i < raster.length; i++) {
-			raster[i] = new ArrayList<Entity>();
+			raster[i] = new ReferenceOpenHashSet<Entity>();
 		}
 	}
 	
@@ -55,7 +56,7 @@ public class RasterOverlay implements IOverlay {
 		final int col = (int) Math.round((pos.x - areaBounds[0]) / spacingX);
 		
 		final int nNeighborCellsX = (int) (distance / spacingXInM);
-		final int nNeighborCellsY = (int) (distance / spacingXInM);
+		final int nNeighborCellsY = (int) (distance / spacingYInM);
 		final int minRow = Math.max(0, row - nNeighborCellsY);
 		final int minCol = Math.max(0, col - nNeighborCellsX);
 		final int maxRow = Math.min(nRows, row + nNeighborCellsY);
@@ -66,7 +67,7 @@ public class RasterOverlay implements IOverlay {
 			final int offset = i * nCols;
 			
 			for (int j = minCol; j < maxCol + 1; j++) {
-				List<Entity> entities = raster[offset + j];
+				ReferenceOpenHashSet<Entity> entities = raster[offset + j];
 				
 				for (Entity entity : entities) {
 					if (Geometry.haversineDistance(pos, entity.getPosition()) > distance)

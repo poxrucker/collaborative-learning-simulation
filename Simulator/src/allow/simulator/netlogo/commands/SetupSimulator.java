@@ -39,16 +39,14 @@ public class SetupSimulator extends DefaultReporter {
 		// Setup simulator from configuration.
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
-		params.KnowledgeModel = args[2].getString();
-		params.AdaptationStrategy = args[3].getString();
+		params.PercentInitiallyInformed = args[2].getIntValue();
+		params.PercentParticipating = args[3].getIntValue();
+		params.PercentSharing = args[4].getIntValue();
 		
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
-		
-//		params.GridResX = 5;
-//		params.GridResY = 5;
-		
+
 		try {
 			Simulator.Instance().setup(config, params);
 			NetLogoWrapper.initialize(Simulator.Instance(), (World) context.getAgent().world());
@@ -68,26 +66,14 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add(s.getMeanPosteriorCarTravelTime());
 		listBuilder.add(s.getMeanPriorBusTravelTime());
 		listBuilder.add(s.getMeanPosteriorBusTravelTime());
-		listBuilder.add(s.getMeanBusPreference());
-		listBuilder.add(s.getMeanCarPreference());
-		listBuilder.add(s.getCarJourneyRatio());
-		listBuilder.add(s.getTransitJourneyRatio());
-		listBuilder.add(s.getBikeJourneyRatio());
-		listBuilder.add(s.getWalkJourneyRatio());
-		listBuilder.add(s.getMeanBusFillingLevel());
-		listBuilder.add(s.getMeanPriorUtilityCar());
-		listBuilder.add(s.getMeanPosteriorUtilityCar());
-		listBuilder.add(s.getMeanPriorUtilityBus());
-		listBuilder.add(s.getMeanPosteriorUtilityBus());
-		listBuilder.add(s.getTaxiJourneyRatio());
-		listBuilder.add(s.getMeanReplaningWaitingTime());
-		listBuilder.add((double) s.getNumberOfCongestedStreets());
+		listBuilder.add((double)s.getNumberOfReplanings());
+		listBuilder.add((double)s.getNumberOfDiscoveries());
 		return listBuilder.toLogoList();
 	}
 
 	@Override
 	public Syntax getSyntax() {
-		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType(), Syntax.StringType() };
+		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType() );
 	}
 }

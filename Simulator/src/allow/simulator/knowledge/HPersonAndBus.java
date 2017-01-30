@@ -16,7 +16,7 @@ public class HPersonAndBus extends ExchangeHandler {
 	public boolean exchange(Entity entity1, Entity entity2) {
 		
 		if ((entity1 instanceof Person) && (entity2 instanceof Bus)) {
-			return true;
+			return false;
 		}
 		return (next != null) ? next.exchange(entity1, entity2) : false;
 	}

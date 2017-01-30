@@ -7,7 +7,7 @@ import org.nlogo.api.PrimitiveManager;
 
 public class ExtensionManager extends DefaultClassManager {
 
-	public static final String EXTENSION_NAME = "allow";
+	public static final String EXTENSION_NAME = "mobility";
 	
 	@Override
 	public void load(PrimitiveManager primitiveManager) throws ExtensionException {
@@ -25,6 +25,9 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("get-region", new GetRegion());
 		primitiveManager.addPrimitive("get-person-roles", new GetPersonRoles());
 		primitiveManager.addPrimitive("get-person-role", new GetPersonRole());
+		primitiveManager.addPrimitive("is-informed", new IsInformed());
+		primitiveManager.addPrimitive("is-sharing", new IsSharing());
+		primitiveManager.addPrimitive("is-receiving", new IsReceiving());
 	}
 	
 	@Override

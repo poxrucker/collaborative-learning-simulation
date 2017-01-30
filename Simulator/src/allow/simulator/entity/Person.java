@@ -93,6 +93,15 @@ public final class Person extends Entity {
 	// Name of home area
 	private String homeAreaName;
 	
+	@JsonIgnore
+	private boolean informed;
+	
+	@JsonIgnore
+	private boolean sharing;
+	
+	@JsonIgnore
+	private boolean receiving;
+	
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -387,6 +396,34 @@ public final class Person extends Entity {
 		return home.equals(position);
 	}
 	
+	@JsonIgnore
+	public boolean isInformed() {
+		return informed;
+	}
+	
+	public void setInformed(boolean informed) {
+		this.informed = informed;
+	}
+	
+	@JsonIgnore
+	public boolean isSharing() {
+		return sharing;
+	}
+	
+	public void setSharing() {
+		this.sharing = true;
+		this.receiving = true;
+	}
+	
+	@JsonIgnore
+	public boolean isReceiving() {
+		return receiving;
+	}
+	
+	public void setReceiving() {
+		this.receiving = true;
+	}
+	
 	@Override
 	public Activity execute() {
 		Pair<LocalTime, Activity> next = schedule.peek();
@@ -409,7 +446,8 @@ public final class Person extends Entity {
 
 	@Override
 	public boolean isActive() {
-		return (flow.getCurrentActivity() != null);
+		return true;
+		// return (flow.getCurrentActivity() != null);
 	}
 
 	@Override

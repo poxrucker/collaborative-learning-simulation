@@ -42,6 +42,9 @@ public class Statistics {
 	private double taxiJourneyRatio;
 	private int numberOfCongestedStreets;
 	
+	private int numberOfReplanings;
+	private int numberOfDiscoveries;
+	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -75,6 +78,9 @@ public class Statistics {
 		numberOfTaxiJourneysPerDay = 0;
 		
 		numberOfCongestedStreets = 0;
+		
+		numberOfReplanings = 0;
+		numberOfDiscoveries = 0;
 	}
 	
 	public void reset() {
@@ -101,6 +107,9 @@ public class Statistics {
 		numberOfTaxiJourneysPerDay = 0;
 		
 		numberOfCongestedStreets = 0;
+		
+		numberOfReplanings = 0;
+		numberOfDiscoveries = 0;
 	}
 	
 	public double getCarJourneyRatio() {
@@ -177,6 +186,22 @@ public class Statistics {
 	
 	public int getNumberOfCongestedStreets() {
 		return numberOfCongestedStreets;
+	}
+	
+	public int getNumberOfReplanings() {
+		return numberOfReplanings;
+	}
+	
+	public int getNumberOfDiscoveries() {
+		return numberOfDiscoveries;
+	}
+	
+	public void reportReplaning() {
+		numberOfReplanings++;
+	}
+	
+	public void reportDiscovery() {
+		numberOfDiscoveries++;
 	}
 	
 	public synchronized void reportCarJourney() {

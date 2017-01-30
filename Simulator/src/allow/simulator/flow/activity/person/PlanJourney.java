@@ -76,7 +76,7 @@ public final class PlanJourney extends Activity {
 					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
-					requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, reqId));
+					requests.add(JourneyRequest.createRequest(start, destination, date, false, carJourney, reqId, person.isInformed() ? "construction" : ""));
 				}
 			}
 			
@@ -93,7 +93,7 @@ public final class PlanJourney extends Activity {
 			requestFuture = person.getContext().getJourneyPlanner().requestSingleJourney(requests, person.getBuffer());
 			return deltaT;
 			
-		} else if (!requestFuture.isDone() && (stepsWaited < 3)) {
+		} else if (!requestFuture.isDone() && (stepsWaited < 0)) {
 			stepsWaited++;
 			return deltaT;
 			

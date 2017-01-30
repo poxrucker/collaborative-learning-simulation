@@ -25,11 +25,11 @@ public class HPersonAndPerson extends ExchangeHandler {
 		return (next != null) ? next.exchange(entity1, entity2) : false;
 	}
 	
-	private static boolean isValidProvider(Person p) {
+	private boolean isValidProvider(Person p) {
 		return p.isInformed() && p.isSharing() && p.hasUsedCar();
 	}
 	
-	private static boolean isValidReceiver(Person r) {
+	private boolean isValidReceiver(Person r) {
 		return r.isReceiving() && r.hasCar();
 	}
 }

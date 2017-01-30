@@ -19,6 +19,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import allow.simulator.core.Context;
+import allow.simulator.mobility.planner.Leg;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
@@ -60,6 +61,8 @@ public final class StreetMap extends World implements Observer {
 	private Set<Street> streetsToUpdate;
 	private Queue<Street> busiestStreets;
 	
+	private Map<Long, Street> blockedStreets;
+	
 	public StreetMap(Path path) throws IOException {
 		map = new DirectedSparseMultigraph<StreetNode, StreetSegment>();
 		mapReduced = new DirectedSparseMultigraph<StreetNode, Street>(); 
@@ -71,6 +74,7 @@ public final class StreetMap extends World implements Observer {
 		temp = new ArrayList<StreetNode>();
 		tempReduced = new ArrayList<StreetNode>();
 		busiestStreets = new LinkedList<Street>();
+		blockedStreets = new HashMap<Long, Street>();
 		loadStreetNetwork(path);
 	}
 	
@@ -170,6 +174,33 @@ public final class StreetMap extends World implements Observer {
 		System.out.println(dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
+	public void setStreetBlocked(long streetId, boolean blocked) {
+		Street street = idStreets.get(streetId);
+		
+		if (street == null)
+			throw new IllegalArgumentException("Error: Could not found street with Id " + streetId);
+		
+		street.setBlocked(blocked);
+		
+		if (blocked)
+			blockedStreets.put(streetId, street);
+		else
+			blockedStreets.remove(streetId);
+	}
+	
+	public Collection<Street> getBlockedStreets() {
+		return Collections.unmodifiableCollection(blockedStreets.values());
+	}
+	
+	public boolean containsBlockedStreet(Collection<Street> streets) {
+		
+		for (Street street : blockedStreets.values()) {
+				
+			if (streets.contains(street))
+				return true;
+		}		
+		return false;
+	}
 	/**
 	 * Returns the nodes, i.e. beginning and end points of street (segments) 
 	 * forming the street graph together with the streets.

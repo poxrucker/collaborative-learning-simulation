@@ -1,9 +1,11 @@
 package allow.simulator.mobility.planner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
+import allow.simulator.world.Street;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -132,7 +134,7 @@ public final class Itinerary {
 		throw new IllegalStateException(
 				"Error: Cannot determine itinerary type.");
 	}
-
+	
 	public Itinerary clone() {
 		Itinerary ret = new Itinerary();
 		ret.costs = costs;

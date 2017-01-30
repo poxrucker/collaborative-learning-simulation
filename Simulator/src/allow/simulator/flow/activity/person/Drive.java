@@ -11,6 +11,7 @@ import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 
 /**
@@ -21,6 +22,8 @@ import allow.simulator.world.StreetSegment;
  */
 public final class Drive extends MovementActivity {
 
+	private boolean checkedForBlockedStreets;
+	
 	/**
 	 * Creates new instance of the driving Activity.
 	 * 
@@ -72,6 +75,8 @@ public final class Drive extends MovementActivity {
 	private double travel(double travelTime) {
 		double deltaT = 0.0;
 		
+		Person person = (Person) entity;
+	
 		while (deltaT < travelTime && !isFinished()) {
 			// Get current state.
 			StreetSegment s = getCurrentSegment();
@@ -93,10 +98,20 @@ public final class Drive extends MovementActivity {
 				distOnSeg = 0.0;
 				segmentIndex++;
 				
-				Street street = getCurrentStreet();
+				boolean replan = false;
 				
-				if (street.isBlocked() && (entity instanceof Person)) {
-					Person person = (Person) entity;
+				if (person.isInformed() && !checkedForBlockedStreets) {
+					StreetMap map = (StreetMap) person.getContext().getWorld();
+					replan = map.containsBlockedStreet(this.path);
+					
+					if (replan)
+						System.out.println();
+					checkedForBlockedStreets = true;
+				}
+				
+				Street street = getCurrentStreet();
+
+				if (replan || street.isBlocked()) {
 					person.setInformed(true);
 					person.getContext().getStatistics().reportDiscovery();
 					person.getContext().getStatistics().reportReplaning();

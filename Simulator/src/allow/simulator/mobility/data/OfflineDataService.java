@@ -12,7 +12,6 @@ import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.mobility.data.gtfs.GTFSStopTimes;
 import allow.simulator.mobility.data.gtfs.GTFSTrip;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetSegment;
 
 public class OfflineDataService implements IDataService {
 	
@@ -89,12 +88,8 @@ public class OfflineDataService implements IDataService {
 	}
 
 	@Override
-	public List<StreetSegment> getBusstopRouting(String start, String end) {
+	public List<Street> getBusstopRouting(String start, String end) {
 		return repos.getRouting(start, end);
-	}
-	
-	public List<Street> getBusstopRoutingStreet(String start, String end) {
-		return repos.getRoutingStreet(start, end);
 	}
 
 	@Override

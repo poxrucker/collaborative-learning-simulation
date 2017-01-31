@@ -1,9 +1,9 @@
 package allow.simulator.netlogo.agent;
 
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,10 +18,8 @@ import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
-import allow.simulator.util.Pair;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
-import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Transformation;
 
@@ -79,29 +77,35 @@ public final class NetLogoWrapper implements IContextWrapper {
 		// Set transformation between NetLogo and loaded world.
 		transformation = new Transformation(gisEnvelope, worldEnvelope);
 
-		// Create NetLogo bindings for street nodes.
-		Coordinate temp = new Coordinate();
-		Map<Long, Turtle> util = new HashMap<Long, Turtle>();
-
-		for (StreetNode node : world.getStreetNodes()) {
-			transformation.transform(node.getPosition(), temp);
-			Turtle newNode = new Turtle(netLogoWorld, netLogoWorld.getBreed("NODES"), temp.x, temp.y);
-			util.put(node.getId(), newNode);
-			netLogoWorld.turtles().add(newNode);
-			newNode.hidden(true);
-		}
-
-		// Create NetLogo bindings for streets
+		// Create NetLogo bindings for streets and nodes
 		Collection<Street> streets = world.getStreets();
-		
+		Long2ObjectOpenHashMap<Turtle> nodes = new Long2ObjectOpenHashMap<Turtle>();
+
 		for (Street street : streets) {		
 			List<StreetSegment> segs = street.getSubSegments();
 			double color = street.isBlocked() ? 15.0 : 5.0;
 			
 			for (StreetSegment seg : segs) {
-				Pair<StreetNode, StreetNode> in = world.getIncidentNodes(seg);
-				Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()),
-						netLogoWorld.links());
+				Turtle startNode = nodes.get(seg.getStartingNode().getId());
+				
+				if (startNode == null) {
+					Coordinate pos = transformation.transform(seg.getStartingPoint());
+					startNode = new Turtle(netLogoWorld, netLogoWorld.getBreed("NODES"), pos.x, pos.y);
+					nodes.put(seg.getStartingNode().getId(), startNode);
+					netLogoWorld.turtles().add(startNode);
+					startNode.hidden(true);
+				}
+				Turtle endNode = nodes.get(seg.getEndingNode().getId());
+				
+				if (endNode == null) {
+					Coordinate pos = transformation.transform(seg.getStartingPoint());
+					endNode = new Turtle(netLogoWorld, netLogoWorld.getBreed("NODES"), pos.x, pos.y);
+					nodes.put(seg.getEndingNode().getId(), endNode);
+					netLogoWorld.turtles().add(endNode);
+					endNode.hidden(true);
+				}
+				// Pair<StreetNode, StreetNode> in = world.getIncidentNodes(seg);
+				Link newLink = netLogoWorld.linkManager.createLink(startNode, endNode, netLogoWorld.links());
 				netLogoWorld.links().add(newLink);
 				newLink.colorDouble(color);
 				newLink.lineThickness(0.05);

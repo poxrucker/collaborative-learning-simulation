@@ -8,7 +8,6 @@ import allow.simulator.mobility.data.gtfs.GTFSService;
 import allow.simulator.mobility.data.gtfs.GTFSServiceException;
 import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetSegment;
 
 /**
  * Interface for an urban mobility data service.
@@ -63,20 +62,11 @@ public interface IDataService {
 	TimeTable getTimeTable(String routeId);
 	
 	/**
-	 * Returns the route between two bus stops.
-	 * 
-	 * @param start First stop.
-	 * @param end Second stop.
-	 * @return
-	 */	
-	List<StreetSegment> getBusstopRouting(String start, String end);
-	
-	/**
 	 * Returns the route between two bus stops on the level of streets.
 	 * 
 	 * @param start First stop.
 	 * @param end Second stop.
 	 * @return
 	 */	
-	List<Street> getBusstopRoutingStreet(String start, String end);
+	List<Street> getBusstopRouting(String start, String end);
 }

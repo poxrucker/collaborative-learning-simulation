@@ -20,7 +20,6 @@ import allow.simulator.mobility.data.gtfs.GTFSService;
 import allow.simulator.mobility.data.gtfs.GTFSServiceException;
 import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetSegment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -177,37 +176,6 @@ public class OnlineDataService implements IDataService {
 	}
 
 	@Override
-	public List<StreetSegment> getBusstopRouting(String stop1, String stop2) {
-		/*OnlineJourneyPlanner planner = new OnlineJourneyPlanner("localhost", 8080);
-		SingleJourney s = new SingleJourney();
-		// Set date and departure time to current time.
-		final Date startingDate = new Date(System.currentTimeMillis());
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		s.Date = dateFormat.format(startingDate);
-		SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mmaa");
-		s.DepartureTime = timeFormat.format(startingDate);
-
-		// Set starting position and destination.
-		s.From.x = stop1.getPosition().x;
-		s.From.y = stop1.getPosition().y;
-		s.To.x = stop2.getPosition().x;
-		s.To.y = stop2.getPosition().y;
-		s.RouteType = RType.QUICK;
-
-		// Set predefined choice of means of transportation.
-		s.TransportTypes = new TType[] { TType.CAR };
-		s.ResultsNumber = 1;
-
-		List<Itinerary> trips = planner.requestSingleJourney(s);
-		
-		if (trips == null || trips.size() == 0) {
-			return "";
-		}
-		return trips.get(0).legs.get(0).legGeometry;*/
-		throw new UnsupportedOperationException("Error: Online bus routing is not implemented.");
-	}
-
-	@Override
 	public List<GTFSAgency> getAgencies() {
 		// Create http request and execute it.
 		try {
@@ -245,8 +213,7 @@ public class OnlineDataService implements IDataService {
 	}
 
 	@Override
-	public List<Street> getBusstopRoutingStreet(String start, String end) {
-		// TODO Auto-generated method stub
+	public List<Street> getBusstopRouting(String start, String end) {
 		return null;
 	}
 }

@@ -100,8 +100,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 			
 			for (StreetSegment seg : segs) {
 				Pair<StreetNode, StreetNode> in = world.getIncidentNodes(seg);
-				Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()),
-						netLogoWorld.links());
+				Link newLink = netLogoWorld.linkManager.createLink(util.get(in.first.getId()), util.get(in.second.getId()), netLogoWorld.links());
 				netLogoWorld.links().add(newLink);
 				newLink.colorDouble(color);
 				newLink.lineThickness(0.05);

@@ -151,12 +151,23 @@ public final class Simulator {
 	private void initializeBlockedStreets(StreetMap world) {
 		// Close roads
 		world.setStreetBlocked(world.getStreet("osm:node:278180296", "osm:node:339334743").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:278180296").getId(), true);
+
 		world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:339334723").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:339334723", "osm:node:339334743").getId(), true);
+
 		world.setStreetBlocked(world.getStreet("osm:node:339334723", "osm:node:1797200899").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:339334723").getId(), true);
+
 		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:1797200783").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1797200783", "osm:node:1797200899").getId(), true);
+
 		world.setStreetBlocked(world.getStreet("osm:node:1797200783", "osm:node:1797200897").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1797200897", "osm:node:1797200783").getId(), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:256827486", "osm:node:1797200899").getId(), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:256827486").getId(), true);
+
 	}
 	
 	private void loadEntitiesFromFile(Path config, int percentInitiallyInformed, int percentParticipating, int percentSharing) throws IOException {

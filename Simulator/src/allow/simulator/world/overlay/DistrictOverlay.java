@@ -57,9 +57,9 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 		areas.put(unknown.getType(), defaults);
 
 		// Create area to node mapping and initialize with default area.
-		areaToNodesMapping.put(unknown, new ArrayList<StreetNode>(base.getStreetNodesReduced()));
+		areaToNodesMapping.put(unknown, new ArrayList<StreetNode>(base.getStreetNodes()));
 
-		for (StreetNode node : base.getStreetNodesReduced()) {
+		for (StreetNode node : base.getStreetNodes()) {
 			List<Area> areas = new ArrayList<Area>(1);
 			areas.add(unknown);
 			nodesToAreaMapping.put(node, areas);
@@ -91,7 +91,7 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 		// Create mapping of points to area and vice versa.
 		List<StreetNode> nodes = new ArrayList<StreetNode>();
 
-		for (StreetNode n : base.getStreetNodesReduced()) {
+		for (StreetNode n : base.getStreetNodes()) {
 
 			if (area.pointInArea(n.getPosition())) {
 				// If point lies inside area add it to list of nodes.

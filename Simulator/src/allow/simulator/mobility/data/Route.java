@@ -77,7 +77,7 @@ public class Route {
 				for (int l = 0; l < tripStops.size() - 1; l++) {
 					BusStop curr = tripStops.get(l);
 					BusStop next = tripStops.get(l + 1);
-					List<Street> routing = service.getBusstopRoutingStreet(curr.getStopId(), next.getStopId());
+					List<Street> routing = service.getBusstopRouting(curr.getStopId(), next.getStopId());
 					
 					if (routing == null) routing = new ArrayList<Street>(0);
 					traces.add(routing);

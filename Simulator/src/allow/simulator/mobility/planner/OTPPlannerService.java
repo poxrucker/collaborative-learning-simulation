@@ -163,7 +163,7 @@ public final class OTPPlannerService extends AbstractOTPPlanner {
 			for (int j = 0; j < allStops.size() - 1; j++) {
 				String first = allStops.get(j);
 				String second = allStops.get(j + 1);
-				List<Street> segs = dataService.getBusstopRoutingStreet(first, second);
+				List<Street> segs = dataService.getBusstopRouting(first, second);
 
 				if (segs != null)
 					leg.streets.addAll(segs);

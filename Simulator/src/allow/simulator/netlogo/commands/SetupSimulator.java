@@ -46,12 +46,13 @@ public class SetupSimulator extends DefaultReporter {
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
 		
-//		params.GridResX = 5;
-//		params.GridResY = 5;
+		// Create simulator and NetLogo binding
+		Simulator simulator = null;
 		
 		try {
-			Simulator.Instance().setup(config, params);
-			NetLogoWrapper.initialize(Simulator.Instance(), (World) context.getAgent().world());
+			simulator = new Simulator();
+			simulator.setup(config, params);
+			NetLogoWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
 			
 		} catch (IOException e) {
 			throw new ExtensionException(e.getMessage());
@@ -59,7 +60,7 @@ public class SetupSimulator extends DefaultReporter {
 
 		// List buffer.
 		LogoListBuilder listBuilder = new LogoListBuilder();
-		allow.simulator.core.Context ctx = Simulator.Instance().getContext();
+		allow.simulator.core.Context ctx = simulator.getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);
 		listBuilder.add(ctx.getTime().toString());
 		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());

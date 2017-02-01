@@ -7,17 +7,19 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.netlogo.agent.NetLogoWrapper;
 
 public class ShutDownSimulator extends DefaultCommand {
 		
 	@Override
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
-		Simulator.Instance().finish();
+		int runId = args[0].getIntValue();
+		NetLogoWrapper.delete(runId);
 	}
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.commandSyntax();
+		int right[] = new int[] { Syntax.NumberType() };
+		return Syntax.commandSyntax(right);
 	}
 }

@@ -6,7 +6,6 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;

@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.nlogo.agent.Link;
 import org.nlogo.agent.Turtle;
@@ -25,7 +26,7 @@ import allow.simulator.world.Transformation;
 
 public final class NetLogoWrapper implements IContextWrapper {
 	// Static instance
-	private static NetLogoWrapper instance;
+	private static Map<Integer, NetLogoWrapper> instances = new ConcurrentHashMap<Integer, NetLogoWrapper>();
 	
 	// NetLogo world instance
 	private final World netLogoWorld;
@@ -37,8 +38,12 @@ public final class NetLogoWrapper implements IContextWrapper {
 	// Transformation to convert coordinates
 	private Transformation transformation;
 
-	public NetLogoWrapper(World netLogoWorld) {
+	// Simulator instance
+	private final Simulator simulator;
+	
+	public NetLogoWrapper(Simulator simulator, World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
+		this.simulator = simulator;
 		this.simToNetLogo = new Long2LongOpenHashMap();
 		this.netLogoToSim = new Long2LongOpenHashMap();
 	}
@@ -49,6 +54,10 @@ public final class NetLogoWrapper implements IContextWrapper {
 	
 	public World getWorld() {
 		return netLogoWorld;
+	}
+	
+	public Simulator getSimulator() {
+		return simulator;
 	}
 	
 	@Override
@@ -159,15 +168,23 @@ public final class NetLogoWrapper implements IContextWrapper {
 		}
 	}
 	
-	public static NetLogoWrapper initialize(Simulator simulator, World world) {
-		instance = new NetLogoWrapper(world);
+	public static NetLogoWrapper initialize(int runId, Simulator simulator, World world) {
+		NetLogoWrapper instance = new NetLogoWrapper(simulator, world);
 		instance.wrap(simulator.getContext());
+		instances.put(runId, instance);
 		return instance;
 	}
 	
-	public static NetLogoWrapper Instance() {
+	public static void delete(int runId) {
+		instances.remove(runId);
+	}
+
+	public static NetLogoWrapper Instance(int runId) {
+		NetLogoWrapper instance = instances.get(runId);
+		
 		if (instance == null)
 			throw new UnsupportedOperationException();
+		
 		return instance;
 	}
 }

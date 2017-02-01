@@ -48,9 +48,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  *
  */
 public final class Simulator {
-	// Instance of the simulator which can be accessed using Instance() method
-	private static Simulator instance;
-		
 	// Simulation context
 	private Context context;
 
@@ -65,7 +62,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+		threadpool = Executors.newCachedThreadPool(); //(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
 		System.out.println("Loading world...");
@@ -157,17 +154,6 @@ public final class Simulator {
 			PlanGenerator.generateDayPlan(p);
 			context.getEntityManager().addEntity(p);
 		}
-	}
-	
-	/**
-	 * Returns the current instance of the Simulator.
-	 *  
-	 * @return Instance of the Simulator
-	 */
-	public static Simulator Instance() {
-		if (instance == null)
-			instance = new Simulator();
-		return instance;
 	}
 	
 	/**

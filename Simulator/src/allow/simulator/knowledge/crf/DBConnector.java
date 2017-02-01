@@ -5,14 +5,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import allow.simulator.core.EvoKnowledgeConfiguration;
-import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
-import allow.simulator.entity.EntityTypes;
 import allow.simulator.knowledge.Experience;
 
 public class DBConnector {
@@ -87,7 +84,7 @@ public class DBConnector {
 		}
 	}
 	
-	private static void initPostgre() {
+	/*private static void initPostgre() {
 		Connection con = null;
 		Statement stmt = null;
 		
@@ -121,7 +118,7 @@ public class DBConnector {
 				e.printStackTrace();
 			}
 		}
-	}
+	}*/
 	
 	private static void initaIdTableExists() {
 		aIdTableExists.clear();

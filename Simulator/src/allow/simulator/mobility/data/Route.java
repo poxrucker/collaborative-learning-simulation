@@ -1,20 +1,10 @@
 package allow.simulator.mobility.data;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import allow.simulator.core.Simulator;
-import allow.simulator.mobility.data.TimeTable.Day;
-import allow.simulator.mobility.data.gtfs.GTFSService;
-import allow.simulator.mobility.data.gtfs.GTFSServiceException;
-import allow.simulator.mobility.data.gtfs.GTFSStopTimes;
-import allow.simulator.world.Street;
 
 public class Route {
 	// Id of this route.
@@ -37,60 +27,13 @@ public class Route {
 	 * @param routeId Id of this route.
 	 * @param timeTable Time table of this route.
 	 */
-	public Route(String routeId, TimeTable timeTable, Map<String, BusStop> stops) {
+	public Route(String routeId, List<List<PublicTransportationTrip>> trips, Map<String, PublicTransportationTrip> tripInfo,
+			Map<String, BusStop> stops) {
 		this.routeId = routeId;
 		this.stops = stops;
-		timeTableToTrips(timeTable);
+		this.trips = trips;
+		this.tripInfo = tripInfo;
 		tripsToReturn = new ArrayList<PublicTransportationTrip>(16);
-	}
-	
-	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("kk:mm:ss");
-	
-	private void timeTableToTrips(TimeTable tt) {
-		// For routing.
-		IDataService service = Simulator.Instance().getContext().getDataService();
-
-		// Allocate trips structure.
-		trips = new ArrayList<List<PublicTransportationTrip>>(7);
-		tripInfo = new HashMap<String, PublicTransportationTrip>();
-		
-		for (int i = 0; i < 7; i++) {
-			List<GTFSStopTimes> stoptimes = tt.getTripsOfDay(Day.values()[i]);
-			LinkedList<PublicTransportationTrip> toAdd = new LinkedList<PublicTransportationTrip>();
-			
-			for (int j = 0; j < stoptimes.size(); j++) {
-				// Current stop info.
-				GTFSStopTimes info = stoptimes.get(j);
-
-				// Allocate lists for times and stops and copy them.
-				List<LocalTime> tripTimes = new ArrayList<LocalTime>(info.getStopIds().length);
-				List<BusStop> tripStops = new ArrayList<BusStop>(info.getStopIds().length);
-				
-				for (int k = 0; k < info.getStopIds().length; k++) {
-					tripStops.add(stops.get(info.getStopIds()[k]));
-					tripTimes.add(LocalTime.parse(info.getDepartureTimes()[k], format));
-				}
-				
-				// Allocate lists for traces and generate them.
-				List<List<Street>> traces = new ArrayList<List<Street>>(tripStops.size() - 1);
-
-				for (int l = 0; l < tripStops.size() - 1; l++) {
-					BusStop curr = tripStops.get(l);
-					BusStop next = tripStops.get(l + 1);
-					List<Street> routing = service.getBusstopRouting(curr.getStopId(), next.getStopId());
-					
-					if (routing == null) routing = new ArrayList<Street>(0);
-					traces.add(routing);
-				}
-				GTFSService serviceId = service.getServiceId(routeId, info.getTripId());
-				List<GTFSServiceException> exceptions = service.getServiceExceptions(serviceId.getServiceId());
-				PublicTransportationTrip t = new PublicTransportationTrip(info.getTripId(), serviceId.startDate(), serviceId.endDate(), exceptions, tripStops, tripTimes, traces);
-				toAdd.addLast(t);
-				
-				if (!tripInfo.containsKey(t.getTripId())) tripInfo.put(t.getTripId(), t);
-			}
-			trips.add(toAdd);
-		}
 	}
 	
 	public String getRouteId() {

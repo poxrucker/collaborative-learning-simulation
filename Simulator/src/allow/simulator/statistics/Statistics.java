@@ -179,28 +179,28 @@ public class Statistics {
 		return numberOfCongestedStreets;
 	}
 	
-	public synchronized void reportCarJourney() {
+	public void reportCarJourney() {
 		numberOfCarJourneys++;
 	}
 	
-	public synchronized void reportTransitJourney() {
+	public void reportTransitJourney() {
 		numberOfTransitJourneys++;
 	}
 	
-	public synchronized void reportBikeJourney() {
+	public void reportBikeJourney() {
 		numberOfBikeJourneys++;
 	}
 	
-	public synchronized void reportWalkJourney() {
+	public void reportWalkJourney() {
 		numberOfWalkJourneys++;
 	}
 	
-	public synchronized void reportTaxiJourney() {
+	public void reportTaxiJourney() {
 		numberOfTaxiJourneys++;
 		numberOfTaxiJourneysPerDay++;
 	}
 	
-	public synchronized void reportCongestedStreet() {
+	public void reportCongestedStreet() {
 		numberOfCongestedStreets++;
 	}
 	
@@ -208,45 +208,45 @@ public class Statistics {
 		numberOfCongestedStreets = 0;
 	}
 	
-	public synchronized void reportPriorAndPosteriorCarTravelTimes(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorCarTravelTimes(double priorToAdd, double posteriorToAdd) {
 		priorCarTravelTime.addValue(priorToAdd);
 		posteriorCarTravelTime.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void reportPriorAndPosteriorTransitTravelTimes(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorTransitTravelTimes(double priorToAdd, double posteriorToAdd) {
 		priorBusTravelTime.addValue(priorToAdd);
 		posteriorBusTravelTime.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void reportPriorAndPosteriorBikeTravelTimes(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorBikeTravelTimes(double priorToAdd, double posteriorToAdd) {
 		priorBikeTravelTime.addValue(priorToAdd);
 		posteriorBikeTravelTime.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void reportPriorAndPosteriorWalkTravelTimes(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorWalkTravelTimes(double priorToAdd, double posteriorToAdd) {
 		priorWalkTravelTime.addValue(priorToAdd);
 		posteriorWalkTravelTime.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void reportBusFillingLevel(double fillingLevel) {
+	public void reportBusFillingLevel(double fillingLevel) {
 		busFillingLevel.addValue(fillingLevel);
 	}
 	
-	public synchronized void reportReplaningWaitingTime(double waitingTime) {
+	public void reportReplaningWaitingTime(double waitingTime) {
 		replaningWaitingTime.addValue(waitingTime);
 	}
 	
-	public synchronized void reportPriorAndPosteriorUtilityCar(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorUtilityCar(double priorToAdd, double posteriorToAdd) {
 		priorUtilityCar.addValue(priorToAdd);
 		posteriorUtilityCar.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void reportPriorAndPosteriorUtilityBus(double priorToAdd, double posteriorToAdd) {
+	public void reportPriorAndPosteriorUtilityBus(double priorToAdd, double posteriorToAdd) {
 		priorUtilityBus.addValue(priorToAdd);
 		posteriorUtilityBus.addValue(posteriorToAdd);
 	}
 	
-	public synchronized void updateGlobalStatistics(Context simulationContext) {
+	public void updateGlobalStatistics(Context simulationContext) {
 		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();

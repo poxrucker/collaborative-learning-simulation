@@ -27,8 +27,13 @@ public class GetRegions extends DefaultReporter
 {
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
+		// Get runId
+		int runId = args[0].getIntValue();
+		
+		// NetLogoWrapper
+		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
 		LogoListBuilder bldr = new LogoListBuilder();
-		StreetMap map = (StreetMap) Simulator.Instance().getContext().getWorld();
+		StreetMap map = (StreetMap) wrapper.getSimulator().getContext().getWorld();
 		
 		if (map == null) 
 			throw new ExtensionException("Error: Simulator is not initialized.");
@@ -52,7 +57,7 @@ public class GetRegions extends DefaultReporter
 				temp.add(type.toString());
 			}
 		}
-		Transformation t = NetLogoWrapper.Instance().getTransformation();
+		Transformation t = wrapper.getTransformation();
 		
 		for (String area : areas) {
 			if (area.equals("default")) {
@@ -77,6 +82,7 @@ public class GetRegions extends DefaultReporter
 	}
 	
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(Syntax.ListType());
+		int[] right = new int[] { Syntax.NumberType() };
+		return Syntax.reporterSyntax(right, Syntax.ListType());
 	}
 }

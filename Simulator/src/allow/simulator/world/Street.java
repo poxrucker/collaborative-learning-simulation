@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import allow.simulator.core.Simulator;
-
 
 /**
  * Represents a street of the street map in the Allow Ensembles simulator.
@@ -223,8 +221,8 @@ public class Street extends Observable implements Observer {
 		numberOfVehicles = temp;
 		vehicleLengthRatio = numberOfVehicles / length;
 		
-		if (vehicleLengthRatio > 0.1) {
+		/*if (vehicleLengthRatio > 0.1) {
 			Simulator.Instance().getContext().getStatistics().reportCongestedStreet();
-		}
+		}*/
 	}
 }

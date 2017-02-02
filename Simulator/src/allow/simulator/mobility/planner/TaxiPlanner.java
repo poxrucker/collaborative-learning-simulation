@@ -20,7 +20,7 @@ public final class TaxiPlanner implements IPlannerService {
 	public static final double COST_PER_METER = 0.001;
 	
 	// List of planner services to create car trips
-	private final List<OTPPlannerService> plannerServices;
+	private final List<OTPPlanner> plannerServices;
 	
 	// Position of taxi rank 
 	private final Coordinate taxiRank;
@@ -35,7 +35,7 @@ public final class TaxiPlanner implements IPlannerService {
 	 * @param plannerServices Set of planners to use for creating taxi itineraries
 	 * @param taxiRank Position of taxi rank where all taxis start from
 	 */
-	public TaxiPlanner(List<OTPPlannerService> plannerServices, Coordinate taxiRank) {
+	public TaxiPlanner(List<OTPPlanner> plannerServices, Coordinate taxiRank) {
 		this.plannerServices = plannerServices;
 		this.taxiRank = taxiRank;
 		tripBuffer = new ConcurrentHashMap<String, TaxiTrip>();

@@ -3,12 +3,11 @@ package allow.simulator.flow.activity.person;
 import java.time.LocalTime;
 import java.util.List;
 
-import allow.simulator.entity.Person;
 import allow.simulator.entity.Bus;
+import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.BusStop;
-import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.relation.Relation;
 
@@ -79,7 +78,7 @@ public class UsePublicTransport extends Activity {
 		} else if (!enteredBus) {
 			// Try to get transportation mean.
 			if (b == null) {
-				b = TransportationRepository.Instance().getGTFSTransportAgency(agencyId).getVehicleOfTrip(trip.getTripId());
+				b = person.getContext().getTransportationRepository().getBusAgency(agencyId).getVehicleOfTrip(trip.getTripId());
 			}
 			// Reaching a stop needs zero time.
 			if (b != null && person.getContext().getTime().getCurrentTime().isAfter(earliestStartingTime.plusSeconds(b.getCurrentDelay() + 300))) {

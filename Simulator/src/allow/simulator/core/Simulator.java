@@ -18,14 +18,15 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
-import allow.simulator.mobility.data.MobilityRepository;
 import allow.simulator.mobility.data.OfflineDataService;
 import allow.simulator.mobility.data.OnlineDataService;
+import allow.simulator.mobility.data.RoutingData;
 import allow.simulator.mobility.data.TransportationRepository;
+import allow.simulator.mobility.data.gtfs.GTFSData;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
 import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
-import allow.simulator.mobility.planner.OTPPlannerService;
+import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
@@ -62,7 +63,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newCachedThreadPool(); //(Runtime.getRuntime().availableProcessors() * 2);
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
 		System.out.println("Loading world...");
@@ -90,8 +91,9 @@ public final class Simulator {
 		
 			} else {
 				// For offline queries create mobility repository and offline service.
-				MobilityRepository repos = new MobilityRepository(Paths.get(dataConfig.getURL()), world);
-				dataServices.add(new OfflineDataService(repos));
+				GTFSData gtfs = GTFSData.parse(Paths.get(dataConfig.getURL()));
+				RoutingData routing = RoutingData.parse(Paths.get(dataConfig.getURL()), world, gtfs);
+				dataServices.add(new OfflineDataService(gtfs, routing));
 			}
 		}
 		
@@ -100,12 +102,12 @@ public final class Simulator {
 				
 		// Create planner services.
 		System.out.println("Creating planner services...");
-		List<OTPPlannerService> plannerServices = new ArrayList<OTPPlannerService>();
+		List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
 		
 		for (int i = 0; i < plannerConfigs.size(); i++) {
 			Service plannerConfig = plannerConfigs.get(i);
-			plannerServices.add(new OTPPlannerService(plannerConfig.getURL(), plannerConfig.getPort(), world, dataServices.get(0), time));
+			plannerServices.add(new OTPPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world, dataServices.get(0), time));
 		}		
 		
 		// Create taxi planner service
@@ -131,7 +133,7 @@ public final class Simulator {
 		
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
-		TransportationRepository repos = TransportationRepository.loadPublicTransportation(context);
+		TransportationRepository repos = new TransportationRepository(context);
 		context.setTransportationRepository(repos);
 		
 		// Initialize EvoKnowlegde and setup logger.

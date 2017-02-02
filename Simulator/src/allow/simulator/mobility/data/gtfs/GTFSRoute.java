@@ -6,14 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 /**
- * Utility class describing a route of public transportation from GTFS.
+ * Utility class modeling a route of public transportation from GTFS.
  * (https://developers.google.com/transit/gtfs/reference)
  * 
  * @author Andreas Poxrucker (DFKI)
  *
  */
 public final class GTFSRoute {
-	
 	// Id of the route.
 	private String id;
 	
@@ -35,13 +34,12 @@ public final class GTFSRoute {
 	private int mode;
 	
 	/**
-	 * Constructor.
 	 * Creates a new route info class describing a route of a public
 	 * transportation agency from GTFS.
 	 * 
-	 * @param id Id of the route.
-	 * @param name Id of the agency this route belongs to.
-	 * @param mode Mode of transportation.
+	 * @param id Id of the route
+	 * @param name Id of the agency this route belongs to
+	 * @param mode Mode of transportation
 	 */
 	@JsonCreator
 	public GTFSRoute(@JsonProperty("id") String id,
@@ -55,7 +53,7 @@ public final class GTFSRoute {
 	/**
 	 * Returns the Id of the route.
 	 * 
-	 * @return Id of the route.
+	 * @return Id of the route
 	 */
 	public String getId() {
 		return id;
@@ -64,7 +62,7 @@ public final class GTFSRoute {
 	/**
 	 * Returns the Id of the agency this route belongs to.
 	 * 
-	 * @return Id of the agency this route belongs to.
+	 * @return Id of the agency this route belongs to
 	 */
 	public String getAgencyId() {
 		return agencyId;
@@ -85,7 +83,7 @@ public final class GTFSRoute {
 	 *    where the car is suspended from the cable.
 	 * 7: Funicular. Any rail system designed for steep inclines.
 	 * 
-	 * @return Mode of transportation of the route.
+	 * @return Mode of transportation of the route
 	 */
 	public int getMode() {
 		return mode;

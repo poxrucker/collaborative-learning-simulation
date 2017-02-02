@@ -25,7 +25,7 @@ import allow.simulator.mobility.data.gtfs.GTFSStopTimes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 
-public class TransportationRepository {
+public final class TransportationRepository {
 	// Collection of available GTFS transportation agencies.
 	private Map<String, BusAgency> gtfsAgencies;
 
@@ -35,10 +35,7 @@ public class TransportationRepository {
 	// Taxi agency providing single and shared taxi rides
 	private TaxiAgency taxiAgency;
 	
-	// Instance of object.
-	private static TransportationRepository instance;
-	
-	private TransportationRepository(Context context) {
+	public TransportationRepository(Context context) {
 		// Load GTFS agencies and FlexiBus.
 		reload(context);
 	}
@@ -144,7 +141,9 @@ public class TransportationRepository {
 					BusStop next = tripStops.get(l + 1);
 					List<Street> routing = service.getBusstopRouting(curr.getStopId(), next.getStopId());
 					
-					if (routing == null) routing = new ArrayList<Street>(0);
+					if (routing == null)
+						routing = new ArrayList<Street>(0);
+					
 					traces.add(routing);
 				}
 				GTFSService serviceId = service.getServiceId(routeId, info.getTripId());
@@ -158,20 +157,8 @@ public class TransportationRepository {
 		}
 		return new Route(routeId, trips, tripInfo, stops);
 	}
-	
-	public static TransportationRepository loadPublicTransportation(Context context) {
-		instance = new TransportationRepository(context);
-		return instance;
-	}
-	
-	public static TransportationRepository Instance() {
-		if (instance == null)
-			throw new IllegalStateException("Error: Buslines not loaded. Execute loadBuslines() before.");
-		
-		return instance;
-	}
-	
-	public BusAgency getGTFSTransportAgency(String agencyId) {
+
+	public BusAgency getBusAgency(String agencyId) {
 		return gtfsAgencies.get(agencyId);
 	}
 	
@@ -181,9 +168,5 @@ public class TransportationRepository {
 	
 	public TaxiAgency getTaxiAgency() {
 		return taxiAgency;
-	}
-	
-	public Map<String, BusAgency> getGTFSTransportAgencies() {
-		return gtfsAgencies;
 	}
 }

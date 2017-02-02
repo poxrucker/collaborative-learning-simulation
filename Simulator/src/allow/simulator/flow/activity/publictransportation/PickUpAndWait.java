@@ -7,7 +7,7 @@ import allow.simulator.core.Time;
 import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.BusStop;
+import allow.simulator.mobility.data.Stop;
 
 /**
  * Represents an activity for a means of public transportation to approach a
@@ -16,9 +16,9 @@ import allow.simulator.mobility.data.BusStop;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class PickUpAndWait extends Activity {
+public final class PickUpAndWait extends Activity {
 	// Stop to approach.
-	private BusStop stop;
+	private Stop stop;
 	
 	// Time stop trip departs from this stop.
 	private LocalTime time;
@@ -36,7 +36,7 @@ public class PickUpAndWait extends Activity {
 	 * @param stop Stop to approach.
 	 * @param time Time to depart form the stop.
 	 */
-	public PickUpAndWait(Bus entity, BusStop stop, LocalTime time) {
+	public PickUpAndWait(Bus entity, Stop stop, LocalTime time) {
 		// Constructor of super class.
 		super(ActivityType.PICKUP_AND_WAIT, entity);
 		
@@ -60,7 +60,7 @@ public class PickUpAndWait extends Activity {
 			tStart = entity.getContext().getTime().getTimestamp();
 			p.setCurrentStop(stop);
 			p.setPosition(stop.getPosition());
-			stop.addPublicTransportation(p);
+			stop.addTransportationEntity(p);
 			approached = true;
 			return deltaT;
 		}
@@ -70,7 +70,7 @@ public class PickUpAndWait extends Activity {
 					
 		if ((currentTime.getDays() > day || currentTime.getCurrentTime().isAfter(time))) {
 			// Remove transportation from current stop.
-			stop.removePublicTransportation(p);
+			stop.removeTransportationEntity(p);
 			p.setCurrentStop(null);
 			setFinished();
 			

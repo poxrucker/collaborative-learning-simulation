@@ -11,7 +11,7 @@ public class Route {
 	private String routeId;
 	
 	// Stops of this route.
-	private Map<String, BusStop> stops;
+	private Map<String, Stop> stops;
 	
 	// Trips of this route ordered chronological by day.
 	private List<List<PublicTransportationTrip>> trips;
@@ -28,7 +28,7 @@ public class Route {
 	 * @param timeTable Time table of this route.
 	 */
 	public Route(String routeId, List<List<PublicTransportationTrip>> trips, Map<String, PublicTransportationTrip> tripInfo,
-			Map<String, BusStop> stops) {
+			Map<String, Stop> stops) {
 		this.routeId = routeId;
 		this.stops = stops;
 		this.trips = trips;
@@ -89,7 +89,7 @@ public class Route {
 		return tripsToReturn;
 	}
 	
-	public BusStop getStop(String stopId) {
+	public Stop getStop(String stopId) {
 		return stops.get(stopId);
 	}
 	

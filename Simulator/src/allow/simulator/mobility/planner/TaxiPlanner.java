@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.mobility.data.TaxiStop;
-import allow.simulator.mobility.data.TaxiTrip;
+import allow.simulator.mobility.data.Stop;
+import allow.simulator.mobility.data.Trip;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 
@@ -26,7 +26,7 @@ public final class TaxiPlanner implements IPlannerService {
 	private final Coordinate taxiRank;
 
 	// Buffer to store planned trips which can be requested 
-	private final Map<String, TaxiTrip> tripBuffer;
+	private final Map<String, Trip> tripBuffer;
 
 	/**
 	 * Creates a new instance of a TaxiPlanner service which operates on the
@@ -38,7 +38,7 @@ public final class TaxiPlanner implements IPlannerService {
 	public TaxiPlanner(List<OTPPlanner> plannerServices, Coordinate taxiRank) {
 		this.plannerServices = plannerServices;
 		this.taxiRank = taxiRank;
-		tripBuffer = new ConcurrentHashMap<String, TaxiTrip>();
+		tripBuffer = new ConcurrentHashMap<String, Trip>();
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public final class TaxiPlanner implements IPlannerService {
 	 * @return TaxiTrip which corresponds to the given trip Id, or null if
 	 * no such trip exists
 	 */
-	public TaxiTrip getTaxiTrip(String tripId) {
+	public Trip getTaxiTrip(String tripId) {
 		return tripBuffer.remove(tripId);
 	}
 
@@ -94,7 +94,7 @@ public final class TaxiPlanner implements IPlannerService {
 			return null;
 		
 		// Create TaxiTrip and buffer it
-		TaxiTrip taxiTrip = createTaxiTrip(legs);
+		Trip taxiTrip = createTaxiTrip(legs);
 		tripBuffer.put(taxiTrip.getTripId(), taxiTrip);
 		
 		// Create itinerary to return
@@ -150,7 +150,7 @@ public final class TaxiPlanner implements IPlannerService {
 		}
 		
 		// Create TaxiTrip using the determined offset and add it to buffer
-		TaxiTrip taxiTrip = createTaxiTrip(taxilegs);
+		Trip taxiTrip = createTaxiTrip(taxilegs);
 		tripBuffer.put(taxiTrip.getTripId(), taxiTrip);
 
 		// Summarize costs
@@ -437,17 +437,17 @@ public final class TaxiPlanner implements IPlannerService {
 		return l;
 	}
 	
-	private TaxiTrip createTaxiTrip(List<Leg> tripLegs) {
+	private Trip createTaxiTrip(List<Leg> tripLegs) {
 		final int nLegs = tripLegs.size();
-		List<TaxiStop> stops = new ArrayList<TaxiStop>(nLegs);
+		List<Stop> stops = new ArrayList<Stop>(nLegs);
 		List<LocalTime> stopTimes = new ArrayList<LocalTime>(nLegs);
 		List<List<Street>> traces = new ArrayList<List<Street>>(nLegs);
 		
 		for (Leg l : tripLegs) {
-			stops.add(new TaxiStop(l.stopIdTo, l.to));	
+			stops.add(new Stop(l.stopIdTo, l.to));	
 			stopTimes.add(LocalDateTime.ofInstant(Instant.ofEpochMilli(l.endTime), ZoneId.of("UTC+2")).toLocalTime());
 			traces.add(new ArrayList<Street>(l.streets));
 		}
-		return new TaxiTrip(tripLegs.get(1).tripId, stops, stopTimes, traces);
+		return new Trip(tripLegs.get(1).tripId, stops, stopTimes, traces);
 	}	
 }

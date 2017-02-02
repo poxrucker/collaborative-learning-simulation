@@ -6,15 +6,14 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import allow.simulator.entity.Person;
 import allow.simulator.entity.BusAgency;
+import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.Route;
-import allow.simulator.mobility.data.TaxiStop;
+import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
@@ -94,11 +93,11 @@ public final class PrepareJourney extends Activity {
 					throw new IllegalStateException("Error: Trip " + l.tripId + " of " + l.agencyId + " is unknown.");
 
 				// Get start and destination stop.
-				BusStop in = route.getStop(l.stopIdFrom);
+				Stop in = route.getStop(l.stopIdFrom);
 				if (in == null)
 					throw new IllegalStateException("Error: Stop "+ l.stopIdFrom + " of route " + l.routeId + " is unknown.");
 
-				BusStop out = route.getStop(l.stopIdTo);
+				Stop out = route.getStop(l.stopIdTo);
 				if (out == null)
 					throw new IllegalStateException("Error: Stop "+ l.stopIdTo + " of route " + l.routeId + " is unknown.");
 				
@@ -118,8 +117,8 @@ public final class PrepareJourney extends Activity {
 			case SHARED_TAXI:
 				TaxiAgency taxiAgency = person.getContext().getTransportationRepository().getTaxiAgency();
 				Taxi taxi = taxiAgency.call(l.tripId);
-				TaxiStop in2 = taxiAgency.getTaxiStop(l.stopIdFrom);
-				TaxiStop out2 = taxiAgency.getTaxiStop(l.stopIdTo);
+				Stop in2 = taxiAgency.getTaxiStop(l.stopIdFrom);
+				Stop out2 = taxiAgency.getTaxiStop(l.stopIdTo);
 				entity.getFlow().addActivity(new UseTaxi(person, in2, out2, taxi,
 						LocalDateTime.ofInstant(Instant.ofEpochMilli(l.startTime), ZoneId.of("UTC+2")).toLocalTime()));
 			case WALK:

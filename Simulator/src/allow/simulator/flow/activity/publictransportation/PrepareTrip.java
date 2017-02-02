@@ -8,8 +8,8 @@ import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.person.Learn;
-import allow.simulator.mobility.data.BusStop;
 import allow.simulator.mobility.data.PublicTransportationTrip;
+import allow.simulator.mobility.data.Stop;
 import allow.simulator.world.Street;
 
 /**
@@ -48,7 +48,7 @@ public class PrepareTrip extends Activity {
 		Bus p = (Bus) entity;
 		
 		// Check trip.
-		List<BusStop> tripStops = trip.getStops();
+		List<Stop> tripStops = trip.getStops();
 		List<LocalTime> tripStopTimes = trip.getStopTimes();
 		
 		if ((tripStops.size() != tripStopTimes.size()) || tripStops.size() == 0
@@ -60,7 +60,7 @@ public class PrepareTrip extends Activity {
 		}
 		// Prepare trip by creating a PickUpAndWait activity for each stop and
 		// a DriveToNextStop for each trace, and finally set transport trip.
-		Iterator<BusStop> stopIterator = trip.getStops().iterator();
+		Iterator<Stop> stopIterator = trip.getStops().iterator();
 		Iterator<LocalTime> timesIterator = trip.getStopTimes().iterator();
 		Iterator<List<Street>> tracesIterator = trip.getTraces().iterator();
 

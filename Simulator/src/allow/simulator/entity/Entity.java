@@ -1,14 +1,11 @@
 package allow.simulator.entity;
 
-import java.util.ArrayList;
 import java.util.Observable;
 
 import allow.simulator.core.Context;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
 import allow.simulator.knowledge.EvoKnowledge;
-import allow.simulator.knowledge.Knowledge;
-import allow.simulator.knowledge.Experience;
 import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
 

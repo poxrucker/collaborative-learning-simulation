@@ -115,6 +115,54 @@ public abstract class TransportationEntity extends Entity {
 		return capacity;
 	}
 
+	/**
+	 * Sets the trip the transportation entity is currently operating.
+	 * 
+	 * @param trip Trip the transportation entity operates. Can be null to
+	 * indicate that the transportation entity does not operate a trip
+	 */
+	public void setCurrentTrip(Trip trip) {
+		currentTrip = trip;
+	}
+	
+	/**
+	 * Returns the trip the transportation entity is operating.
+	 * 
+	 * @return Trip the transportation entity is operating
+	 */
+	public Trip getCurrentTrip() {
+		return currentTrip;
+	}
+	
+	/**
+	 * Sets the stop of the transportation entity is currently waiting at.
+	 * 
+	 * @param stop Stop the transportation entity is currently waiting at. 
+	 * Can be null to indicate that the transportation entity does not wait
+	 * at a stop as it is moving or not executing a trip
+	 */
+	public void setCurrentStop(Stop stop) {
+		currentStop = stop;
+	}
+	
+	/**
+	 * Returns the stop the transportation entity is currently waiting at.
+	 * 
+	 * @return Stop the transportation entity is currently waiting at
+	 */
+	public Stop getCurrentStop() {
+		return currentStop;
+	}
+	
+	/**
+	 * Returns the agency the transportation entity is used by.
+	 * 
+	 * @return Agency the transportation entity is used by.
+	 */
+	public TransportationAgency getTransportationAgency() {
+		return agency;
+	}
+	
 	public String toString() {
 		return "[TransportationEntity" + id + "]";
 	}

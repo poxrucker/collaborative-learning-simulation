@@ -68,10 +68,10 @@ public final class TransportationRepository {
 				
 				// Create stops of route from data service query.
 				List<GTFSStop> stops = dataService.getStops(routeId);
-				Map<String, BusStop> stopMap = new HashMap<String, BusStop>(stops.size());
+				Map<String, Stop> stopMap = new HashMap<String, Stop>(stops.size());
 				
 				for (GTFSStop current : stops) {
-					BusStop s = new BusStop(current.getName(), current.getId(), new Coordinate(current.getLon(), current.getLat()));
+					Stop s = new Stop(current.getId(), new Coordinate(current.getLon(), current.getLat()));
 					stopMap.put(current.getId(), s);
 				}
 				
@@ -111,7 +111,7 @@ public final class TransportationRepository {
 	
 	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("kk:mm:ss");
 	
-	private Route createRoute(String routeId, Map<String, BusStop> stops, TimeTable tt, IDataService service) {
+	private Route createRoute(String routeId, Map<String, Stop> stops, TimeTable tt, IDataService service) {
 		// Allocate trips structure
 		List<List<PublicTransportationTrip>> trips = new ArrayList<List<PublicTransportationTrip>>(7);
 		Map<String, PublicTransportationTrip> tripInfo = new HashMap<String, PublicTransportationTrip>();
@@ -126,7 +126,7 @@ public final class TransportationRepository {
 
 				// Allocate lists for times and stops and copy them.
 				List<LocalTime> tripTimes = new ArrayList<LocalTime>(info.getStopIds().length);
-				List<BusStop> tripStops = new ArrayList<BusStop>(info.getStopIds().length);
+				List<Stop> tripStops = new ArrayList<Stop>(info.getStopIds().length);
 				
 				for (int k = 0; k < info.getStopIds().length; k++) {
 					tripStops.add(stops.get(info.getStopIds()[k]));
@@ -137,8 +137,8 @@ public final class TransportationRepository {
 				List<List<Street>> traces = new ArrayList<List<Street>>(tripStops.size() - 1);
 
 				for (int l = 0; l < tripStops.size() - 1; l++) {
-					BusStop curr = tripStops.get(l);
-					BusStop next = tripStops.get(l + 1);
+					Stop curr = tripStops.get(l);
+					Stop next = tripStops.get(l + 1);
 					List<Street> routing = service.getBusstopRouting(curr.getStopId(), next.getStopId());
 					
 					if (routing == null)

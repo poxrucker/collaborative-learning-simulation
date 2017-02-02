@@ -1,5 +1,6 @@
 package allow.simulator.flow.activity.publictransportation;
 
+import allow.simulator.entity.BusAgency;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
@@ -37,8 +38,9 @@ public class ReturnToAgency extends Activity {
 			}
 			//throw new IllegalStateException("Error: " + p + " returning to agency still has passengers");
 		}
-		// Finish trip at agency.
-		p.getTransportationAgency().finishTrip(p.getCurrentTrip(), p);
+		// Finish trip at agency
+		BusAgency agency = (BusAgency) p.getTransportationAgency();
+		agency.finishTrip(p.getCurrentTrip(), p);
 		
 		// Reset state and return to agency.
 		p.setCurrentStop(null);

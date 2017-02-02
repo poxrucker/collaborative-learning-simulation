@@ -6,7 +6,7 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.TaxiStop;
+import allow.simulator.mobility.data.Stop;
 import allow.simulator.relation.Relation;
 
 /**
@@ -17,8 +17,8 @@ import allow.simulator.relation.Relation;
  */
 public final class UseTaxi extends Activity {
 	// The stops to get in and out.
-	private TaxiStop in;
-	private TaxiStop out;
+	private Stop in;
+	private Stop out;
 
 	// The bus a person entered.
 	private Taxi taxi;
@@ -43,7 +43,7 @@ public final class UseTaxi extends Activity {
 	 * @param departure
 	 *            Time when taxi is expected to depart from stop
 	 */
-	public UseTaxi(Person person, TaxiStop start, TaxiStop dest,
+	public UseTaxi(Person person, Stop start, Stop dest,
 			Taxi taxi, LocalTime departure) {
 		super(ActivityType.USE_PUBLIC_TRANSPORT, person);
 		earliestStartingTime = departure;
@@ -72,8 +72,8 @@ public final class UseTaxi extends Activity {
 			
 		} else if (!enteredTaxi) {
 			// If person has not entered the correct means yet, check in stop for waiting vehicles.
-			if (in.hasWaitingTaxi()) {
-				Taxi temp = in.getTaxi();
+			if (in.hasWaitingTransportationEntity()) {
+				Taxi temp = (Taxi) in.getTransportationEntities().get(0);
 				
 				if (taxi != temp)
 					throw new IllegalStateException();

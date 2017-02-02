@@ -2,6 +2,7 @@ package allow.simulator.flow.activity.taxi;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
+import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
@@ -34,7 +35,8 @@ public class ReturnToTaxiAgency extends Activity {
 			}
 		}
 		// Finish trip at agency.
-		taxi.getTransportationAgency().finishTrip(taxi.getCurrentTrip().getTripId(), taxi);
+		TaxiAgency agency = (TaxiAgency) taxi.getTransportationAgency();
+		agency.finishTrip(taxi.getCurrentTrip().getTripId(), taxi);
 
 		// Reset state and return to agency.
 		taxi.setCurrentStop(null);

@@ -5,9 +5,10 @@ import java.util.List;
 
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.Person;
+import allow.simulator.entity.TransportationEntity;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.BusStop;
+import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.relation.Relation;
 
@@ -19,8 +20,8 @@ import allow.simulator.relation.Relation;
  */
 public class UsePublicTransport extends Activity {
 	// The stops to get in and out.
-	private BusStop in;
-	private BusStop out;
+	private Stop in;
+	private Stop out;
 	private String agencyId;
 	private Trip trip;
 	
@@ -45,7 +46,7 @@ public class UsePublicTransport extends Activity {
 	 * @param departure Time when public transportation departs from stop
 	 *        according to schedule. 
 	 */
-	public UsePublicTransport(Person person, BusStop start, BusStop dest, String agencyId, Trip trip, LocalTime departure) {
+	public UsePublicTransport(Person person, Stop start, Stop dest, String agencyId, Trip trip, LocalTime departure) {
 		super(ActivityType.USE_PUBLIC_TRANSPORT, person);
 		earliestStartingTime = departure;
 		reachedStop = false;
@@ -103,11 +104,11 @@ public class UsePublicTransport extends Activity {
 			}
 			
 			// If person has not entered the correct means yet, check in stop for waiting vehicles.
-			if (in.hasWaitingBusses()) {
-				List<Bus> waiting = in.getPublicTransportationEntities();
+			if (in.hasWaitingTransportationEntity()) {
+				List<TransportationEntity> waiting = in.getTransportationEntities();
 
 				for (int i = 0; i < waiting.size(); i++) {
-					Bus transport = waiting.get(i);
+					Bus transport = (Bus) waiting.get(i);
 					
 					if (transport.getCurrentTrip().getTripId().equals(trip.getTripId())) {
 						boolean success = transport.addPassenger(person);

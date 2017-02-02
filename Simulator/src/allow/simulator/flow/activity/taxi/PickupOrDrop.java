@@ -6,17 +6,17 @@ import java.time.LocalTime;
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.TaxiStop;
+import allow.simulator.mobility.data.Stop;
 
 public class PickupOrDrop extends Activity {
 	// The stop to pickup or drop off a passenger
-	private TaxiStop stop;
+	private Stop stop;
 	private LocalTime stopTime;
 	
 	// Flags.
 	private boolean approached;
 
-	public PickupOrDrop(Taxi taxi, TaxiStop stop, LocalTime stopTime) {
+	public PickupOrDrop(Taxi taxi, Stop stop, LocalTime stopTime) {
 		super(ActivityType.PICK_UP_OR_DROP, taxi);
 		this.stop = stop;
 		this.stopTime = stopTime;
@@ -33,12 +33,12 @@ public class PickupOrDrop extends Activity {
 			tStart = entity.getContext().getTime().getTimestamp();
 			taxi.setCurrentStop(stop);
 			taxi.setPosition(stop.getPosition());
-			stop.addTaxi(taxi);
+			stop.addTransportationEntity(taxi);
 			approached = true;
 			return deltaT;
 		}
 		// Otherwise, remove taxi from stop
-		stop.removeTaxi(taxi);
+		stop.removeTransportationEntity(taxi);
 		taxi.setCurrentStop(null);
 		
 		// Update delay when departing.

@@ -1,11 +1,12 @@
 package allow.simulator.mobility.data;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import allow.simulator.world.Street;
 
-public abstract class Trip {
+public class Trip {
 	// Id of trip.
 	protected final String tripId;
 	
@@ -25,7 +26,7 @@ public abstract class Trip {
 	 * @param schedule Schedule of the trip including stop and stop times.
 	 * @param trace Trace between stops.
 	 */
-	protected Trip(String tripId,
+	public Trip(String tripId,
 			List<Stop> stops,
 			List<LocalTime> stopTimes,
 			List<List<Street>> trace) {
@@ -36,12 +37,21 @@ public abstract class Trip {
 	}
 	
 	/**
-	 * Returns Id of this trip.
+	 * Returns the Id of this trip.
 	 * 
 	 * @return Id of this trip
 	 */
 	public String getTripId() {
 		return tripId;
+	}
+	
+	/**
+	 * Returns the stops of this trip.
+	 * 
+	 * @return Stops of this trip
+	 */
+	public List<Stop> getStops() {
+		return Collections.unmodifiableList(stops);
 	}
 	
 	/**
@@ -51,7 +61,7 @@ public abstract class Trip {
 	 * @return Trace of this trip
 	 */
 	public List<List<Street>> getTraces() {
-		return trace;
+		return Collections.unmodifiableList(trace);
 	}
 	
 	/**
@@ -69,7 +79,7 @@ public abstract class Trip {
 	 * @return Stops if this trip
 	 */
 	public List<LocalTime> getStopTimes() {
-		return stopTimes;
+		return Collections.unmodifiableList(stopTimes);
 	}
 	
 	public String toString() {

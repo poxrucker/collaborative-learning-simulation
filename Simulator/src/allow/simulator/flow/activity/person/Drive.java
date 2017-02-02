@@ -19,7 +19,7 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Drive extends MovementActivity {
+public final class Drive extends MovementActivity<Person> {
 
 	/**
 	 * Creates new instance of the driving Activity.
@@ -36,24 +36,24 @@ public final class Drive extends MovementActivity {
 
 	@Override
 	public double execute(double deltaT) {
-		if (currentSegment != null) currentSegment.removeVehicle();
+		if (currentSegment != null) 
+			currentSegment.removeVehicle();
 		
 		if (isFinished())
 			return 0.0;
 		
-		// Note tStart.
+		// Note tStart
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
-		Person p = (Person)entity;
-		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		p.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 		
 		if (isFinished()) {
 			
 			for (Experience entry : experiences) {
-				p.getExperienceBuffer().add(entry);
+				entity.getExperienceBuffer().add(entry);
 			}
 		} else {
 			currentSegment = getCurrentSegment();

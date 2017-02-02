@@ -12,10 +12,9 @@ import allow.simulator.flow.activity.ActivityType;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class ReturnToAgency extends Activity {
+public class ReturnToAgency extends Activity<Bus> {
 		
 	public ReturnToAgency(Bus entity) {
-		// Constructor of super class.
 		super(ActivityType.RETURN_TO_AGENCY, entity);
 	}
 
@@ -25,26 +24,23 @@ public class ReturnToAgency extends Activity {
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
-				
-		// Transportation entity.
-		Bus p = (Bus) entity;
 		
-		if (p.getPassengers().size() > 0) {
-			System.out.println("Warning: Passengers still on public transportation " + p.toString() + " of trip " + p.getCurrentTrip().getTripId());
+		if (entity.getPassengers().size() > 0) {
+			System.out.println("Warning: Passengers still on public transportation " + entity + " of trip " + entity.getCurrentTrip().getTripId());
 
-			for (int i = 0; i < p.getPassengers().size(); i++) {
-				Person pers = p.getPassengers().get(i);
+			for (int i = 0; i < entity.getPassengers().size(); i++) {
+				Person pers = entity.getPassengers().get(i);
 				System.out.println("  " + pers.toString() + " " + pers.getFlow().getCurrentActivity().toString());
 			}
 			//throw new IllegalStateException("Error: " + p + " returning to agency still has passengers");
 		}
 		// Finish trip at agency
-		BusAgency agency = (BusAgency) p.getTransportationAgency();
-		agency.finishTrip(p.getCurrentTrip(), p);
+		BusAgency agency = (BusAgency) entity.getTransportationAgency();
+		agency.finishTrip(entity.getCurrentTrip(), entity);
 		
 		// Reset state and return to agency.
-		p.setCurrentStop(null);
-		p.setCurrentTrip(null);
+		entity.setCurrentStop(null);
+		entity.setCurrentTrip(null);
 		setFinished();
 		return deltaT;
 	}

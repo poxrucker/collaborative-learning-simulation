@@ -69,7 +69,7 @@ public final class Person extends Entity {
 	
 	// Schedule containing starting times of activities.
 	@JsonIgnore
-	private Queue<Pair<LocalTime, Activity>> schedule;
+	private Queue<Pair<LocalTime, Activity<Person>>> schedule;
 	
 	// Current destination of a person.
 	@JsonIgnore
@@ -130,7 +130,7 @@ public final class Person extends Entity {
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
-		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
+		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
 		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>(); 
 		currentItinerary = null;
@@ -173,7 +173,7 @@ public final class Person extends Entity {
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
-		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
+		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
 		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>();
 		currentItinerary = null;
@@ -373,7 +373,7 @@ public final class Person extends Entity {
 	 * @return Scheduling queue of the person.
 	 */
 	@JsonIgnore
-	public Queue<Pair<LocalTime, Activity>> getScheduleQueue() {
+	public Queue<Pair<LocalTime, Activity<Person>>> getScheduleQueue() {
 		return schedule;
 	}
 	
@@ -387,9 +387,10 @@ public final class Person extends Entity {
 		return home.equals(position);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Activity execute() {
-		Pair<LocalTime, Activity> next = schedule.peek();
+	public Activity<Person> execute() {
+		Pair<LocalTime, Activity<Person>> next = schedule.peek();
 		
 		if (flow.isIdle() && (next != null)) {
 			LocalTime c = context.getTime().getCurrentTime();
@@ -399,7 +400,7 @@ public final class Person extends Entity {
 				schedule.poll();
 			}
 		}
-		return super.execute();
+		return (Activity<Person>) super.execute();
 	}
 	
 	@Override

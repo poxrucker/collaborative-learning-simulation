@@ -19,7 +19,7 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Walk extends MovementActivity {
+public final class Walk extends MovementActivity<Person> {
 
 	/**
 	 * Creates new instance of a walking Activity.
@@ -40,15 +40,14 @@ public final class Walk extends MovementActivity {
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
-		Person p = (Person) entity;
-		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		p.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 
 		if (isFinished()) {
 			
 			for (Experience ex : experiences) {
-				p.getExperienceBuffer().add(ex);
+				entity.getExperienceBuffer().add(ex);
 			}
 		}
 		return rem;

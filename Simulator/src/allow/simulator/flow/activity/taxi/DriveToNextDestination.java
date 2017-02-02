@@ -14,15 +14,13 @@ import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 
-public class DriveToNextDestination extends MovementActivity {
+public final class DriveToNextDestination extends MovementActivity<Taxi> {
 	
 	public DriveToNextDestination(Taxi taxi, List<Street> path) {
-		// Constructor of super class.
 		super(ActivityType.DRIVE_TO_NEXT_DESTINATION, taxi, path);
 		
-		if (!path.isEmpty()) {
+		if (!path.isEmpty())
 			currentSegment.addVehicle();
-		}
 	}
 
 	@Override
@@ -32,28 +30,23 @@ public class DriveToNextDestination extends MovementActivity {
 		if (isFinished()) {
 			return 0;
 		}
-		// Note tStart.
-		if (tStart == -1) {
+		// Note tStart
+		if (tStart == -1)
 			tStart = entity.getContext().getTime().getTimestamp();
-		}
-				
-		// Transportation entity.
-		Taxi taxi = (Taxi) entity;
 		
-		// Move public transportation and passengers.
+		// Move taxi and passengers
 		double rem = travel(deltaT);
-		taxi.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 		
-		for (Person pass : taxi.getPassengers()) {
-			pass.setPosition(taxi.getPosition());
+		for (Person pass : entity.getPassengers()) {
+			pass.setPosition(entity.getPosition());
 		}
 				
 		if (isFinished()) {
 					
 			for (Experience ex : experiences) {
-				//taxi.getKnowledge().collect(ex);
 				
-				for (Person pass : taxi.getPassengers()) {
+				for (Person pass : entity.getPassengers()) {
 					pass.getExperienceBuffer().add(ex);
 				}
 			}

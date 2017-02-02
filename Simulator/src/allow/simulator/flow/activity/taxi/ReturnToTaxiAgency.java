@@ -6,10 +6,9 @@ import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
-public class ReturnToTaxiAgency extends Activity {
+public final class ReturnToTaxiAgency extends Activity<Taxi> {
 	
 	public ReturnToTaxiAgency(Taxi taxi) {
-		// Constructor of super class.
 		super(ActivityType.RETURN_TO_TAXI_AGENCY, taxi);
 	}
 
@@ -20,27 +19,24 @@ public class ReturnToTaxiAgency extends Activity {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
 
-		// Transportation entity.
-		Taxi taxi = (Taxi) entity;
-		
-		if (taxi.getPassengers().size() > 0) {
+		if (entity.getPassengers().size() > 0) {
 			System.out.println("Warning: Passengers still on taxi "
-							+ taxi.toString()
+							+ entity
 							+ " of trip "
-							+ taxi.getCurrentTrip().getTripId());
+							+ entity.getCurrentTrip().getTripId());
 
-			for (int i = 0; i < taxi.getPassengers().size(); i++) {
-				Person pers = taxi.getPassengers().get(i);
+			for (int i = 0; i < entity.getPassengers().size(); i++) {
+				Person pers = entity.getPassengers().get(i);
 				System.out.println("  " + pers.toString() + " " + pers.getFlow().getCurrentActivity().toString());
 			}
 		}
-		// Finish trip at agency.
-		TaxiAgency agency = (TaxiAgency) taxi.getTransportationAgency();
-		agency.finishTrip(taxi.getCurrentTrip().getTripId(), taxi);
+		// Finish trip at agency
+		TaxiAgency agency = (TaxiAgency) entity.getTransportationAgency();
+		agency.finishTrip(entity.getCurrentTrip().getTripId(), entity);
 
-		// Reset state and return to agency.
-		taxi.setCurrentStop(null);
-		taxi.setCurrentTrip(null);
+		// Reset state and return to agency
+		entity.setCurrentStop(null);
+		entity.setCurrentTrip(null);
 		setFinished();
 		return deltaT;
 	}

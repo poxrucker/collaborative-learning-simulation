@@ -19,17 +19,16 @@ import allow.simulator.world.Street;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class PrepareTrip extends Activity {
-	// Trip to execute.
+public class PrepareTrip extends Activity<Bus> {
+	// Trip to execute
 	private PublicTransportationTrip trip;
 	
 	/**
-	 * Constructor.
 	 * Creates a new instance of the activity specifying the entity to execute
 	 * the trip and the trip to execute.
 	 * 
-	 * @param entity Public transportation entity to execute the trip.
-	 * @param trip Trip to execute.
+	 * @param entity Public transportation entity to execute the trip
+	 * @param trip Trip to execute
 	 */
 	public PrepareTrip(Bus entity, PublicTransportationTrip trip) {
 		super(ActivityType.PREPARE_TRIP, entity);
@@ -44,10 +43,7 @@ public class PrepareTrip extends Activity {
 	 */
 	@Override
 	public double execute(double deltaT) {
-		// Get entity.
-		Bus p = (Bus) entity;
-		
-		// Check trip.
+		// Check trip
 		List<Stop> tripStops = trip.getStops();
 		List<LocalTime> tripStopTimes = trip.getStopTimes();
 		
@@ -59,28 +55,28 @@ public class PrepareTrip extends Activity {
 				+ trip.getTraces().size());
 		}
 		// Prepare trip by creating a PickUpAndWait activity for each stop and
-		// a DriveToNextStop for each trace, and finally set transport trip.
+		// a DriveToNextStop for each trace, and finally set transport trip
 		Iterator<Stop> stopIterator = trip.getStops().iterator();
 		Iterator<LocalTime> timesIterator = trip.getStopTimes().iterator();
 		Iterator<List<Street>> tracesIterator = trip.getTraces().iterator();
 
-		// Set transportation to first stop.
-		p.getFlow().addActivity(new PickUpAndWait(p, stopIterator.next(), timesIterator.next()));
+		// Set transportation to first stop
+		entity.getFlow().addActivity(new PickUpAndWait(entity, stopIterator.next(), timesIterator.next()));
 		
 		while (stopIterator.hasNext()) {
-			// Add activity to drive to next stop.
-			p.getFlow().addActivity(new DriveToNextStop(p, tracesIterator.next()));
+			// Add activity to drive to next stop
+			entity.getFlow().addActivity(new DriveToNextStop(entity, tracesIterator.next()));
 			
-			// Add activity to wait and pick up passengers at next stop.
-			p.getFlow().addActivity(new PickUpAndWait(p, stopIterator.next(), timesIterator.next()));
+			// Add activity to wait and pick up passengers at next stop
+			entity.getFlow().addActivity(new PickUpAndWait(entity, stopIterator.next(), timesIterator.next()));
 		}
-		// Add return activity.
-		p.getFlow().addActivity(new ReturnToAgency(p));
-		p.getFlow().addActivity(new Learn(p));
+		// Add return activity
+		entity.getFlow().addActivity(new ReturnToAgency(entity));
+		entity.getFlow().addActivity(new Learn(entity));
 		
-		// Set trip.
-		p.setCurrentTrip(trip);
-		p.setCurrentDelay(0);
+		// Set trip
+		entity.setCurrentTrip(trip);
+		entity.setCurrentDelay(0);
 		setFinished();
 		return 0;
 	}

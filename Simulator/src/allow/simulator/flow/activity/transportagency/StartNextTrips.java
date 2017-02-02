@@ -4,30 +4,26 @@ import java.util.List;
 
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.BusAgency;
-import allow.simulator.entity.TransportationAgency;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.publictransportation.PrepareTrip;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 
-public class StartNextTrips extends Activity {
+public class StartNextTrips extends Activity<BusAgency> {
 
-	public StartNextTrips(TransportationAgency agency) {
+	public StartNextTrips(BusAgency agency) {
 		super(ActivityType.SCHEDULE_NEXT_TRIPS, agency);
 	}
 
 	@Override
 	public double execute(double deltaT) {
-		// Agency entity.
-		BusAgency agency = (BusAgency) entity;
-		
 		// Get next trips from agency.
-		List<PublicTransportationTrip> nextTrips = agency.getTripsToSchedule(agency.getContext().getTime().getCurrentDateTime());
+		List<PublicTransportationTrip> nextTrips = entity.getTripsToSchedule(entity.getContext().getTime().getCurrentDateTime());
 
 		// Schedule a new bus for each trip.
 		for (PublicTransportationTrip t : nextTrips) {
 			// Get next free transportation vehicle.
-			Bus b = agency.scheduleTrip(t);
+			Bus b = entity.scheduleTrip(t);
 
 			// Assign new trip to vehicle.
 			b.getFlow().addActivity(new PrepareTrip(b, t));

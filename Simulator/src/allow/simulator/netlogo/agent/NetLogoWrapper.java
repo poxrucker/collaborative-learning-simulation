@@ -136,18 +136,19 @@ public final class NetLogoWrapper implements IContextWrapper {
 
 			if ((entities == null) || (entities.size() == 0))
 				continue;
-
+			
+			NetLogoAgent<?> newAgent = null;
+			
 			for (Entity entity : entities) {
 				
 				switch (type) {
 				case EntityTypes.BUS:
-				case EntityTypes.FLEXIBUS:
 				case EntityTypes.PERSON:
 				case EntityTypes.TAXI:
 				case EntityTypes.PUBLIC_TRANSPORT_AGENCY:
 				case EntityTypes.FLEXIBUS_AGENCY:
 				case EntityTypes.TAXI_AGENCY:
-					NetLogoAgent newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
+					newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
 					netLogoWorld.turtles().add(newAgent);
 
 					if (netLogoToSim.get(newAgent.id) != null)

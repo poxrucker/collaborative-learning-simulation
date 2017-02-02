@@ -12,7 +12,7 @@ import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;
 import allow.simulator.world.Street;
 
-public final class PrepareTaxiTrip extends Activity {
+public final class PrepareTaxiTrip extends Activity<Taxi> {
 	// Trip to execute
 	private Trip trip;
 
@@ -36,9 +36,6 @@ public final class PrepareTaxiTrip extends Activity {
 	 */
 	@Override
 	public double execute(double deltaT) {
-		// Get entity.
-		Taxi taxi = (Taxi) entity;
-
 		// Check trip.
 		List<Stop> tripStops = trip.getStops();
 		List<LocalTime> tripStopTimes = trip.getStopTimes();
@@ -58,18 +55,18 @@ public final class PrepareTaxiTrip extends Activity {
 
 		while (stopIterator.hasNext()) {
 			// Add activity to drive to next stop.
-			taxi.getFlow().addActivity(new DriveToNextDestination(taxi, tracesIterator.next()));
+			entity.getFlow().addActivity(new DriveToNextDestination(entity, tracesIterator.next()));
 
 			// Add activity to wait and pick up passengers at next stop.
-			taxi.getFlow().addActivity(new PickupOrDrop(taxi, stopIterator.next(), timesIterator.next()));
+			entity.getFlow().addActivity(new PickupOrDrop(entity, stopIterator.next(), timesIterator.next()));
 		}
 		// Add return activity.
-		taxi.getFlow().addActivity(new ReturnToTaxiAgency(taxi));
-		taxi.getFlow().addActivity(new Learn(taxi));
+		entity.getFlow().addActivity(new ReturnToTaxiAgency(entity));
+		entity.getFlow().addActivity(new Learn(entity));
 
 		// Set trip.
-		taxi.setCurrentTrip(trip);
-		taxi.setCurrentDelay(0);
+		entity.setCurrentTrip(trip);
+		entity.setCurrentDelay(0);
 		setFinished();
 		return 0;
 	}

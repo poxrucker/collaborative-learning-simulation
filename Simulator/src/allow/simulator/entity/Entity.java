@@ -35,7 +35,7 @@ public abstract class Entity extends Observable {
 	
 	// Flow of activities to execute
 	@JsonIgnore
-	protected final Flow flow;
+	protected Flow<Activity<?>> flow;
 	
 	// Position of an entity
 	@JsonIgnore
@@ -56,8 +56,8 @@ public abstract class Entity extends Observable {
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
 		relations = new RelationGraph(this);
+		flow = new Flow<Activity<?>>();
 		this.context = context;
-		flow = new Flow();
 		setPosition(position);
 	}
 
@@ -118,7 +118,7 @@ public abstract class Entity extends Observable {
 	 * @return Flow of activities.
 	 */
 	@JsonIgnore
-	public Flow getFlow() {
+	public Flow<Activity<?>> getFlow() {
 		return flow;
 	}
 	
@@ -177,12 +177,12 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Type of executed activity 
 	 */
-	public Activity execute() {
+	public Activity<?> execute() {
 		
 		if (flow.isIdle())
 			return null;
 		
-		Activity executedActivity = flow.getCurrentActivity();
+		Activity<?> executedActivity = flow.getCurrentActivity();
 		flow.executeActivity(context.getTime().getDeltaT());
 		return executedActivity;
 	}

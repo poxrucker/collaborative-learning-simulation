@@ -24,7 +24,7 @@ import allow.simulator.utility.Preferences;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class PlanJourney extends Activity {
+public final class PlanJourney extends Activity<Person> {
 	// Predefined set of means of transportation to be used in a journey.	
 	private static final TType transitJourney[] = new TType[] { TType.TRANSIT, TType.WALK };
 	private static final TType walkJourney[] = new TType[] { TType.WALK };
@@ -52,12 +52,9 @@ public final class PlanJourney extends Activity {
 			
 	@Override
 	public double execute(double deltaT) {	
-		// Person entity
-		Person person = (Person) entity;
-		
 		// Update preferences
 		double dist = Geometry.haversineDistance(start, destination);
-		Preferences prefs = person.getRankingFunction().getPreferences();
+		Preferences prefs = entity.getRankingFunction().getPreferences();
 		prefs.setTmax(1500);
 		prefs.setCmax(2.5);
 		prefs.setWmax(Math.min(dist, 1000));
@@ -65,14 +62,14 @@ public final class PlanJourney extends Activity {
 		if (requestFuture == null) {
 			RequestId reqId = new RequestId();
 			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
-			LocalDateTime date = person.getContext().getTime().getCurrentDateTime();
+			LocalDateTime date = entity.getContext().getTime().getCurrentDateTime();
 			
 			// Car requests are now sent out in any case. If a person does not
 			// own a private car or person left the car at home, a taxi request
 			// is emulated
-			if (person.getProfile() != Profile.CHILD) {
+			if (entity.getProfile() != Profile.CHILD) {
 				
-				if ((!person.hasCar() || (!person.isAtHome() && !person.hasUsedCar()))) {
+				if ((!entity.hasCar() || (!entity.isAtHome() && !entity.hasUsedCar()))) {
 					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
@@ -80,7 +77,7 @@ public final class PlanJourney extends Activity {
 				}
 			}
 			
-			if (!person.hasUsedCar()) {
+			if (!entity.hasUsedCar()) {
 				requests.add(JourneyRequest.createRequest(start, destination, date, false, transitJourney, reqId));
 				requests.add(JourneyRequest.createRequest(start, destination, date, false, walkJourney, reqId));
 			
@@ -90,7 +87,7 @@ public final class PlanJourney extends Activity {
 				// if (person.useFlexiBus())
 				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
-			requestFuture = person.getContext().getJourneyPlanner().requestSingleJourney(requests, person.getBuffer());
+			requestFuture = entity.getContext().getJourneyPlanner().requestSingleJourney(requests, entity.getBuffer());
 			return deltaT;
 			
 		} else if (!requestFuture.isDone() && (stepsWaited < 3)) {
@@ -110,11 +107,11 @@ public final class PlanJourney extends Activity {
 			if (it == null || it.size() == 0)  {
 				// In case no trips were found, reset buffer.
 				setFinished();
-				person.setPosition(destination);
+				entity.setPosition(destination);
 				return 0.0;
 			}
 			// In case response was received, rank alternatives.
-			person.getFlow().addActivity(new RankAlternatives(person, it));
+			entity.getFlow().addActivity(new RankAlternatives(entity, it));
 			setFinished();
 			return 0.0;
 		}

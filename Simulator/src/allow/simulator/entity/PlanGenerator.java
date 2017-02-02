@@ -51,21 +51,21 @@ public class PlanGenerator {
 		}
 	}
 
-	private static Pair<LocalTime, Activity> createPlanJourney(Person p, TravelEvent t, long pOffsetSeconds) {
+	private static Pair<LocalTime, Activity<Person>> createPlanJourney(Person p, TravelEvent t, long pOffsetSeconds) {
 		LocalTime temp = t.getTime().minusSeconds(pOffsetSeconds).withSecond(0);
-		return new Pair<LocalTime, Activity>(temp, new PlanJourney(p, t.getStartingPoint(), t.getDestination()));
+		return new Pair<LocalTime, Activity<Person>>(temp, new PlanJourney(p, t.getStartingPoint(), t.getDestination()));
 	}
 	
-	private static Pair<LocalTime, Activity> createRegistertoFB(Person p, TravelEvent t, long pOffsetSeconds) {
+	private static Pair<LocalTime, Activity<Person>> createRegistertoFB(Person p, TravelEvent t, long pOffsetSeconds) {
 		LocalTime pTemp = t.getTime().minusSeconds(pOffsetSeconds).withSecond(0);
 		LocalTime rTemp = pTemp.minusSeconds(SECONDS_TO_REGISTER_BEFORE_PLAN).withSecond(0);
-		return new Pair<LocalTime, Activity>(rTemp, new RegisterToFlexiBus(p, t.getStartingPoint(), t.getDestination(), pTemp));
+		return new Pair<LocalTime, Activity<Person>>(rTemp, new RegisterToFlexiBus(p, t.getStartingPoint(), t.getDestination(), pTemp));
 	}
 	
 	private static void generateDailyRoutine(Person person) {
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
-		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
+		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// Add daily routine travel events.
 		for (TravelEvent t : routine) {
@@ -82,7 +82,7 @@ public class PlanGenerator {
 		int day = person.getContext().getTime().getCurrentDateTime()
 				.getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
-		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
+		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// Add daily routine travel events.
 		for (TravelEvent t : routine) {
@@ -120,7 +120,7 @@ public class PlanGenerator {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
-		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
+		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 		
 		// 1. Home to work/university.
 		TravelEvent homeToWork = routine.get(0);
@@ -140,44 +140,44 @@ public class PlanGenerator {
 			if (rand < 10) {
 				// Intermediate journey then home (home - work - destination - work - home).
 				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
-				schedule.add(new Pair<LocalTime, Activity>(
+				schedule.add(new Pair<LocalTime, Activity<Person>>(
 								workToHome.getTime(), new PlanJourney(person,
 										workToHome.getStartingPoint(), dest)));
 
 				LocalTime fromDest = workToHome.getTime();
-				schedule.add(new Pair<LocalTime, Activity>(fromDest,
+				schedule.add(new Pair<LocalTime, Activity<Person>>(fromDest,
 								new PlanJourney(person, dest, homeToWork
 										.getDestination())));
 
-						schedule.add(new Pair<LocalTime, Activity>(fromDest,
+						schedule.add(new Pair<LocalTime, Activity<Person>>(fromDest,
 								new PlanJourney(person, workToHome.getStartingPoint(),
 										workToHome.getDestination())));
 
 			} else if (rand < 20) {
 				// Home then another journey afterwards (home - work - home - destination - home).
-				schedule.add(new Pair<LocalTime, Activity>(
+				schedule.add(new Pair<LocalTime, Activity<Person>>(
 								workToHome.getTime(), new PlanJourney(person,
 										workToHome.getStartingPoint(), workToHome
 												.getDestination())));
 
 						Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
 						LocalTime toDest = workToHome.getTime();
-						schedule.add(new Pair<LocalTime, Activity>(toDest,
+						schedule.add(new Pair<LocalTime, Activity<Person>>(toDest,
 								new PlanJourney(person, workToHome.getDestination(),
 										dest)));
 
-						schedule.add(new Pair<LocalTime, Activity>(toDest,
+						schedule.add(new Pair<LocalTime, Activity<Person>>(toDest,
 								new PlanJourney(person, dest, workToHome
 										.getDestination())));
 
 			} else if (rand < 50) {
 				// Triangular (home - work - destination - home).
 				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
-				schedule.add(new Pair<LocalTime, Activity>(
+				schedule.add(new Pair<LocalTime, Activity<Person>>(
 						workToHome.getTime(), new PlanJourney(person,
 						workToHome.getStartingPoint(), dest)));
 
-				schedule.add(new Pair<LocalTime, Activity>(
+				schedule.add(new Pair<LocalTime, Activity<Person>>(
 						workToHome.getTime(), new PlanJourney(person, dest,
 						homeToWork.getStartingPoint())));
 			} else {
@@ -281,7 +281,7 @@ public class PlanGenerator {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
-		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
+		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// 1. Going to work in the morning.
 		TravelEvent homeToWork = routine.get(0);
@@ -299,36 +299,36 @@ public class PlanGenerator {
 		if (rand < 10) {
 			// Intermediate journey then home (home - work - destination - work - home).
 			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
+			schedule.add(new Pair<LocalTime, Activity<Person>>(workToHome.getTime(),
 				new PlanJourney(person, workToHome.getStartingPoint(), dest)));
 
 			LocalTime fromDest = workToHome.getTime();
-			schedule.add(new Pair<LocalTime, Activity>(fromDest,
+			schedule.add(new Pair<LocalTime, Activity<Person>>(fromDest,
 				new PlanJourney(person, dest, homeToWork.getDestination())));
 
-			schedule.add(new Pair<LocalTime, Activity>(fromDest,
+			schedule.add(new Pair<LocalTime, Activity<Person>>(fromDest,
 				new PlanJourney(person, workToHome.getStartingPoint(), workToHome.getDestination())));
 
 		} else if (rand < 20) {
 			// Home then another journey afterwards (home - work - home - destination - home).
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
+			schedule.add(new Pair<LocalTime, Activity<Person>>(workToHome.getTime(),
 				new PlanJourney(person, workToHome.getStartingPoint(), workToHome.getDestination())));
 
 			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
 			LocalTime toDest = workToHome.getTime();
-			schedule.add(new Pair<LocalTime, Activity>(toDest,
+			schedule.add(new Pair<LocalTime, Activity<Person>>(toDest,
 					new PlanJourney(person, workToHome.getDestination(), dest)));
 
-			schedule.add(new Pair<LocalTime, Activity>(toDest,
+			schedule.add(new Pair<LocalTime, Activity<Person>>(toDest,
 					new PlanJourney(person, dest, workToHome.getDestination())));
 
 		} else if (rand < 45) {
 			// Triangular (home - work - destination - home).
 			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
+			schedule.add(new Pair<LocalTime, Activity<Person>>(workToHome.getTime(),
 					new PlanJourney(person, workToHome.getStartingPoint(), dest)));
 
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
+			schedule.add(new Pair<LocalTime, Activity<Person>>(workToHome.getTime(),
 					new PlanJourney(person, dest, homeToWork.getStartingPoint())));
 
 		} else {
@@ -406,7 +406,7 @@ public class PlanGenerator {
 
 	private static void generateHomemakerDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
-		Queue<Pair<LocalTime, Activity>> schedule = person.getScheduleQueue();
+		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// Journey in the morning?
 		int rand = ThreadLocalRandom.current().nextInt(100);
@@ -415,10 +415,10 @@ public class PlanGenerator {
 			Coordinate dest = newLocation(partitioning, PROP_DEST_HOMEMAKER);
 			LocalTime tStart = gaussianPointInTime(600, 30);
 
-			schedule.add(new Pair<LocalTime, Activity>(tStart, new PlanJourney(
+			schedule.add(new Pair<LocalTime, Activity<Person>>(tStart, new PlanJourney(
 					person, person.getHome(), dest)));
 
-			schedule.add(new Pair<LocalTime, Activity>(
+			schedule.add(new Pair<LocalTime, Activity<Person>>(
 					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(120,
 							180)), new PlanJourney(person, dest, person
 							.getHome())));
@@ -431,10 +431,10 @@ public class PlanGenerator {
 			Coordinate dest = newLocation(partitioning, PROP_DEST_HOMEMAKER);
 			LocalTime tStart = gaussianPointInTime(960, 30);
 
-			schedule.add(new Pair<LocalTime, Activity>(tStart, new PlanJourney(
+			schedule.add(new Pair<LocalTime, Activity<Person>>(tStart, new PlanJourney(
 					person, person.getHome(), dest)));
 
-			schedule.add(new Pair<LocalTime, Activity>(
+			schedule.add(new Pair<LocalTime, Activity<Person>>(
 					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(120,
 							180)), new PlanJourney(person, dest, person
 							.getHome())));

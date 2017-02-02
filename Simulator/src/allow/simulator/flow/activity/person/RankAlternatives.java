@@ -9,8 +9,8 @@ import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.utility.Preferences;
 
-public class RankAlternatives extends Activity {
-
+public class RankAlternatives extends Activity<Person> {
+	// Itineraries to rank
 	private List<Itinerary> toRank;
 		
 	public RankAlternatives(Person entity, List<Itinerary> it) {
@@ -27,9 +27,8 @@ public class RankAlternatives extends Activity {
 			updateItineraryParameters();
 			return deltaT;
 		}
-		Person person = (Person) entity;
-		toRank = person.getRankingFunction().reason(toRank);
-		entity.getFlow().addActivity(new PrepareJourney((Person) entity, toRank.get(0)));
+		toRank = entity.getRankingFunction().reason(toRank);
+		entity.getFlow().addActivity(new PrepareJourney(entity, toRank.get(0)));
 		setFinished();
 		return 0.0;
 	}
@@ -41,7 +40,6 @@ public class RankAlternatives extends Activity {
 	}
 	
 	private void updatePreferences() {
-		Person person = (Person) entity;
 		long minTTime = Long.MAX_VALUE;
 		double minCosts = Double.MAX_VALUE;
 		double minWalking = Double.MAX_VALUE;
@@ -53,7 +51,7 @@ public class RankAlternatives extends Activity {
 			if (it.costs > 0 && it.costs < minCosts) minCosts = it.costs;
 			if (it.walkDistance > 0 && it.walkDistance < minWalking) minWalking = it.walkDistance;
 		}
-		Preferences prefs = person.getRankingFunction().getPreferences();
+		Preferences prefs = entity.getRankingFunction().getPreferences();
 		prefs.setTmax((long) (minTTime * 1.2));
 		prefs.setCmax(minCosts * 1.2);
 		prefs.setWmax(minWalking * 1.2);

@@ -29,8 +29,8 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class PrepareJourney extends Activity {
-	// The journey to execute.
+public final class PrepareJourney extends Activity<Person> {
+	// The journey to execute
 	private final Itinerary journey;
 	
 	/**
@@ -48,17 +48,16 @@ public final class PrepareJourney extends Activity {
 	@Override
 	public double execute(double deltaT) {
 		// Person entity.
-		Person person = (Person) entity;
-		person.setCurrentItinerary(journey);
+		entity.setCurrentItinerary(journey);
 		
 		if (journey.initialWaitingTime > 0) {
-			person.getFlow().addActivity(new Wait(person, journey.initialWaitingTime));
+			entity.getFlow().addActivity(new Wait(entity, journey.initialWaitingTime));
 
-			if (person.isReplanning()) {
-	    		person.getContext().getStatistics().reportReplaningWaitingTime(journey.initialWaitingTime);
+			if (entity.isReplanning()) {
+				entity.getContext().getStatistics().reportReplaningWaitingTime(journey.initialWaitingTime);
 	    	}
 		}
-		person.setReplanning(false);
+		entity.setReplanning(false);
 
 		// Create a new Activity for every leg
 		for (int i = 0; i < journey.legs.size(); i++) {
@@ -75,15 +74,14 @@ public final class PrepareJourney extends Activity {
 				if (l.streets.size() == 0)
 					continue;
 
-				Activity cycle = new Cycle(person, l.streets);
-				entity.getFlow().addActivity(cycle);
+				entity.getFlow().addActivity(new Cycle(entity, l.streets));
 				break;
 				
 			case BUS:
 			case RAIL:
 			case CABLE_CAR:
 			case TRANSIT:
-				BusAgency ta = person.getContext().getTransportationRepository().getBusAgency(l.agencyId);
+				BusAgency ta = entity.getContext().getTransportationRepository().getBusAgency(l.agencyId);
 				Route route = ta.getRoute(l.routeId);		
 				if (route == null)
 					throw new IllegalStateException("Error: Transport " + l.routeId + " of " + l.agencyId + " is unknown.");
@@ -101,7 +99,7 @@ public final class PrepareJourney extends Activity {
 				if (out == null)
 					throw new IllegalStateException("Error: Stop "+ l.stopIdTo + " of route " + l.routeId + " is unknown.");
 				
-				entity.getFlow().addActivity(new UsePublicTransport(person,
+				entity.getFlow().addActivity(new UsePublicTransport(entity,
 						in, out, l.agencyId, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(l.startTime), ZoneId.of("UTC+2")).toLocalTime()));
 				break;
 				
@@ -109,24 +107,22 @@ public final class PrepareJourney extends Activity {
 				if (l.streets.size() == 0)
 					continue;
 				
-				Activity drive = new Drive(person, l.streets);
-				entity.getFlow().addActivity(drive);
+				entity.getFlow().addActivity(new Drive(entity, l.streets));
 				break;
 				
 			case TAXI:
 			case SHARED_TAXI:
-				TaxiAgency taxiAgency = person.getContext().getTransportationRepository().getTaxiAgency();
+				TaxiAgency taxiAgency = entity.getContext().getTransportationRepository().getTaxiAgency();
 				Taxi taxi = taxiAgency.call(l.tripId);
 				Stop in2 = taxiAgency.getTaxiStop(l.stopIdFrom);
 				Stop out2 = taxiAgency.getTaxiStop(l.stopIdTo);
-				entity.getFlow().addActivity(new UseTaxi(person, in2, out2, taxi,
+				entity.getFlow().addActivity(new UseTaxi(entity, in2, out2, taxi,
 						LocalDateTime.ofInstant(Instant.ofEpochMilli(l.startTime), ZoneId.of("UTC+2")).toLocalTime()));
 			case WALK:
 				if (l.streets.size() == 0)
 					continue;
 				
-				Activity walk = new Walk(person, l.streets);
-				entity.getFlow().addActivity(walk);
+				entity.getFlow().addActivity(new Walk(entity, l.streets));
 				break;
 			
 			default:
@@ -136,13 +132,13 @@ public final class PrepareJourney extends Activity {
 		
 		// Set used car flag if person uses the car
 		if (journey.itineraryType == TType.CAR) {
-			person.setUsedCar(true);
+			entity.setUsedCar(true);
 		}
 		
 		// Report statistics
 		reportItineraryType(journey.itineraryType);
-		entity.getFlow().addActivity(new CorrectPosition(person, journey.to));
-		entity.getFlow().addActivity(new Learn(person));
+		entity.getFlow().addActivity(new CorrectPosition(entity, journey.to));
+		entity.getFlow().addActivity(new Learn(entity));
 		setFinished();
 		return 0;
 	}

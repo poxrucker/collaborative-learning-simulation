@@ -8,12 +8,12 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.Stop;
 
-public class PickupOrDrop extends Activity {
+public class PickupOrDrop extends Activity<Taxi> {
 	// The stop to pickup or drop off a passenger
 	private Stop stop;
 	private LocalTime stopTime;
 	
-	// Flags.
+	// Flags
 	private boolean approached;
 
 	public PickupOrDrop(Taxi taxi, Stop stop, LocalTime stopTime) {
@@ -24,26 +24,23 @@ public class PickupOrDrop extends Activity {
 
 	@Override
 	public double execute(double deltaT) {
-		// Transportation entity.
-		Taxi taxi = (Taxi) entity;
-
 		// If stop has not been approached yet (first time execute is called)
-		// set transport to stop and return.
+		// set transport to stop and return
 		if (!approached) {
 			tStart = entity.getContext().getTime().getTimestamp();
-			taxi.setCurrentStop(stop);
-			taxi.setPosition(stop.getPosition());
-			stop.addTransportationEntity(taxi);
+			entity.setCurrentStop(stop);
+			entity.setPosition(stop.getPosition());
+			stop.addTransportationEntity(entity);
 			approached = true;
 			return deltaT;
 		}
 		// Otherwise, remove taxi from stop
-		stop.removeTransportationEntity(taxi);
-		taxi.setCurrentStop(null);
+		stop.removeTransportationEntity(entity);
+		entity.setCurrentStop(null);
 		
-		// Update delay when departing.
-		long currentDelay = Duration.between(stopTime, taxi.getContext().getTime().getCurrentTime()).getSeconds();
-		taxi.setCurrentDelay(currentDelay);
+		// Update delay when departing
+		long currentDelay = Duration.between(stopTime, entity.getContext().getTime().getCurrentTime()).getSeconds();
+		entity.setCurrentDelay(currentDelay);
 		setFinished();
 		return 0;
 	}

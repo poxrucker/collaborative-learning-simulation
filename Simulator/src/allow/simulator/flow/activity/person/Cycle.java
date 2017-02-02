@@ -19,7 +19,7 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Cycle extends MovementActivity {
+public final class Cycle extends MovementActivity<Person> {
 	
 	/**
 	 * Creates new instance of the cycling Activity.
@@ -32,28 +32,24 @@ public final class Cycle extends MovementActivity {
 	}
 	
 	@Override
-	public double execute(double deltaT) {
-		
+	public double execute(double deltaT) {		
 		if (isFinished()) 
 			return 0.0;
-		
-		// Get person entity
-		Person p = (Person) entity;
-		
+	
 		// Note tStart.
 		if (tStart == -1) {
-			tStart = p.getContext().getTime().getTimestamp();
+			tStart = entity.getContext().getTime().getTimestamp();
 		}
 
 		// Register for knowledge exchange.
-		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		p.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 
 		if (isFinished()) {
 			
 			for (Experience ex : experiences) {
-				p.getExperienceBuffer().add(ex);
+				entity.getExperienceBuffer().add(ex);
 			}
 		}
 		return rem;

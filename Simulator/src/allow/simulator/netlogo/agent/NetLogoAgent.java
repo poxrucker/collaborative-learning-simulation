@@ -17,9 +17,9 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Transformation;
 
-public final class NetLogoAgent extends Turtle implements IAgentAdapter {
+public final class NetLogoAgent<V extends Entity> extends Turtle implements IAgentAdapter<V> {
 	// Entity wrapped by this agent adapter
-	private final Entity entity;
+	private final V entity;
 	
 	// Indicates whether this agent is visible when active
 	private final boolean canBeVisible;
@@ -71,7 +71,7 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 	 * @throws AgentException
 	 */
 	private NetLogoAgent(World world, AgentSet breedType, double color, Transformation transformation,
-			boolean canBeVisible, Entity entity) throws AgentException {
+			boolean canBeVisible, V entity) throws AgentException {
 		super(world, breedType, 0.0, 0.0);
 		this.entity = entity;
 		this.canBeVisible = canBeVisible;
@@ -88,13 +88,14 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 	}
 	
 	@Override
-	public Entity getEntity() {
+	public V getEntity() {
 		return entity;
 	}
 
 	@Override
 	public boolean execute() {
-		Activity executedActivity = entity.execute();
+		@SuppressWarnings("unchecked")
+		Activity<V> executedActivity = (Activity<V>) entity.execute();
 		
 		if (executedActivity == null) {
 			if (!hidden())
@@ -144,7 +145,7 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 		}	
 	}
 	
-	public static NetLogoAgent createNetLogoAgent(NetLogoWrapper wrapper, Entity entity) throws AgentException {
+	public static <V extends Entity> NetLogoAgent<V> createNetLogoAgent(NetLogoWrapper wrapper, V entity) throws AgentException {
 		AgentSet breed = null;
 		double color = 0.0;
 		boolean canBeVisible = true;
@@ -187,6 +188,6 @@ public final class NetLogoAgent extends Turtle implements IAgentAdapter {
 		default:
 			throw new IllegalArgumentException("Error: Unknown entity type " + entity.getType());
 		}
-		return new NetLogoAgent(world, breed, color, wrapper.getTransformation(), canBeVisible, entity);
+		return new NetLogoAgent<V>(world, breed, color, wrapper.getTransformation(), canBeVisible, entity);
 	}
 }

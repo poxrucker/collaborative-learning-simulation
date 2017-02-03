@@ -3,10 +3,10 @@ package allow.simulator.entity;
 import java.util.Observable;
 
 import allow.simulator.core.Context;
+import allow.simulator.exchange.RelationGraph;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
 import allow.simulator.knowledge.EvoKnowledge;
-import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -13,6 +13,7 @@ import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
+import allow.simulator.exchange.ExchangeHandler;
 import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Pair;

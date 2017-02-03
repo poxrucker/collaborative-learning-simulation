@@ -1,4 +1,4 @@
-package allow.simulator.relation;
+package allow.simulator.exchange;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 

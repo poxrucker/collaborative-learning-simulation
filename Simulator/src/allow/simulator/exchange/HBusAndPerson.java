@@ -1,11 +1,12 @@
-package allow.simulator.knowledge;
+package allow.simulator.exchange;
 
 import allow.simulator.entity.Entity;
 
-public class HBusAndBus extends ExchangeHandler {
+public class HBusAndPerson extends ExchangeHandler {
 
 	@Override
 	public boolean exchange(Entity entity1, Entity entity) {
 		return false;
 	}
+
 }

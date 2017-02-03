@@ -7,6 +7,7 @@ import org.nlogo.api.DefaultCommand;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 
+import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 
@@ -22,8 +23,8 @@ public class ExchangeKnowledge extends DefaultCommand {
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
 		Agent a = (Agent) context.getAgent();
 		
-		if (a instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) a;
+		if (a instanceof IAgentAdapter<?>) {
+			IAgentAdapter<?> p = (IAgentAdapter<?>) a;
 			
 			if (!p.getEntity().getFlow().isIdle()) {
 				ActivityType type = p.getEntity().getFlow().getCurrentActivity().getType();

@@ -6,11 +6,11 @@ import java.util.List;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.TransportationEntity;
+import allow.simulator.exchange.Relation;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;
-import allow.simulator.relation.Relation;
 
 /**
  * Represents an activity to use public transport (bus).

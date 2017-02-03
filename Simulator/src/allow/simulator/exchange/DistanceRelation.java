@@ -1,4 +1,4 @@
-package allow.simulator.relation;
+package allow.simulator.exchange;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,5 +1,7 @@
 package allow.simulator.knowledge;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,9 +10,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.entity.Bus;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.Bus;
 import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Pair;
@@ -46,7 +48,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	private Entity entity; 
 	
 	// Buffer holding entities to exchange knowledge with.
-	private ArrayList<Entity> toExchangeBuffer;
+	private ObjectArrayList<Entity> toExchangeBuffer;
 	
 	// Chain of handlers to execute knowledge exchange.
 	private ExchangeHandler handlerChain;
@@ -59,7 +61,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	 */
 	public EvoKnowledge(Entity entity) {
 		this.entity = entity;
-		toExchangeBuffer = new ArrayList<Entity>();
+		toExchangeBuffer = new ObjectArrayList<Entity>();
 		
 		if (entity instanceof Person) {
 			handlerChain = ExchangeHandler.StandardPersonChain;
@@ -254,6 +256,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 			}
 		// Clear relations buffer.
 		toExchangeBuffer.clear();
-		toExchangeBuffer.trimToSize();
+		toExchangeBuffer.trim();
 	}
 }

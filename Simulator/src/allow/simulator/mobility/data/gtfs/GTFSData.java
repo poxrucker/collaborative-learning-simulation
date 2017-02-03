@@ -1,12 +1,13 @@
 package allow.simulator.mobility.data.gtfs;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -135,7 +136,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, GTFSAgency> ret = new HashMap<String, GTFSAgency>(content.size() - 1);
+		Map<String, GTFSAgency> ret = new Object2ObjectOpenHashMap<String, GTFSAgency>(content.size() - 1);
 		
 		// Parse agencies from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -150,7 +151,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, List<GTFSRoute>> ret = new HashMap<String, List<GTFSRoute>>(content.size() - 1);
+		Map<String, List<GTFSRoute>> ret = new Object2ObjectOpenHashMap<String, List<GTFSRoute>>(content.size() - 1);
 		
 		// Parse route from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -166,6 +167,11 @@ public final class GTFSData {
 				ret.put(newRoute.getAgencyId(), r);
 			}
 		}
+		
+		for (List<GTFSRoute> ex : ret.values()) {
+			ArrayList<GTFSRoute> temp = (ArrayList<GTFSRoute>) ex;
+			temp.trimToSize();
+		}
 		return ret;
 	}
 	
@@ -174,7 +180,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, GTFSService> ret = new HashMap<String, GTFSService>(content.size() - 1);
+		Map<String, GTFSService> ret = new Object2ObjectOpenHashMap<String, GTFSService>(content.size() - 1);
 		
 		// Parse route from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -194,7 +200,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, List<GTFSServiceException>> ret = new HashMap<String, List<GTFSServiceException>>(content.size() - 1);
+		Map<String, List<GTFSServiceException>> ret = new Object2ObjectOpenHashMap<String, List<GTFSServiceException>>(content.size() - 1);
 		
 		// Parse route from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -215,6 +221,11 @@ public final class GTFSData {
 				exceptions.add(newServiceException);
 			}
 		}
+		
+		for (List<GTFSServiceException> ex : ret.values()) {
+			ArrayList<GTFSServiceException> temp = (ArrayList<GTFSServiceException>) ex;
+			temp.trimToSize();
+		}
 		return ret;
 	}
 	
@@ -223,7 +234,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, GTFSStop> ret = new HashMap<String, GTFSStop>(content.size() - 1);
+		Map<String, GTFSStop> ret = new Object2ObjectOpenHashMap<String, GTFSStop>(content.size() - 1);
 		
 		// Parse stops from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -238,7 +249,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, GTFSStopTimes> ret = new HashMap<String, GTFSStopTimes>();
+		Map<String, GTFSStopTimes> ret = new Object2ObjectOpenHashMap<String, GTFSStopTimes>();
 		
 		// Parse stop times from corresponding lines.
 		int startIdx = 1;
@@ -281,7 +292,7 @@ public final class GTFSData {
 		List<String> content = Files.readAllLines(path);
 
 		// Initialize map to return.
-		Map<String, List<GTFSTrip>> ret = new HashMap<String, List<GTFSTrip>>();
+		Map<String, List<GTFSTrip>> ret = new Object2ObjectOpenHashMap<String, List<GTFSTrip>>();
 		
 		// Parse trips from lines.
 		for (int i = 1; i < content.size(); i++) {
@@ -296,17 +307,22 @@ public final class GTFSData {
 				ret.put(newTrip.getRouteId(), n);
 			}
 		}
+		
+		for (List<GTFSTrip> trips : ret.values()) {
+			ArrayList<GTFSTrip> temp = (ArrayList<GTFSTrip>) trips;
+			temp.trimToSize();
+		}
 		return ret;
 	}
 	
 	private static Map<String, List<Coordinate>> loadShapes(Path path) throws IOException {
-		Map<String, List<Coordinate>> ret = new HashMap<String, List<Coordinate>>();
+		Map<String, List<Coordinate>> ret = new Object2ObjectOpenHashMap<String, List<Coordinate>>();
 		
 		// Read file.
 		List<String> content = Files.readAllLines(path);
 						
 		// Read first data line.
-		List<Coordinate> currentSequence = null;
+		ArrayList<Coordinate> currentSequence = null;
 		String currentId = "";
 		
 		for (int i = 1; i < content.size(); i++) {
@@ -320,6 +336,7 @@ public final class GTFSData {
 			}
 			currentSequence.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
 		}
+		currentSequence.trimToSize();
 		ret.put(currentId, currentSequence);
 		return ret;
 	}

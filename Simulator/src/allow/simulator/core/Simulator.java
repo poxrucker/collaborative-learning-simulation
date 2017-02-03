@@ -63,7 +63,7 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 8);
 
 		// Setup world.
 		System.out.println("Loading world...");

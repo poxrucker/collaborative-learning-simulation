@@ -114,7 +114,7 @@ public class DriveToNextStop extends MovementActivity<Bus> {
 							tEnd,
 							s.getNumberOfVehicles(),
 							fillingLevel,
-							((Bus) entity).getCurrentTrip().getTripId(),
+							entity.getCurrentTrip().getTripId(),
 							entity.getContext().getWeather().getCurrentState());
 					experiences.add(newEx);
 					streetTravelTime = 0.0;

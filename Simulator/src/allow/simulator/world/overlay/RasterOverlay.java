@@ -1,6 +1,7 @@
 package allow.simulator.world.overlay;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +33,10 @@ public class RasterOverlay implements IOverlay {
 		final Coordinate bottomLeft = new Coordinate(areaBounds[0], areaBounds[2]);
 		spacingXInM = Geometry.haversineDistance(bottomLeft, new Coordinate(areaBounds[1], areaBounds[2])) / (nCols - 1);
 		spacingYInM = Geometry.haversineDistance(bottomLeft, new Coordinate(areaBounds[0], areaBounds[3])) / (nRows - 1);
-		raster = (List<Entity>[]) new ArrayList[nRows * nCols];
+		raster = (List<Entity>[]) new ObjectArrayList[nRows * nCols];
 		
 		for (int i = 0; i < raster.length; i++) {
-			raster[i] = new ArrayList<Entity>();
+			raster[i] = new ObjectArrayList<Entity>();
 		}
 	}
 	
@@ -60,7 +61,7 @@ public class RasterOverlay implements IOverlay {
 		final int minCol = Math.max(0, col - nNeighborCellsX);
 		final int maxRow = Math.min(nRows, row + nNeighborCellsY);
 		final int maxCol = Math.min(nCols, col + nNeighborCellsX);
-		Collection<Entity> ret = new ArrayList<Entity>();
+		Collection<Entity> ret = new ObjectArrayList<Entity>();
 
 		for (int i = minRow; i < maxRow + 1; i++) {
 			final int offset = i * nCols;

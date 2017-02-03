@@ -1,5 +1,6 @@
 package allow.simulator.world.overlay;
 
+import java.util.Collections;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
@@ -63,7 +64,7 @@ public class PolygonShape extends Shape {
 
 	@Override
 	public List<Coordinate> getBoundary() {
-		return boundary;
+		return Collections.unmodifiableList(boundary);
 	}
 	
 	private void precalcValues() {

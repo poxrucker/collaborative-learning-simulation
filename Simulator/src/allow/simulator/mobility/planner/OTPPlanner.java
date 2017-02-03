@@ -1,9 +1,12 @@
 package allow.simulator.mobility.planner;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,7 +48,7 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 	// Streetmap to map driving/walking/cycling traces to if provided
 	private final StreetMap map;
 	
-	// Dataservive to map bus traces to if prvided
+	// Dataservive to map bus traces to if provided
 	private final IDataService dataService;
 	
 	// Time instance to use
@@ -139,36 +142,55 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 	}
 	
 	private void mapTracesToStreets(Leg leg) {
-		leg.streets = new ArrayList<Street>();
-		if (map != null && (leg.mode == TType.CAR || leg.mode == TType.BICYCLE || leg.mode == TType.WALK)) {
 
-			for (int j = 0; j < leg.osmNodes.size() - 1; j++) {
-				String first = normalize(leg.osmNodes.get(j), map);
-				String second = normalize(leg.osmNodes.get(j + 1), map);
-				Street street = map.getStreet(first, second);
-
-				if (street != null)
-					leg.streets.add(street);
-			}
-
-		} else if (dataService != null && leg.mode == TType.BUS) {
-			List<String> allStops = new ArrayList<String>(leg.stops.size() + 2);
-			allStops.add(leg.stopIdFrom);
+		switch (leg.mode) {
+		case BICYCLE:
+		case CAR:
+		case WALK:
+			leg.streets = (map != null) ? mapTraces(leg) : Collections.emptyList();
+			break;
 			
-			for (int j = 0; j < leg.stops.size(); j++) {
-				allStops.add(leg.stops.get(j));
-			}
-			allStops.add(leg.stopIdTo);
+		case BUS:
+			leg.streets = (dataService != null) ? mapBusTraces(leg) : Collections.emptyList();
+			break;
 			
-			for (int j = 0; j < allStops.size() - 1; j++) {
-				String first = allStops.get(j);
-				String second = allStops.get(j + 1);
-				List<Street> segs = dataService.getBusstopRouting(first, second);
-
-				if (segs != null)
-					leg.streets.addAll(segs);
-			}
+		default:
+			leg.streets = Collections.emptyList();
+		
 		}
+	}
+	
+	private List<Street> mapTraces(Leg leg) {
+		List<Street> ret = new ObjectArrayList<Street>();
+		
+		for (int j = 0; j < leg.osmNodes.size() - 1; j++) {
+			String first = normalize(leg.osmNodes.get(j), map);
+			String second = normalize(leg.osmNodes.get(j + 1), map);
+			Street street = map.getStreet(first, second);
+
+			if (street != null)
+				ret.add(street);
+		}
+		return ret;
+	}
+	
+	private List<Street> mapBusTraces(Leg leg) {
+		List<String> allStops = new ArrayList<String>(leg.stops.size() + 2);
+		allStops.add(leg.stopIdFrom);
+		allStops.addAll(leg.stops);
+		allStops.add(leg.stopIdTo);
+		
+		List<Street> ret = new ObjectArrayList<Street>();
+
+		for (int j = 0; j < allStops.size() - 1; j++) {
+			String first = allStops.get(j);
+			String second = allStops.get(j + 1);
+			List<Street> segs = dataService.getBusstopRouting(first, second);
+
+			if (segs != null)
+				ret.addAll(segs);
+		}
+		return ret;
 	}
 	
 	private static String normalize(String nodeLabel, StreetMap map) {
@@ -177,17 +199,17 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 			return nodeLabel;
 		String tokens[] = nodeLabel.split("_");
 
-		if (tokens.length == 1) {
+		if (tokens.length == 1)
 			// These are unknown nodes.
 			return "";
-		}
+		
 		// These are intermediate nodes which can be determined by their position.
 		// Planner returns "streetname_lat,lon".
 		StreetNode n = map.getStreetNodeFromPosition(tokens[1]);
 
-		if (n == null) {
+		if (n == null)
 			return "";
-		}
+		
 		return n.getLabel();
 	}
 }

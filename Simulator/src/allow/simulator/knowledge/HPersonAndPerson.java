@@ -1,7 +1,10 @@
 package allow.simulator.knowledge;
 
+import allow.simulator.core.SimulationParameter;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
+import allow.simulator.flow.activity.Activity;
+import allow.simulator.flow.activity.ActivityType;
 
 public class HPersonAndPerson extends ExchangeHandler {
 
@@ -26,10 +29,23 @@ public class HPersonAndPerson extends ExchangeHandler {
 	}
 	
 	private boolean isValidProvider(Person p) {
-		return p.isInformed() && p.isSharing() && p.hasUsedCar();
+		return p.isInformed() && p.isSharing() && usesParticipatingModality(p);
 	}
 	
 	private boolean isValidReceiver(Person r) {
-		return r.isReceiving() && r.hasCar();
+		return r.isReceiving() && usesParticipatingModality(r);
+	}
+	
+	private boolean usesParticipatingModality(Person p) {
+		SimulationParameter param = p.getContext().getSimulationParameters();
+		Activity a = p.getFlow().getCurrentActivity();
+		
+		if (a == null)
+			return false;
+		
+		return (param.Car && (a.getType() == ActivityType.DRIVE))
+				|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT))
+				|| (param.Walk && (a.getType() == ActivityType.WALK))
+				|| (param.Bike && (a.getType() == ActivityType.WALK));
 	}
 }

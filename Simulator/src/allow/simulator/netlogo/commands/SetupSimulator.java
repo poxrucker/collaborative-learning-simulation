@@ -10,6 +10,7 @@ import org.nlogo.api.Context;
 import org.nlogo.api.DefaultReporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
+import org.nlogo.api.LogoList;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
@@ -23,10 +24,10 @@ public class SetupSimulator extends DefaultReporter {
 		
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		// Get String containing path to configuration file.
+		// Get String containing path to configuration file
 		Path configPath = Paths.get(args[0].getString());
 	
-		// Read configuration.
+		// Read configuration
 		Configuration config = null;
 		
 		try {
@@ -36,13 +37,22 @@ public class SetupSimulator extends DefaultReporter {
 			throw new ExtensionException(e.getMessage());
 		}
 		
-		// Setup simulator from configuration.
+		// Parse simulation model parameters
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
-		params.PercentInitiallyInformed = args[2].getIntValue();
-		params.PercentParticipating = args[3].getIntValue();
-		params.PercentSharing = args[4].getIntValue();
-		
+				
+		LogoList settings = args[2].getList();
+		params.PercentInitiallyInformed = (int) (double) settings.get(0);
+		params.PercentParticipating = (int) (double) settings.get(1);
+		params.PercentSharing = (int) (double) settings.get(2);
+		params.WithWorkers = (boolean) settings.get(3);
+		params.WithStudents = (boolean) settings.get(4);
+		params.WithChildren = (boolean) settings.get(5);
+		params.WithHomemaker = (boolean) settings.get(6);
+		params.Car = (boolean) settings.get(7);
+		params.Bus = (boolean) settings.get(8);
+		params.Walk = (boolean) settings.get(9);
+		params.Bike = (boolean) settings.get(10);
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
@@ -73,7 +83,7 @@ public class SetupSimulator extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType() };
+		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.ListType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType() );
 	}
 }

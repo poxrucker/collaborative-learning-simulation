@@ -17,6 +17,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
+import allow.simulator.entity.Profile;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.MobilityRepository;
@@ -134,7 +135,7 @@ public final class Simulator {
 		
 		// Setup entities.
 		System.out.println("Loading entities from file...");
-		loadEntitiesFromFile(config.getAgentConfigurationPath(), params.PercentInitiallyInformed, params.PercentParticipating, params.PercentSharing);
+		loadEntitiesFromFile(config.getAgentConfigurationPath(), params);
 		
 		// Create public transportation.
 		System.out.println("Creating public transportation system...");
@@ -170,7 +171,7 @@ public final class Simulator {
 
 	}
 	
-	private void loadEntitiesFromFile(Path config, int percentInitiallyInformed, int percentParticipating, int percentSharing) throws IOException {
+	private void loadEntitiesFromFile(Path config, SimulationParameter param) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -180,17 +181,24 @@ public final class Simulator {
 			Person p = mapper.readValue(line, Person.class);
 			p.setContext(context);
 			PlanGenerator.generateDayPlan(p);
-			p.setInformed(ThreadLocalRandom.current().nextInt(100) < percentInitiallyInformed);
 			
-			if (ThreadLocalRandom.current().nextInt(100) < percentParticipating) {
-				
-				if (ThreadLocalRandom.current().nextInt(100) < percentSharing) {
-					p.setSharing();
-				} else {
-					p.setReceiving();
-				}
-			} 
+			p.setInformed(ThreadLocalRandom.current().nextInt(100) < param.PercentInitiallyInformed);
 
+			boolean memberOfParticipatingGroup = (param.WithWorkers && (p.getProfile() == Profile.WORKER))
+					|| (param.WithStudents && (p.getProfile() == Profile.STUDENT))
+					|| (param.WithChildren && (p.getProfile() == Profile.CHILD))
+					|| (param.WithHomemaker && (p.getProfile() == Profile.HOMEMAKER));
+			
+			if (memberOfParticipatingGroup) {
+
+				if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
+
+					if (ThreadLocalRandom.current().nextInt(100) < param.PercentSharing)
+						p.setSharing();
+					else
+						p.setReceiving();
+				} 
+			}
 			context.getEntityManager().addEntity(p);
 		}
 	}

@@ -17,8 +17,8 @@ public class Tick extends DefaultReporter {
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {		
 		// Update simulator
 		Simulator.Instance().tick();
-		
-		// Return context and statistics.
+				
+		// Return context and statistics
 		LogoListBuilder listBuilder = new LogoListBuilder();
 		allow.simulator.core.Context ctx = Simulator.Instance().getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);

@@ -36,7 +36,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 
 	// Transformation to convert coordinates
 	private Transformation transformation;
-
+	
 	public NetLogoWrapper(World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simToNetLogo = new Long2LongOpenHashMap();

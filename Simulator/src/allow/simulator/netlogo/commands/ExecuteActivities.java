@@ -20,11 +20,26 @@ public class ExecuteActivities extends DefaultReporter {
 	
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		Agent a = (Agent) context.getAgent();
+		Agent agent = (Agent) context.getAgent();
 		
-		if (a instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) a;
+		if (agent instanceof IAgentAdapter) {
+			IAgentAdapter p = (IAgentAdapter) agent;
 			return p.execute();
+			
+			/*if (!(p.getEntity() instanceof Person))
+				return false;
+			
+			Person person = (Person)p.getEntity();
+			SimulationParameter param = person.getContext().getSimulationParameters();
+			Activity a = person.getFlow().getCurrentActivity();
+			
+			if (a == null) 
+				return false;
+			
+			return (param.Car && (a.getType() == ActivityType.DRIVE))
+					|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT) || a.getType() == ActivityType.WAIT)
+					|| (param.Walk && (a.getType() == ActivityType.WALK))
+					|| (param.Bike && (a.getType() == ActivityType.WALK));*/
 
 		} else {
 			throw new ExtensionException("Error: Calling agent must be an extension agent instance.");

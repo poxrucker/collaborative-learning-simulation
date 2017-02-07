@@ -26,6 +26,8 @@ public final class SimulationParameter {
 	
 	public boolean Bike;
 	
+	public boolean Idle;
+	
 	public int GridResX;
 	
 	public int GridResY;

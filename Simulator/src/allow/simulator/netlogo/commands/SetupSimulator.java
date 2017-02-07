@@ -53,6 +53,7 @@ public class SetupSimulator extends DefaultReporter {
 		params.Bus = (boolean) settings.get(8);
 		params.Walk = (boolean) settings.get(9);
 		params.Bike = (boolean) settings.get(10);
+		params.Idle = (boolean) settings.get(11);
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();

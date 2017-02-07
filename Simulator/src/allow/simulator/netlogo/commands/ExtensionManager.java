@@ -24,6 +24,7 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("get-region", new GetRegion());
 		primitiveManager.addPrimitive("get-person-roles", new GetPersonRoles());
 		primitiveManager.addPrimitive("get-person-role", new GetPersonRole());
+		primitiveManager.addPrimitive("update-grid", new UpdateGrid());
 		primitiveManager.addPrimitive("is-informed", new IsInformed());
 		primitiveManager.addPrimitive("is-sharing", new IsSharing());
 		primitiveManager.addPrimitive("is-receiving", new IsReceiving());

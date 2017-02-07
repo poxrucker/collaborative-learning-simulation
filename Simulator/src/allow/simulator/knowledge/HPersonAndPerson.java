@@ -15,37 +15,47 @@ public class HPersonAndPerson extends ExchangeHandler {
 			// return entity1.getKnowledge().exchangeKnowledge(entity2);
 			Person p1 = (Person)entity1;
 			Person p2 = (Person)entity2;
-				
-			if (!isValidProvider(p1))
-				return false;
+			boolean ret1 = exchange(p1, p2);
+			boolean ret2 = exchange(p2, p1);
 			
-			if (!isValidReceiver(p2))
-				return false;
+			if (ret1 || ret2)
+				System.out.println();
 			
-			p2.setInformed(true);
-			return true;
+			return ret1 || ret2;
 		}
 		return (next != null) ? next.exchange(entity1, entity2) : false;
 	}
 	
-	private boolean isValidProvider(Person p) {
-		return p.isInformed() && p.isSharing() && usesParticipatingModality(p);
+	private static boolean exchange(Person provider, Person receiver) {
+		if (!isValidProvider(provider))
+			return false;
+		
+		if (!isValidReceiver(receiver))
+			return false;
+		
+		receiver.setInformed(true);
+		return true;
 	}
 	
-	private boolean isValidReceiver(Person r) {
-		return r.isReceiving() && usesParticipatingModality(r);
+	private static boolean isValidProvider(Person p) {
+		return p.isInformed() && p.isSharing() && executesRelevantActivity(p);
 	}
 	
-	private boolean usesParticipatingModality(Person p) {
+	private static boolean isValidReceiver(Person r) {
+		return r.isReceiving() && executesRelevantActivity(r);
+	}
+	
+	private static boolean executesRelevantActivity(Person p) {
 		SimulationParameter param = p.getContext().getSimulationParameters();
 		Activity a = p.getFlow().getCurrentActivity();
 		
-		if (a == null)
-			return false;
+		if ((a == null) || (a.getType() == ActivityType.PLAN_JOURNEY) || (a.getType() == ActivityType.RANK_ALTERNATIVES)
+				|| (a.getType() == ActivityType.PREPARE_JOURNEY) || (a.getType() == ActivityType.REPLAN)) 
+			return param.Idle;
 		
 		return (param.Car && (a.getType() == ActivityType.DRIVE))
-				|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT))
+				|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT) || (a.getType() == ActivityType.WAIT))
 				|| (param.Walk && (a.getType() == ActivityType.WALK))
-				|| (param.Bike && (a.getType() == ActivityType.WALK));
+				|| (param.Bike && (a.getType() == ActivityType.CYCLE));
 	}
 }

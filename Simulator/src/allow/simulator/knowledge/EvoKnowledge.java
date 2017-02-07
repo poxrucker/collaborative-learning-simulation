@@ -8,9 +8,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.entity.Bus;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.Bus;
 import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Pair;
@@ -251,8 +251,10 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 		for (Entity other : toExchangeBuffer) {
 				boolean exchanged = handlerChain.exchange(entity, other);
 				
-				if (exchanged)
+				if (exchanged) {
 					entity.getRelations().addToBlackList(other);
+					other.getRelations().addToBlackList(entity);
+				}
 			}
 		// Clear relations buffer.
 		toExchangeBuffer.clear();

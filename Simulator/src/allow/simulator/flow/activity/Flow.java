@@ -28,10 +28,10 @@ public final class Flow<V extends Activity<? extends Entity>> {
 	 */
 	public V executeActivity(double executionTime) {
 		// If current activity is null, return.
-		if (currentActivity == null) {
+		if (currentActivity == null)
 			return null;
-		}
-		V temp = currentActivity;
+		
+		V temp = null;
 
 		while (currentActivity != null && executionTime > 0.0) {
 			// Execute current activity.

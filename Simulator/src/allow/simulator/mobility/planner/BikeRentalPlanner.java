@@ -74,7 +74,7 @@ public class BikeRentalPlanner implements IPlannerService {
 	
 	private Leg createWalkingLeg(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, new TType[] { TType.WALK }, reqId);
+		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, new TType[] { TType.WALK }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;
@@ -94,7 +94,7 @@ public class BikeRentalPlanner implements IPlannerService {
 	
 	private Itinerary createBikeItinerary(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2, long startTime) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, new TType[] { TType.BICYCLE }, reqId);
+		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, new TType[] { TType.BICYCLE }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;

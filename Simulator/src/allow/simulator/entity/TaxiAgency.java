@@ -20,7 +20,7 @@ public final class TaxiAgency extends TransportationAgency {
 	// Taxi stop mapping for active taxi trips
 	private final Map<String, Stop> taxiStops;
 	
-	public TaxiAgency(long id, Context context, String agencyId) {
+	public TaxiAgency(int id, Context context, String agencyId) {
 		super(id, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
 		currentTrips = new HashMap<String, Trip>();

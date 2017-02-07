@@ -89,7 +89,7 @@ public final class GTFSRoute {
 		return mode;
 	}
 	
-	// Constants when route is read from a GTFS file directly.
+	// Constants when route is read from a GTFS file directly
 	private static int ROUTE_ID = 0;
 	private static int ROUTE_AGENCY_ID = 1;
 	private static int ROUTE_MODE = 4;

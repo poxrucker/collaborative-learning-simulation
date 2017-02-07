@@ -41,7 +41,7 @@ public abstract class TransportationEntity extends Entity {
 	 * @param context Simulation context
 	 * @param capacity Capacity of entity
 	 */
-	protected TransportationEntity(long id, Context context, TransportationAgency agency, int capacity) {
+	protected TransportationEntity(int id, Context context, TransportationAgency agency, int capacity) {
 		super(id, context);
 		this.capacity = capacity;
 		passengers = new ArrayList<Person>(capacity);

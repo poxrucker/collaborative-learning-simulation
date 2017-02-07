@@ -160,7 +160,7 @@ public class Main {
 		RequestId reqId = new RequestId();
 		
 		// Request transit journeys.
-		JourneyRequest s = JourneyRequest.createRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
+		JourneyRequest s = JourneyRequest.createWalkRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
 				event.arriveBy(), transitJourney, reqId);
 		s.MaximumWalkDistance = 500;
 		List<Itinerary> temp = new ArrayList<Itinerary>();

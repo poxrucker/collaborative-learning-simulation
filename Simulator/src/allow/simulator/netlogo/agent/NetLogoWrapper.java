@@ -1,6 +1,5 @@
 package allow.simulator.netlogo.agent;
 
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.util.Collection;
@@ -32,8 +31,8 @@ public final class NetLogoWrapper implements IContextWrapper {
 	private final World netLogoWorld;
 
 	// Mapping of simulator Ids to NetLogo Ids and vice versa
-	private final Map<Long, Long> simToNetLogo;
-	private final Map<Long, Long> netLogoToSim;
+	//private final Map<Integer, Long> simToNetLogo;
+	//private final Map<Long, Integer> netLogoToSim;
 
 	// Transformation to convert coordinates
 	private Transformation transformation;
@@ -44,8 +43,8 @@ public final class NetLogoWrapper implements IContextWrapper {
 	public NetLogoWrapper(Simulator simulator, World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simulator = simulator;
-		this.simToNetLogo = new Long2LongOpenHashMap();
-		this.netLogoToSim = new Long2LongOpenHashMap();
+		//this.simToNetLogo = new Int2LongOpenHashMap();
+		//this.netLogoToSim = new Long2IntOpenHashMap();
 	}
 
 	public Transformation getTransformation() {
@@ -125,10 +124,10 @@ public final class NetLogoWrapper implements IContextWrapper {
 
 	private void wrapEntities(EntityManager entityManager) throws AgentException {
 		// Prepare mappings
-		Long2LongOpenHashMap simToNetLogoTemp = (Long2LongOpenHashMap) simToNetLogo;
-		Long2LongOpenHashMap netLogoToSimTemp = (Long2LongOpenHashMap) netLogoToSim;
-		simToNetLogoTemp.clear();
-		netLogoToSimTemp.clear();
+		// Int2LongOpenHashMap simToNetLogoTemp = (Int2LongOpenHashMap) simToNetLogo;
+		// Long2IntOpenHashMap netLogoToSimTemp = (Long2IntOpenHashMap) netLogoToSim;
+		// simToNetLogoTemp.clear();
+		// netLogoToSimTemp.clear();
 
 		for (String type : entityManager.getEntityTypes()) {
 			// Get all entities of certain type
@@ -151,15 +150,15 @@ public final class NetLogoWrapper implements IContextWrapper {
 					newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
 					netLogoWorld.turtles().add(newAgent);
 
-					if (netLogoToSim.get(newAgent.id) != null)
-						throw new IllegalStateException("Error: NetLogo entity Id" + newAgent.id + " already in use.");
+					//if (netLogoToSim.get(newAgent.id) != null)
+					//	throw new IllegalStateException("Error: NetLogo entity Id" + newAgent.id + " already in use.");
 					
-					netLogoToSim.put(newAgent.id, entity.getId());
+					//netLogoToSim.put(newAgent.id, entity.getId());
 
-					if (simToNetLogo.get(entity.getId()) != null)
-						throw new IllegalStateException("Error: Simulator entity Id" + entity.getId() + " already in use.");
+					//if (simToNetLogo.get(entity.getId()) != null)
+					//	throw new IllegalStateException("Error: Simulator entity Id" + entity.getId() + " already in use.");
 					
-					simToNetLogo.put(entity.getId(), newAgent.id);
+					//simToNetLogo.put(entity.getId(), newAgent.id);
 					break;
 
 				default:

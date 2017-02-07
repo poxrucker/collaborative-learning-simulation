@@ -17,7 +17,7 @@ public final class Bus extends TransportationEntity {
 	 * @param context Context of the transportation mean.
 	 * @param capacity Capacity of the transportation mean.
 	 */
-	public Bus(long id, Context context, BusAgency agency, int capacity) {
+	public Bus(int id, Context context, BusAgency agency, int capacity) {
 		super(id, context, agency, capacity);
 	}
 

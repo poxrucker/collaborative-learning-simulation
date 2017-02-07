@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public abstract class Entity extends Observable {
 	// Id of the entity
-	protected final long id;
+	protected final int id;
 		
 	// Simulation context
 	@JsonIgnore 
@@ -51,7 +51,7 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, Context context) {
+	public Entity(int id, Context context) {
 		this.id = id;
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
@@ -71,7 +71,7 @@ public abstract class Entity extends Observable {
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id) {
+	protected Entity(int id) {
 		this(id, null);
 	}
 	
@@ -80,7 +80,7 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Id of entity.
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 	

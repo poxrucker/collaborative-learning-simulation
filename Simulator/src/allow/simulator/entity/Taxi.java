@@ -4,7 +4,7 @@ import allow.simulator.core.Context;
 
 public final class Taxi extends TransportationEntity {
 	
-	public Taxi(long id, Context context, TaxiAgency agency, int capacity) {
+	public Taxi(int id, Context context, TaxiAgency agency, int capacity) {
 		super(id, context, agency, capacity);
 	}
 

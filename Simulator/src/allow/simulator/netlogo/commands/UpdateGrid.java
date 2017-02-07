@@ -23,14 +23,15 @@ public class UpdateGrid extends DefaultCommand {
 
 	@Override
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
-		// Grid size
-		int cellSizeX = args[0].getIntValue();
-		int cellSizeY = args[1].getIntValue();
-		boolean referenceAll = args[2].getString().equals("all");
-		int minAgents = args[3].getIntValue();
+		// Parameters
+		int runId = args[0].getIntValue();
+		int cellSizeX = args[1].getIntValue();
+		int cellSizeY = args[2].getIntValue();
+		boolean referenceAll = args[3].getString().equals("all");
+		int minAgents = args[4].getIntValue();
 		
 		// Get world
-		NetLogoWrapper wrapper = NetLogoWrapper.Instance();
+		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
 		World world = wrapper.getWorld();
 		
 		int gridWidth = (world.worldWidth() % cellSizeX == 0) ? (world.worldWidth() / cellSizeX) : (world.worldWidth() / cellSizeX + 1);
@@ -58,7 +59,7 @@ public class UpdateGrid extends DefaultCommand {
 				if (!(agent instanceof IAgentAdapter))
 					continue;
 				
-				IAgentAdapter wrapped = (IAgentAdapter) agent;
+				IAgentAdapter<?> wrapped = (IAgentAdapter<?>) agent;
 				
 				if (!(wrapped.getEntity() instanceof Person))
 					continue;
@@ -128,7 +129,7 @@ public class UpdateGrid extends DefaultCommand {
 	}
 	
 	public Syntax getSyntax() {
-		int right[] = { Syntax.NumberType(), Syntax.NumberType(), Syntax.StringType(), Syntax.NumberType() };
+		int right[] = { Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType(), Syntax.StringType(), Syntax.NumberType() };
 		return Syntax.commandSyntax(right);
 	}
 

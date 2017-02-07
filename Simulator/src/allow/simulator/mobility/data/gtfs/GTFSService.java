@@ -12,16 +12,16 @@ import java.time.format.DateTimeFormatter;
  *
  */
 public final class GTFSService {
-	// Format of dates in GTFS files.
+	// Format of dates in GTFS files
 	private static final DateTimeFormatter gtfsDate = DateTimeFormatter.ofPattern("yyyyMMdd");
 	
-	// Id of service.
+	// Id of service
 	private String serviceId;
 	
-	// Weekdays service is valid.
+	// Weekdays service is valid
 	private boolean days[] = new boolean[7];
 	
-	// Start and ending date of service.
+	// Start and ending date of service
 	private LocalDate startDate;
 	private LocalDate endDate;
 	

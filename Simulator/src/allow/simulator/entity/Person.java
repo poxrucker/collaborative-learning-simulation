@@ -40,27 +40,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Person extends Entity {
-	// Function for ranking journeys according to the person's preferences
-	private JourneyRankingFunction rankingFunction;
-	
 	// Gender of a person.
-	private Gender gender;
+	private final Gender gender;
 	
 	// Profile suggesting a person's behaviour.
-	private Profile profile;
+	private final Profile profile;
 	
 	// Location a person lives at.
-	private Coordinate home;
+	private final Coordinate home;
 	
 	// True if person has a car, false otherwise.
-	private boolean hasCar;
+	private final boolean hasCar;
 	
 	// True, if person has a bike, false otherwise.
-	private boolean hasBike;
+	private final boolean hasBike;
 	
 	// True, if person will send requests to the FlexiBus planner, false otherwise.
 	@JsonIgnore
-	private boolean useFlexiBus;
+	private final boolean useFlexiBus;
 	
 	// Daily routine of this person, i.e. set of travelling events which are
 	// executed regularly on specific days, e.g. going to work on back from 
@@ -69,8 +66,12 @@ public final class Person extends Entity {
 	
 	// Schedule containing starting times of activities.
 	@JsonIgnore
-	private Queue<Pair<LocalTime, Activity>> schedule;
+	private Queue<Pair<LocalTime, Activity<Person>>> schedule;
 	
+	// Function for ranking journeys according to the person's preferences
+	@JsonIgnore
+	private JourneyRankingFunction rankingFunction;
+		
 	// Current destination of a person.
 	@JsonIgnore
 	private Itinerary currentItinerary;
@@ -118,7 +119,7 @@ public final class Person extends Entity {
 	 *        the morning and back in the afternoon for workers.
 	 * @param context Context of this person.
 	 */
-	public Person(long id,
+	public Person(int id,
 			Gender gender,
 			Profile profile,
 			IUtility<ItineraryParams, Preferences> utility,
@@ -139,7 +140,7 @@ public final class Person extends Entity {
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
-		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
+		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
 		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>(); 
 		currentItinerary = null;
@@ -163,7 +164,7 @@ public final class Person extends Entity {
 	 *        the morning and back in the afternoon for workers.
 	 */
 	@JsonCreator
-	public Person(@JsonProperty("id") long id,
+	public Person(@JsonProperty("id") int id,
 			@JsonProperty("gender") Gender gender,
 			@JsonProperty("role") Profile role,
 			@JsonProperty("utility") NormalizedLinearUtility utility,
@@ -179,10 +180,11 @@ public final class Person extends Entity {
 		this.profile = role;
 		this.hasCar = hasCar;
 		this.hasBike = hasBike;
+		this.useFlexiBus = useFlexiBus;
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
-		schedule = new ArrayDeque<Pair<LocalTime, Activity>>();
+		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
 		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>();
 		currentItinerary = null;
@@ -309,15 +311,6 @@ public final class Person extends Entity {
 	}
 	
 	/**
-	 * Determine whether this person uses FlexiBus for travelling.
-	 * 
-	 * @param useFlexiBus True, if person should use FlexiBus, false otherwise.
-	 */
-	public void setUseFlexiBus(boolean useFlexiBus) {
-		this.useFlexiBus = useFlexiBus;
-	}
-	
-	/**
 	 * Returns true, if this person has used her car for travelling, false otherwise.
 	 * 
 	 * @return True, if person has used her car for travelling, false otherwise.
@@ -382,7 +375,7 @@ public final class Person extends Entity {
 	 * @return Scheduling queue of the person.
 	 */
 	@JsonIgnore
-	public Queue<Pair<LocalTime, Activity>> getScheduleQueue() {
+	public Queue<Pair<LocalTime, Activity<Person>>> getScheduleQueue() {
 		return schedule;
 	}
 	
@@ -424,9 +417,10 @@ public final class Person extends Entity {
 		this.receiving = true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Activity execute() {
-		Pair<LocalTime, Activity> next = schedule.peek();
+	public Activity<Person> execute() {
+		Pair<LocalTime, Activity<Person>> next = schedule.peek();
 		
 		if (flow.isIdle() && (next != null)) {
 			LocalTime c = context.getTime().getCurrentTime();
@@ -436,7 +430,7 @@ public final class Person extends Entity {
 				schedule.poll();
 			}
 		}
-		return super.execute();
+		return (Activity<Person>) super.execute();
 	}
 	
 	@Override

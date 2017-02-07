@@ -1,6 +1,5 @@
 package allow.simulator.flow.activity.person;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import allow.simulator.entity.Person;
@@ -8,8 +7,8 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.Itinerary;
 
-public final class FilterAlternatives extends Activity {
-
+public final class FilterAlternatives extends Activity<Person> {
+	// List of itineraries to filter
 	private List<Itinerary> toFilter;
 	
 	public FilterAlternatives(Person person, List<Itinerary> it) {
@@ -19,17 +18,10 @@ public final class FilterAlternatives extends Activity {
 
 	@Override
 	public double execute(double deltaT) {
-		Person person = (Person) entity;
-		List<Itinerary> filtered = new ArrayList<Itinerary>(toFilter.size());
 		/* 
 		 * Do filtering here 
 		 */
-		
-		/*
-		 * Remove this line after adding filtering algorithm.
-		 */
-		filtered.addAll(toFilter);
-		entity.getFlow().addActivity(new RankAlternatives(person, filtered));
+		entity.getFlow().addActivity(new RankAlternatives(entity, toFilter));
 		setFinished();
 		return 0;
 	}

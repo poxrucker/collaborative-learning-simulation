@@ -1,13 +1,14 @@
 package allow.simulator.mobility.data;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.TransportationEntity;
 import allow.simulator.util.Coordinate;
 
-public abstract class Stop {
+public class Stop {
 	// Id of stop
 	protected final String stopId;
 
@@ -15,10 +16,10 @@ public abstract class Stop {
 	protected final Coordinate position;
 
 	// Transportation entities waiting at the stop
-	protected final Queue<TransportationEntity> transportationEntities;
+	protected final List<TransportationEntity> transportationEntities;
 
 	// Passengers waiting at the stop
-	protected final Queue<Person> passengers;
+	protected final List<Person> passengers;
 
 	/**
 	 * Creates new instance of a stop.
@@ -26,11 +27,11 @@ public abstract class Stop {
 	 * @param stopId Id of the stop.
 	 * @param position Location of the stop.
 	 */
-	protected Stop(String stopId, Coordinate position) {
+	public Stop(String stopId, Coordinate position) {
 		this.stopId = stopId;
 		this.position = position;
-		transportationEntities = new ConcurrentLinkedQueue<TransportationEntity>();
-		passengers = new ConcurrentLinkedQueue<Person>();
+		transportationEntities = new ArrayList<TransportationEntity>();
+		passengers = new ArrayList<Person>();
 	}
 
 	/**
@@ -57,7 +58,7 @@ public abstract class Stop {
 	 * @return True if there are passengers waiting, false otherwise
 	 */
 	public boolean hasWaitingPersons() {
-		return passengers.isEmpty();
+		return !passengers.isEmpty();
 	}
 
 	/**
@@ -78,6 +79,42 @@ public abstract class Stop {
 		passengers.remove(passenger);
 	}
 
+	/**
+	 * Checks if there is a transportation entity currently waiting at the stop.
+	 *
+	 * @return True if there is a waiting transportation entity, false otherwise.
+	 */
+	public boolean hasWaitingTransportationEntity() {
+		return !transportationEntities.isEmpty();
+	}
+	
+	/**
+	 * Returns a list of transportation entities waiting at the stop.
+	 * 
+	 * @return Waiting transportation entities
+	 */
+	public List<TransportationEntity> getTransportationEntities() {
+		return Collections.unmodifiableList(transportationEntities);
+	}
+	
+	/**
+	 * Adds a transportation entity to wait at this stop.
+	 * 
+	 * @param b Transportation entity to be added to this stop.
+	 */
+	public void addTransportationEntity(TransportationEntity entity) {
+		transportationEntities.add(entity);
+	}
+	
+	/**
+	 * Removes a waiting transportation entity from this stop.
+	 * 
+	 * @param b Transportation entity to remove from this stop.
+	 */
+	public void removeTransportationEntity(TransportationEntity entity) {
+		transportationEntities.remove(entity);
+	}
+	
 	public String toString() {
 		return "[Stop" + stopId + "]";
 	}

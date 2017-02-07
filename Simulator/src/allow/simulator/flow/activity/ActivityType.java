@@ -65,11 +65,6 @@ public enum ActivityType {
 	SCHEDULE_NEXT_TAXI_TRIPS,
 	
 	/**
-	 * Smart planner activities.
-	 */
-	QUERY_JOURNEY_PLANNER,
-	
-	/**
 	 * General activities.
 	 */
 	LEARN

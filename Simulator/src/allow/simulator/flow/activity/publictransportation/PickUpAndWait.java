@@ -7,7 +7,7 @@ import allow.simulator.core.Time;
 import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.BusStop;
+import allow.simulator.mobility.data.Stop;
 
 /**
  * Represents an activity for a means of public transportation to approach a
@@ -16,19 +16,18 @@ import allow.simulator.mobility.data.BusStop;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class PickUpAndWait extends Activity {
-	// Stop to approach.
-	private BusStop stop;
+public final class PickUpAndWait extends Activity<Bus> {
+	// Stop to approach
+	private Stop stop;
 	
-	// Time stop trip departs from this stop.
+	// Time stop trip departs from this stop
 	private LocalTime time;
 	private int day;
 	
-	// Flags.
+	// Flags
 	private boolean approached;
 	
 	/**
-	 * Constructor.
 	 * Creates a new instance of the activity specifying the transportation entity,
 	 * the stop to approach, and the departure time.
 	 * 
@@ -36,7 +35,7 @@ public class PickUpAndWait extends Activity {
 	 * @param stop Stop to approach.
 	 * @param time Time to depart form the stop.
 	 */
-	public PickUpAndWait(Bus entity, BusStop stop, LocalTime time) {
+	public PickUpAndWait(Bus entity, Stop stop, LocalTime time) {
 		// Constructor of super class.
 		super(ActivityType.PICKUP_AND_WAIT, entity);
 		
@@ -50,33 +49,30 @@ public class PickUpAndWait extends Activity {
 	}
 
 	@Override
-	public double execute(double deltaT) {	
-		// Bus entity
-		Bus p = (Bus) entity;
-				
+	public double execute(double deltaT) {		
 		// If stop has not been approached yet (first time execute is called)
-		// set transport to stop and return.
+		// set transport to stop and return
 		if (!approached) {
 			tStart = entity.getContext().getTime().getTimestamp();
-			p.setCurrentStop(stop);
-			p.setPosition(stop.getPosition());
-			stop.addPublicTransportation(p);
+			entity.setCurrentStop(stop);
+			entity.setPosition(stop.getPosition());
+			stop.addTransportationEntity(entity);
 			approached = true;
 			return deltaT;
 		}
 		
-		// Get current time.
-		Time currentTime = p.getContext().getTime();
+		// Get current time
+		Time currentTime = entity.getContext().getTime();
 					
 		if ((currentTime.getDays() > day || currentTime.getCurrentTime().isAfter(time))) {
-			// Remove transportation from current stop.
-			stop.removePublicTransportation(p);
-			p.setCurrentStop(null);
+			// Remove transportation from current stop
+			stop.removeTransportationEntity(entity);
+			entity.setCurrentStop(null);
 			setFinished();
 			
-			// Update delay when departing.
+			// Update delay when departing
 			long currentDelay = Duration.between(time, currentTime.getCurrentTime()).getSeconds();
-			p.setCurrentDelay(currentDelay);
+			entity.setCurrentDelay(currentDelay);
 			return deltaT;
 		}
 		return deltaT;

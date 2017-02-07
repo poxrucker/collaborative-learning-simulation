@@ -12,14 +12,14 @@ import allow.simulator.entity.Entity;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public interface IAgentAdapter extends Observer {
+public interface IAgentAdapter<V extends Entity> extends Observer {
 	
 	/**
 	 * Returns the underlying entity.
 	 * 
 	 * @return Implementation of the entity
 	 */
-	public Entity getEntity();
+	public V getEntity();
 	
 	/**
 	 * Calls the behavioral logic of the underlying entity.

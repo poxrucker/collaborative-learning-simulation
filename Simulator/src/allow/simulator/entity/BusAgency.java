@@ -22,7 +22,7 @@ public final class BusAgency extends TransportationAgency {
 	// "Live" information about current trips and vehicles executing trips
 	protected final Map<String, TransportationEntity> currentlyUsedVehicles;
 	
-	public BusAgency(long id, Context context, String agencyId) {
+	public BusAgency(int id, Context context, String agencyId) {
 		super(id, context, agencyId);
 		routes = new HashMap<String, Route>();
 		nextTrips = new LinkedList<PublicTransportationTrip>();

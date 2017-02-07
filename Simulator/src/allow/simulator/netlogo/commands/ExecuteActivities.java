@@ -23,7 +23,7 @@ public class ExecuteActivities extends DefaultReporter {
 		Agent agent = (Agent) context.getAgent();
 		
 		if (agent instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) agent;
+			IAgentAdapter<?> p = (IAgentAdapter<?>) agent;
 			return p.execute();
 			
 			/*if (!(p.getEntity() instanceof Person))

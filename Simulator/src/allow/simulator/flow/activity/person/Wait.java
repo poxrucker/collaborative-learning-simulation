@@ -4,8 +4,8 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 
-public class Wait extends Activity {
-
+public class Wait extends Activity<Person> {
+	// Time to wait
 	private double waitingTime;
 	
 	public Wait(Person person, double waitingTime) {

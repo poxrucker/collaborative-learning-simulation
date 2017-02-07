@@ -24,22 +24,13 @@ public final class PublicTransportationTrip extends Trip {
 		 */
 		public PublicTransportationTrip(String tripId, LocalDate starting, LocalDate ending,
 				List<GTFSServiceException> exceptions, 
-				List<BusStop> stops,
+				List<Stop> stops,
 				List<LocalTime> stopTimes,
 				List<List<Street>> trace) {
 			super(tripId, new ArrayList<Stop>(stops), stopTimes, trace);
 			this.startingDate = starting;
 			this.endingDate = ending;
 			this.exceptions = exceptions;
-		}
-		
-		public List<BusStop> getStops() {
-			List<BusStop> ret = new ArrayList<BusStop>(stops.size());
-			
-			for (Stop s : stops) {
-				ret.add((BusStop) s);
-			}
-			return ret;
 		}
 		
 		public boolean isValidThisDay(LocalDate day) {

@@ -4,10 +4,10 @@ import java.time.LocalTime;
 
 import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
+import allow.simulator.exchange.Relation;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.mobility.data.TaxiStop;
-import allow.simulator.relation.Relation;
+import allow.simulator.mobility.data.Stop;
 
 /**
  * Represents an activity to use public transport (bus).
@@ -15,18 +15,18 @@ import allow.simulator.relation.Relation;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class UseTaxi extends Activity {
-	// The stops to get in and out.
-	private TaxiStop in;
-	private TaxiStop out;
+public final class UseTaxi extends Activity<Person> {
+	// The stops to get in and out
+	private Stop in;
+	private Stop out;
 
-	// The bus a person entered.
+	// The bus a person entered
 	private Taxi taxi;
 
-	// Earliest starting time of the activity.
+	// Earliest starting time of the activity
 	private LocalTime earliestStartingTime;
 
-	// Utility state variables.
+	// Utility state variables
 	private boolean reachedStop;
 	private boolean enteredTaxi;
 	private boolean leftTaxi;
@@ -34,17 +34,12 @@ public final class UseTaxi extends Activity {
 	/**
 	 * Creates new activity to use a taxi given start and end stop.
 	 * 
-	 * @param person
-	 *            Person to execute the activity
-	 * @param start
-	 *            Starting stop
-	 * @param dest
-	 *            Destination stop
-	 * @param departure
-	 *            Time when taxi is expected to depart from stop
+	 * @param person Person to execute the activity
+	 * @param start Starting stop
+	 * @param dest Destination stop
+	 * @param departure Time when taxi is expected to depart from stop
 	 */
-	public UseTaxi(Person person, TaxiStop start, TaxiStop dest,
-			Taxi taxi, LocalTime departure) {
+	public UseTaxi(Person person, Stop start, Stop dest, Taxi taxi, LocalTime departure) {
 		super(ActivityType.USE_PUBLIC_TRANSPORT, person);
 		earliestStartingTime = departure;
 		this.taxi = taxi;
@@ -60,32 +55,29 @@ public final class UseTaxi extends Activity {
 		// Register relations update.
 		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
 
-		// Get entity.
-		Person person = (Person) entity;
-		
 		if (!reachedStop) {
 			// If person has not reached stop yet, set position, add person to waiting passengers, and set flag.
-			person.setPosition(in.getPosition());
-			in.addWaitingPerson(person);
+			entity.setPosition(in.getPosition());
+			in.addWaitingPerson(entity);
 			reachedStop = true;
 			return 0.0;
 			
 		} else if (!enteredTaxi) {
 			// If person has not entered the correct means yet, check in stop for waiting vehicles.
-			if (in.hasWaitingTaxi()) {
-				Taxi temp = in.getTaxi();
+			if (in.hasWaitingTransportationEntity()) {
+				Taxi temp = (Taxi) in.getTransportationEntities().get(0);
 				
 				if (taxi != temp)
 					throw new IllegalStateException();
-				taxi.addPassenger(person);
-				in.removeWaitingPerson(person);
+				taxi.addPassenger(entity);
+				in.removeWaitingPerson(entity);
 				enteredTaxi = true;
 			}
 			
 		} else if (enteredTaxi && !leftTaxi) {
 			// If person entered taxi, update position.
 			if ((taxi.getCurrentStop() != null) && (taxi.getCurrentStop().getStopId().equals(out.getStopId()))) {
-				taxi.removePassenger(person);
+				taxi.removePassenger(entity);
 				leftTaxi = true;
 				setFinished();
 			}

@@ -1,4 +1,4 @@
-package allow.simulator.knowledge;
+package allow.simulator.exchange;
 
 import allow.simulator.entity.Entity;
 

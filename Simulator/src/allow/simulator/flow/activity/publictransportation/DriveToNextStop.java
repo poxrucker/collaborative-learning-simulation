@@ -8,7 +8,6 @@ import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -22,7 +21,7 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class DriveToNextStop extends MovementActivity {
+public class DriveToNextStop extends MovementActivity<Bus> {
 
 	private double fillingLevel;
 	
@@ -45,27 +44,21 @@ public class DriveToNextStop extends MovementActivity {
 		// Note tStart.
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
-			Bus t = (Bus) entity;
-			fillingLevel = ((double) t.getPassengers().size()) / t.getCapacity();
+			fillingLevel = ((double) entity.getPassengers().size()) / entity.getCapacity();
 		}
-				
-		// Transportation entity.
-		Bus p = (Bus) entity;
-		
 		// Move public transportation and passengers.
 		double rem = travel(deltaT);
-		p.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 		
-		for (Entity pass : p.getPassengers()) {
-			pass.setPosition(p.getPosition());
+		for (Entity pass : entity.getPassengers()) {
+			pass.setPosition(entity.getPosition());
 		}
 				
 		if (isFinished()) {
 					
 			for (Experience ex : experiences) {
-				//p.getKnowledge().collect(ex);
 				
-				for (Person pass : p.getPassengers()) {
+				for (Person pass : entity.getPassengers()) {
 					pass.getExperienceBuffer().add(ex);
 				}
 			}
@@ -121,7 +114,7 @@ public class DriveToNextStop extends MovementActivity {
 							tEnd,
 							s.getNumberOfVehicles(),
 							fillingLevel,
-							((Bus) entity).getCurrentTrip().getTripId(),
+							entity.getCurrentTrip().getTripId(),
 							entity.getContext().getWeather().getCurrentState());
 					experiences.add(newEx);
 					streetTravelTime = 0.0;

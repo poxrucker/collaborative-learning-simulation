@@ -1,15 +1,12 @@
 package allow.simulator.entity;
 
-import java.util.ArrayList;
 import java.util.Observable;
 
 import allow.simulator.core.Context;
+import allow.simulator.exchange.RelationGraph;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.Flow;
 import allow.simulator.knowledge.EvoKnowledge;
-import allow.simulator.knowledge.Knowledge;
-import allow.simulator.knowledge.Experience;
-import allow.simulator.relation.RelationGraph;
 import allow.simulator.util.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public abstract class Entity extends Observable {
 	// Id of the entity
-	protected final long id;
+	protected final int id;
 		
 	// Simulation context
 	@JsonIgnore 
@@ -38,7 +35,7 @@ public abstract class Entity extends Observable {
 	
 	// Flow of activities to execute
 	@JsonIgnore
-	protected final Flow flow;
+	protected Flow<Activity<?>> flow;
 	
 	// Position of an entity
 	@JsonIgnore
@@ -54,13 +51,13 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(long id, Context context) {
+	public Entity(int id, Context context) {
 		this.id = id;
 		position = new Coordinate(-1, -1);
 		knowledge = new EvoKnowledge(this);
 		relations = new RelationGraph(this);
+		flow = new Flow<Activity<?>>();
 		this.context = context;
-		flow = new Flow();
 		setPosition(position);
 	}
 
@@ -74,7 +71,7 @@ public abstract class Entity extends Observable {
 	 * @param utility Utility function for decision making.
 	 * @param prefs Preferences required for utility function.
 	 */
-	protected Entity(long id) {
+	protected Entity(int id) {
 		this(id, null);
 	}
 	
@@ -83,7 +80,7 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Id of entity.
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 	
@@ -121,7 +118,7 @@ public abstract class Entity extends Observable {
 	 * @return Flow of activities.
 	 */
 	@JsonIgnore
-	public Flow getFlow() {
+	public Flow<Activity<?>> getFlow() {
 		return flow;
 	}
 	
@@ -180,12 +177,12 @@ public abstract class Entity extends Observable {
 	 * 
 	 * @return Type of executed activity 
 	 */
-	public Activity execute() {
+	public Activity<?> execute() {
 		
 		if (flow.isIdle())
 			return null;
 		
-		Activity executedActivity = flow.getCurrentActivity();
+		Activity<?> executedActivity = flow.getCurrentActivity();
 		flow.executeActivity(context.getTime().getDeltaT());
 		return executedActivity;
 	}

@@ -22,7 +22,7 @@ public class ExecuteBus extends DefaultCommand {
 		Agent a = (Agent) context.getAgent();
 		
 		if (a instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) a;
+			IAgentAdapter<?> p = (IAgentAdapter<?>) a;
 			p.execute();
 			
 		} else {

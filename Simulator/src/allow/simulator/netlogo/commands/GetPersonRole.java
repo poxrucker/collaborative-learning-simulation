@@ -21,7 +21,7 @@ public class GetPersonRole extends DefaultReporter
 		if (!(a instanceof IAgentAdapter))
 			throw new ExtensionException("Error: Calling agent must be an extension agent instance.");
 		
-		IAgentAdapter temp = (IAgentAdapter) a;
+		IAgentAdapter<?> temp = (IAgentAdapter<?>) a;
 		
 		if (!(temp.getEntity().getType() == EntityTypes.PERSON))
 			throw new ExtensionException("Error: Calling agent must wrap a person entity.");

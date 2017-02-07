@@ -1,7 +1,6 @@
 package allow.simulator.flow.activity.person;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import allow.simulator.entity.Person;
@@ -9,7 +8,7 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 
-public final class RegisterToFlexiBus extends Activity {
+public final class RegisterToFlexiBus extends Activity<Person> {
 	// Starting point of the journey.
 	private Coordinate start;
 		

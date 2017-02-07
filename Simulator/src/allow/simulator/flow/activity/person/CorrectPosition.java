@@ -5,7 +5,7 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 
-public class CorrectPosition extends Activity {
+public class CorrectPosition extends Activity<Person> {
 
 	private Coordinate destination;
 	
@@ -16,11 +16,10 @@ public class CorrectPosition extends Activity {
 
 	@Override
 	public double execute(double deltaT) {
-		Person person = (Person) entity;
-		person.setPosition(destination);
+		entity.setPosition(destination);
 
-		if (person.hasUsedCar() && person.isAtHome())
-			person.setUsedCar(false);
+		if (entity.hasUsedCar() && entity.isAtHome())
+			entity.setUsedCar(false);
 		
 		setFinished();
 		return 0.0;

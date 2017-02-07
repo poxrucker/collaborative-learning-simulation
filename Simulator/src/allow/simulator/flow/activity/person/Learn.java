@@ -11,7 +11,7 @@ import allow.simulator.flow.activity.ActivityType;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Learn extends Activity {
+public final class Learn extends Activity<Entity> {
 	
 	public Learn(Entity entity) {
 		super(ActivityType.LEARN, entity);
@@ -29,7 +29,6 @@ public final class Learn extends Activity {
 		// Create summary of 
 		p.getKnowledge().learn(p.getExperienceBuffer());
 		p.getExperienceBuffer().clear();
-		p.getExperienceBuffer().trimToSize();
 		
 		// Summarize 
 		setFinished();

@@ -9,18 +9,24 @@ import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.Simulator;
+import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
 
 public class Tick extends DefaultReporter {
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {		
-		// Update simulator
-		Simulator.Instance().tick();
-				
-		// Return context and statistics
+		// Get runId
+		int runId = args[0].getIntValue();
+		
+		// NetLogoWrapper
+		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
+		Simulator simulator = wrapper.getSimulator();
+		simulator.tick();
+		
+		// Return context and statistics.		
 		LogoListBuilder listBuilder = new LogoListBuilder();
-		allow.simulator.core.Context ctx = Simulator.Instance().getContext();
+		allow.simulator.core.Context ctx = simulator.getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);
 		
 		listBuilder.add(ctx.getTime().toString());
@@ -37,7 +43,7 @@ public class Tick extends DefaultReporter {
 	}
 
 	public Syntax getSyntax() {
-		int right[] = { Syntax.NumberType() };
+		int right[] = { Syntax.NumberType(), Syntax.NumberType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType());
 	}
 }

@@ -15,17 +15,13 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class MovementActivity extends Activity {
-	
-	// Path to move.
+public abstract class MovementActivity<V extends Entity> extends Activity<V> {
+	// Path to move
 	protected List<Street> path;
 	
 	// Traveled distance.
 	protected StreetSegment currentSegment;
 	protected Coordinate currentPosition;
-	
-	// Distance travelled on path.
-	// protected double distance;
 	
 	// Utility variables.
 	protected int streetIndex;
@@ -44,7 +40,7 @@ public abstract class MovementActivity extends Activity {
 	 * @param entity Entity executing the Activity (i.e. the entity to move).
 	 * @param polyline Path to move along.
 	 */
-	protected MovementActivity(ActivityType type, Entity entity, List<Street> polyLine) {
+	protected MovementActivity(ActivityType type, V entity, List<Street> polyLine) {
 		// Call constructor of superclass specifying type of activity and entity. 
 		super(type, entity);
 		this.path = polyLine;

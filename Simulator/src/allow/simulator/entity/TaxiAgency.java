@@ -5,27 +5,27 @@ import java.util.Map;
 
 import allow.simulator.core.Context;
 import allow.simulator.flow.activity.taxi.PrepareTaxiTrip;
-import allow.simulator.mobility.data.TaxiStop;
-import allow.simulator.mobility.data.TaxiTrip;
+import allow.simulator.mobility.data.Stop;
+import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.util.Coordinate;
 
 public final class TaxiAgency extends TransportationAgency {
 	// Collection of trips which have been requested and are being executed
-	private final Map<String, TaxiTrip> currentTrips;
+	private final Map<String, Trip> currentTrips;
 	
 	// "Live" information about current trips and vehicles executing trips
 	private final Map<String, Taxi> currentlyUsedVehicles;
 	
 	// Taxi stop mapping for active taxi trips
-	private final Map<String, TaxiStop> taxiStops;
+	private final Map<String, Stop> taxiStops;
 	
-	public TaxiAgency(long id, Context context, String agencyId) {
+	public TaxiAgency(int id, Context context, String agencyId) {
 		super(id, context, agencyId);
 		position = new Coordinate(11.119714, 46.071988);
-		currentTrips = new HashMap<String, TaxiTrip>();
+		currentTrips = new HashMap<String, Trip>();
 		currentlyUsedVehicles = new HashMap<String, Taxi>();
-		taxiStops = new HashMap<String, TaxiStop>();
+		taxiStops = new HashMap<String, Stop>();
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public final class TaxiAgency extends TransportationAgency {
 		return false;
 	}
 
-	public Taxi scheduleTrip(TaxiTrip taxiTrip) {
+	public Taxi scheduleTrip(Trip taxiTrip) {
 		// Poll next free transportation entity
 		Taxi taxi = (Taxi) vehicles.poll();
 		
@@ -42,7 +42,7 @@ public final class TaxiAgency extends TransportationAgency {
 		currentlyUsedVehicles.put(taxiTrip.getTripId(), taxi);
 		currentTrips.put(taxiTrip.getTripId(), taxiTrip);
 
-		for (TaxiStop stop : taxiTrip.getTaxiStops()) {
+		for (Stop stop : taxiTrip.getStops()) {
 			taxiStops.put(stop.getStopId(), stop);
 		}
 		return taxi;
@@ -50,9 +50,9 @@ public final class TaxiAgency extends TransportationAgency {
 	
 	public void finishTrip(String tripId, Taxi taxi) {
 		currentlyUsedVehicles.remove(tripId);
-		TaxiTrip trip = currentTrips.remove(tripId);
+		Trip trip = currentTrips.remove(tripId);
 		
-		for (TaxiStop stop : trip.getTaxiStops()) {
+		for (Stop stop : trip.getStops()) {
 			taxiStops.remove(stop.getStopId());
 		}
 		vehicles.add(taxi);
@@ -64,13 +64,13 @@ public final class TaxiAgency extends TransportationAgency {
 			return currentlyUsedVehicles.get(tripId);
 		
 		TaxiPlanner service = context.getJourneyPlanner().getTaxiPlannerService();
-		TaxiTrip trip = service.getTaxiTrip(tripId);	
+		Trip trip = service.getTaxiTrip(tripId);	
 		Taxi t = scheduleTrip(trip);
 		t.getFlow().addActivity(new PrepareTaxiTrip(t, trip));	
 		return t;
 	}
 	
-	public TaxiStop getTaxiStop(String stopId) {
+	public Stop getTaxiStop(String stopId) {
 		return taxiStops.get(stopId);
 	}
 	
@@ -79,7 +79,7 @@ public final class TaxiAgency extends TransportationAgency {
 		service.getTaxiTrip(tripId);
 	}
 	
-	public TaxiTrip getTripInformation(String tripId) {
+	public Trip getTripInformation(String tripId) {
 		return currentTrips.get(tripId);
 	}
 	

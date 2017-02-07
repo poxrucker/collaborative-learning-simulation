@@ -3,18 +3,20 @@ package allow.simulator.flow.activity;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public final class Flow {
+import allow.simulator.entity.Entity;
+
+public final class Flow<V extends Activity<? extends Entity>> {
 	// Manages the actual flow of activities.
-	private final Queue<Activity> flow;
+	private final Queue<V> flow;
 	
 	// Currently executed activity.
-	private Activity currentActivity;
+	private V currentActivity;
 	
 	/**
 	 * Creates new instance with empty flow.
 	 */
 	public Flow() {
-		flow = new ArrayDeque<Activity>();
+		flow = new ArrayDeque<V>();
 		currentActivity = null;
 	}
 	
@@ -24,12 +26,12 @@ public final class Flow {
 	 * 
 	 * @return The executed activity.
 	 */
-	public Activity executeActivity(double executionTime) {
+	public V executeActivity(double executionTime) {
 		// If current activity is null, return.
-		if (currentActivity == null) {
+		if (currentActivity == null)
 			return null;
-		}
-		Activity temp = currentActivity;
+		
+		V temp = null;
 
 		while (currentActivity != null && executionTime > 0.0) {
 			// Execute current activity.
@@ -61,7 +63,7 @@ public final class Flow {
 	 * 
 	 * @return The currently executed activity.
 	 */
-	public Activity getCurrentActivity() {
+	public V getCurrentActivity() {
 		return currentActivity;
 	}
 
@@ -70,7 +72,7 @@ public final class Flow {
 	 * 
 	 * @param a The Activity to add.
 	 */
-	public void addActivity(Activity a) {
+	public void addActivity(V a) {
 		flow.add(a);
 		updateCurrentActivity();
 	}

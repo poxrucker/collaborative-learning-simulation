@@ -24,7 +24,7 @@ public class GetRegion extends DefaultReporter
 		Agent a = (Agent) context.getAgent();
 		
 		if (a instanceof IAgentAdapter) {
-			IAgentAdapter temp = (IAgentAdapter) a;
+			IAgentAdapter<?> temp = (IAgentAdapter<?>) a;
 			DistrictOverlay l = (DistrictOverlay) temp.getEntity().getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
 			List<Area> areas = l.getAreasContainingPoint(temp.getEntity().getPosition());
 			

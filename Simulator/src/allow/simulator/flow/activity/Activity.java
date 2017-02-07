@@ -9,17 +9,17 @@ import allow.simulator.entity.Entity;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public abstract class Activity {
-	// Indicates if Activity has finished.
+public abstract class Activity<V extends Entity> {
+	// Indicates if Activity has finished
 	private boolean finished;
 	
-	// Type of the Activity.
+	// Type of the Activity
 	protected final ActivityType type;
 	
-	// Entity executing the activity.
-	protected final Entity entity;
+	// Entity executing the activity
+	protected final V entity;
 	
-	// Starting and ending timestamps.
+	// Starting and ending timestamps
 	protected long tStart;
 	protected long tEnd;
 	
@@ -29,7 +29,7 @@ public abstract class Activity {
 	 * @param type Type of the Activity.
 	 * @param entitiy Entity supposed to execute the Activity.
 	 */
-	protected Activity(ActivityType type, Entity entity) {
+	protected Activity(ActivityType type, V entity) {
 		this.type = type;
 		this.entity = entity;
 		finished = false;

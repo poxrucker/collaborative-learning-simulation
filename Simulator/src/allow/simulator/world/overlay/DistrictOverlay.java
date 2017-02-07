@@ -1,11 +1,13 @@
 package allow.simulator.world.overlay;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +59,7 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 		areas.put(unknown.getType(), defaults);
 
 		// Create area to node mapping and initialize with default area.
-		areaToNodesMapping.put(unknown, new ArrayList<StreetNode>(base.getStreetNodes()));
+		areaToNodesMapping.put(unknown, new ObjectArrayList<StreetNode>(base.getStreetNodes()));
 
 		for (StreetNode node : base.getStreetNodes()) {
 			List<Area> areas = new ArrayList<Area>(1);
@@ -83,13 +85,14 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 		areas.put(disArea.getType(), temp);
 
 		List<StreetNode> stillDefault = areaToNodesMapping.get(areas.get(DistrictType.UNKNOWN).get(0));
-		Map<Long, StreetNode> util = new HashMap<Long, StreetNode>(stillDefault.size());
+		Long2ObjectOpenHashMap<StreetNode> util = new Long2ObjectOpenHashMap<StreetNode>(stillDefault.size());
+		
 		for (StreetNode n : stillDefault) {
 			util.put(n.getId(), n);
 		}
 
 		// Create mapping of points to area and vice versa.
-		List<StreetNode> nodes = new ArrayList<StreetNode>();
+		List<StreetNode> nodes = new ObjectArrayList<StreetNode>();
 
 		for (StreetNode n : base.getStreetNodes()) {
 

@@ -21,7 +21,7 @@ public class ShowActivity extends DefaultCommand {
 			Agent a = it.next();
 			
 			if (a instanceof IAgentAdapter) {
-				IAgentAdapter p = (IAgentAdapter) a;
+				IAgentAdapter<?> p = (IAgentAdapter<?>) a;
 				String c = (p.getEntity().getFlow().getCurrentActivity() != null) ? p.getEntity().getFlow().getCurrentActivity().toString() : null;
 				System.out.println(c);
 			}

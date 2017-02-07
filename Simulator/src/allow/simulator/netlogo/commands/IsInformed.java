@@ -21,7 +21,7 @@ public class IsInformed extends DefaultReporter {
 		if (!(a instanceof IAgentAdapter))
 			throw new ExtensionException("Error: Calling agent must be an extension agent.");
 		
-		IAgentAdapter temp = (IAgentAdapter) a;
+		IAgentAdapter<?> temp = (IAgentAdapter<?>) a;
 		Entity entity = temp.getEntity();
 		
 		if (!(entity instanceof Person))

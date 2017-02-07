@@ -1,8 +1,10 @@
 package allow.simulator.world.overlay;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +61,8 @@ public abstract class AbstractGraphOverlay {
 	 */
 	protected AbstractGraphOverlay(Type type) {
 		this.type = type;
-		areaToNodesMapping = new HashMap<Area, List<StreetNode>>();
-		nodesToAreaMapping = new HashMap<StreetNode, List<Area>>();
+		areaToNodesMapping = new Object2ObjectOpenHashMap<Area, List<StreetNode>>();
+		nodesToAreaMapping = new Object2ObjectOpenHashMap<StreetNode, List<Area>>();
 	}
 	
 	/**
@@ -89,9 +91,14 @@ public abstract class AbstractGraphOverlay {
 	 */
 	public List<Area> getAreasContainingPoint(Coordinate point) {
 		Collection<Area> areas = areaToNodesMapping.keySet();
-		List<Area> ret = new ArrayList<Area>();
+		
+		if (areas.size() == 0)
+			return Collections.emptyList();
+		
+		List<Area> ret = new ObjectArrayList<Area>();
 		
 		for (Area a : areas) {
+			
 			if (a.pointInArea(point))
 				ret.add(a);
 		}
@@ -99,7 +106,7 @@ public abstract class AbstractGraphOverlay {
 	}
 	
 	public List<StreetNode> getPointsInArea(Area area) {
-		return areaToNodesMapping.get(area);
+		return Collections.unmodifiableList(areaToNodesMapping.get(area));
 	}
 	
 	/**

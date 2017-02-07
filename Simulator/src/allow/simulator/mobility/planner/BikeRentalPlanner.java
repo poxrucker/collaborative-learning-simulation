@@ -9,10 +9,10 @@ import allow.simulator.util.Coordinate;
 
 public class BikeRentalPlanner implements IPlannerService {
 
-	private List<OTPPlannerService> plannerServices;
+	private List<OTPPlanner> plannerServices;
 	private Coordinate bikeRentalStation;
 	
-	public BikeRentalPlanner(List<OTPPlannerService> plannerServices, Coordinate bikeRentalStation) {
+	public BikeRentalPlanner(List<OTPPlanner> plannerServices, Coordinate bikeRentalStation) {
 		this.plannerServices = plannerServices;
 		this.bikeRentalStation = bikeRentalStation;
 	}
@@ -74,7 +74,7 @@ public class BikeRentalPlanner implements IPlannerService {
 	
 	private Leg createWalkingLeg(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, new TType[] { TType.WALK }, reqId);
+		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, reqId, req2.OTPRouterID);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;
@@ -94,7 +94,7 @@ public class BikeRentalPlanner implements IPlannerService {
 	
 	private Itinerary createBikeItinerary(Coordinate from, Coordinate to, IPlannerService planner, JourneyRequest req2, long startTime) {
 		RequestId reqId = new RequestId();
-		JourneyRequest req = JourneyRequest.createRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, new TType[] { TType.BICYCLE }, reqId);
+		JourneyRequest req = JourneyRequest.createBikeRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, reqId, req2.OTPRouterID);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(req, temp);
 		Itinerary candidateIt = null;

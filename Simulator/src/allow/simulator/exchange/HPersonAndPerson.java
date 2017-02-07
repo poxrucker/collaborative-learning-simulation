@@ -1,4 +1,4 @@
-package allow.simulator.knowledge;
+package allow.simulator.exchange;
 
 import allow.simulator.core.SimulationParameter;
 import allow.simulator.entity.Entity;
@@ -47,7 +47,8 @@ public class HPersonAndPerson extends ExchangeHandler {
 	
 	private static boolean executesRelevantActivity(Person p) {
 		SimulationParameter param = p.getContext().getSimulationParameters();
-		Activity a = p.getFlow().getCurrentActivity();
+		@SuppressWarnings("unchecked")
+		Activity<Person> a = (Activity<Person>) p.getFlow().getCurrentActivity();
 		
 		if ((a == null) || (a.getType() == ActivityType.PLAN_JOURNEY) || (a.getType() == ActivityType.RANK_ALTERNATIVES)
 				|| (a.getType() == ActivityType.PREPARE_JOURNEY) || (a.getType() == ActivityType.REPLAN)) 

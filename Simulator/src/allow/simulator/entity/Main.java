@@ -19,13 +19,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.mobility.planner.IPlannerService;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
-import allow.simulator.mobility.planner.OTPPlannerService;
+import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
-import allow.simulator.utility.Preferences;
 import allow.simulator.utility.NormalizedLinearUtility;
+import allow.simulator.utility.Preferences;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import allow.simulator.world.overlay.Area;
@@ -56,7 +56,7 @@ public class Main {
 			this.idxEnd = idxEnd;
 			this.map = map;
 			this.latch = latch;
-			service = new OTPPlannerService("localhost", 8020);
+			service = new OTPPlanner("localhost", 8020);
 		}
 
 		@Override
@@ -160,8 +160,8 @@ public class Main {
 		RequestId reqId = new RequestId();
 		
 		// Request transit journeys.
-		JourneyRequest s = JourneyRequest.createRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
-				event.arriveBy(), transitJourney, reqId);
+		JourneyRequest s = JourneyRequest.createTransitRequest(event.getStartingPoint(), event.getDestination(), LocalDateTime.of(date, event.getTime()),
+				event.arriveBy(), reqId, "");
 		s.MaximumWalkDistance = 500;
 		List<Itinerary> temp = new ArrayList<Itinerary>();
 		planner.requestSingleJourney(s, temp);

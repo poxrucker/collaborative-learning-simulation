@@ -14,6 +14,14 @@ import allow.simulator.util.Coordinate;
  *
  */
 public class JourneyRequest {
+	// Predefined set of means of transportation to be used in a journey	
+	private static final TType transitJourney[] = new TType[] { TType.TRANSIT, TType.WALK };
+	private static final TType walkJourney[] = new TType[] { TType.WALK };
+	private static final TType bikeJourney[] = new TType[] { TType.BICYCLE };
+	private static final TType carJourney[] = new TType[] { TType.CAR, TType.WALK };
+	private static final TType taxiJourney[] = new TType[] { TType.TAXI };
+	private static final TType sharedTaxiJourney[] = new TType[] { TType.SHARED_TAXI };
+
 	/**
 	 * Request id to identify requests belonging together
 	 */
@@ -86,9 +94,34 @@ public class JourneyRequest {
 	
 	private JourneyRequest() {}
 
-	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
-			LocalDateTime date, boolean arriveBy, TType modes[], RequestId reqId) {
-		return createRequest(from, to, date, arriveBy, modes, reqId, "");
+	public static JourneyRequest createDriveRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, RequestId reqId, String routerId) {
+		return createRequest(from, to, date, arriveBy, carJourney, reqId, routerId);
+	}
+	
+	public static JourneyRequest createTransitRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, RequestId reqId, String routerId) {
+		return createRequest(from, to, date, arriveBy, transitJourney, reqId, routerId);
+	}
+	
+	public static JourneyRequest createTaxiRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, RequestId reqId, String routerId) {
+		return createRequest(from, to, date, arriveBy, taxiJourney, reqId, routerId);
+	}
+	
+	public static JourneyRequest createWalkRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, RequestId reqId, String routerId) {
+		return createRequest(from, to, date, arriveBy, walkJourney, reqId, routerId);
+	}
+	
+	public static JourneyRequest createBikeRequest(Coordinate from, Coordinate to, 
+			LocalDateTime date, boolean arriveBy, RequestId reqId, String routerId) {
+		return createRequest(from, to, date, arriveBy, bikeJourney, reqId, routerId);
+	}
+	
+	public static JourneyRequest createSharedTaxiJourneyRequest(Coordinate pickupPoint,
+			List<Coordinate> from, List<Coordinate> to, LocalDateTime date, RequestId reqId) {
+		return createSharedJourneyRequest(pickupPoint, from, to, date, sharedTaxiJourney, reqId);
 	}
 	
 	public static JourneyRequest createRequest(Coordinate from, Coordinate to, 
@@ -115,9 +148,9 @@ public class JourneyRequest {
 		return s;
 	}
 	
-	public static JourneyRequest createSharedRequest(Coordinate pickupPoint,
-			List<Coordinate> from, List<Coordinate> to,
-			LocalDateTime date, boolean arriveBy, TType[] types, RequestId reqId) {
+	public static JourneyRequest createSharedJourneyRequest(Coordinate pickupPoint,
+			List<Coordinate> from, List<Coordinate> to, LocalDateTime date, 
+			TType[] types, RequestId reqId) {
 		
 		if (from.size() != to.size())
 			throw new IllegalArgumentException("Error: Number of starting points and destinations does not match.");
@@ -126,11 +159,8 @@ public class JourneyRequest {
 		s.ReqId = reqId.getRequestId();
 		s.ReqNumber = reqId.getNextRequestNumber();
 		s.Date = date.toLocalDate();
-
-		if (arriveBy)
-			s.ArrivalTime = date.toLocalTime();
-		else
-			s.DepartureTime = date.toLocalTime();
+		s.DepartureTime = date.toLocalTime();
+		
 		// Set pickup point
 		s.From = pickupPoint;
 		

@@ -3,11 +3,11 @@ package allow.simulator.flow.activity.person;
 import java.util.List;
 
 import allow.simulator.entity.Person;
+import allow.simulator.exchange.Relation;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
-import allow.simulator.relation.Relation;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
@@ -19,7 +19,7 @@ import allow.simulator.world.StreetSegment;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Walk extends MovementActivity {
+public final class Walk extends MovementActivity<Person> {
 
 	/**
 	 * Creates new instance of a walking Activity.
@@ -40,15 +40,14 @@ public final class Walk extends MovementActivity {
 		if (tStart == -1) {
 			tStart = entity.getContext().getTime().getTimestamp();
 		}
-		Person p = (Person) entity;
-		p.getRelations().addToUpdate(Relation.Type.DISTANCE);
+		entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
 		double rem = travel(deltaT);
-		p.setPosition(getCurrentPosition());
+		entity.setPosition(getCurrentPosition());
 
 		if (isFinished()) {
 			
 			for (Experience ex : experiences) {
-				p.getExperienceBuffer().add(ex);
+				entity.getExperienceBuffer().add(ex);
 			}
 		}
 		return rem;

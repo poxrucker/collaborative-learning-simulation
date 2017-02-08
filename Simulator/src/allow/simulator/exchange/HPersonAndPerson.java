@@ -17,10 +17,6 @@ public class HPersonAndPerson extends ExchangeHandler {
 			Person p2 = (Person)entity2;
 			boolean ret1 = exchange(p1, p2);
 			boolean ret2 = exchange(p2, p1);
-			
-			if (ret1 || ret2)
-				System.out.println();
-			
 			return ret1 || ret2;
 		}
 		return (next != null) ? next.exchange(entity1, entity2) : false;

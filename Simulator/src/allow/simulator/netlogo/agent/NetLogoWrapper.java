@@ -1,8 +1,10 @@
 package allow.simulator.netlogo.agent;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,20 +22,25 @@ import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
+import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Transformation;
 
 public final class NetLogoWrapper implements IContextWrapper {
+	
+	public static final double LINK_COLOR_DEFAULT = 5.0;
+	public static final double LINK_COLOR_BLOCKED = 15.0;
+	public static final double LINK_COLOR_BUSY = 15.0;
+
 	// Static instance
 	private static Map<Integer, NetLogoWrapper> instances = new ConcurrentHashMap<Integer, NetLogoWrapper>();
 	
 	// NetLogo world instance
 	private final World netLogoWorld;
-
-	// Mapping of simulator Ids to NetLogo Ids and vice versa
-	//private final Map<Integer, Long> simToNetLogo;
-	//private final Map<Long, Integer> netLogoToSim;
-
+	
+	// Mapping of node labels to 
+	private final Map<String, Link> linkMapping;
+	
 	// Transformation to convert coordinates
 	private Transformation transformation;
 
@@ -43,8 +50,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 	public NetLogoWrapper(Simulator simulator, World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simulator = simulator;
-		//this.simToNetLogo = new Int2LongOpenHashMap();
-		//this.netLogoToSim = new Long2IntOpenHashMap();
+		linkMapping = new Object2ObjectOpenHashMap<String, Link>();
 	}
 
 	public Transformation getTransformation() {
@@ -57,6 +63,10 @@ public final class NetLogoWrapper implements IContextWrapper {
 	
 	public Simulator getSimulator() {
 		return simulator;
+	}
+	
+	public Map<String, Link> getLinkMapping() {
+		return Collections.unmodifiableMap(linkMapping);
 	}
 	
 	@Override
@@ -91,10 +101,11 @@ public final class NetLogoWrapper implements IContextWrapper {
 
 		for (Street street : streets) {		
 			List<StreetSegment> segs = street.getSubSegments();
-			double color = street.isBlocked() ? 15.0 : 5.0;
+			double color = street.isBlocked() ? LINK_COLOR_BLOCKED : LINK_COLOR_DEFAULT;
 			
 			for (StreetSegment seg : segs) {
-				Turtle startNode = nodes.get(seg.getStartingNode().getId());
+				StreetNode segStart = seg.getStartingNode();
+				Turtle startNode = nodes.get(segStart.getId());
 				
 				if (startNode == null) {
 					Coordinate pos = transformation.transform(seg.getStartingPoint());
@@ -103,7 +114,8 @@ public final class NetLogoWrapper implements IContextWrapper {
 					netLogoWorld.turtles().add(startNode);
 					startNode.hidden(true);
 				}
-				Turtle endNode = nodes.get(seg.getEndingNode().getId());
+				StreetNode segEnd = seg.getEndingNode();
+				Turtle endNode = nodes.get(segEnd.getId());
 				
 				if (endNode == null) {
 					Coordinate pos = transformation.transform(seg.getStartingPoint());
@@ -115,6 +127,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 				// Pair<StreetNode, StreetNode> in = world.getIncidentNodes(seg);
 				Link newLink = netLogoWorld.linkManager.createLink(startNode, endNode, netLogoWorld.links());
 				netLogoWorld.links().add(newLink);
+				linkMapping.put(segStart.getId() + "," + segEnd.getId(), newLink);
 				newLink.colorDouble(color);
 				newLink.lineThickness(0.05);
 				newLink.hidden(false);
@@ -123,12 +136,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 	}
 
 	private void wrapEntities(EntityManager entityManager) throws AgentException {
-		// Prepare mappings
-		// Int2LongOpenHashMap simToNetLogoTemp = (Int2LongOpenHashMap) simToNetLogo;
-		// Long2IntOpenHashMap netLogoToSimTemp = (Long2IntOpenHashMap) netLogoToSim;
-		// simToNetLogoTemp.clear();
-		// netLogoToSimTemp.clear();
-
+	
 		for (String type : entityManager.getEntityTypes()) {
 			// Get all entities of certain type
 			Collection<Entity> entities = entityManager.getEntitiesOfType(type);
@@ -149,16 +157,6 @@ public final class NetLogoWrapper implements IContextWrapper {
 				case EntityTypes.TAXI_AGENCY:
 					newAgent = NetLogoAgent.createNetLogoAgent(this, entity);
 					netLogoWorld.turtles().add(newAgent);
-
-					//if (netLogoToSim.get(newAgent.id) != null)
-					//	throw new IllegalStateException("Error: NetLogo entity Id" + newAgent.id + " already in use.");
-					
-					//netLogoToSim.put(newAgent.id, entity.getId());
-
-					//if (simToNetLogo.get(entity.getId()) != null)
-					//	throw new IllegalStateException("Error: Simulator entity Id" + entity.getId() + " already in use.");
-					
-					//simToNetLogo.put(entity.getId(), newAgent.id);
 					break;
 
 				default:

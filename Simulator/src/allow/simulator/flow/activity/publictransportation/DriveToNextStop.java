@@ -30,7 +30,7 @@ public class DriveToNextStop extends MovementActivity<Bus> {
 		super(ActivityType.DRIVE_TO_NEXT_STOP, entity, path);
 		
 		if (!path.isEmpty()) {
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 		}
 	}
 
@@ -64,7 +64,7 @@ public class DriveToNextStop extends MovementActivity<Bus> {
 			}
 		} else {
 			currentSegment = getCurrentSegment();
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 		}
 		return rem;
 	}

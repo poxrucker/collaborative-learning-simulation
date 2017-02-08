@@ -20,7 +20,7 @@ public final class DriveToNextDestination extends MovementActivity<Taxi> {
 		super(ActivityType.DRIVE_TO_NEXT_DESTINATION, taxi, path);
 		
 		if (!path.isEmpty())
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public final class DriveToNextDestination extends MovementActivity<Taxi> {
 			}
 		} else {
 			currentSegment = getCurrentSegment();
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 		}
 		return rem;
 	}

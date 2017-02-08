@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,8 +179,18 @@ public final class RoutingData {
 						break;
 					Street street = map.getStreet(n1.getLabel(), n2.getLabel());
 					
-					if (street == null)
-						throw new IllegalStateException("Error: Could not find street.");
+					if (street == null) {
+						Street temp = map.getStreet(n2.getLabel(), n1.getLabel());
+						List<StreetSegment> segs = new ArrayList<StreetSegment>();
+						
+						for (StreetSegment seg : temp.getSubSegments()) {
+							segs.add(new StreetSegment(-(virtualSegId++), seg.getEndingNode(), seg.getStartingNode(), seg.getMaxSpeed(), seg.getLength()));
+						}
+						Collections.reverse(segs);
+						street = new Street(-(virtualSegId++), temp.getName(), segs);
+						
+						//throw new IllegalStateException("Error: Could not find street.");
+					}
 					n1 = n2;
 					streets.add(street);
 				}

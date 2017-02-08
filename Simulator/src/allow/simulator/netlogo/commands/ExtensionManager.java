@@ -28,6 +28,7 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("is-informed", new IsInformed());
 		primitiveManager.addPrimitive("is-sharing", new IsSharing());
 		primitiveManager.addPrimitive("is-receiving", new IsReceiving());
+		primitiveManager.addPrimitive("show-busy-streets", new ShowBusyStreets());
 	}
 	
 	@Override

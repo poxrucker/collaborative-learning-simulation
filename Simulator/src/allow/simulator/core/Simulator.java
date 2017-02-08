@@ -151,22 +151,22 @@ public final class Simulator {
 	private void initializeBlockedStreets(StreetMap world) {
 		// Close roads
 		world.setStreetBlocked(world.getStreet("osm:node:278180296", "osm:node:339334743"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:278180296"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:278180296"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:339334723"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:339334723", "osm:node:339334743"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:339334723", "osm:node:339334743"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:339334723", "osm:node:1797200899"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:339334723"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:339334723"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:1797200783"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1797200783", "osm:node:1797200899"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:1797200783", "osm:node:1797200899"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:1797200783", "osm:node:1797200897"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1797200897", "osm:node:1797200783"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:1797200897", "osm:node:1797200783"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:256827486", "osm:node:1797200899"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:256827486"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:256827486"), true);
 
 	}
 	

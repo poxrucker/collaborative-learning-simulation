@@ -34,7 +34,7 @@ public final class Drive extends MovementActivity<Person> {
 		super(ActivityType.DRIVE, entity, path);
 		
 		if (!path.isEmpty())
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public final class Drive extends MovementActivity<Person> {
 			}
 		} else {
 			currentSegment = getCurrentSegment();
-			currentSegment.addVehicle();
+			currentSegment.addVehicle(entity);
 		}
 		return rem;
 	}
@@ -103,17 +103,16 @@ public final class Drive extends MovementActivity<Person> {
 				if (person.isInformed() && !checkedForBlockedStreets) {
 					StreetMap map = (StreetMap) person.getContext().getWorld();
 					replan = map.containsBlockedStreet(this.path);
-					
-					if (replan)
-						System.out.println();
 					checkedForBlockedStreets = true;
 				}
 				
 				Street street = getCurrentStreet();
+				
+				if (street.isBlocked())
+					person.getContext().getStatistics().reportDiscovery();
 
 				if (replan || street.isBlocked()) {
 					person.setInformed(true);
-					person.getContext().getStatistics().reportDiscovery();
 					person.getContext().getStatistics().reportReplaning();
 					person.getFlow().clear();
 					person.getFlow().addActivity(new Replan((Person) entity));

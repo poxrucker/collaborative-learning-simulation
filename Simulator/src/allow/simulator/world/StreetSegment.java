@@ -2,6 +2,7 @@ package allow.simulator.world;
 
 import java.util.Observable;
 
+import allow.simulator.entity.Entity;
 import allow.simulator.util.Coordinate;
 
 /**
@@ -12,7 +13,7 @@ import allow.simulator.util.Coordinate;
  */
 public class StreetSegment extends Observable implements Comparable<StreetSegment> {
 	// Minimum driving speed on segment.
-	public static final double MIN_DRIVING_SPEED = 0.5;
+	public static final double MIN_DRIVING_SPEED = 1.5;
 
 	// Default driving speed on segment.
 	public static final double DEFAULT_DRIVING_SPEED = 11.11;
@@ -84,16 +85,16 @@ public class StreetSegment extends Observable implements Comparable<StreetSegmen
 	/**
 	 * Increases number of vehicles on the segment by 1.
 	 */
-	public synchronized void addVehicle() {
+	public void addVehicle(Entity entity) {
 		numberOfVehicles++;
 		setChanged();
-		notifyObservers();
+		notifyObservers(entity);
 	}
 
 	/**
 	 * Decreases number of vehicles on the segment by 1.
 	 */
-	public synchronized void removeVehicle() {
+	public void removeVehicle() {
 		numberOfVehicles--;
 		setChanged();
 		notifyObservers();

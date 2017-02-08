@@ -1,8 +1,13 @@
 package allow.simulator.world;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
+import allow.simulator.entity.Entity;
 
 
 /**
@@ -32,6 +37,8 @@ public class Street extends Observable implements Observer {
 	// Indicates that street is blocked and cannot be used
 	private boolean blocked;
 	
+	private IntSet carsOnStreet;
+	
 	/**
 	 * Constructor.
 	 * Creates a new instance of a street.
@@ -49,6 +56,7 @@ public class Street extends Observable implements Observer {
 			length += subseg.getLength();
 			subseg.addObserver(this);
 		}
+		carsOnStreet = new IntOpenHashSet();
 	}
 
 	/**
@@ -136,6 +144,10 @@ public class Street extends Observable implements Observer {
 		return subSegments;
 	}
 
+	public int getNumberOfRegisteredCars() {
+		return carsOnStreet.size();
+	}
+	
 	public boolean isBlocked() {
 		return blocked;
 	}
@@ -173,6 +185,9 @@ public class Street extends Observable implements Observer {
 	}
 	
 	public void update(Observable o, Object arg) {
+		
+		if (arg != null && arg instanceof Entity)
+			carsOnStreet.add(((Entity)arg).getId());
 		
 		if (!hasChanged()) {
 			setChanged();

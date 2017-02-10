@@ -81,7 +81,12 @@ public final class Simulator {
 		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
 		// Block streets
-		initializeBlockedStreets(world);
+		if (params.Scenario.equals("TrentoCentro")) {
+			initializeBlockedStreetsTrentoCentro(world);
+		} else if (params.Scenario.equals("PiazzaVenezia")) {
+			initializeBlockedStreetsPiazzaVenezia(world);
+		} else if (!params.Scenario.equals("Normal"))
+			throw new IllegalArgumentException("Unknown scenarion " + params.Scenario);
 
 		// Create data services.
 		System.out.println("Creating data services...");
@@ -148,7 +153,7 @@ public final class Simulator {
 		world.update(context);
 	}
 	
-	private void initializeBlockedStreets(StreetMap world) {
+	private void initializeBlockedStreetsTrentoCentro(StreetMap world) {
 		// Close roads
 		world.setStreetBlocked(world.getStreet("osm:node:278180296", "osm:node:339334743"), true);
 		//world.setStreetBlocked(world.getStreet("osm:node:339334743", "osm:node:278180296"), true);
@@ -168,6 +173,11 @@ public final class Simulator {
 		world.setStreetBlocked(world.getStreet("osm:node:256827486", "osm:node:1797200899"), true);
 		//world.setStreetBlocked(world.getStreet("osm:node:1797200899", "osm:node:256827486"), true);
 
+	}
+	
+	private void initializeBlockedStreetsPiazzaVenezia(StreetMap world) {
+		world.setStreetBlocked(world.getStreet("osm:node:2477700667", "osm:node:248798251"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:248798251", "osm:node:2477700667"), true);
 	}
 	
 	private void loadEntitiesFromFile(Path config, SimulationParameter param) throws IOException {

@@ -31,7 +31,7 @@ public class ShowBusyStreets extends DefaultCommand {
 
 			@Override
 			public int compare(Street o1, Street o2) {
-				return o2.getNumberOfRegisteredCars() - o1.getNumberOfRegisteredCars();
+				return o2.getUsageStatistics()[0] - o1.getUsageStatistics()[0];
 			}
 		});
 		sorted.addAll(map.getStreets());
@@ -44,7 +44,9 @@ public class ShowBusyStreets extends DefaultCommand {
 		
 		for (int i = 0; i < Math.min(maxNumber, sorted.size()); i++) {
 			Street s = sorted.poll();
-			System.out.println(s.getName() + " " + s.getNumberOfRegisteredCars() + " " + s.getStartingNode().getLabel() + " " + s.getEndNode().getLabel());
+			int[] usage = s.getUsageStatistics();
+			System.out.println(s.getName() + " " + usage[0] + " " + usage[1] + " " + usage[2] + " " + usage[3] + " " + usage[4] + " " 
+			+ s.getStartingNode().getLabel() + " " + s.getEndNode().getLabel());
 		}
 		System.out.println();
 		
@@ -69,8 +71,8 @@ public class ShowBusyStreets extends DefaultCommand {
 				Link l = linkMapping.get(seg.getStartingNode().getId() + "," + seg.getEndingNode().getId());
 				l.colorDouble(NetLogoWrapper.LINK_COLOR_BUSY);
 				
-				Link l2 = linkMapping.get(seg.getEndingNode().getId() + "," + seg.getStartingNode().getId());
-				l2.colorDouble(NetLogoWrapper.LINK_COLOR_BUSY);
+				// Link l2 = linkMapping.get(seg.getEndingNode().getId() + "," + seg.getStartingNode().getId());
+				//l2.colorDouble(NetLogoWrapper.LINK_COLOR_BUSY);
 			}
 			i++;
 			

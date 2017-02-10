@@ -48,7 +48,7 @@ public class HPersonAndPerson extends ExchangeHandler {
 		
 		if ((a == null) || (a.getType() == ActivityType.PLAN_JOURNEY) || (a.getType() == ActivityType.RANK_ALTERNATIVES)
 				|| (a.getType() == ActivityType.PREPARE_JOURNEY) || (a.getType() == ActivityType.REPLAN)) 
-			return param.Idle;
+			return param.Idle && p.hasUsedCar();
 		
 		return (param.Car && (a.getType() == ActivityType.DRIVE))
 				|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT) || (a.getType() == ActivityType.WAIT))

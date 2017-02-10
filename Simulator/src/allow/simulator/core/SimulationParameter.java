@@ -3,6 +3,8 @@ package allow.simulator.core;
 public final class SimulationParameter {
 
 	public int BehaviourSpaceRunNumber;
+	
+	public String Scenario;
 		
 	public int PercentInitiallyInformed;
 		

@@ -13,7 +13,7 @@ import allow.simulator.util.Coordinate;
  */
 public class StreetSegment extends Observable implements Comparable<StreetSegment> {
 	// Minimum driving speed on segment.
-	public static final double MIN_DRIVING_SPEED = 1.5;
+	public static final double MIN_DRIVING_SPEED = 1.3;
 
 	// Default driving speed on segment.
 	public static final double DEFAULT_DRIVING_SPEED = 11.11;

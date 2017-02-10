@@ -118,8 +118,8 @@ public final class StreetMap extends World implements Observer {
 			nodesReduced.put(dest.getLabel(), dest);
 			
 			// Add a new street from the loaded segments.						
-			List<StreetSegment> segments = new ArrayList<StreetSegment>();
-			List<StreetSegment> segmentsRev = new ArrayList<StreetSegment>();
+			ArrayList<StreetSegment> segments = new ArrayList<StreetSegment>();
+			ArrayList<StreetSegment> segmentsRev = new ArrayList<StreetSegment>();
 			
 			for (int j = 0; j < subSegs.length - 1; j++) {
 				StreetNode start = nodes.get(subSegs[j]);
@@ -133,6 +133,7 @@ public final class StreetMap extends World implements Observer {
 				//if (end.getLabel().startsWith("split"))
 				//map.addEdge(segRev, end, start, EdgeType.DIRECTED); 
 			}
+			segments.trimToSize();
 			Street s = new Street(edgeIds++, name, segments);
 			
 			//if (!streets.containsKey(source.getLabel() + ";;" + dest.getLabel())) {
@@ -151,7 +152,7 @@ public final class StreetMap extends World implements Observer {
 			//	map.addEdge(sRev, segmentsRev.get(0).getStartingNode(), segmentsRev.get(segmentsRev.size() - 1).getEndingNode());
 			//}
 		}
-		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 2);
+		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 4);
 		System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " 
 		+ dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}

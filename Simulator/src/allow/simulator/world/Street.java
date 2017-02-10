@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import allow.simulator.entity.Entity;
+import allow.simulator.entity.Person;
 
 
 /**
@@ -38,6 +38,10 @@ public class Street extends Observable implements Observer {
 	private boolean blocked;
 	
 	private IntSet carsOnStreet;
+	private int nWorkers;
+	private int nStudents;
+	private int nChildren;
+	private int nHomemakers;
 	
 	/**
 	 * Constructor.
@@ -144,8 +148,8 @@ public class Street extends Observable implements Observer {
 		return subSegments;
 	}
 
-	public int getNumberOfRegisteredCars() {
-		return carsOnStreet.size();
+	public int[] getUsageStatistics() {
+		return new int[] { carsOnStreet.size(), nWorkers, nStudents, nChildren, nHomemakers };
 	}
 	
 	public boolean isBlocked() {
@@ -186,8 +190,32 @@ public class Street extends Observable implements Observer {
 	
 	public void update(Observable o, Object arg) {
 		
-		if (arg != null && arg instanceof Entity)
-			carsOnStreet.add(((Entity)arg).getId());
+		if (arg != null && arg instanceof Person) {
+			Person person = (Person)arg;
+			
+			if (!carsOnStreet.add(person.getId()))
+				return;
+			
+			switch (person.getProfile()) {
+			case CHILD:
+				nChildren++;
+				break;
+			case HOMEMAKER:
+				nHomemakers++;
+				break;
+			case RANDOM:
+				break;
+			case STUDENT:
+				nStudents++;
+				break;
+			case WORKER:
+				nWorkers++;
+				break;
+			default:
+				break;
+			
+			}
+		}
 		
 		if (!hasChanged()) {
 			setChanged();

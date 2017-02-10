@@ -45,18 +45,12 @@ public final class PlanJourney extends Activity<Person> {
 			
 	@Override
 	public double execute(double deltaT) {	
-		// Update preferences
-		//double dist = Geometry.haversineDistance(start, destination);
-		//Preferences prefs = entity.getRankingFunction().getPreferences();
-		//prefs.setTmax(1500);
-		//prefs.setCmax(2.5);
-		//prefs.setWmax(Math.min(dist, 500));
 		
 		if (requestFuture == null) {
 			RequestId reqId = new RequestId();
 			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
 			LocalDateTime date = entity.getContext().getTime().getCurrentDateTime();
-			
+			String plannerId = entity.isInformed() ? entity.getContext().getSimulationParameters().Scenario : "";
 			// Car requests are now sent out in any case. If a person does not
 			// own a private car or person left the car at home, a taxi request
 			// is emulated
@@ -66,13 +60,13 @@ public final class PlanJourney extends Activity<Person> {
 					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
-					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, entity.isInformed() ? "construction" : ""));
+					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, plannerId));
 				}
 			}
 			
 			if (!entity.hasUsedCar()) {
-				requests.add(JourneyRequest.createTransitRequest(start, destination, date, false, reqId, ""));
-				requests.add(JourneyRequest.createWalkRequest(start, destination, date, false, reqId, ""));
+				requests.add(JourneyRequest.createTransitRequest(start, destination, date, false, reqId, plannerId));
+				requests.add(JourneyRequest.createWalkRequest(start, destination, date, false, reqId, plannerId));
 			
 				// if (person.hasBike())
 				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));

@@ -13,7 +13,9 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.RequestId;
+import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
+import allow.simulator.world.StreetMap;
 
 /**
  * Class representing an Activity to request a journey.
@@ -30,7 +32,6 @@ public final class PlanJourney extends Activity<Person> {
 	
 	// Future containing the results of queries to the planner
 	private Future<List<Itinerary>> requestFuture;
-	private int stepsWaited;
 	
 	/**
 	 * Creates a new Activity to request a journey.
@@ -50,7 +51,7 @@ public final class PlanJourney extends Activity<Person> {
 			RequestId reqId = new RequestId();
 			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();
 			LocalDateTime date = entity.getContext().getTime().getCurrentDateTime();
-			String plannerId = entity.isInformed() ? entity.getContext().getSimulationParameters().Scenario : "";
+			// String plannerId = entity.isInformed() ? entity.getContext().getSimulationParameters().Scenario : "";
 			// Car requests are now sent out in any case. If a person does not
 			// own a private car or person left the car at home, a taxi request
 			// is emulated
@@ -60,13 +61,14 @@ public final class PlanJourney extends Activity<Person> {
 					//requests.add(JourneyRequest.createRequest(start, destination, date, false, taxiJourney, reqId));
 				
 				} else {
-					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, plannerId));
+					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, ""));
+					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, entity.getContext().getSimulationParameters().Scenario));
 				}
 			}
 			
 			if (!entity.hasUsedCar()) {
-				requests.add(JourneyRequest.createTransitRequest(start, destination, date, false, reqId, plannerId));
-				requests.add(JourneyRequest.createWalkRequest(start, destination, date, false, reqId, plannerId));
+				requests.add(JourneyRequest.createTransitRequest(start, destination, date, false, reqId, ""));
+				requests.add(JourneyRequest.createWalkRequest(start, destination, date, false, reqId, ""));
 			
 				// if (person.hasBike())
 				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));
@@ -74,11 +76,7 @@ public final class PlanJourney extends Activity<Person> {
 				// if (person.useFlexiBus())
 				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
-			requestFuture = entity.getContext().getJourneyPlanner().requestSingleJourney(requests, entity.getBuffer());
-			return deltaT;
-			
-		} else if (!requestFuture.isDone() && (stepsWaited < 0)) {
-			stepsWaited++;
+			requestFuture = entity.getContext().getJourneyPlanner().requestSingleJourney(requests, new ArrayList<Itinerary>(requests.size()));
 			return deltaT;
 			
 		} else {
@@ -97,11 +95,41 @@ public final class PlanJourney extends Activity<Person> {
 				entity.setPosition(destination);
 				return 0.0;
 			}
+			
+			if (affectedByRoadBlock(it)) {
+				entity.setTravelTimeWithoutConstructionSite(it.get(0).duration);
+
+				if (entity.isInformed()) {
+					it.remove(0);
+					
+					if (!entity.isReplanning())
+						entity.getContext().getStatistics().reportInformedPlaning();
+
+				} else {
+					it.remove(1);
+				}
+				
+			} else if ((it.size() > 1) && (it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType == TType.CAR)) {
+				it.remove(1);
+			}
+			
 			// In case response was received, rank alternatives.
 			entity.getFlow().addActivity(new RankAlternatives(entity, it));
 			setFinished();
 			return 0.0;
 		}
+	}
+	
+	private boolean affectedByRoadBlock(List<Itinerary> it) {
+		
+		if (it.size() <= 1)
+			return false;
+				
+		if ((it.get(0).itineraryType != TType.CAR) || (it.get(1).itineraryType != TType.CAR))
+			return false;
+		
+		StreetMap map = (StreetMap)entity.getContext().getWorld();
+		return map.containsBlockedStreet(it.get(0).legs.get(0).streets);
 	}
 	
 	@Override

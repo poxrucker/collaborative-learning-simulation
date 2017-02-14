@@ -45,11 +45,15 @@ public class RankAlternatives extends Activity<Person> {
 		double minWalking = Double.MAX_VALUE;
 		
 		for (Itinerary it : toRank) {
-			// if (it.itineraryType == 2 || it.itineraryType == 3) continue;
 			
-			if (it.duration < minTTime) minTTime = it.duration;
-			if (it.costs > 0 && it.costs < minCosts) minCosts = it.costs;
-			if (it.walkDistance > 0 && it.walkDistance < minWalking) minWalking = it.walkDistance;
+			if (it.duration < minTTime) 
+				minTTime = it.duration;
+			
+			if (it.costs > 0 && it.costs < minCosts) 
+				minCosts = it.costs;
+			
+			if (it.walkDistance > 0 && it.walkDistance < minWalking) 
+				minWalking = it.walkDistance;
 		}
 		Preferences prefs = entity.getRankingFunction().getPreferences();
 		prefs.setTmax((long) (minTTime * 1.2));

@@ -9,21 +9,34 @@ import allow.simulator.entity.Person;
 import allow.simulator.utility.Preferences;
 
 public class Statistics {
-	// Sliding windows covering mean prior and posterior travel time for
-	// different means of transportation.
+	// Prior and posterior travel times for car journeys
 	private SlidingWindow priorCarTravelTime;
 	private SlidingWindow posteriorCarTravelTime;
+	
+	// Prior and posterior travel times for bus journeys
 	private SlidingWindow priorBusTravelTime;
 	private SlidingWindow posteriorBusTravelTime;
+	
+	// Prior and posterior travel times for bike journeys
 	private SlidingWindow priorBikeTravelTime;
 	private SlidingWindow posteriorBikeTravelTime;
+	
+	// Prior and posterior travel times for walking journeys
 	private SlidingWindow priorWalkTravelTime;
 	private SlidingWindow posteriorWalkTravelTime;
+	
+	// Experienced bus filling level
 	private SlidingWindow busFillingLevel;
+	
+	// Prior and posterior utility for car journeys
 	private SlidingWindow priorUtilityCar;
 	private SlidingWindow posteriorUtilityCar;
+	
+	// Prior and posterior utility for bus journeys
 	private SlidingWindow priorUtilityBus;
 	private SlidingWindow posteriorUtilityBus;
+	
+	// Waiting time when replaning 
 	private SlidingWindow replaningWaitingTime;
 	
 	private double meanBusPreference;
@@ -34,17 +47,28 @@ public class Statistics {
 	private long numberOfBikeJourneys;
 	private long numberOfWalkJourneys;
 	private long numberOfTaxiJourneys;
-	private long numberOfTaxiJourneysPerDay;
 	private double carJourneysRatio;
 	private double transitJourneysRatio;
 	private double bikeJourneysRatio;
 	private double walkJourneysRatio;
 	private double taxiJourneyRatio;
-	private int numberOfCongestedStreets;
 	
-	private int numberOfReplanings;
-	private int numberOfDiscoveries;
+	// Number of times an informed and affected entity used the alternative planner
+	// before starting its trip
+	private int informedPlanings;
 	
+	// Number of times an entity arrives at the construction site and needs to replan
+	// using the alternative planner
+	private int constructionSiteReplanings;
+	
+	// Number of times an entity gets informed about the construction site during its trip
+	// and replans using the alternative planner
+	private int intermediateReplanings;
+	
+	private SlidingWindow priorCarTravelTimeConstructionSite;
+	private SlidingWindow posteriorCarTravelTimeConstructionSite;
+
+
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -75,12 +99,13 @@ public class Statistics {
 		numberOfBikeJourneys = 0;
 		numberOfWalkJourneys = 0;
 		numberOfTaxiJourneys = 0;
-		numberOfTaxiJourneysPerDay = 0;
 		
-		numberOfCongestedStreets = 0;
+		informedPlanings = 0;
+		intermediateReplanings = 0;
+		constructionSiteReplanings = 0;
 		
-		numberOfReplanings = 0;
-		numberOfDiscoveries = 0;
+		priorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
+		posteriorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
 	}
 	
 	public void reset() {
@@ -104,12 +129,12 @@ public class Statistics {
 		priorUtilityBus.reset();
 		posteriorUtilityBus.reset();
 		
-		numberOfTaxiJourneysPerDay = 0;
+		priorCarTravelTimeConstructionSite.reset();
+		posteriorCarTravelTimeConstructionSite.reset();
 		
-		numberOfCongestedStreets = 0;
-		
-		numberOfReplanings = 0;
-		numberOfDiscoveries = 0;
+		informedPlanings = 0;
+		intermediateReplanings = 0;
+		constructionSiteReplanings = 0;
 	}
 	
 	public double getCarJourneyRatio() {
@@ -132,16 +157,20 @@ public class Statistics {
 		return taxiJourneyRatio;
 	}
 	
-	public double getNumberOfTaxiJourneysPerDay() {
-		return numberOfTaxiJourneysPerDay;
-	}
-	
 	public double getMeanPriorCarTravelTime() {
 		return priorCarTravelTime.getMean();
 	}
 	
 	public double getMeanPosteriorCarTravelTime() {
 		return posteriorCarTravelTime.getMean();
+	}
+	
+	public double getMeanPriorCarTravelTimeConstructionSite() {
+		return priorCarTravelTimeConstructionSite.getMean();
+	}
+	
+	public double getMeanPosteriorCarTravelTimeConstructionSite() {
+		return posteriorCarTravelTimeConstructionSite.getMean();
 	}
 	
 	public double getMeanPriorBusTravelTime() {
@@ -184,24 +213,28 @@ public class Statistics {
 		return replaningWaitingTime.getMean();
 	}
 	
-	public int getNumberOfCongestedStreets() {
-		return numberOfCongestedStreets;
+	public int getInformedPlanings() {
+		return informedPlanings;
 	}
 	
-	public int getNumberOfReplanings() {
-		return numberOfReplanings;
+	public int getIntermediateReplanings() {
+		return intermediateReplanings;
 	}
 	
-	public int getNumberOfDiscoveries() {
-		return numberOfDiscoveries;
+	public int getConstructionSiteReplanings() {
+		return constructionSiteReplanings;
 	}
 	
-	public void reportReplaning() {
-		numberOfReplanings++;
+	public void reportInformedPlaning() {
+		informedPlanings++;
 	}
 	
-	public void reportDiscovery() {
-		numberOfDiscoveries++;
+	public void reportIntermediateReplaning() {
+		intermediateReplanings++;
+	}
+	
+	public void reportConstructionSiteReplaning() {
+		constructionSiteReplanings++;
 	}
 
 	public void reportCarJourney() {
@@ -222,15 +255,11 @@ public class Statistics {
 	
 	public void reportTaxiJourney() {
 		numberOfTaxiJourneys++;
-		numberOfTaxiJourneysPerDay++;
 	}
 	
-	public void reportCongestedStreet() {
-		numberOfCongestedStreets++;
-	}
-	
-	public void resetCongestedStreets() {
-		numberOfCongestedStreets = 0;
+	public void reportPriorAndPosteriorCarTravelTimesConstructionSite(double priorToAdd, double posteriorToAdd) {
+		priorCarTravelTimeConstructionSite.addValue(priorToAdd);
+		posteriorCarTravelTimeConstructionSite.addValue(posteriorToAdd);
 	}
 	
 	public void reportPriorAndPosteriorCarTravelTimes(double priorToAdd, double posteriorToAdd) {

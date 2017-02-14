@@ -1,7 +1,5 @@
 package allow.simulator.entity;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-
 import java.time.LocalTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -84,9 +82,6 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private ArrayList<Experience> experienceBuffer;
 		
-	@JsonIgnore
-	private List<Itinerary> buffer;
-	
 	// Indicates whether a person used her car during the current travelling
 	// cycle which forbids replanning a journey with own car.
 	private boolean usedCar;
@@ -102,6 +97,9 @@ public final class Person extends Entity {
 	
 	@JsonIgnore
 	private boolean receiving;
+	
+	@JsonIgnore
+	private long travelTimeWithoutConstructionSite;
 	
 	/**
 	 * Creates new instance of a person.
@@ -141,7 +139,6 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
-		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>(); 
 		currentItinerary = null;
 		usedCar = false;
@@ -185,7 +182,6 @@ public final class Person extends Entity {
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
-		buffer = new ReferenceArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>();
 		currentItinerary = null;
 		usedCar = false;
@@ -253,10 +249,6 @@ public final class Person extends Entity {
 	
 	public String getHomeArea() {
 		return homeAreaName;
-	}
-	
-	public List<Itinerary> getBuffer() {
-		return buffer;
 	}
 	
 	public ArrayList<Experience> getExperienceBuffer() {
@@ -415,6 +407,15 @@ public final class Person extends Entity {
 	
 	public void setReceiving() {
 		this.receiving = true;
+	}
+	
+	@JsonIgnore
+	public long getTravelTimeWithoutConstructionSite() {
+		return travelTimeWithoutConstructionSite;
+	}
+	
+	public void setTravelTimeWithoutConstructionSite(long tt) {
+		travelTimeWithoutConstructionSite = tt;
 	}
 	
 	@SuppressWarnings("unchecked")

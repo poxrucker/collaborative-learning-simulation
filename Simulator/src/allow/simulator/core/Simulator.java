@@ -85,7 +85,9 @@ public final class Simulator {
 			initializeBlockedStreetsTrentoCentro(world);
 		} else if (params.Scenario.equals("PiazzaVenezia")) {
 			initializeBlockedStreetsPiazzaVenezia(world);
-		} else if (!params.Scenario.equals("Normal"))
+		} else if (params.Scenario.equals("Normal")) {
+			params.Scenario = "";
+		} else
 			throw new IllegalArgumentException("Unknown scenarion " + params.Scenario);
 
 		// Create data services.

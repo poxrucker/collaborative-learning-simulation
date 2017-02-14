@@ -57,6 +57,8 @@ public final class PrepareJourney extends Activity<Person> {
 				entity.getContext().getStatistics().reportReplaningWaitingTime(journey.initialWaitingTime);
 	    	}
 		}
+
+		// Reset replanning flag
 		entity.setReplanning(false);
 
 		// Create a new Activity for every leg

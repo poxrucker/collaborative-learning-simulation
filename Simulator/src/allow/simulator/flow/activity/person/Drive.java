@@ -98,24 +98,22 @@ public final class Drive extends MovementActivity<Person> {
 				distOnSeg = 0.0;
 				segmentIndex++;
 				
-				boolean replan = false;
+				boolean intermediateReplaning = false;
 				
 				if (person.isInformed() && !checkedForBlockedStreets) {
 					StreetMap map = (StreetMap) person.getContext().getWorld();
-					replan = map.containsBlockedStreet(this.path);
+					intermediateReplaning = map.containsBlockedStreet(path);
 					checkedForBlockedStreets = true;
 				}
 				
 				Street street = getCurrentStreet();
 				
 				if (street.isBlocked())
-					person.getContext().getStatistics().reportDiscovery();
-
-				if (replan || street.isBlocked()) {
 					person.setInformed(true);
-					person.getContext().getStatistics().reportReplaning();
+			
+				if (intermediateReplaning || street.isBlocked()) {
 					person.getFlow().clear();
-					person.getFlow().addActivity(new Replan((Person) entity));
+					person.getFlow().addActivity(new ReplanCarJourney(entity, street.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !street.isBlocked()));
 					setFinished();
 					return deltaT;
 				}

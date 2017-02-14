@@ -29,6 +29,7 @@ public final class Learn extends Activity<Entity> {
 		// Create summary of 
 		p.getKnowledge().learn(p.getExperienceBuffer());
 		p.getExperienceBuffer().clear();
+		p.setCurrentItinerary(null);
 		
 		// Summarize 
 		setFinished();

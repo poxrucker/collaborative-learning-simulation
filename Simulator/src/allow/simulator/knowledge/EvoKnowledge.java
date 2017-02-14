@@ -107,7 +107,6 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	 * Update EvoKnowledge from the collected observations.
 	 */
 	public boolean learn(List<Experience> experiences) {
-		// long currentTime = System.currentTimeMillis();
 
 		// Handle statistics learning.
 		if (entity instanceof Person) {
@@ -115,7 +114,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 			Itinerary it = p.getCurrentItinerary();
 			DBConnector.addEntry(entity, experiences);
 			ItineraryParams summary = EvoKnowledgeUtil.createFromExperiences(it, experiences);
-			double estimatedTravelTime = it.duration + it.initialWaitingTime; // - p.getCurrentItinerary().waitingTime;
+			double estimatedTravelTime = it.duration + it.initialWaitingTime;
 			Preferences prefs = p.getRankingFunction().getPreferences();
 			double posteriorUtility = p.getRankingFunction().getUtilityFunction().computeUtility(summary, prefs);
 
@@ -126,6 +125,12 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 				case SHARED_TAXI:
 					double actualCarTravelTime = summary.travelTime + it.initialWaitingTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);					
+					
+					if (p.getTravelTimeWithoutConstructionSite() > 0) {
+						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSite(p.getTravelTimeWithoutConstructionSite(), actualCarTravelTime);
+						p.setTravelTimeWithoutConstructionSite(0);
+					}
+					
 					p.getContext().getStatistics().reportPriorAndPosteriorUtilityCar(it.utility, posteriorUtility);
 					double carPreference = prefs.getCarPreference();
 					double delay = actualCarTravelTime - estimatedTravelTime;

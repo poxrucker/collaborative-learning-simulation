@@ -55,15 +55,20 @@ public class Statistics {
 	
 	// Number of times an informed and affected entity used the alternative planner
 	// before starting its trip
-	private int informedPlanings;
-	
+	private int informedPlannings;
+	private int informedPlanningsAffected;
+
 	// Number of times an entity arrives at the construction site and needs to replan
 	// using the alternative planner
-	private int constructionSiteReplanings;
+	private int constructionSiteReplannings;
 	
 	// Number of times an entity gets informed about the construction site during its trip
 	// and replans using the alternative planner
-	private int intermediateReplanings;
+	private int intermediateReplannings;
+	
+	// Total number of times entities planned journeys
+	private int totalNumberOfPlannings;
+	private int totalNumberOfAffectedPlannings;
 	
 	private SlidingWindow priorCarTravelTimeConstructionSite;
 	private SlidingWindow posteriorCarTravelTimeConstructionSite;
@@ -102,9 +107,12 @@ public class Statistics {
 		numberOfWalkJourneys = 0;
 		numberOfTaxiJourneys = 0;
 		
-		informedPlanings = 0;
-		intermediateReplanings = 0;
-		constructionSiteReplanings = 0;
+		informedPlannings = 0;
+		informedPlanningsAffected = 0;
+		intermediateReplannings = 0;
+		constructionSiteReplannings = 0;
+		totalNumberOfPlannings = 0;
+		totalNumberOfAffectedPlannings = 0;
 		
 		priorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
 		posteriorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
@@ -140,9 +148,12 @@ public class Statistics {
 		priorTripDistance.reset();
 		posteriorTripDistance.reset();
 		
-		informedPlanings = 0;
-		intermediateReplanings = 0;
-		constructionSiteReplanings = 0;
+		informedPlannings = 0;
+		informedPlanningsAffected = 0;
+		intermediateReplannings = 0;
+		constructionSiteReplannings = 0;
+		totalNumberOfPlannings = 0;
+		totalNumberOfAffectedPlannings = 0;
 	}
 	
 	public double getCarJourneyRatio() {
@@ -229,28 +240,54 @@ public class Statistics {
 		return replaningWaitingTime.getMean();
 	}
 	
-	public int getInformedPlanings() {
-		return informedPlanings;
+	public int getNumberOfPlannings() {
+		return totalNumberOfPlannings;
 	}
 	
-	public int getIntermediateReplanings() {
-		return intermediateReplanings;
+	public int getNumberOfAffectedPlannings() {
+		return totalNumberOfAffectedPlannings;
 	}
 	
-	public int getConstructionSiteReplanings() {
-		return constructionSiteReplanings;
+	public int getInformedPlannings() {
+		return informedPlannings;
 	}
 	
-	public void reportInformedPlaning() {
-		informedPlanings++;
+	public int getInformedPlanningsAffected() {
+		return informedPlanningsAffected;
 	}
 	
-	public void reportIntermediateReplaning() {
-		intermediateReplanings++;
+	public int getIntermediateReplannings() {
+		return intermediateReplannings;
 	}
 	
-	public void reportConstructionSiteReplaning() {
-		constructionSiteReplanings++;
+	public int getConstructionSiteReplannings() {
+		return constructionSiteReplannings;
+	}
+	
+	public void reportPlanning() {
+		totalNumberOfPlannings++;
+	}
+	
+	public void reportInformedPlanning() {
+		informedPlannings++;
+		totalNumberOfPlannings++;
+	}
+	
+	public void reportPlanningAffected() {
+		totalNumberOfAffectedPlannings++;
+	}
+	
+	public void reportInformedPlanningAffected() {
+		informedPlanningsAffected++;
+		totalNumberOfAffectedPlannings++;
+	}
+	
+	public void reportIntermediateReplanning() {
+		intermediateReplannings++;
+	}
+	
+	public void reportConstructionSiteReplanning() {
+		constructionSiteReplannings++;
 	}
 
 	public void reportCarJourney() {

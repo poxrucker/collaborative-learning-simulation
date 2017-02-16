@@ -53,9 +53,9 @@ public final class ReplanCarJourney extends Activity<Person> {
 			entity.setReplanning(true);
 
 			if (informedByOthers)
-				entity.getContext().getStatistics().reportIntermediateReplaning();
+				entity.getContext().getStatistics().reportIntermediateReplanning();
 			else 
-				entity.getContext().getStatistics().reportConstructionSiteReplaning();
+				entity.getContext().getStatistics().reportConstructionSiteReplanning();
 			
 			RequestId reqId = new RequestId();
 			List<JourneyRequest> requests = new ArrayList<JourneyRequest>();

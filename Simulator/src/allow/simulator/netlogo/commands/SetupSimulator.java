@@ -82,9 +82,12 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add(s.getMeanPosteriorCarTravelTime());
 		listBuilder.add(s.getMeanPriorBusTravelTime());
 		listBuilder.add(s.getMeanPosteriorBusTravelTime());
-		listBuilder.add((double)s.getInformedPlanings());
-		listBuilder.add((double)s.getIntermediateReplanings());
-		listBuilder.add((double)s.getConstructionSiteReplanings());
+		listBuilder.add((double)s.getNumberOfPlannings());
+		listBuilder.add((double)s.getInformedPlannings());
+		listBuilder.add((double)s.getNumberOfAffectedPlannings());
+		listBuilder.add((double)s.getInformedPlanningsAffected());
+		listBuilder.add((double)s.getIntermediateReplannings());
+		listBuilder.add((double)s.getConstructionSiteReplannings());
 		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSite());
 		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSite());
 		listBuilder.add((double)s.getMeanPriorTripDistance());

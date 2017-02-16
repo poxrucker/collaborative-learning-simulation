@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.core.Simulator;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.person.PlanJourney;
-import allow.simulator.flow.activity.person.RegisterToFlexiBus;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
@@ -17,13 +16,12 @@ import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.DistrictType;
 
-public class PlanGenerator {
-
-	private static final long SECONDS_TO_REGISTER_BEFORE_PLAN = 1800;
+public final class PlanGenerator {
 
 	public static void generateDayPlan(Person person) {
 
 		switch (person.getProfile()) {
+		
 		case CHILD:
 			generateChildDayPlan(person);
 			break;
@@ -40,10 +38,6 @@ public class PlanGenerator {
 			generateHomemakerDayPlan(person);
 			break;
 
-		case RANDOM:
-			generateDailyRoutine(person);
-			break;
-
 		default:
 			throw new IllegalArgumentException("Error: Unknown person role "
 					+ person.getProfile());
@@ -52,32 +46,10 @@ public class PlanGenerator {
 	}
 
 	private static Pair<LocalTime, Activity<Person>> createPlanJourney(Person p, TravelEvent t, long pOffsetSeconds) {
-		LocalTime temp = t.getTime().minusSeconds(pOffsetSeconds).withSecond(0);
+		LocalTime temp = t.getTime().plusSeconds(pOffsetSeconds).withSecond(0);
 		return new Pair<LocalTime, Activity<Person>>(temp, new PlanJourney(p, t.getStartingPoint(), t.getDestination()));
 	}
 	
-	private static Pair<LocalTime, Activity<Person>> createRegistertoFB(Person p, TravelEvent t, long pOffsetSeconds) {
-		LocalTime pTemp = t.getTime().minusSeconds(pOffsetSeconds).withSecond(0);
-		LocalTime rTemp = pTemp.minusSeconds(SECONDS_TO_REGISTER_BEFORE_PLAN).withSecond(0);
-		return new Pair<LocalTime, Activity<Person>>(rTemp, new RegisterToFlexiBus(p, t.getStartingPoint(), t.getDestination(), pTemp));
-	}
-	
-	private static void generateDailyRoutine(Person person) {
-		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
-		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
-		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
-
-		// Add daily routine travel events.
-		for (TravelEvent t : routine) {
-			long pOffsetSeconds = t.arriveBy() ? (long) Geometry.haversineDistance(t.getStartingPoint(), t.getDestination()) / 4 : 0;
-			
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, t, pOffsetSeconds));
-			}
-			schedule.add(createPlanJourney(person, t, pOffsetSeconds));
-		}
-	}
-
 	private static void generateChildDayPlan(Person person) {
 		int day = person.getContext().getTime().getCurrentDateTime()
 				.getDayOfWeek().getValue();
@@ -86,31 +58,13 @@ public class PlanGenerator {
 
 		// Add daily routine travel events.
 		for (TravelEvent t : routine) {
-			long pOffsetSeconds = t.arriveBy() ? (long) Geometry.haversineDistance(t.getStartingPoint(), t.getDestination()) / 4 : 0;
+			long pOffsetSeconds = 0;
+			
+			if (t.arriveBy())
+				pOffsetSeconds = -offsetFromDistance(t);
+			else 
+				pOffsetSeconds = ThreadLocalRandom.current().nextInt(10) * 60;
 			schedule.add(createPlanJourney(person, t, pOffsetSeconds));
-			/*if (t.arriveBy()) {
-				double estTimeToDest = Geometry.haversine(t.getStartingPoint(),
-						t.getDestination()) / 4.0;
-
-				if (person.useFlexiBus()) {
-					schedule.add(new Pair<LocalTime, Activity>(
-							t.getTime()
-									.minusSeconds(
-											(long) (estTimeToDest + SECONDS_TO_REGISTER_BEFORE_PLAN))
-									.withSecond(0), new RegisterToFlexiBus(
-									person, t.getStartingPoint(), t
-											.getDestination(), t.getTime())));
-				}
-				schedule.add(new Pair<LocalTime, Activity>(t.getTime()
-						.minusSeconds((long) estTimeToDest).withSecond(0),
-						new PlanJourney(person, t.getStartingPoint(), t
-								.getDestination())));
-
-			} else {
-				schedule.add(new Pair<LocalTime, Activity>(t.getTime(),
-						new PlanJourney(person, t.getStartingPoint(), t
-								.getDestination())));
-			}*/
 		}
 	}
 
@@ -124,11 +78,7 @@ public class PlanGenerator {
 		
 		// 1. Home to work/university.
 		TravelEvent homeToWork = routine.get(0);
-		long pOffsetSeconds = (long) Geometry.haversineDistance(homeToWork.getStartingPoint(), homeToWork.getDestination()) / 4;
-
-		if (person.useFlexiBus()) {
-			schedule.add(createRegistertoFB(person, homeToWork, pOffsetSeconds));
-		}
+		long pOffsetSeconds = -offsetFromDistance(homeToWork);
 		schedule.add(createPlanJourney(person, homeToWork, pOffsetSeconds));
 
 		// 2. From work back home. 
@@ -141,7 +91,7 @@ public class PlanGenerator {
 				// Intermediate journey then home (home - work - destination - work - home).
 				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
 				schedule.add(new Pair<LocalTime, Activity<Person>>(
-								workToHome.getTime(), new PlanJourney(person,
+								workToHome.getTime().plusSeconds(ThreadLocalRandom.current().nextInt(-5, 10) * 60), new PlanJourney(person,
 										workToHome.getStartingPoint(), dest)));
 
 				LocalTime fromDest = workToHome.getTime();
@@ -156,7 +106,7 @@ public class PlanGenerator {
 			} else if (rand < 20) {
 				// Home then another journey afterwards (home - work - home - destination - home).
 				schedule.add(new Pair<LocalTime, Activity<Person>>(
-								workToHome.getTime(), new PlanJourney(person,
+								workToHome.getTime().plusSeconds(ThreadLocalRandom.current().nextInt(-5, 10) * 60), new PlanJourney(person,
 										workToHome.getStartingPoint(), workToHome
 												.getDestination())));
 
@@ -174,7 +124,7 @@ public class PlanGenerator {
 				// Triangular (home - work - destination - home).
 				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
 				schedule.add(new Pair<LocalTime, Activity<Person>>(
-						workToHome.getTime(), new PlanJourney(person,
+						workToHome.getTime().plusSeconds(ThreadLocalRandom.current().nextInt(-5, 10) * 60), new PlanJourney(person,
 						workToHome.getStartingPoint(), dest)));
 
 				schedule.add(new Pair<LocalTime, Activity<Person>>(
@@ -182,97 +132,13 @@ public class PlanGenerator {
 						homeToWork.getStartingPoint())));
 			} else {
 				// Straight home (home - work - home).
-				if (person.useFlexiBus()) {
-					schedule.add(createRegistertoFB(person, workToHome, 0));
-				}
-				schedule.add(createPlanJourney(person, workToHome, 0));
+				schedule.add(createPlanJourney(person, workToHome, ThreadLocalRandom.current().nextInt(10) * 60));
 			}	
 			
 		} else {
 			// Straight home (home - work - home).
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, workToHome, 0));
-			}
-			schedule.add(createPlanJourney(person, workToHome, 0));
+			schedule.add(createPlanJourney(person, workToHome, ThreadLocalRandom.current().nextInt(10) * 60));
 		}	
-		
-		// 1. Home to work/university.
-		/*TravelEvent homeToWork = routine.get(0);
-		double estTimeToDest = Geometry.haversine(homeToWork.getStartingPoint(), homeToWork.getDestination()) / 4.0;
-
-		if (person.useFlexiBus()) {
-			schedule.add(new Pair<LocalTime, Activity>(
-					homeToWork
-							.getTime()
-							.minusSeconds(
-									(long) (estTimeToDest + SECONDS_TO_REGISTER_BEFORE_PLAN))
-							.withSecond(0), new RegisterToFlexiBus(person,
-							homeToWork.getStartingPoint(), homeToWork
-									.getDestination(), homeToWork.getTime())));
-		}
-		schedule.add(new Pair<LocalTime, Activity>(homeToWork.getTime()
-				.minusSeconds((long) estTimeToDest).withSecond(0),
-				new PlanJourney(person, homeToWork.getStartingPoint(),
-						homeToWork.getDestination())));
-
-		TravelEvent workToHome = routine.get(1);
-
-		if (workToHome.getHour() < 16) {
-			int rand = ThreadLocalRandom.current().nextInt(100);
-			if (rand < 10) {
-				// Intermediate journey then home (home - work - destination -
-				// work - home).
-				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
-				schedule.add(new Pair<LocalTime, Activity>(
-						workToHome.getTime(), new PlanJourney(person,
-								workToHome.getStartingPoint(), dest)));
-
-				LocalTime fromDest = workToHome.getTime();
-				schedule.add(new Pair<LocalTime, Activity>(fromDest,
-						new PlanJourney(person, dest, homeToWork
-								.getDestination())));
-
-				schedule.add(new Pair<LocalTime, Activity>(fromDest,
-						new PlanJourney(person, workToHome.getStartingPoint(),
-								dest)));
-
-			} else if (rand < 20) {
-				// Home then another journey afterwards (home - work - home -
-				// destination - home).
-				schedule.add(new Pair<LocalTime, Activity>(
-						workToHome.getTime(), new PlanJourney(person,
-								workToHome.getStartingPoint(), workToHome
-										.getDestination())));
-
-				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
-				LocalTime toDest = workToHome.getTime();
-				schedule.add(new Pair<LocalTime, Activity>(toDest,
-						new PlanJourney(person, workToHome.getDestination(),
-								dest)));
-
-				schedule.add(new Pair<LocalTime, Activity>(toDest,
-						new PlanJourney(person, dest, workToHome
-								.getDestination())));
-
-			} else if (rand < 45) {
-				// Triangular (home - work - destination - home).
-				Coordinate dest = newLocation(partitioning, PROP_DEST_STUDENT);
-				schedule.add(new Pair<LocalTime, Activity>(
-						workToHome.getTime(), new PlanJourney(person,
-								workToHome.getStartingPoint(), dest)));
-
-				schedule.add(new Pair<LocalTime, Activity>(
-						workToHome.getTime(), new PlanJourney(person, dest,
-								homeToWork.getStartingPoint())));
-
-			} else {
-				// Straight home (home - work - home).
-				schedule.add(new Pair<LocalTime, Activity>(
-						workToHome.getTime(), new PlanJourney(person,
-								workToHome.getStartingPoint(), workToHome
-										.getDestination())));
-			}
-		}*/
 	}
 
 	private static int PROP_DEST_WORKER[] = { 15, 10, 75, 0, 0, 0 };
@@ -285,11 +151,7 @@ public class PlanGenerator {
 
 		// 1. Going to work in the morning.
 		TravelEvent homeToWork = routine.get(0);
-		long pOffsetSeconds = (long) Geometry.haversineDistance(homeToWork.getStartingPoint(), homeToWork.getDestination()) / 4;
-
-		if (person.useFlexiBus()) {
-			schedule.add(createRegistertoFB(person, homeToWork, pOffsetSeconds));
-		}
+		long pOffsetSeconds = -offsetFromDistance(homeToWork);
 		schedule.add(createPlanJourney(person, homeToWork, pOffsetSeconds));
 
 		// 2. From work back home.
@@ -333,73 +195,8 @@ public class PlanGenerator {
 
 		} else {
 			// Straight home (home - work - home).
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, workToHome, 0));
-			}
 			schedule.add(createPlanJourney(person, workToHome, 0));
 		}
-				
-		// 1. Going to work in the morning.
-		/*TravelEvent homeToWork = routine.get(0);
-
-		double estTimeSec = Geometry.haversine(homeToWork.getStartingPoint(),
-				homeToWork.getDestination()) / 4.0;
-		schedule.add(new Pair<LocalTime, Activity>(homeToWork.getTime()
-				.minusSeconds((long) estTimeSec).withSecond(0),
-				new PlanJourney(person, homeToWork.getStartingPoint(),
-						homeToWork.getDestination())));
-
-		TravelEvent workToHome = routine.get(1);
-
-		int rand = ThreadLocalRandom.current().nextInt(100);
-		if (rand < 10) {
-			// Intermediate journey then home (home - work - destination - work
-			// - home).
-			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
-			schedule.add(new Pair<LocalTime, Activity>(
-					workToHome.getTime(),
-					new PlanJourney(person, workToHome.getStartingPoint(), dest)));
-
-			LocalTime fromDest = workToHome.getTime();
-			schedule.add(new Pair<LocalTime, Activity>(fromDest,
-					new PlanJourney(person, dest, homeToWork.getDestination())));
-
-			schedule.add(new Pair<LocalTime, Activity>(
-					fromDest,
-					new PlanJourney(person, workToHome.getStartingPoint(), dest)));
-
-		} else if (rand < 20) {
-			// Home then another journey afterwards (home - work - home -
-			// destination - home).
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
-					new PlanJourney(person, workToHome.getStartingPoint(),
-							workToHome.getDestination())));
-
-			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
-			LocalTime toDest = workToHome.getTime();
-			schedule.add(new Pair<LocalTime, Activity>(toDest, new PlanJourney(
-					person, workToHome.getDestination(), dest)));
-
-			schedule.add(new Pair<LocalTime, Activity>(toDest, new PlanJourney(
-					person, dest, workToHome.getDestination())));
-
-		} else if (rand < 45) {
-			// Triangular (home - work - destination - home).
-			Coordinate dest = newLocation(partitioning, PROP_DEST_WORKER);
-			schedule.add(new Pair<LocalTime, Activity>(
-					workToHome.getTime(),
-					new PlanJourney(person, workToHome.getStartingPoint(), dest)));
-
-			schedule.add(new Pair<LocalTime, Activity>(
-					workToHome.getTime(),
-					new PlanJourney(person, dest, homeToWork.getStartingPoint())));
-
-		} else {
-			// Straight home (home - work - home).
-			schedule.add(new Pair<LocalTime, Activity>(workToHome.getTime(),
-					new PlanJourney(person, workToHome.getStartingPoint(),
-							workToHome.getDestination())));
-		}*/
 	}
 
 	private static int PROP_DEST_HOMEMAKER[] = { 30, 10, 60, 0, 0, 0 };
@@ -441,6 +238,10 @@ public class PlanGenerator {
 		}
 	}
 
+	private static long offsetFromDistance(TravelEvent t) {
+		return (long) Geometry.haversineDistance(t.getStartingPoint(), t.getDestination()) / 4;
+	}
+	
 	private static Coordinate newLocation(DistrictOverlay l, int distribution[]) {
 		int r1 = ThreadLocalRandom.current().nextInt(100);
 		DistrictType types[] = DistrictType.values();

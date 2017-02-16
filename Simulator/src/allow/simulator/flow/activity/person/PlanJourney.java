@@ -104,18 +104,29 @@ public final class PlanJourney extends Activity<Person> {
 					it.remove(0);
 
 					if (!entity.isReplanning())
-						entity.getContext().getStatistics().reportInformedPlaning();
+						entity.getContext().getStatistics().reportInformedPlanningAffected();
 
 				} else {
 					entity.setOriginalTravelTime(it.get(0).duration);
 					entity.setOriginalTripDistance(it.get(0).legs.get(0).distance);
 					it.remove(1);
+					
+					if (!entity.isReplanning())
+						entity.getContext().getStatistics().reportPlanningAffected();
 				}
 				
 			} else if ((it.size() > 1) && (it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType == TType.CAR)) {
 				it.remove(1);
+				
 			}
 			
+			if (!entity.isReplanning()) {
+				
+				if (entity.isInformed())
+					entity.getContext().getStatistics().reportInformedPlanning();
+				else
+					entity.getContext().getStatistics().reportPlanning();
+			}
 			// In case response was received, rank alternatives.
 			entity.getFlow().addActivity(new RankAlternatives(entity, it));
 			setFinished();

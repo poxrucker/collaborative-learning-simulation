@@ -174,7 +174,8 @@ public final class NetLogoWrapper implements IContextWrapper {
 	}
 	
 	public static void delete(int runId) {
-		instances.remove(runId);
+		NetLogoWrapper wrapper = instances.remove(runId);
+		wrapper.getSimulator().finish();
 	}
 
 	public static NetLogoWrapper Instance(int runId) {

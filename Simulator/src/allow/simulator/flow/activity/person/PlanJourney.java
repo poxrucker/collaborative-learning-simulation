@@ -97,15 +97,18 @@ public final class PlanJourney extends Activity<Person> {
 			}
 			
 			if (affectedByRoadBlock(it)) {
-				entity.setTravelTimeWithoutConstructionSite(it.get(0).duration);
 
 				if (entity.isInformed()) {
+					entity.setOriginalTravelTime(it.get(1).duration);
+					entity.setOriginalTripDistance(it.get(1).legs.get(0).distance);
 					it.remove(0);
-					
+
 					if (!entity.isReplanning())
 						entity.getContext().getStatistics().reportInformedPlaning();
 
 				} else {
+					entity.setOriginalTravelTime(it.get(0).duration);
+					entity.setOriginalTripDistance(it.get(0).legs.get(0).distance);
 					it.remove(1);
 				}
 				

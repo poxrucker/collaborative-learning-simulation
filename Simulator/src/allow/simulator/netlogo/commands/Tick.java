@@ -42,6 +42,8 @@ public class Tick extends DefaultReporter {
 		listBuilder.add((double)s.getConstructionSiteReplanings());
 		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSite());
 		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSite());
+		listBuilder.add((double)s.getMeanPriorTripDistance());
+		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
 		return listBuilder.toLogoList();
 	}
 

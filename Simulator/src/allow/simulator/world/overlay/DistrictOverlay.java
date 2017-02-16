@@ -146,8 +146,8 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 				DistrictType type = DistrictType.fromString(areaType);
 				DistrictArea newArea = new DistrictArea(tokens[0], polygon, type);
 				newLayer.addArea(newArea);
-				System.out.println("    Adding area " + tokens[0] + " (" + polygon.size()
-						+ " boundary vertices, type " + type + ", nodes: " + newLayer.getPointsInArea(newArea).size() + ")");
+				//System.out.println("    Adding area " + tokens[0] + " (" + polygon.size()
+				//		+ " boundary vertices, type " + type + ", nodes: " + newLayer.getPointsInArea(newArea).size() + ")");
 			}
 		}
 		return newLayer;

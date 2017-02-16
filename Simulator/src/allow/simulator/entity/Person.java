@@ -99,7 +99,10 @@ public final class Person extends Entity {
 	private boolean receiving;
 	
 	@JsonIgnore
-	private long travelTimeWithoutConstructionSite;
+	private long originalTravelTime;
+	
+	@JsonIgnore
+	private double originalTripDistance;
 	
 	/**
 	 * Creates new instance of a person.
@@ -410,12 +413,21 @@ public final class Person extends Entity {
 	}
 	
 	@JsonIgnore
-	public long getTravelTimeWithoutConstructionSite() {
-		return travelTimeWithoutConstructionSite;
+	public long getOriginalTravelTime() {
+		return originalTravelTime;
 	}
 	
-	public void setTravelTimeWithoutConstructionSite(long tt) {
-		travelTimeWithoutConstructionSite = tt;
+	public void setOriginalTravelTime(long tt) {
+		originalTravelTime = tt;
+	}
+	
+	@JsonIgnore
+	public double getOriginalTripDistance() {
+		return originalTripDistance;
+	}
+	
+	public void setOriginalTripDistance(double dist) {
+		originalTripDistance = dist;
 	}
 	
 	@SuppressWarnings("unchecked")

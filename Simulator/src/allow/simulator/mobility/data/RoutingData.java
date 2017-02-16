@@ -75,7 +75,7 @@ public final class RoutingData {
 						processedShapes.add(trip.getShapeId());
 						continue;
 					}
-					System.out.println("Warning: No routing found for " + trip.getShapeId() + ". Using non matched GPS traces instead.");
+					//System.out.println("Warning: No routing found for " + trip.getShapeId() + ". Using non matched GPS traces instead.");
 
 					// Otherwise split trace along stops and create "virtual segments".
 					List<List<Coordinate>> newShape = new ArrayList<List<Coordinate>>(stopIds.length);

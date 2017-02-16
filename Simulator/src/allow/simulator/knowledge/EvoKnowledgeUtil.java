@@ -37,26 +37,30 @@ public final class EvoKnowledgeUtil {
 		double costs = 0.0;
 		int numberOfTransfers = 0;
 		double walkingDistance = 0.0;
+		double totalDistance = 0.0;
 		
 		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			costs += e.getCosts();
 			numberOfTransfers = 0;
+			totalDistance += e.getSegmentLength();
 			
 			if (e.getTransportationMean() == TType.WALK)
 				walkingDistance += e.getSegmentLength();
 		}
 		return new ItineraryParams(it.itineraryType, (long) travelTime, costs, 0.0,
-				walkingDistance, numberOfTransfers);
+				walkingDistance, numberOfTransfers, totalDistance);
 	}
 	
 	private static ItineraryParams summarizeBusItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double busFillingLevel = 0.0;
 		double walkingDistance = 0.0;
+		double totalDistance = 0.0;
 		
 		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
+			totalDistance += e.getSegmentLength();
 			
 			if (e.getTransportationMean() == TType.WALK)
 				walkingDistance += e.getSegmentLength();
@@ -65,35 +69,40 @@ public final class EvoKnowledgeUtil {
 				busFillingLevel = Math.max(busFillingLevel, e.getPublicTransportationFillingLevel());
 		}
 		return new ItineraryParams(it.itineraryType, (long) travelTime, 1.2, busFillingLevel,
-				walkingDistance, it.transfers);
+				walkingDistance, it.transfers, totalDistance);
 	}
 	
 	private static ItineraryParams summarizeBicycleItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double costs = 0.0;
 		double walkingDistance = 0.0;
+		double totalDistance = 0.0;
 		
 		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
 			costs += e.getCosts();
+			totalDistance += e.getSegmentLength();
 			
 			if (e.getTransportationMean() == TType.WALK)
 				walkingDistance += e.getSegmentLength();
 		}
 		return new ItineraryParams(it.itineraryType, (long) travelTime, costs, 0.0,
-				walkingDistance, 0);
+				walkingDistance, 0, totalDistance);
 	}
 	
 	private static ItineraryParams summarizeWalkItinerary(Itinerary it, List<Experience> ex) {
 		double travelTime = 0.0;
 		double walkingDistance = 0.0;
+		double totalDistance = 0.0;
 		
 		for (Experience e : ex) {
 			travelTime += e.getTravelTime();
+			totalDistance += e.getSegmentLength();
 			
 			if (e.getTransportationMean() == TType.WALK)
 				walkingDistance += e.getSegmentLength();
 		}
-		return new ItineraryParams(it.itineraryType, (long) travelTime, 0.0, 0.0, walkingDistance, 0);
+		return new ItineraryParams(it.itineraryType, (long) travelTime, 0.0, 0.0, 
+				walkingDistance, 0, totalDistance);
 	}
 }

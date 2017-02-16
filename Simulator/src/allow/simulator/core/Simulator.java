@@ -65,13 +65,13 @@ public final class Simulator {
 	 * @throws IOException 
 	 */
 	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 8);
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
-		System.out.println("Loading world...");
+		// System.out.println("Loading world...");
 		StreetMap world = new StreetMap(config.getMapPath());
 		
-		System.out.println("  Adding layer \"" + OVERLAY_DISTRICTS + "\"...");
+		// System.out.println("  Adding layer \"" + OVERLAY_DISTRICTS + "\"...");
 		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
 		if (l == null)
 			throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
@@ -91,7 +91,7 @@ public final class Simulator {
 			throw new IllegalArgumentException("Unknown scenarion " + params.Scenario);
 
 		// Create data services.
-		System.out.println("Creating data services...");
+		//System.out.println("Creating data services...");
 		List<IDataService> dataServices = new ArrayList<IDataService>();
 		List<Service> dataConfigs = config.getDataServiceConfiguration();
 		
@@ -113,7 +113,7 @@ public final class Simulator {
 		Time time = new Time(config.getStartingDate(), 10);
 				
 		// Create planner services.
-		System.out.println("Creating planner services...");
+		//System.out.println("Creating planner services...");
 		List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
 		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
 		
@@ -129,7 +129,7 @@ public final class Simulator {
 		// Create bike rental service
 		Coordinate bikeRentalStation = new Coordinate(11.1248895,46.0711398);
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, bikeRentalStation);
-		System.out.println("Loading weather model...");
+		//System.out.println("Loading weather model...");
 		Weather weather = new Weather(config.getWeatherPath(), time);
 		
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
@@ -137,14 +137,14 @@ public final class Simulator {
 		
 		// Create global context from world, time, planner and data services, and weather.
 		context = new Context(world, new EntityManager(), time, planner, 
-				dataServices.get(0), weather, new Statistics(400), params);
+				dataServices.get(0), weather, new Statistics(500), params);
 		
 		// Setup entities.
-		System.out.println("Loading entities from file...");
+		//System.out.println("Loading entities from file...");
 		loadEntitiesFromFile(config.getAgentConfigurationPath(), params);
 		
 		// Create public transportation.
-		System.out.println("Creating public transportation system...");
+		//System.out.println("Creating public transportation system...");
 		TransportationRepository repos = new TransportationRepository(context);
 		context.setTransportationRepository(repos);
 		
@@ -153,6 +153,7 @@ public final class Simulator {
 		
 		// Update world
 		world.update(context);
+		System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
 	}
 	
 	private void initializeBlockedStreetsTrentoCentro(StreetMap world) {
@@ -263,7 +264,7 @@ public final class Simulator {
 		threadpool.shutdown();
 
 		try {
-			threadpool.awaitTermination(10, TimeUnit.SECONDS);
+			threadpool.awaitTermination(2, TimeUnit.SECONDS);
 			
 		} catch (InterruptedException e) {
 			e.printStackTrace();

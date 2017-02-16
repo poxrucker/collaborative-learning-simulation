@@ -10,14 +10,16 @@ public final class ItineraryParams {
 	public double maxBusFillingLevel;
 	public double walkingDistance;
 	public int numberOfTransfers;
-	
+	public double totalDistance;
+
 	public ItineraryParams(TType type, long travelTime, double costs, double maxBusFillingLevel,
-			double walkingDistance, int numberOfTransfers) {
+			double walkingDistance, int numberOfTransfers, double totalDistance) {
 		this.type = type;
 		this.travelTime = travelTime;
 		this.costs = costs;
 		this.maxBusFillingLevel = maxBusFillingLevel;
 		this.walkingDistance = walkingDistance;
 		this.numberOfTransfers = numberOfTransfers;
+		this.totalDistance = totalDistance;
 	}
 }

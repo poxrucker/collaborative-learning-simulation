@@ -124,11 +124,16 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 				case TAXI:
 				case SHARED_TAXI:
 					double actualCarTravelTime = summary.travelTime + it.initialWaitingTime;
+					double actualDistance = summary.totalDistance;
+					
 					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);					
 					
-					if (p.getTravelTimeWithoutConstructionSite() > 0) {
-						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSite(p.getTravelTimeWithoutConstructionSite(), actualCarTravelTime);
-						p.setTravelTimeWithoutConstructionSite(0);
+					if (p.getOriginalTravelTime() > 0) {
+						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSite(p.getOriginalTravelTime(), actualCarTravelTime);
+						p.setOriginalTravelTime(0);
+						
+						p.getContext().getStatistics().reportPriorAndPosteriorTripDistance(p.getOriginalTripDistance(), actualDistance);
+						p.setOriginalTripDistance(0);
 					}
 					
 					p.getContext().getStatistics().reportPriorAndPosteriorUtilityCar(it.utility, posteriorUtility);

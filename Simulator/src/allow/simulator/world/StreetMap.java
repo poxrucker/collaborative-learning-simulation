@@ -153,8 +153,8 @@ public final class StreetMap extends World implements Observer {
 			//}
 		}
 		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 4);
-		System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " 
-		+ dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
+		// System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " 
+		// + dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
 	public void setStreetBlocked(Street street, boolean blocked) {		

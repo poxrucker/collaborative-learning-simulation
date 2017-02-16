@@ -26,7 +26,7 @@ public class SetupSimulator extends DefaultReporter {
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		// Get String containing path to configuration file
 		Path configPath = Paths.get(args[0].getString());
-	
+
 		// Read configuration
 		Configuration config = null;
 		
@@ -87,6 +87,8 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add((double)s.getConstructionSiteReplanings());
 		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSite());
 		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSite());
+		listBuilder.add((double)s.getMeanPriorTripDistance());
+		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
 		return listBuilder.toLogoList();
 	}
 

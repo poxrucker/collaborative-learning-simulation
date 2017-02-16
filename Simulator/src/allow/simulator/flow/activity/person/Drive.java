@@ -98,26 +98,8 @@ public final class Drive extends MovementActivity<Person> {
 				distOnSeg = 0.0;
 				segmentIndex++;
 				
-				boolean intermediateReplaning = false;
-				
-				if (person.isInformed() && !checkedForBlockedStreets) {
-					StreetMap map = (StreetMap) person.getContext().getWorld();
-					intermediateReplaning = map.containsBlockedStreet(path);
-					checkedForBlockedStreets = true;
-				}
-				
 				Street street = getCurrentStreet();
-				
-				if (street.isBlocked())
-					person.setInformed(true);
-			
-				if (intermediateReplaning || street.isBlocked()) {
-					person.getFlow().clear();
-					person.getFlow().addActivity(new ReplanCarJourney(entity, street.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !street.isBlocked()));
-					setFinished();
-					return deltaT;
-				}
-				
+
 				if (segmentIndex == street.getNumberOfSubSegments()) {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
@@ -138,7 +120,30 @@ public final class Drive extends MovementActivity<Person> {
 					streetIndex++;
 					segmentIndex = 0;
 					tStart = tEnd;
-				}
+					
+					if (experiences.size() < path.size()) {
+					
+					boolean intermediateReplaning = false;
+					
+					if (person.isInformed() && !checkedForBlockedStreets) {
+						StreetMap map = (StreetMap) person.getContext().getWorld();
+						intermediateReplaning = map.containsBlockedStreet(path);
+						checkedForBlockedStreets = true;
+					}
+					
+					Street nextStreet = getCurrentStreet();
+					
+					if (nextStreet.isBlocked())
+						person.setInformed(true);
+				
+					if (intermediateReplaning || nextStreet.isBlocked()) {
+						entity.getFlow().clear();
+						entity.getFlow().addActivity(new ReplanCarJourney(entity, nextStreet.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !nextStreet.isBlocked()));
+						setFinished();
+						return deltaT;
+					}
+					}
+				}		
 				deltaT += tNextSegment;
 				
 			} else {

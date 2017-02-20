@@ -13,11 +13,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import allow.simulator.entity.DailyRoutine;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
 import allow.simulator.entity.Profile;
+import allow.simulator.entity.TravelEvent;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -32,6 +34,8 @@ import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
+import allow.simulator.utility.NormalizedLinearUtility;
+import allow.simulator.utility.Preferences;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
@@ -189,29 +193,80 @@ public final class Simulator {
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		
 		List<String> lines = Files.readAllLines(config, Charset.defaultCharset());
+		
 		for (String line : lines) {
-			Person p = mapper.readValue(line, Person.class);
-			p.setContext(context);
-			PlanGenerator.generateDayPlan(p);
+			Person person = mapper.readValue(line, Person.class);
+			initializePerson(person, context, param);
+			context.getEntityManager().addEntity(person);
+		}
+		
+		Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
+		
+		for (Entity entity : persons) {
+			Person person = (Person)entity;
 			
-			p.setInformed(ThreadLocalRandom.current().nextInt(100) < param.PercentInitiallyInformed);
-
-			boolean memberOfParticipatingGroup = (param.WithWorkers && (p.getProfile() == Profile.WORKER))
-					|| (param.WithStudents && (p.getProfile() == Profile.STUDENT))
-					|| (param.WithChildren && (p.getProfile() == Profile.CHILD))
-					|| (param.WithHomemaker && (p.getProfile() == Profile.HOMEMAKER));
-			
-			if (memberOfParticipatingGroup) {
-
-				if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
-
-					if (ThreadLocalRandom.current().nextInt(100) < param.PercentSharing)
-						p.setSharing();
-					else
-						p.setReceiving();
-				} 
+			if (param.SecondShiftWorkers && (person.getProfile() == Profile.WORKER)
+					&& (ThreadLocalRandom.current().nextInt(100) < param.PercentSecondShiftWorkers)) {
+				
+				// Clone preferences
+				Preferences p1 = person.getRankingFunction().getPreferences();
+				Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(), 
+						p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(), p1.getBusPreference(),
+						p1.getCarPreference());
+				
+				// Clone daily routine
+				DailyRoutine dr1 = person.getDailyRoutine();
+				List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
+				
+				for (int i = 1; i < 8; i++) {
+					List<TravelEvent> toClone = dr1.getDailyRoutine(i);
+					List<TravelEvent> clone = new ArrayList<TravelEvent>(toClone.size());
+					
+					for (TravelEvent event : toClone) {
+						TravelEvent temp = new TravelEvent(event.getTime().plusHours(4), event.getStartingPoint(), event.getDestination(), event.arriveBy());
+						clone.add(temp);
+					}
+					events.add(clone);
+				}
+				DailyRoutine dr2 = new DailyRoutine(events);
+				
+				Person person2 = new Person(context.getEntityManager().getNextId(),
+						person.getGender(),
+						person.getProfile(),
+						new NormalizedLinearUtility(),
+						p2,
+						new Coordinate(person.getHome().x, person.getHome().y),
+						person.hasCar(),
+						person.hasBike(),
+						person.useFlexiBus(),
+						dr2);
+				initializePerson(person2, context, param);
+				context.getEntityManager().addEntity(person2);
 			}
-			context.getEntityManager().addEntity(p);
+
+		}
+	}
+	
+	private void initializePerson(Person person, Context context, SimulationParameter param) {
+		person.setContext(context);
+		PlanGenerator.generateDayPlan(person);
+		
+		person.setInformed(ThreadLocalRandom.current().nextInt(100) < param.PercentInitiallyInformed);
+
+		boolean memberOfParticipatingGroup = (param.WithWorkers && (person.getProfile() == Profile.WORKER))
+				|| (param.WithStudents && (person.getProfile() == Profile.STUDENT))
+				|| (param.WithChildren && (person.getProfile() == Profile.CHILD))
+				|| (param.WithHomemaker && (person.getProfile() == Profile.HOMEMAKER));
+		
+		if (memberOfParticipatingGroup) {
+
+			if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
+
+				if (ThreadLocalRandom.current().nextInt(100) < param.PercentSharing)
+					person.setSharing();
+				else
+					person.setReceiving();
+			} 
 		}
 	}
 	

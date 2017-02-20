@@ -50,10 +50,6 @@ public final class DailyRoutine {
 		Collections.sort(dailyRoutine, comp);
 	}
 	
-	public List<TravelEvent> getDailyRoutine(Calendar c) {
-		return weeklyRoutine.get(c.get(Calendar.DAY_OF_WEEK));
-	}
-	
 	public List<TravelEvent> getDailyRoutine(int dayOfWeek) {
 		return weeklyRoutine.get(dayOfWeek - 1);
 	}

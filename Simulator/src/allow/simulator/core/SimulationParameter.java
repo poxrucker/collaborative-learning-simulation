@@ -34,4 +34,8 @@ public final class SimulationParameter {
 	
 	public int GridResY;
 	
+	public boolean SecondShiftWorkers;
+	
+	public int PercentSecondShiftWorkers;
+	
 }

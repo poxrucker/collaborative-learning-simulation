@@ -55,6 +55,8 @@ public class SetupSimulator extends DefaultReporter {
 		params.Walk = (boolean) settings.get(10);
 		params.Bike = (boolean) settings.get(11);
 		params.Idle = (boolean) settings.get(12);
+		params.SecondShiftWorkers = (boolean) settings.get(13);
+		params.PercentSecondShiftWorkers = (int) (double) settings.get(14);
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
@@ -71,7 +73,7 @@ public class SetupSimulator extends DefaultReporter {
 			throw new ExtensionException(e.getMessage());
 		}
 
-		// List buffer.
+		// List buffer
 		LogoListBuilder listBuilder = new LogoListBuilder();
 		allow.simulator.core.Context ctx = simulator.getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);

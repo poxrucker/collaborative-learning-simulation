@@ -92,12 +92,12 @@ public final class PlanJourney extends Activity<Person> {
 			if ((it == null) || (it.size() == 0))  {
 				// In case no trips were found, finish and set entity to destination
 				setFinished();
-				entity.setPosition(destination);
+				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
 				return 0.0;
 			}
 			
 			if (affectedByRoadBlock(it)) {
-
+				
 				if (entity.isInformed()) {
 					entity.setOriginalTravelTime(it.get(1).duration);
 					entity.setOriginalTripDistance(it.get(1).legs.get(0).distance);
@@ -118,6 +118,15 @@ public final class PlanJourney extends Activity<Person> {
 			} else if ((it.size() > 1) && (it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType == TType.CAR)) {
 				it.remove(1);
 				
+			} else if ((it.size() > 1) && (it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType != TType.CAR)) {
+				it.remove(0);
+			}
+			
+			if (it.size() == 0)  {
+				// In case no trips were found, finish and set entity to destination
+				setFinished();
+				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
+				return 0.0;
 			}
 			
 			if (!entity.isReplanning()) {
@@ -138,11 +147,15 @@ public final class PlanJourney extends Activity<Person> {
 		
 		if (it.size() <= 1)
 			return false;
-				
+		
+		StreetMap map = (StreetMap)entity.getContext().getWorld();
+		
+		if ((it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType != TType.CAR))
+			return false;
+		
 		if ((it.get(0).itineraryType != TType.CAR) || (it.get(1).itineraryType != TType.CAR))
 			return false;
 		
-		StreetMap map = (StreetMap)entity.getContext().getWorld();
 		return map.containsBlockedStreet(it.get(0).legs.get(0).streets);
 	}
 	

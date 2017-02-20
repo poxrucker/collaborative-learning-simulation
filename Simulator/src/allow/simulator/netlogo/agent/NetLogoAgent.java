@@ -45,6 +45,7 @@ public final class NetLogoAgent<V extends Entity> extends Turtle implements IAge
 		temp.put(ActivityType.RANK_ALTERNATIVES, "person");
 		temp.put(ActivityType.LEARN, "person");
 		temp.put(ActivityType.REPLAN, "person");
+		temp.put(ActivityType.REPLAN_CAR_JOURNEY, "car");
 		temp.put(ActivityType.WAIT, "person");
 		temp.put(ActivityType.PREPARE_TRIP, "bus");
 		temp.put(ActivityType.DRIVE_TO_NEXT_STOP, "bus");

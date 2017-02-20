@@ -42,6 +42,8 @@ public enum ActivityType {
 	
 	REPLAN,
 	
+	REPLAN_CAR_JOURNEY,
+	
 	WAIT,
 	
 	/**

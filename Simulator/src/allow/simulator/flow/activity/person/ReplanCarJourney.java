@@ -40,7 +40,7 @@ public final class ReplanCarJourney extends Activity<Person> {
 	 * @param person The person executing the journey request.
 	 */
 	public ReplanCarJourney(Person person, Coordinate start, Coordinate destination, boolean informedByOthers) {
-		super(ActivityType.PLAN_JOURNEY, person);
+		super(ActivityType.REPLAN_CAR_JOURNEY, person);
 		this.start = start;
 		this.destination = destination;
 		this.informedByOthers = informedByOthers;
@@ -78,7 +78,7 @@ public final class ReplanCarJourney extends Activity<Person> {
 			if ((it == null) || (it.size() == 0))  {
 				// In case no trips were found, finish and set entity to destination
 				setFinished();
-				entity.setPosition(destination);
+				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
 				return 0.0;
 			}
 			

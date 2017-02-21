@@ -102,6 +102,22 @@ public final class Experience {
 		return (segment == null);
 	}
 	
+	public double getSpeed() {
+		
+		switch (meansOfTransportation) {
+		case WALK:
+			return segment.getSubSegments().get(0).getWalkingSpeed();
+		case BICYCLE:
+			return segment.getSubSegments().get(0).getCyclingSpeed();
+		case CAR:
+		case TAXI:
+		case BUS:
+			return segment.getSubSegments().get(0).getMaxSpeed();
+		default:
+			throw new IllegalStateException("Invalid means of transportation");		
+		}		
+	}
+	
 	public double getSegmentLength() {
 		return segment.getLength();
 	}

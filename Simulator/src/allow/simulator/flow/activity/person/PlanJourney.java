@@ -12,9 +12,11 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.JourneyRequest;
+import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
+import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 
 /**
@@ -99,16 +101,25 @@ public final class PlanJourney extends Activity<Person> {
 			if (affectedByRoadBlock(it)) {
 				
 				if (entity.isInformed()) {
-					entity.setOriginalTravelTime(it.get(1).duration);
-					entity.setOriginalTripDistance(it.get(1).legs.get(0).distance);
+					double tt = calculatePriorTravelTime(it.get(1));
+					double dist = calculatePriorDistance(it.get(1));
+					entity.setOriginalTravelTime((long) tt);
+					entity.setOriginalTripDistance(dist);
+					//entity.setOriginalTravelTime(it.get(1).duration);
+					//entity.setOriginalTripDistance(it.get(1).legs.get(0).distance);
 					it.remove(0);
 
 					if (!entity.isReplanning())
 						entity.getContext().getStatistics().reportInformedPlanningAffected();
 
 				} else {
-					entity.setOriginalTravelTime(it.get(0).duration);
-					entity.setOriginalTripDistance(it.get(0).legs.get(0).distance);
+					double tt = calculatePriorTravelTime(it.get(0));
+					double dist = calculatePriorDistance(it.get(0));
+					entity.setOriginalTravelTime((long) tt);
+					entity.setOriginalTripDistance(dist);
+					
+					//entity.setOriginalTravelTime(it.get(0).duration);
+					//entity.setOriginalTripDistance(it.get(0).legs.get(0).distance);
 					it.remove(1);
 					
 					if (!entity.isReplanning())
@@ -141,6 +152,30 @@ public final class PlanJourney extends Activity<Person> {
 			setFinished();
 			return 0.0;
 		}
+	}
+	
+	private double calculatePriorTravelTime(Itinerary it) {
+		double tt = 0.0;
+		
+		for (Leg l : it.legs) {
+			
+			for (Street s : l.streets) {
+				tt += (s.getLength() / s.getSubSegments().get(0).getMaxSpeed());
+			}
+		}
+		return tt;
+	}
+	
+	private double calculatePriorDistance(Itinerary it) {
+		double dist = 0.0;
+		
+		for (Leg l : it.legs) {
+			
+			for (Street s : l.streets) {
+				dist += s.getLength();
+			}
+		}
+		return dist;
 	}
 	
 	private boolean affectedByRoadBlock(List<Itinerary> it) {

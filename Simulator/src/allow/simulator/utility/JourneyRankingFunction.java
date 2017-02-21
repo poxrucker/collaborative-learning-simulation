@@ -44,7 +44,7 @@ public final class JourneyRankingFunction implements IDecisionFunction<List<Itin
 	public List<Itinerary> reason(List<Itinerary> itineraries) {
 		
 		for (Itinerary it : itineraries) {
-			ItineraryParams params = new ItineraryParams(it.itineraryType, (it.duration /*+ it.initialWaitingTime*/),
+			ItineraryParams params = new ItineraryParams(it.itineraryType, it.duration, 0,
 					it.costs, it.maxFillingLevel, it.walkDistance, it.transfers, 0.0);
 			it.utility = utility.computeUtility(params, preferences);
 			double pref = 0.5;

@@ -18,7 +18,7 @@ public class DistanceRelation extends Relation {
 	/**
 	 * Distance threshold
 	 */
-	public static final double DISTANCE = 50.0;
+	public static final double DISTANCE = 75.0;
 		
 	/**
 	 * Constructor.

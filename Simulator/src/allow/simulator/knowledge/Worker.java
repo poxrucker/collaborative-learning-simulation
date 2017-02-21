@@ -58,7 +58,7 @@ public class Worker implements Callable<List<Itinerary>> {
 		return toUpdate;
 	}
 	
-	private static List<Experience> itineraryToTravelExperience(Entity e, Itinerary it) {
+	public static List<Experience> itineraryToTravelExperience(Entity e, Itinerary it) {
 		List<Experience> ret = new ArrayList<Experience>();
 		Weather.State currentWeather = e.getContext().getWeather().getCurrentState();
 		

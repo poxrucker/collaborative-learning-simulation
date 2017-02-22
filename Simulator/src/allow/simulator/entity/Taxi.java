@@ -16,5 +16,10 @@ public final class Taxi extends TransportationEntity {
 	@Override
 	public String getType() {
 		return EntityTypes.TAXI;
+	}
+
+	@Override
+	public void exchangeKnowledge() {
+		
 	}	
 }

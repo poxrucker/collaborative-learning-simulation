@@ -37,7 +37,7 @@ public class DistanceRelation extends Relation {
 	 * @param newEntities List to add entities which are new in this relation.
 	 */
 	@Override
-	public void updateRelation(List<Entity> newEntities, Set<Long> blackList) {
+	public void updateRelation(List<Entity> newEntities, Set<Integer> blackList) {
 		// Get entities which are physically close
 		Collection<Entity> closeEntities = SpatialProximityMeasure.Instance.getCloseEntities(entity, DISTANCE);
 

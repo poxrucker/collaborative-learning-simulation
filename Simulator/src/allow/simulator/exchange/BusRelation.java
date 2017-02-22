@@ -26,7 +26,7 @@ public final class BusRelation extends Relation {
 	}
 
 	@Override
-	public void updateRelation(List<Entity> newEntities, Set<Long> blackList) {
+	public void updateRelation(List<Entity> newEntities, Set<Integer> blackList) {
 		// Get current activity of entity.
 		Collection<Entity> busEntities = BusProximityMeasure.Instance.getCloseEntities(entity, 0);
 		

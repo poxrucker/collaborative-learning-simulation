@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+import de.dfki.crf.DBConnector;
 import allow.simulator.entity.Entity;
-import allow.simulator.knowledge.crf.DBConnector;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;

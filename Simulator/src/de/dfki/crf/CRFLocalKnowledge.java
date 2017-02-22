@@ -1,4 +1,4 @@
-package allow.simulator.knowledge.crf;
+package de.dfki.crf;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import de.dfki.crf.DBConnector.DBType;
 import allow.simulator.entity.Entity;
 import allow.simulator.knowledge.Experience;
-import allow.simulator.knowledge.crf.DBConnector.DBType;
 
 public class CRFLocalKnowledge implements CRFKnowledgeModel {
 	

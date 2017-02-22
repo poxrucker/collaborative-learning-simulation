@@ -1,6 +1,6 @@
 package allow.simulator.knowledge;
 
-public interface IExchangeStrategy<V extends Knowledge> {
+public interface IExchangeStrategy<V> {
 
 	boolean exchangeKnowledge(V k1, V k2);
 	

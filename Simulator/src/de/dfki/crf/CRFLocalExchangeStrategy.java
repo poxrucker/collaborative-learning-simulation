@@ -1,4 +1,4 @@
-package allow.simulator.knowledge.crf;
+package de.dfki.crf;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,8 +32,8 @@ public class CRFLocalExchangeStrategy implements IExchangeStrategy<EvoKnowledge>
 	
 	@Override
 	public boolean exchangeKnowledge(EvoKnowledge k1, EvoKnowledge k2) {
-		final String tableName1 = k1.getInstanceId();
-		final String tableName2 = k2.getInstanceId();
+		final String tableName1 = ""; // k1.getInstanceId();
+		final String tableName2 = ""; // k2.getInstanceId();
 		final boolean tableExists1 = DBConnector.aIdTableExists.get(tableName1) == null ? false : true;		
 		final boolean tableExists2 = DBConnector.aIdTableExists.get(tableName2) == null ? false : true;
 
@@ -66,7 +66,7 @@ public class CRFLocalExchangeStrategy implements IExchangeStrategy<EvoKnowledge>
 			}
 			
 		} catch (SQLException e) {
-			System.out.println(k1.getInstanceId() + "->" + k2.getInstanceId() + ": " + e.getMessage());
+			//System.out.println(k1.getInstanceId() + "->" + k2.getInstanceId() + ": " + e.getMessage());
 			
 		} finally {
 			

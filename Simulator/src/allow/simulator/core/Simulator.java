@@ -190,8 +190,8 @@ public final class Simulator {
 		}
 		
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
-		EvoKnowledge.invokeRequest();
-		EvoKnowledge.cleanModel();
+		//EvoKnowledge.invokeRequest();
+		//EvoKnowledge.cleanModel();
 	}
 	
 	/**

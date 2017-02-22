@@ -166,9 +166,7 @@ public abstract class Entity extends Observable {
 	/**
 	 * Initiate knowledge exchange with other entities.
 	 */
-	public void exchangeKnowledge() {
-		knowledge.exchangeKnowledge();
-	}
+	public abstract void exchangeKnowledge();
 	
 	/**
 	 * Executes the next activities in the activity queue of the entity and

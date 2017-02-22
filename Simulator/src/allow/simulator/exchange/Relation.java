@@ -44,7 +44,7 @@ public abstract class Relation {
 		entities = new Long2ObjectOpenHashMap<Entity>();
 	}
 	
-	public abstract void updateRelation(List<Entity> newEntities, Set<Long> blackList);
+	public abstract void updateRelation(List<Entity> newEntities, Set<Integer> blackList);
 	
 	public void reset() {
 		entities.clear();

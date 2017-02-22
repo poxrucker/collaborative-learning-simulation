@@ -30,4 +30,9 @@ public final class Bus extends TransportationEntity {
 	public String getType() {
 		return EntityTypes.BUS;
 	}
+
+	@Override
+	public void exchangeKnowledge() {
+		
+	}
 }

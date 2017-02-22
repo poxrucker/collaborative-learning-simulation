@@ -1,6 +1,6 @@
 package allow.simulator.entity;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.time.LocalTime;
 import java.util.ArrayDeque;
@@ -10,13 +10,12 @@ import java.util.Queue;
 
 import allow.simulator.core.Context;
 import allow.simulator.core.Simulator;
+import allow.simulator.exchange.ExchangeHandler;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
-import allow.simulator.utility.IUtility;
-import allow.simulator.utility.ItineraryParams;
 import allow.simulator.utility.JourneyRankingFunction;
 import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
@@ -55,10 +54,6 @@ public final class Person extends Entity {
 	// True, if person has a bike, false otherwise.
 	private final boolean hasBike;
 	
-	// True, if person will send requests to the FlexiBus planner, false otherwise.
-	@JsonIgnore
-	private final boolean useFlexiBus;
-	
 	// Daily routine of this person, i.e. set of travelling events which are
 	// executed regularly on specific days, e.g. going to work on back from 
 	// Mo to Fri.
@@ -94,50 +89,11 @@ public final class Person extends Entity {
 	// Name of home area
 	private String homeAreaName;
 	
-	/**
-	 * Creates new instance of a person.
-	 * 
-	 * @param id Id of this person.
-	 * @param gender Gender of this person.
-	 * @param profile Profile of this person.
-	 * @param utility Utility function of this person.
-	 * @param homeLocation Location on the map that is defined to be the home
-	 *        of the person.
-	 * @param hasCar Determines if this person has a car for travelling.
-	 * @param hasBike Determines if this person has a bike for travelling.
-	 * @param useFlexiBus Determines if this person uses FlexiBus for travelling.
-	 * @param dailyRoutine Daily routine of this person, e.g. going to work in
-	 *        the morning and back in the afternoon for workers.
-	 * @param context Context of this person.
-	 */
-	public Person(int id,
-			Gender gender,
-			Profile profile,
-			IUtility<ItineraryParams, Preferences> utility,
-			Preferences prefs,
-			Coordinate homeLocation,
-			boolean hasCar,
-			boolean hasBike,
-			boolean useFlexiBus,
-			DailyRoutine dailyRoutine,
-			Context context) {
-		super(id, context);
-		rankingFunction = new JourneyRankingFunction(prefs, utility);
-		this.gender = gender;
-		this.profile = profile;
-		this.hasCar = hasCar;
-		this.hasBike = hasBike;
-		this.useFlexiBus = useFlexiBus;
-		this.dailyRoutine = dailyRoutine;
-		home = homeLocation;
-		setPosition(homeLocation);
-		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
-		buffer = new ReferenceArrayList<Itinerary>(6);
-		experienceBuffer = new ArrayList<Experience>(); 
-		currentItinerary = null;
-		usedCar = false;
-		isReplanning = false;
-	}
+	// Buffer holding entities to exchange knowledge with.
+	private ObjectArrayList<Entity> toExchangeBuffer;
+		
+	// Chain of handlers to execute knowledge exchange.
+	private ExchangeHandler handlerChain;
 	
 	/**
 	 * Creates new instance of a person.
@@ -171,16 +127,17 @@ public final class Person extends Entity {
 		this.profile = role;
 		this.hasCar = hasCar;
 		this.hasBike = hasBike;
-		this.useFlexiBus = useFlexiBus;
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
 		schedule = new ArrayDeque<Pair<LocalTime, Activity<Person>>>();
-		buffer = new ReferenceArrayList<Itinerary>(6);
+		buffer = new ObjectArrayList<Itinerary>(6);
 		experienceBuffer = new ArrayList<Experience>();
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
+		toExchangeBuffer = new ObjectArrayList<Entity>();
+		handlerChain = ExchangeHandler.StandardPersonChain;
 	}
 	
 	/**
@@ -394,6 +351,24 @@ public final class Person extends Entity {
 			}
 		}
 		return (Activity<Person>) super.execute();
+	}
+	
+	/**
+	 * Executes knowledge exchange based on relations of the associated entity.
+	 */
+	@Override
+	public void exchangeKnowledge() {
+		// Get relations
+		relations.updateRelations(toExchangeBuffer);
+		
+		// Execute knowledge exchange.
+		for (Entity other : toExchangeBuffer) {
+				handlerChain.exchange(this, other);
+				relations.addToBlackList(other);
+			}
+		// Clear relations buffer.
+		toExchangeBuffer.clear();
+		toExchangeBuffer.trim();
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package allow.simulator.knowledge.crf;
+package de.dfki.crf;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

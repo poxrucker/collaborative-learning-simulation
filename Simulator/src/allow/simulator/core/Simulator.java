@@ -200,13 +200,15 @@ public final class Simulator {
 			context.getEntityManager().addEntity(person);
 		}
 		
-		Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
+		Collection<Entity> persons = new ArrayList<Entity>(context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON));
+		int earlyAdded = 0;
+		int backAdded = 0;
 		
 		for (Entity entity : persons) {
 			Person person = (Person)entity;
-			
-			if (param.SecondShiftWorkers && (person.getProfile() == Profile.WORKER)
-					&& (ThreadLocalRandom.current().nextInt(100) < param.PercentSecondShiftWorkers)) {
+					
+			if (param.EarlyShiftWorkers && (person.getProfile() == Profile.WORKER)
+					&& (ThreadLocalRandom.current().nextInt(100) < param.PercentEarlyShiftWorkers)) {
 				
 				// Clone preferences
 				Preferences p1 = person.getRankingFunction().getPreferences();
@@ -241,10 +243,72 @@ public final class Simulator {
 						person.useFlexiBus(),
 						dr2);
 				initializePerson(person2, context, param);
+				context.getEntityManager().addEntity(person2);	
+				earlyAdded++;
+			}
+			
+			if (param.BackShiftWorkers && (person.getProfile() == Profile.WORKER)
+				&& (ThreadLocalRandom.current().nextInt(100) < param.PercentBackShiftWorkers)) {
+				
+				// Clone preferences
+				Preferences p1 = person.getRankingFunction().getPreferences();
+				Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(), 
+						p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(), p1.getBusPreference(),
+						p1.getCarPreference());
+				
+				// Clone daily routine
+				DailyRoutine dr1 = person.getDailyRoutine();
+				List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
+				
+				for (int i = 1; i < 8; i++) {
+					List<TravelEvent> toClone = dr1.getDailyRoutine(i);
+					List<TravelEvent> clone = new ArrayList<TravelEvent>(toClone.size());
+					
+					for (TravelEvent event : toClone) {
+						TravelEvent temp = new TravelEvent(event.getTime().plusHours(-4), event.getStartingPoint(), event.getDestination(), event.arriveBy());
+						clone.add(temp);
+					}
+					events.add(clone);
+				}
+				DailyRoutine dr2 = new DailyRoutine(events);
+				
+				Person person2 = new Person(context.getEntityManager().getNextId(),
+						person.getGender(),
+						person.getProfile(),
+						new NormalizedLinearUtility(),
+						p2,
+						new Coordinate(person.getHome().x, person.getHome().y),
+						person.hasCar(),
+						person.hasBike(),
+						person.useFlexiBus(),
+						dr2);
+				initializePerson(person2, context, param);
+				context.getEntityManager().addEntity(person2);
+				backAdded++;
+			}
+			
+			if (param.ExtraHomemaker && (person.getProfile() == Profile.HOMEMAKER) &&
+					(ThreadLocalRandom.current().nextInt(100) < param.PercentExtraHomemaker)) {
+				// Clone preferences
+				Preferences p1 = person.getRankingFunction().getPreferences();
+				Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(), 
+						p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(), p1.getBusPreference(),
+						p1.getCarPreference());
+				Person person2 = new Person(context.getEntityManager().getNextId(),
+						person.getGender(),
+						person.getProfile(),
+						new NormalizedLinearUtility(),
+						p2,
+						new Coordinate(person.getHome().x, person.getHome().y),
+						person.hasCar(),
+						person.hasBike(),
+						person.useFlexiBus(),
+						new DailyRoutine());
+				initializePerson(person2, context, param);
 				context.getEntityManager().addEntity(person2);
 			}
-
 		}
+		System.out.println(earlyAdded + " " + backAdded);
 	}
 	
 	private void initializePerson(Person person, Context context, SimulationParameter param) {
@@ -295,11 +359,11 @@ public final class Simulator {
 			}
 		}
 		
-		if (context.getTime().getCurrentTime().getHour() == 3
+		/*if (context.getTime().getCurrentTime().getHour() == 3
 				&& context.getTime().getCurrentTime().getMinute() == 0
 				&& context.getTime().getCurrentTime().getSecond() == 0) {
 			context.getStatistics().reset();
-		}
+		}*/
 		
 		//context.getWorld().getStreetMap().getNBusiestStreets(20);
 		EvoKnowledge.invokeRequest();

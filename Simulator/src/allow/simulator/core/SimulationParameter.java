@@ -34,8 +34,16 @@ public final class SimulationParameter {
 	
 	public int GridResY;
 	
-	public boolean SecondShiftWorkers;
+	public boolean EarlyShiftWorkers;
 	
-	public int PercentSecondShiftWorkers;
+	public int PercentEarlyShiftWorkers;
+	
+	public boolean BackShiftWorkers;
+	
+	public int PercentBackShiftWorkers;
+	
+	public boolean ExtraHomemaker;
+	
+	public int PercentExtraHomemaker;
 	
 }

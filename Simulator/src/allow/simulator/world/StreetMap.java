@@ -3,6 +3,7 @@ package allow.simulator.world;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -294,5 +295,22 @@ public final class StreetMap extends World implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		streetsToUpdate.add((Street) o);
+	}
+	
+	private boolean containsPoint(double[] rect, Coordinate position) {
+		return (rect[0] <= position.x) && (rect[1] >= position.x) && (rect[2] <= position.y) && (rect[3] >= position.y);
+	}
+	
+	public Collection<Street> getStreetsInROI(double[] roi) {
+		ObjectSet<Street> ret = new ObjectOpenHashSet<Street>();
+		
+		for (Street street : streets.values()) {
+			Coordinate start = street.getStartingNode().getPosition();
+			Coordinate end = street.getEndNode().getPosition();
+			
+			if (containsPoint(roi, start) || containsPoint(roi, end))
+				ret.add(street);
+		}
+		return ret;
 	}
 }

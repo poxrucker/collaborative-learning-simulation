@@ -80,6 +80,8 @@ public final class Drive extends MovementActivity<Person> {
 		while (deltaT < travelTime && !isFinished()) {
 			// Get current state.
 			StreetSegment s = getCurrentSegment();
+			s.registerVehicle(person);
+			
 			double v = s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
 			Coordinate p = getCurrentPosition();
 			

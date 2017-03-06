@@ -40,8 +40,10 @@ public class SetupSimulator extends DefaultReporter {
 		// Parse simulation model parameters
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
-				
-		LogoList settings = args[2].getList();
+		params.LoggingFolder = args[2].getString();
+		params.SamplingRateInSeconds = args[3].getIntValue();
+		
+		LogoList settings = args[4].getList();
 		params.Scenario = (String) settings.get(0);
 		params.PercentInitiallyInformed = (int) (double) settings.get(1);
 		params.PercentParticipating = (int) (double) settings.get(2);
@@ -94,8 +96,10 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add((double)s.getInformedPlanningsAffected());
 		listBuilder.add((double)s.getIntermediateReplannings());
 		listBuilder.add((double)s.getConstructionSiteReplannings());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSite());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSite());
+		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteRaw());
+		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteRaw());
+		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteActual());
+		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteActual());
 		listBuilder.add((double)s.getMeanPriorTripDistance());
 		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
 		return listBuilder.toLogoList();
@@ -103,7 +107,7 @@ public class SetupSimulator extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.ListType() };
+		int right[] = new int[] { Syntax.StringType(), Syntax.NumberType(), Syntax.StringType(), Syntax.NumberType(), Syntax.ListType() };
 		return Syntax.reporterSyntax(right, Syntax.ListType() );
 	}
 }

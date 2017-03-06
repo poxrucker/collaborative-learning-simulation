@@ -1,5 +1,7 @@
 package allow.simulator.netlogo.commands;
 
+import java.io.IOException;
+
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
 import org.nlogo.api.DefaultReporter;
@@ -22,7 +24,12 @@ public class Tick extends DefaultReporter {
 		// NetLogoWrapper
 		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
 		Simulator simulator = wrapper.getSimulator();
-		simulator.tick();
+		
+		try {
+			simulator.tick();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		// Return context and statistics.		
 		LogoListBuilder listBuilder = new LogoListBuilder();
@@ -43,8 +50,10 @@ public class Tick extends DefaultReporter {
 		listBuilder.add((double)s.getInformedPlanningsAffected());		
 		listBuilder.add((double)s.getIntermediateReplannings());
 		listBuilder.add((double)s.getConstructionSiteReplannings());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSite());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSite());
+		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteRaw());
+		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteRaw());
+		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteActual());
+		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteActual());
 		listBuilder.add((double)s.getMeanPriorTripDistance());
 		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
 		return listBuilder.toLogoList();

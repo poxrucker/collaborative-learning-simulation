@@ -4,6 +4,10 @@ public final class SimulationParameter {
 
 	public int BehaviourSpaceRunNumber;
 	
+	public String LoggingFolder;
+	
+	public int SamplingRateInSeconds;
+	
 	public String Scenario;
 		
 	public int PercentInitiallyInformed;

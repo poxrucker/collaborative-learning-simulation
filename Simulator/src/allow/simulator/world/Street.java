@@ -152,6 +152,14 @@ public class Street extends Observable implements Observer {
 		return new int[] { carsOnStreet.size(), nWorkers, nStudents, nChildren, nHomemakers };
 	}
 	
+	public void resetUsageStatistics() {
+		carsOnStreet.clear();
+		nWorkers = 0;
+		nStudents = 0;
+		nChildren = 0;
+		nHomemakers = 0;
+	}
+	
 	public boolean isBlocked() {
 		return blocked;
 	}

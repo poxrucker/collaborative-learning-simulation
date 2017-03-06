@@ -129,7 +129,8 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 					p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimes(estimatedTravelTime, actualCarTravelTime);					
 					
 					if (p.getOriginalTravelTime() > 0) {
-						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSite(p.getOriginalTravelTime(), summary.travelTimeRaw);
+						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSiteRaw(p.getOriginalTravelTime(), summary.travelTimeRaw);
+						p.getContext().getStatistics().reportPriorAndPosteriorCarTravelTimesConstructionSiteActual(p.getOriginalTravelTime(), summary.travelTime);
 						p.setOriginalTravelTime(0);
 						
 						p.getContext().getStatistics().reportPriorAndPosteriorTripDistance(p.getOriginalTripDistance(), actualDistance);

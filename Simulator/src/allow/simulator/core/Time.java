@@ -20,6 +20,7 @@ public final class Time {
 	private LocalDateTime currentDateTime;
 	private LocalTime currentTime;
 	private long timestamp;
+	private int nTicks;
 	
 	// Time interval per tick.
 	private int deltaT;
@@ -77,6 +78,7 @@ public final class Time {
 		}
 		currentTime = currentDateTime.toLocalTime();
 		timestamp = Timestamp.valueOf(currentDateTime).getTime();
+		nTicks++;
 	}
 
 	/**
@@ -86,6 +88,10 @@ public final class Time {
 	 */
 	public int getDeltaT() {
 		return deltaT;
+	}
+	
+	public int getNTicks() {
+		return nTicks;
 	}
 	
 	/**

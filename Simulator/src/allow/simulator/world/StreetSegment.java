@@ -88,6 +88,14 @@ public class StreetSegment extends Observable implements Comparable<StreetSegmen
 	public void addVehicle(Entity entity) {
 		numberOfVehicles++;
 		setChanged();
+		notifyObservers();
+	}
+	
+	/**
+	 * Increases number of vehicles on the segment by 1.
+	 */
+	public void registerVehicle(Entity entity) {
+		setChanged();
 		notifyObservers(entity);
 	}
 

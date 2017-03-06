@@ -3,6 +3,7 @@ package allow.simulator.netlogo.agent;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -133,6 +134,16 @@ public final class NetLogoWrapper implements IContextWrapper {
 				newLink.hidden(false);
 			}
 		}
+		/*Collection<Street> inROI = simulator.getStreetsInROI();
+		
+		for (Street street : inROI) {
+			
+			for (StreetSegment seg : street.getSubSegments()) {
+				Link link = linkMapping.get(seg.getStartingNode().getId() + "," + seg.getEndingNode().getId());
+				link.colorDouble(68.0);
+			}
+		}*/
+		
 	}
 
 	private void wrapEntities(EntityManager entityManager) throws AgentException {
@@ -173,7 +184,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 		return instance;
 	}
 	
-	public static void delete(int runId) {
+	public static void delete(int runId) throws IOException {
 		NetLogoWrapper wrapper = instances.remove(runId);
 		wrapper.getSimulator().finish();
 	}

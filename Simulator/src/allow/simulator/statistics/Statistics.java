@@ -70,8 +70,11 @@ public class Statistics {
 	private int totalNumberOfPlannings;
 	private int totalNumberOfAffectedPlannings;
 	
-	private SlidingWindow priorCarTravelTimeConstructionSite;
-	private SlidingWindow posteriorCarTravelTimeConstructionSite;
+	private SlidingWindow priorCarTravelTimeConstructionSiteRaw;
+	private SlidingWindow posteriorCarTravelTimeConstructionSiteRaw;
+
+	private SlidingWindow priorCarTravelTimeConstructionSiteActual;
+	private SlidingWindow posteriorCarTravelTimeConstructionSiteActual;
 
 	private SlidingWindow priorTripDistance;
 	private SlidingWindow posteriorTripDistance;
@@ -114,8 +117,11 @@ public class Statistics {
 		totalNumberOfPlannings = 0;
 		totalNumberOfAffectedPlannings = 0;
 		
-		priorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
-		posteriorCarTravelTimeConstructionSite = new SlidingWindow(windowSize);
+		priorCarTravelTimeConstructionSiteRaw = new SlidingWindow(windowSize);
+		posteriorCarTravelTimeConstructionSiteRaw = new SlidingWindow(windowSize);
+		
+		priorCarTravelTimeConstructionSiteActual = new SlidingWindow(windowSize);
+		posteriorCarTravelTimeConstructionSiteActual = new SlidingWindow(windowSize);
 		
 		priorTripDistance = new SlidingWindow(windowSize);
 		posteriorTripDistance = new SlidingWindow(windowSize);
@@ -142,8 +148,11 @@ public class Statistics {
 		priorUtilityBus.reset();
 		posteriorUtilityBus.reset();
 		
-		priorCarTravelTimeConstructionSite.reset();
-		posteriorCarTravelTimeConstructionSite.reset();
+		priorCarTravelTimeConstructionSiteRaw.reset();
+		posteriorCarTravelTimeConstructionSiteRaw.reset();
+		
+		priorCarTravelTimeConstructionSiteActual.reset();
+		posteriorCarTravelTimeConstructionSiteActual.reset();
 		
 		priorTripDistance.reset();
 		posteriorTripDistance.reset();
@@ -184,12 +193,20 @@ public class Statistics {
 		return posteriorCarTravelTime.getMean();
 	}
 	
-	public double getMeanPriorCarTravelTimeConstructionSite() {
-		return priorCarTravelTimeConstructionSite.getMean();
+	public double getMeanPriorCarTravelTimeConstructionSiteRaw() {
+		return priorCarTravelTimeConstructionSiteRaw.getMean();
 	}
 	
-	public double getMeanPosteriorCarTravelTimeConstructionSite() {
-		return posteriorCarTravelTimeConstructionSite.getMean();
+	public double getMeanPosteriorCarTravelTimeConstructionSiteRaw() {
+		return posteriorCarTravelTimeConstructionSiteRaw.getMean();
+	}
+	
+	public double getMeanPriorCarTravelTimeConstructionSiteActual() {
+		return priorCarTravelTimeConstructionSiteActual.getMean();
+	}
+	
+	public double getMeanPosteriorCarTravelTimeConstructionSiteActual() {
+		return posteriorCarTravelTimeConstructionSiteActual.getMean();
 	}
 	
 	public double getMeanPriorTripDistance() {
@@ -310,9 +327,14 @@ public class Statistics {
 		numberOfTaxiJourneys++;
 	}
 	
-	public void reportPriorAndPosteriorCarTravelTimesConstructionSite(double priorToAdd, double posteriorToAdd) {
-		priorCarTravelTimeConstructionSite.addValue(priorToAdd);
-		posteriorCarTravelTimeConstructionSite.addValue(posteriorToAdd);
+	public void reportPriorAndPosteriorCarTravelTimesConstructionSiteRaw(double priorToAdd, double posteriorToAdd) {
+		priorCarTravelTimeConstructionSiteRaw.addValue(priorToAdd);
+		posteriorCarTravelTimeConstructionSiteRaw.addValue(posteriorToAdd);
+	}
+	
+	public void reportPriorAndPosteriorCarTravelTimesConstructionSiteActual(double priorToAdd, double posteriorToAdd) {
+		priorCarTravelTimeConstructionSiteActual.addValue(priorToAdd);
+		posteriorCarTravelTimeConstructionSiteActual.addValue(posteriorToAdd);
 	}
 	
 	public void reportPriorAndPosteriorTripDistance(double priorToAdd, double posteriorToAdd) {

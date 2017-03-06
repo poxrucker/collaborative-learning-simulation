@@ -133,13 +133,6 @@ public final class PlanJourney extends Activity<Person> {
 				it.remove(0);
 			}
 			
-			if (it.size() == 0)  {
-				// In case no trips were found, finish and set entity to destination
-				setFinished();
-				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
-				return 0.0;
-			}
-			
 			if (!entity.isReplanning()) {
 				
 				if (entity.isInformed())
@@ -147,6 +140,14 @@ public final class PlanJourney extends Activity<Person> {
 				else
 					entity.getContext().getStatistics().reportPlanning();
 			}
+
+			if (it.size() == 0)  {
+				// In case no trips were found, finish and set entity to destination
+				setFinished();
+				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
+				return 0.0;
+			}
+			
 			// In case response was received, rank alternatives.
 			entity.getFlow().addActivity(new RankAlternatives(entity, it));
 			setFinished();

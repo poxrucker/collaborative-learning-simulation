@@ -110,9 +110,9 @@ public final class Simulator {
 					+ params.Scenario);
 
 		// Initialize streets in region of interest
-		streetsInROI = world.getStreetsInROI(new double[] { 11.1178, 11.1332,
-				46.0646, 46.0739 });
-
+		//streetsInROI = world.getStreetsInROI(new double[] { 11.1178, 11.1332, 46.0646, 46.0739 });
+		streetsInROI = new ArrayList<Street>(world.getStreets());
+		
 		// Filter walking only streets from name
 		List<Street> toRemove = new ObjectArrayList<Street>();
 
@@ -125,14 +125,17 @@ public final class Simulator {
 					|| s.getName().equals("Fußgängertunnel")
 					|| s.getName().equals("Fahrradweg")
 					|| s.getName().equals("Anliegerstraße")
-					|| s.getName().equals("Straße"))
+					|| s.getName().equals("Straße")
+					|| s.getName().equals("Fußgängerbrücke")
+					|| s.getName().equals("Fahrweg"))
 				toRemove.add(s);
 		}
 
 		for (Street s : toRemove) {
 			streetsInROI.remove(s);
 		}
-
+		System.out.println(streetsInROI.size());
+		
 		// Write to file
 		Path streetMapping = Paths.get(params.LoggingFolder + "/"
 				+ params.BehaviourSpaceRunNumber + "_mapping.txt");
@@ -542,7 +545,7 @@ public final class Simulator {
 		boolean logged = logger.log(streetsInROI);
 
 		if (logged) {
-			StreetMap map = (StreetMap) context.getWorld();
+			StreetMap map = (StreetMap)context.getWorld();
 
 			for (Street street : map.getStreets()) {
 				street.resetUsageStatistics();

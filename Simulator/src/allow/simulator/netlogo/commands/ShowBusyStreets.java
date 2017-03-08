@@ -1,7 +1,5 @@
 package allow.simulator.netlogo.commands;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +34,7 @@ public class ShowBusyStreets extends DefaultCommand {
 				return o2.getUsageStatistics()[0] - o1.getUsageStatistics()[0];
 			}
 		});
+		//sorted.addAll(wrapper.getSimulator().getStreetsInROI());
 		sorted.addAll(wrapper.getSimulator().getStreetsInROI());
 		
 		// Reset NetLogo link
@@ -47,8 +46,7 @@ public class ShowBusyStreets extends DefaultCommand {
 		for (int i = 0; i < Math.min(maxNumber, sorted.size()); i++) {
 			Street s = sorted.poll();
 			int[] usage = s.getUsageStatistics();
-			System.out.println(s.getName() + ";" + usage[0] + ";" + usage[1] + ";" + usage[2] + ";" + usage[3] + ";" + usage[4] + ";" 
-			+ s.getStartingNode().getLabel() + ";" + s.getEndNode().getLabel());
+			System.out.println(s.getName() + ";" + usage[0] + ";" + s.getStartingNode().getLabel() + ";" + s.getEndNode().getLabel());
 		}
 		System.out.println();
 		

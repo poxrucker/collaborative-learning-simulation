@@ -78,6 +78,7 @@ public final class StreetCapacityLogger {
 		}
 		strb.append("\n");
 		writer.write(strb.toString());
+		writer.flush();
 		lastWrite = context.getTime().getCurrentDateTime();
 		return true;
 	}

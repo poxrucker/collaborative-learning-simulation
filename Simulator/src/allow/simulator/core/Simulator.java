@@ -103,6 +103,8 @@ public final class Simulator {
 			initializeBlockedStreetsTrentoCentro(world);
 		} else if (params.Scenario.equals("PiazzaVenezia")) {
 			initializeBlockedStreetsPiazzaVenezia(world);
+		} else if (params.Scenario.equals("ViaBerlino")) {
+			initializeBlockedStreetsViaBerlino(world);
 		} else if (params.Scenario.equals("Normal")) {
 			params.Scenario = "";
 		} else
@@ -273,12 +275,76 @@ public final class Simulator {
 	}
 
 	private void initializeBlockedStreetsPiazzaVenezia(StreetMap world) {
-		world.setStreetBlocked(
-				world.getStreet("osm:node:2477700667", "osm:node:248798251"),
-				true);
-		world.setStreetBlocked(
-				world.getStreet("osm:node:248798251", "osm:node:2477700667"),
-				true);
+		world.setStreetBlocked(world.getStreet("osm:node:2477700667", "osm:node:248798251"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:248798251", "osm:node:2477700667"), true);
+	}
+	
+	private void initializeBlockedStreetsViaBerlino(StreetMap world) {
+		world.setStreetBlocked(world.getStreet("osm:node:1213655165", "osm:node:1213655184"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1213655184", "osm:node:1213655165"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1213655184", "osm:node:1213655169"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1213655169", "osm:node:1213655184"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1213655169", "osm:node:9202675"), true);		
+		world.setStreetBlocked(world.getStreet("osm:node:9202675", "osm:node:1213655169"), true);		
+
+		world.setStreetBlocked(world.getStreet("osm:node:260915399", "osm:node:432436654"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:432436654", "osm:node:260915399"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:432436654", "osm:node:1109380756"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1109380756", "osm:node:432436654"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1109380756", "osm:node:1109380685"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1109380685", "osm:node:1109380756"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1109380685", "osm:node:256827548"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:256827548", "osm:node:1109380685"), true);
+
+
+		world.setStreetBlocked(world.getStreet("osm:node:9207036", "osm:node:258510005"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:258510005", "osm:node:9207036"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:258510005", "osm:node:9197745"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9197745", "osm:node:258510005"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:9199072", "osm:node:9193468"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9193468", "osm:node:9199072"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:260915539", "osm:node:260915543"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:260915543", "osm:node:260915539"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:9210951", "osm:node:193574934"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:193574934", "osm:node:9210951"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm::qdnode:330302388"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:330302388", "osm:node:2275120574"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:432436400"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:432436400", "osm:node:256827544"), true);
+		
+		world.setStreetBlocked(world.getStreet("osm:node:330302346", "osm:node:330302382"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:330302382", "osm:node:330302346"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:330302382", "osm:node:2275120574"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm:node:330302382"), true);
+
+		//world.setStreetBlocked(world.getStreet("osm:node:432436400", "osm:node:435148101"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:435148101", "osm:node:432436400"), true);
+
+		//world.setStreetBlocked(world.getStreet("osm:node:435148101", "osm:node:256827544"), true);
+		//world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:435148101"), true);
+
+		world.setStreetBlocked(world.getStreet("osm:node:476648008", "osm:node:9202675"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9202675", "osm:node:9202879"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9202879", "osm:node:256827544"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:75697034"), true);	
+		world.setStreetBlocked(world.getStreet("osm:node:75697034", "osm:node:1520990382"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:1520990382", "osm:node:256827546"), true);		
+		world.setStreetBlocked(world.getStreet("osm:node:256827546", "osm:node:330302388"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:330302388", "osm:node:256827547"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:256827547", "osm:node:260915539"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:260915539", "osm:node:256827548"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:256827548", "osm:node:9193468"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9193468", "osm:node:9207036"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9207036", "osm:node:9197745"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:9197745", "osm:node:9210951"), true);	
+		world.setStreetBlocked(world.getStreet("osm:node:9210951", "osm:node:476648008"), true);
 	}
 
 	private void loadEntitiesFromFile(Path config, SimulationParameter param)

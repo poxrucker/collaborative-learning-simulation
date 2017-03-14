@@ -10,44 +10,37 @@ import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 
 public final class Experience {
-	// Segment the statistics were collected on.
+	// Segment the statistics were collected on
 	private Street segment;
 	
-	// Travel time in seconds.
+	// Travel time in seconds
 	private double travelTime;
 	
-	// Costs to travel the segment.
+	// Costs to travel the segment
 	private double costs;
 	
-	// Transportation used to travel the segment.
+	// Transportation used to travel the segment
 	private TType meansOfTransportation;
 	
-	// Timestamp in ms the entity began to move along the segment.
+	// Timestamp in ms the entity began to move along the segment
 	private long timeStart;
 	private LocalDateTime tStart;
 	
-	// Timestamp in ms the entity finished to move along the segment.
+	// Timestamp in ms the entity finished to move along the segment
 	private long timeEnd;
 	
-	// Number of people on the segment.
+	// Number of people on the segment
 	private int nPeopleOnSegment;
 	
-	// If public transportation was used, number of people who were on
-	// the same vehicle.
+	// If public transportation was used, number of people who were on the same vehicle
 	private double publicTransportationFillingLevel;
 	
-	// Id of trip of public transportation.
+	// Id of trip of public transportation
 	private String publicTransportationTripId;
 	
-	// Weather when segment was finished.
+	// Weather when segment was finished
 	private Weather.State weather;
-	
-	
-	// The ID of the entity that predicted this trip
-	private long predictorId = 0; 
-	
-	private boolean predicted = false;
-	
+		
 	public Experience(Street segment,
 			double travelTime,
 			double costs,
@@ -80,16 +73,8 @@ public final class Experience {
 			double publicTranbsportationFillingLevel,
 			String publicTransportationTripId,
 			Weather.State weather) {
-		this.travelTime = travelTime;
-		this.costs = costs;
-		this.meansOfTransportation = meansOfTransportation;
-		this.timeStart = timeStart;
-		tStart = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeStart), ZoneId.of("Europe/Rome"));
-		this.timeEnd = timeEnd;
-		this.nPeopleOnSegment = nPeopleOnSegment;
-		this.publicTransportationFillingLevel = publicTranbsportationFillingLevel;
-		this.publicTransportationTripId = publicTransportationTripId;
-		this.weather = weather;
+		this(null, travelTime, costs, meansOfTransportation, timeStart, timeEnd, nPeopleOnSegment, 
+		    publicTranbsportationFillingLevel, publicTransportationTripId, weather);
 	}
 	
 	private Experience() {}
@@ -173,39 +158,6 @@ public final class Experience {
 	
 	public Weather.State getWeather() {
 		return weather;
-	}
-	
-	
-	/**
-	 * Sets the ID of the entity that predicted this trip
-	 * @param id
-	 */
-	public void setPredictorId(long id){
-		predictorId = id;
-	}
-	
-	/**
-	 * Returns the id of the entity that predicted this travelExperience.
-	 * @return
-	 */
-	public long getPredictorId(){
-		return predictorId;
-	}
-	
-	/**
-	 * Tells if this experience was already predicted (relevant for the predict operation
-	 * @return
-	 */
-	public boolean isPredicted() {
-		return predicted;
-	}
-
-	/**
-	 * Sets the predicted value.
-	 * @param predicted
-	 */
-	public void setPredicted(boolean predicted) {
-		this.predicted = predicted;
 	}
 	
 	public Experience clone() {

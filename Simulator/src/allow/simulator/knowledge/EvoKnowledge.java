@@ -1,21 +1,19 @@
 package allow.simulator.knowledge;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import de.dfki.crf.DBConnector;
-import allow.simulator.core.EvoKnowledgeConfiguration;
-import allow.simulator.entity.Entity;
+import allow.simulator.core.Context;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Weather;
+import de.dfki.crf.IKnowledgeModel;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents the knowledge of entities and implements functionalities of
@@ -28,21 +26,23 @@ public final class EvoKnowledge implements IPredictor<List<Itinerary>, Future<Li
 	
 	private static ExecutorService service;
 	
-	public static void initialize(EvoKnowledgeConfiguration config, String knowledgeModel, String prefix, ExecutorService service) {
-		DBConnector.init(config, knowledgeModel, prefix);
+	public static void initialize(ExecutorService service) {
 		EvoKnowledge.service = service;
 	}
 
 	// Entity this knowledge instance belongs to.
-	private Entity entity; 
+	protected IKnowledgeModel<Experience> knowledge;
+	protected IExchangeStrategy<IKnowledgeModel<Experience>> exchangeStrategy;
 	
 	/**
 	 * Creates a new instance of EvoKnowledge associated with an entity.
 	 * 
 	 * @param entity Entity this instance of EvoKnowledge is associated with.
 	 */
-	public EvoKnowledge(Entity entity) {
-		this.entity = entity;
+	public EvoKnowledge(IKnowledgeModel<Experience> knowledge,
+	    IExchangeStrategy<IKnowledgeModel<Experience>> exchangeStrategy) {
+	  this.knowledge = knowledge;
+	  this.exchangeStrategy = exchangeStrategy;
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public final class EvoKnowledge implements IPredictor<List<Itinerary>, Future<Li
 
 			@Override
 			public Void call() throws Exception {
-				DBConnector.addEntry(entity, experiences);
+				knowledge.learn(experiences);
 				return null;
 			}
 			
@@ -66,30 +66,35 @@ public final class EvoKnowledge implements IPredictor<List<Itinerary>, Future<Li
 	 * @param fromPlanner Itinerary as returned by the planner.
 	 * @return Itinerary updated by EvoKnowledge.
 	 */
-	public Future<List<Itinerary>> predict(List<Itinerary> toPredict) {
+	public Future<List<Itinerary>> predict(List<Itinerary> toPredict, Context context) {
 		return service.submit(new Callable<List<Itinerary>>() {
 
 			@Override
 			public List<Itinerary> call() throws Exception {
+			  
 				for (Itinerary it : toPredict) {
-					List<Experience> ex = itineraryToTravelExperience(entity, it);
-					
-					try {
-						DBConnector.getPredictedItinerary(entity, ex);
-						updateItineraryFromTravelExperience(it, ex);
-						
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					List<Experience> ex = itineraryToTravelExperience(it, context);
+					knowledge.predict(ex);
+					updateItineraryFromTravelExperience(it, ex);
 				}
 				return toPredict;
 			}
 		});
 	}
 	
-	private static List<Experience> itineraryToTravelExperience(Entity e, Itinerary it) {
+	public Future<Boolean> exchangeKnowledge(EvoKnowledge other) {
+		return service.submit(new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+			  return (exchangeStrategy != null) ? exchangeStrategy.exchangeKnowledge(knowledge, other.knowledge) : false;
+			}
+		});
+	}
+	
+	private static List<Experience> itineraryToTravelExperience(Itinerary it, Context context) {
 		List<Experience> ret = new ObjectArrayList<Experience>();
-		Weather.State currentWeather = e.getContext().getWeather().getCurrentState();
+		Weather.State currentWeather = context.getWeather().getCurrentState();
 		
 		for (Leg l : it.legs) {
 			long tStart = l.startTime;
@@ -192,15 +197,5 @@ public final class EvoKnowledge implements IPredictor<List<Itinerary>, Future<Li
 			it.waitingTime += ((it.legs.get(i + 1).startTime - it.legs.get(i).endTime) / 1000);
 		}
 		it.duration += (it.waitingTime / 1000);
-	}
-	
-	public Future<Boolean> exchangeKnowledge(Entity other) {
-		return service.submit(new Callable<Boolean>() {
-
-			@Override
-			public Boolean call() throws Exception {
-				return DBConnector.exchangeKnowledge(entity, other);
-			}
-		});
 	}
 }

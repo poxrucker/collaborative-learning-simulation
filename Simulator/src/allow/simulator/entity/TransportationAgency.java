@@ -26,7 +26,7 @@ public abstract class TransportationAgency extends Entity {
 	 * @param context Simulation context
 	 */
 	protected TransportationAgency(int id, Context context, String agencyId) {
-		super(id, context);
+		super(id, context, null);
 		this.agencyId = agencyId;
 		vehicles = new ConcurrentLinkedQueue<TransportationEntity>();
 	}

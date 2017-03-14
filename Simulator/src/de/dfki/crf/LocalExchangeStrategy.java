@@ -4,10 +4,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import allow.simulator.knowledge.EvoKnowledge;
+import allow.simulator.knowledge.Experience;
 import allow.simulator.knowledge.IExchangeStrategy;
 
-public class CRFLocalExchangeStrategy implements IExchangeStrategy<EvoKnowledge> {
+public class LocalExchangeStrategy implements IExchangeStrategy<IKnowledgeModel<Experience>> {
 
 	private static final String MY_SQL_MERGE_SIMPLE = "CREATE TABLE IF NOT EXISTS %1$s AS SELECT * FROM %2$s; "
 			+ "ALTER TABLE %1$s ADD PRIMARY KEY(nodeId, prevNodeId, weather, weekday, timeOfDay, modality);";
@@ -30,12 +30,16 @@ public class CRFLocalExchangeStrategy implements IExchangeStrategy<EvoKnowledge>
 			+ "filllevel=(%2$s.filllevel*%2$s.weight+VALUES(filllevel))/(%2$s.weight+1), "
 			+ "weight=(%2$s.weight+1); ";
 	
+	private final DBConnector dbConnector;
+	
+  public LocalExchangeStrategy(DBConnector dbConnector) {
+    this.dbConnector = dbConnector;
+  }
+  
 	@Override
-	public boolean exchangeKnowledge(EvoKnowledge k1, EvoKnowledge k2) {
-		final String tableName1 = ""; // k1.getInstanceId();
-		final String tableName2 = ""; // k2.getInstanceId();
-		final boolean tableExists1 = DBConnector.aIdTableExists.get(tableName1) == null ? false : true;		
-		final boolean tableExists2 = DBConnector.aIdTableExists.get(tableName2) == null ? false : true;
+	public boolean exchangeKnowledge(IKnowledgeModel<Experience> k1, IKnowledgeModel<Experience> k2) {
+		final boolean tableExists1 = dbConnector.tableExists(k1.getInstanceId());	
+		final boolean tableExists2 = dbConnector.tableExists(k2.getInstanceId());
 
 		if (!tableExists1 && !tableExists2)
 			return false;
@@ -45,23 +49,23 @@ public class CRFLocalExchangeStrategy implements IExchangeStrategy<EvoKnowledge>
 		String stmtString = null;
 		
 		try {
-			con = DSFactory.getConnection();
+			con = dbConnector.getConnection();
 			stmt = con.createStatement();
 			
 			if (tableExists1 && !tableExists2) {
-				stmtString = String.format(MY_SQL_MERGE_SIMPLE, tableName2, tableName1);
-				DBConnector.aIdTableExists.put(tableName2, true);
+				stmtString = String.format(MY_SQL_MERGE_SIMPLE, k2.getInstanceId(), k1.getInstanceId());
+				dbConnector.addTable(k2.getInstanceId());
 				stmt.execute(stmtString);
 			}
 
 			if (!tableExists1 && tableExists2) {
-				stmtString = String.format(MY_SQL_MERGE_SIMPLE, tableName1, tableName2);
-				DBConnector.aIdTableExists.put(tableName1, true);
+				stmtString = String.format(MY_SQL_MERGE_SIMPLE, k1.getInstanceId(), k2.getInstanceId());
+				dbConnector.addTable(k1.getInstanceId());
 				stmt.execute(stmtString);
 			}
 
 			if (tableExists1 && tableExists2) {
-				stmtString = String.format(MY_SQL_MERGE_MUTUAL, tableName1, tableName2);
+				stmtString = String.format(MY_SQL_MERGE_MUTUAL, k1.getInstanceId(), k2.getInstanceId());
 				stmt.execute(stmtString);
 			}
 			

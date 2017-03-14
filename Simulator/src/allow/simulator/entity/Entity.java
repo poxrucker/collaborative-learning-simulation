@@ -27,7 +27,7 @@ public abstract class Entity extends Observable {
 	
 	// Knowledge of the entity
 	@JsonIgnore
-	protected final EvoKnowledge knowledge;
+	protected EvoKnowledge knowledge;
 		
 	// Relations of the entity
 	@JsonIgnore
@@ -51,13 +51,13 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 * @param context Simulation context the entity is used in.
 	 */
-	public Entity(int id, Context context) {
+	public Entity(int id, Context context, EvoKnowledge knowledge) {
 		this.id = id;
-		position = new Coordinate(-1, -1);
-		knowledge = new EvoKnowledge(this);
+		this.knowledge = knowledge;
+    this.context = context;
 		relations = new RelationGraph(this);
 		flow = new Flow<Activity<?>>();
-		this.context = context;
+    position = new Coordinate(-1, -1);
 		setPosition(position);
 	}
 
@@ -72,7 +72,7 @@ public abstract class Entity extends Observable {
 	 * @param prefs Preferences required for utility function.
 	 */
 	protected Entity(int id) {
-		this(id, null);
+		this(id, null, null);
 	}
 	
 	/**

@@ -1,16 +1,15 @@
 package de.dfki.crf;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import de.dfki.crf.DBConnector.DBType;
-import allow.simulator.entity.Entity;
 import allow.simulator.knowledge.Experience;
 
-public class CRFLocalKnowledge implements CRFKnowledgeModel {
+public class CRFLocalKnowledge implements IKnowledgeModel<Experience> {
 	
 	private static final String MY_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
 			+ "(nodeId INT, prevNodeId INT, weather TINYINT UNSIGNED, weekday TINYINT UNSIGNED, "
@@ -48,75 +47,50 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			+ "prevttime=(%2$s.prevttime*%2$s.weight+VALUES(prevttime)*VALUES(weight))/(%2$s.weight+VALUES(weight)), "
 			+ "filllevel=(%2$s.filllevel*%2$s.weight+VALUES(filllevel)*VALUES(weight))/(%2$s.weight+VALUES(weight)), "
 			+ "weight=LN(EXP(%2$s.weight)+EXP(VALUES(weight))); ";
-	
-	private DBType type;
-	private String tablePrefix;
-	private String modelName;
-	
-	private String sqlCreateTables;
-//	private String sqlShowTables;
-	private String sqlInsertValues;
-	private String sqlUpdateOnInsert;
-	private String sqlMergeSimple;
-	private String sqlMergeMutual;
 		
-	public CRFLocalKnowledge(DBType type, String tablePrefix, String modelName) {
-		this.type = type;
-		this.tablePrefix = tablePrefix;
-		this.modelName = modelName;
-		
-		switch (type) {
-		case MYSQL:
-			sqlCreateTables = MY_SQL_CREATE_TABLE;
-//			sqlShowTables = MY_SQL_SHOW_TABLES;
-			sqlInsertValues = SQL_INSERT_VALUES;
-			sqlUpdateOnInsert = MY_SQL_UPDATE_ON_INSERT;
-			sqlMergeSimple = MY_SQL_MERGE_SIMPLE;
-			sqlMergeMutual = MY_SQL_MERGE_MUTUAL;
-			break;
-			
-		case POSTGRE:
-			throw new UnsupportedOperationException("Error: Postresql is currently not supported.");
-			/*sqlCreateTables = POSTGRE_SQL_CREATE_TABLE;
-			sqlShowTables = POSTGRE_SQL_SHOW_TABLES;
-			sqlInsertValues = SQL_INSERT_VALUES;
-			break;*/
-			
-		default:
-			throw new IllegalArgumentException("Error: Unknown DB type " + type);
-		}
+	private final String sqlCreateTables;
+	private final String sqlInsertValues;
+	private final String sqlUpdateOnInsert;
+	private final String sqlMergeSimple;
+	private final String sqlMergeMutual;
+	private final DBConnector dbConnector;
+	private final String instanceId;
+	
+	public CRFLocalKnowledge(String instanceId, DBConnector dbConnector) {
+	  sqlCreateTables = MY_SQL_CREATE_TABLE;
+		sqlInsertValues = SQL_INSERT_VALUES;
+		sqlUpdateOnInsert = MY_SQL_UPDATE_ON_INSERT;
+		sqlMergeSimple = MY_SQL_MERGE_SIMPLE;
+		sqlMergeMutual = MY_SQL_MERGE_MUTUAL;
+		this.dbConnector = dbConnector;
+		this.instanceId = instanceId;
 	}
 	
 	@Override
-	public boolean addEntry(Entity agent, List<Experience> entries, String tablePrefix) {
-		String agentId = String.valueOf(agent.getId());
-		String tableName = tablePrefix + "_tbl_" + agentId;
-
-		if (entries.size() == 0) {
+	public String getInstanceId() {
+	  return instanceId;
+	}
+	
+	@Override
+	public boolean learn(List<Experience> dataPoints) {
+		
+	  if (dataPoints.size() == 0)
 			return false;
-		}
-		// check if table for agent already exists (hopefully saves database overhead)
-		boolean tableExists = DBConnector.aIdTableExists.get(tableName) == null ? false : true;
 
-		// track error state to avoid having to nest too many try catch
-		// statements
+		// check if table for agent already exists (hopefully saves database overhead)
+		boolean tableExists = dbConnector.tableExists(instanceId);
+
+		// track error state to avoid having to nest too many try catch statements
 		boolean error = false;
 
-		// connection and statement for database query
-		Statement stmt = null;
-		Connection con = null;
 		String stmtString = "";
 		
-		try {
-
-			// get connection
-			con = DSFactory.getConnection();
-			stmt = con.createStatement();
+		try (Connection con = dbConnector.getConnection(); PreparedStatement stmt = con.prepareStatement("")) {
 
 			// create a new table for an agent representing his EvoKnowledge if it doesnt exist already
 			if (!tableExists) {
 				try {
-					stmt.execute(String.format(sqlCreateTables, tableName, ((type == DBType.MYSQL) ? "" : tableName)));
+					stmt.execute(String.format(sqlCreateTables, instanceId, ""));
 				
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -124,17 +98,17 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 					con.close();
 					return false;
 				}
-				DBConnector.aIdTableExists.put(tableName, true);
+				dbConnector.addTable(instanceId);
 			}
 
 			// parse the itinerary and add a line for each entry
-			stmtString = String.format(sqlInsertValues, tableName);
+			stmtString = String.format(sqlInsertValues, instanceId);
 
 			boolean firstSeg = true;
 			long prevNodeId = -1;
 			double prevDuration = -1;
 
-			for (Experience ex : entries) {
+			for (Experience ex : dataPoints) {
 				long nodeId = ex.getSegmentId();
 				double duration = ex.getTravelTime();
 
@@ -153,7 +127,7 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 				prevNodeId = nodeId;
 				prevDuration = duration;
 			}
-			stmtString = stmtString.concat(String.format(sqlUpdateOnInsert, tableName));
+			stmtString = stmtString.concat(String.format(sqlUpdateOnInsert, instanceId));
 			stmtString = stmtString.concat(";");
 
 			// System.out.println(stmtString);
@@ -163,41 +137,26 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			System.out.println(stmtString);
 			// e.printStackTrace();
 			error = true;
-		} finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-				if (con != null)
-					con.close();
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-				return false;
-			}
 		}
 		return !error;
 	}
 
 	@Override
-	public List<Experience> getPredictedItinerary(Entity agent, List<Experience> it, String tablePrefix) {
-		String agentId = String.valueOf(agent.getId());
-		String tableName = tablePrefix + "_tbl_" + agentId;
-
+	public List<Experience> predict(List<Experience> observations) {
 		// connection and statement for database query
 		Connection con = null;
 		Statement stmt = null;
 		ResultSet rs = null;
-		boolean tableExists = DBConnector.aIdTableExists.get(tableName) == null ? false : true;
+		boolean tableExists = dbConnector.tableExists(instanceId);
 		
-		if (!tableExists) {
-			return it;
-		}
+		if (!tableExists)
+			return observations;
 		
 		try {
 			// get connection
-			con = DSFactory.getConnection();
+			con = dbConnector.getConnection();
 			stmt = con.createStatement();
-			String stmt1 = "SELECT %1$s FROM " + tableName + " WHERE nodeId = %2$d";
+			String stmt1 = "SELECT %1$s FROM " + instanceId + " WHERE nodeId = %2$d";
 			String stmt2 = stmt1.concat(" AND modality = %3$d");
 			String stmt3 = stmt2.concat(" AND timeOfDay = %4$d");
 			String stmt4 = stmt3.concat(" AND weekday = %5$d");
@@ -210,7 +169,7 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 			double prevTTime = -1;
 			long segmentTStart = 0;
 
-			for (Experience ex : it) {
+			for (Experience ex : observations) {
 				
 				if (firstSeg)
 					segmentTStart = ex.getStartingTime() / 1000;
@@ -325,23 +284,16 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 				return null;
 			}
 		}
-		return it;
+		return observations;
 	}
 
 	@Override
-	public void clean(Entity agend, String tablePrefix) {
-		
-	}
+	public void clean() { }
 
 	@Override
-	public boolean exchangeKnowledge(Entity agent1, Entity agent2, String tablePrefix) {
-		String agentId1 = String.valueOf(agent1.getId());
-		String tableName1 = tablePrefix + "_tbl_" + agentId1;
-		boolean tableExists1 = DBConnector.aIdTableExists.get(tableName1) == null ? false : true;
-		
-		String agentId2 = String.valueOf(agent2.getId());
-		String tableName2 = tablePrefix + "_tbl_" + agentId2;
-		boolean tableExists2 = DBConnector.aIdTableExists.get(tableName2) == null ? false : true;
+	public boolean merge(IKnowledgeModel<Experience> other) {
+		boolean tableExists1 = dbConnector.tableExists(instanceId);
+		boolean tableExists2 = dbConnector.tableExists(other.getInstanceId());
 
 		if (!tableExists1 && !tableExists2)
 			return false;
@@ -351,28 +303,28 @@ public class CRFLocalKnowledge implements CRFKnowledgeModel {
 		String stmtString = null;
 		
 		try {
-			con = DSFactory.getConnection();
+			con = dbConnector.getConnection();
 			stmt = con.createStatement();
 			
 			if (tableExists1 && !tableExists2) {
-				stmtString = String.format(sqlMergeSimple, tableName2, tableName1);
-				DBConnector.aIdTableExists.put(tableName2, true);
+				stmtString = String.format(sqlMergeSimple, other.getInstanceId(), instanceId);
+				dbConnector.addTable(other.getInstanceId());
 				stmt.execute(stmtString);
 			}
 
 			if (!tableExists1 && tableExists2) {
-				stmtString = String.format(sqlMergeSimple, tableName1, tableName2);
-				DBConnector.aIdTableExists.put(tableName1, true);
+				stmtString = String.format(sqlMergeSimple, instanceId, other.getInstanceId());
+				dbConnector.addTable(instanceId);
 				stmt.execute(stmtString);
 			}
 
 			if (tableExists1 && tableExists2) {
-				stmtString = String.format(sqlMergeMutual, tableName1, tableName2);
+				stmtString = String.format(sqlMergeMutual, instanceId, other.getInstanceId());
 				stmt.execute(stmtString);
 			}
 			
 		} catch (SQLException e) {
-			System.out.println(agentId1 + "->" + agentId2 + ": ");
+			System.out.println(instanceId + "->" + other.getInstanceId() + ": ");
 			e.printStackTrace();
 		} finally {
 			try {

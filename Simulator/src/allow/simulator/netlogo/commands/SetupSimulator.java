@@ -56,7 +56,11 @@ public class SetupSimulator extends DefaultReporter {
 			
 		} catch (IOException e) {
 			throw new ExtensionException(e.getMessage());
-		}
+			
+		} catch (ClassNotFoundException e) {
+      throw new ExtensionException(e.getMessage());
+
+    }
 
 		// List buffer.
 		LogoListBuilder listBuilder = new LogoListBuilder();

@@ -36,7 +36,7 @@ public class RankAlternatives extends Activity<Person> {
 	private void updateItineraryParameters() {
 		// Correct journey parameters before calling utility function.
 		EvoKnowledge evo = entity.getKnowledge();
-		evo.predict(toRank);
+		evo.predict(toRank, entity.getContext());
 	}
 	
 	private void updatePreferences() {

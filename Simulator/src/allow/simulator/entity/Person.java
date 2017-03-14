@@ -1,17 +1,21 @@
 package allow.simulator.entity;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
 import java.time.LocalTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import allow.simulator.core.Context;
 import allow.simulator.core.Simulator;
 import allow.simulator.exchange.ExchangeHandler;
 import allow.simulator.flow.activity.Activity;
+import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.util.Coordinate;
@@ -21,11 +25,7 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -164,6 +164,10 @@ public final class Person extends Entity {
 		if (homeAreaName == null) {
 			homeAreaName = "default";
 		}
+	}
+	
+	public void setKnowledge(EvoKnowledge knowledge) {
+	  this.knowledge = knowledge;
 	}
 	
 	public JourneyRankingFunction getRankingFunction() {

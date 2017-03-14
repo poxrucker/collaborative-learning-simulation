@@ -12,7 +12,7 @@ public final class HPersonAndPerson extends ExchangeHandler {
 
 		if ((entity1 instanceof Person) && (entity2 instanceof Person)) {
 			try {
-				return entity1.getKnowledge().exchangeKnowledge(entity2).get();
+				return entity1.getKnowledge().exchangeKnowledge(entity2.getKnowledge()).get();
 				
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();

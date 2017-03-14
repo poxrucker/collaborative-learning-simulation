@@ -42,7 +42,7 @@ public abstract class TransportationEntity extends Entity {
 	 * @param capacity Capacity of entity
 	 */
 	protected TransportationEntity(int id, Context context, TransportationAgency agency, int capacity) {
-		super(id, context);
+		super(id, context, null);
 		this.capacity = capacity;
 		passengers = new ArrayList<Person>(capacity);
 		this.agency = agency;

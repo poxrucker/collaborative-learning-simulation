@@ -5,16 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-import de.dfki.crf.DBConnector.DBType;
-import allow.simulator.entity.Entity;
 import allow.simulator.knowledge.Experience;
 
-public class CRFGlobalKnowledge implements CRFKnowledgeModel {
-	// Dictionary holding tables which have been
-	private ConcurrentHashMap<String, Boolean> aIdTableExists = new ConcurrentHashMap<String, Boolean>();
-	private static final String GLOBAL_TABLE_NAME = "global";
+public class CRFGlobalKnowledge implements IKnowledgeModel<Experience> {
 
 	private static final String MY_SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %1$s "
 			+ "(nodeId INT, prevNodeId INT, weather TINYINT UNSIGNED, weekday TINYINT UNSIGNED, "
@@ -32,48 +26,37 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 			+ "filllevel=(%1$s.filllevel * %1$s.weight + VALUES(filllevel)) / (%1$s.weight + 1), "
 			+ "weight=LN(EXP(%1$s.weight) + EXP(1))";
 	
-	private DBType type;
+
 	private String sqlCreateTables;
-//	private String sqlShowTables;
 	private String sqlInsertValues;
 	private String sqlUpdateOnInsert;
 	
-	public CRFGlobalKnowledge(DBType type) {
-		this.type = type;
-		
-		switch (type) {
-		
-		case MYSQL:
-			sqlCreateTables = MY_SQL_CREATE_TABLE;
-//			sqlShowTables = MY_SQL_SHOW_TABLES;
-			sqlInsertValues = SQL_INSERT_VALUES;
-			sqlUpdateOnInsert = MY_SQL_UPDATE_ON_INSERT;
-			break;
-			
-		case POSTGRE:
-			throw new UnsupportedOperationException("Error: Postresql is currently not uspported.");
-			/*sqlCreateTables = POSTGRE_SQL_CREATE_TABLE;
-			sqlShowTables = POSTGRE_SQL_SHOW_TABLES;
-			sqlInsertValues = SQL_INSERT_VALUES;
-			break;*/
-			
-		default:
-			throw new IllegalArgumentException("Error: Unknown DB type " + type);
-		}
+	private final DBConnector dbConnector;
+	private final String instanceId;
+	
+	public CRFGlobalKnowledge(String instanceId, DBConnector dbConnector) {
+		sqlCreateTables = MY_SQL_CREATE_TABLE;
+		sqlInsertValues = SQL_INSERT_VALUES;
+		sqlUpdateOnInsert = MY_SQL_UPDATE_ON_INSERT;
+		this.dbConnector = dbConnector;
+		this.instanceId = instanceId;
 	}
 	
 	@Override
-	public boolean addEntry(Entity agentId, List<Experience> entries, String tablePrefix) {
-		if (entries.size() == 0) {
+	public String getInstanceId() {
+	  return instanceId;
+	}
+	
+	@Override
+	public boolean learn(List<Experience> dataPoints) {
+	  
+		if (dataPoints.size() == 0)
 			return false;
-		}
-		String tableName = tablePrefix + "_tbl_" + GLOBAL_TABLE_NAME;
 
 		// check if table for agent already exists (hopefully saves database overhead)
-		boolean tableExists = aIdTableExists.get(tableName) == null ? false : true;
+		boolean tableExists = dbConnector.tableExists(instanceId);
 
-		// track error state to avoid having to nest too many try catch
-		// statements
+		// track error state to avoid having to nest too many try catch statements
 		boolean error = false;
 
 		// connection and statement for database query
@@ -83,14 +66,14 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 		
 		try {
 			// get connection
-			con = DSFactory.getConnection();
+			con = dbConnector.getConnection();
 			stmt = con.createStatement();
 
 			// create a new table for an agent representing his EvoKnowledge if
 			// it doesnt exist already
 			if (!tableExists) {
 				try {
-					stmt.execute(String.format(sqlCreateTables, tableName, ((type == DBType.MYSQL) ? "" : tableName)));
+					stmt.execute(String.format(sqlCreateTables, instanceId, ""));
 					
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -98,17 +81,17 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 					con.close();
 					return false;
 				}
-				aIdTableExists.put(tableName, true);
+				dbConnector.addTable(instanceId);
 			}
 
 			// parse the itinerary and add a line for each entry
-			stmtString = String.format(sqlInsertValues, tableName);
+			stmtString = String.format(sqlInsertValues, instanceId);
 
 			boolean firstSeg = true;
 			long prevNodeId = -1;
 			double prevDuration = -1;
 
-			for (Experience ex : entries) {
+			for (Experience ex : dataPoints) {
 				long nodeId = ex.getSegmentId();
 				double duration = ex.getTravelTime();
 				stmtString = stmtString.concat(firstSeg ? "" : ",");
@@ -126,7 +109,7 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 				prevNodeId = nodeId;
 				prevDuration = duration;
 			}
-			stmtString = stmtString.concat(String.format(sqlUpdateOnInsert, tableName));
+			stmtString = stmtString.concat(String.format(sqlUpdateOnInsert, instanceId));
 			stmtString = stmtString.concat(";");
 			stmt.execute(stmtString);
 
@@ -150,24 +133,21 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 	}
 
 	@Override
-	public List<Experience> getPredictedItinerary(Entity agent, List<Experience> it, String tablePrefix) {
+	public List<Experience> predict(List<Experience> observations) {
 		// connection and statement for database query
 		Connection con = null;
 		Statement stmt = null;
 		ResultSet rs = null;
-		String tableName = tablePrefix + "_tbl_" + GLOBAL_TABLE_NAME;
-		boolean tableExists = aIdTableExists.get(tableName) == null ? false : true;
+		boolean tableExists = dbConnector.tableExists(instanceId);
 
-		if (!tableExists) {
-			return it;
-		}
+		if (!tableExists)
+			return observations;
+		
 		try {
 			// get connection
-			con = DSFactory.getConnection();
+			con = dbConnector.getConnection();
 			stmt = con.createStatement();
-			
-			String stmt1 = "SELECT %1$s FROM " + tablePrefix + "_tbl_" + GLOBAL_TABLE_NAME
-					+ " WHERE nodeId = %2$d";
+			String stmt1 = "SELECT %1$s FROM " + instanceId + " WHERE nodeId = %2$d";
 			String stmt2 = stmt1.concat(" AND modality = %3$d");
 			String stmt3 = stmt2.concat(" AND timeOfDay = %4$d");
 			String stmt4 = stmt3.concat(" AND weekday = %5$d");
@@ -181,7 +161,7 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 
 			long segmentTStart = 0;
 
-			for (Experience ex : it) {
+			for (Experience ex : observations) {
 				
 				if (firstSeg) {
 					segmentTStart = ex.getStartingTime() / 1000;
@@ -297,48 +277,14 @@ public class CRFGlobalKnowledge implements CRFKnowledgeModel {
 				return null;
 			}
 		}
-		return it;
+		return observations;
 	}
 
 	@Override
-	public void clean(Entity agent, String tablePrefix) {
-		/*if (aIdTableExists.get(GLOBAL_TABLE_NAME) == null) {
-			return;
-		}
-		
-		// connection and statement for database query
-		Statement stmt = null;
-		Connection con = null;
-		String tableName = tablePrefix + "_tbl_" + GLOBAL_TABLE_NAME;
-
-		try {
-			// get connection
-			con = DSFactory.getConnection();
-			stmt = con.createStatement();
-			long tThresh = (Simulator.Instance().getTime().getTimestamp() / 1000) - 1800;
-		
-			String stmtString = "DELETE FROM " + tableName + " WHERE startTime < " + tThresh + ";";
-			stmt.executeUpdate(stmtString);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-
-		} finally {
-
-			try {
-				if (stmt != null)
-					stmt.close();
-				if (con != null)
-					con.close();
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}*/
-	}
+	public void clean() { }
 
 	@Override
-	public boolean exchangeKnowledge(Entity agent1, Entity agent2, String tablePrefix) {
+	public boolean merge(IKnowledgeModel<Experience> other) {
 		return false;
 	}
 }

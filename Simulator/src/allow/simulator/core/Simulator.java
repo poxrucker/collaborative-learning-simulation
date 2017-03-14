@@ -12,11 +12,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
 import allow.simulator.knowledge.EvoKnowledge;
+import allow.simulator.knowledge.Experience;
+import allow.simulator.knowledge.IExchangeStrategy;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
 import allow.simulator.mobility.data.OnlineDataService;
@@ -35,11 +42,8 @@ import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import de.dfki.crf.CRFKnowledgeFactory;
+import de.dfki.crf.IKnowledgeModel;
 
 /**
  * Main class of simulator for collaborative learning in the scenario of
@@ -61,8 +65,9 @@ public final class Simulator {
 	/**
 	 * Creates a new instance of the simulator.
 	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public void setup(Configuration config, SimulationParameter params) throws IOException {
+	public void setup(Configuration config, SimulationParameter params) throws IOException, ClassNotFoundException {
 		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 8);
 
 		// Setup world.
@@ -136,8 +141,9 @@ public final class Simulator {
 		TransportationRepository repos = new TransportationRepository(context);
 		context.setTransportationRepository(repos);
 		
-		// Initialize EvoKnowlegde and setup logger.
-		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), params.KnowledgeModel, "evo_" + params.BehaviourSpaceRunNumber, threadpool);
+		// Initialize EvoKnowlegde
+		String prefix = "evo_" + params.BehaviourSpaceRunNumber + "_tbl_";
+		initializeKnowledge(config.getEvoKnowledgeConfiguration(), prefix, params.KnowledgeModel);
 		
 		// Update world
 		world.update(context);
@@ -158,6 +164,46 @@ public final class Simulator {
 		}
 	}
 	
+	private void initializeKnowledge(EvoKnowledgeConfiguration dbConfig, String prefix, String knowledgeModel) throws ClassNotFoundException {
+	  EvoKnowledge.initialize(threadpool);
+	  CRFKnowledgeFactory factory = CRFKnowledgeFactory.create(dbConfig, prefix);
+	  
+	  Collection<Entity> persons = context.getEntityManager().getEntitiesOfType("Person");
+	  
+	  for (Entity e : persons) {
+	    Person p = (Person)e;
+	    IKnowledgeModel<Experience> knowledge = null;
+	    IExchangeStrategy<IKnowledgeModel<Experience>> exchangeStrategy = null;
+	    
+	    switch (knowledgeModel) {
+	    
+	    case "without":
+	      knowledge = factory.createIdentityCRFModel();
+	      break;
+	      
+	    case "local":
+	      knowledge = factory.createLocalCRFModel(String.valueOf(p.getId()));
+        break;
+        
+	    case "local (with exchange)":
+        knowledge = factory.createLocalCRFModel(String.valueOf(p.getId()));
+        exchangeStrategy = factory.createLocalCRFStrategy();
+        break;
+        
+	    case "global":
+        knowledge = factory.createGlobalCRFModel("global");
+        break;
+        
+	    case "regional":
+        knowledge = factory.createGlobalCRFModel(p.getHomeArea());
+        break;
+        
+      default:
+        throw new IllegalArgumentException("Unknown knowledge model");
+	    }
+	    p.setKnowledge(new EvoKnowledge(knowledge, exchangeStrategy));
+	  }
+	}
 	/**
 	 * Advances the simulation by one step.
 	 * 

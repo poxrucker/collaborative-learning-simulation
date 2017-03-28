@@ -312,7 +312,7 @@ public final class Simulator {
 		world.setStreetBlocked(world.getStreet("osm:node:9210951", "osm:node:193574934"), true);
 		world.setStreetBlocked(world.getStreet("osm:node:193574934", "osm:node:9210951"), true);
 
-		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm::qdnode:330302388"), true);
+		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm:node:330302388"), true);
 		world.setStreetBlocked(world.getStreet("osm:node:330302388", "osm:node:2275120574"), true);
 
 		world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:432436400"), true);

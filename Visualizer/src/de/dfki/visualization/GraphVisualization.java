@@ -69,7 +69,7 @@ public final class GraphVisualization extends PApplet {
 
   public void setup() {
     // Setup window
-    size(1280, 960, OPENGL);
+    size(1024, 768, OPENGL);
 
     // Setup display options
     showTiles = true;
@@ -96,7 +96,7 @@ public final class GraphVisualization extends PApplet {
     map = new UnfoldingMap(this, "tiles", provider);
     map.zoomAndPanTo(13, trento);
     map.setZoomRange(13, 19);
-    map.setPanningRestriction(trento, 5);
+    map.setPanningRestriction(trento, 4);
     frameRate(30);
 
     MapUtils.createDefaultEventDispatcher(this, map);

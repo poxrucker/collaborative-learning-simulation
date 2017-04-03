@@ -1,15 +1,16 @@
 package de.dfki.visualization;
 
-import processing.core.PApplet;
+import javax.swing.JFrame;
 
 public class Main {
 
   public static void main(String[] args) {
     //GraphVisualization temp = new GraphVisualization(null);
     //create your JFrame
-    //JFrame frame = new JFrame("JFrame Test");
-    //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+    GraphAnalysis frame = new GraphAnalysis();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //frame.setSize(new Dimension(1024, 768));
+    frame.run();
     //create your sketch
     //GraphVisualization pt = new GraphVisualization();
     //frame.getContentPane().add(pt);
@@ -22,7 +23,7 @@ public class Main {
 
     //start your sketch
     // PApplet.runSketch(new String[] { "/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world" }, pt);
-    PApplet.main("de.dfki.visualization.GraphVisualization", new String[] { "/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world" });
+    //PApplet.main("de.dfki.visualization.GraphVisualization", new String[] { "/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world" });
 
   }
 }

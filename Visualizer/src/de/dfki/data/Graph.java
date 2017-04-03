@@ -1,4 +1,4 @@
-package de.dfki.visualization;
+package de.dfki.data;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,8 +17,8 @@ import com.vividsolutions.jts.geom.LineString;
 public class Graph {
   
   public class Vertex {
-    final String label;
-    final Coordinate position;
+    public final String label;
+    public final Coordinate position;
     
     public Vertex(String label, Coordinate position) {
       this.label = label;
@@ -27,11 +27,11 @@ public class Graph {
   }
   
   public class Edge {
-    final Vertex start;
-    final Vertex end;
-    final String label;
-    boolean directed;
-    final LineString geometry;
+    public final Vertex start;
+    public final Vertex end;
+    public final String label;
+    public boolean directed;
+    public final LineString geometry;
     
     public Edge(Vertex start, Vertex end, String label, LineString geometry, boolean directed) {
       this.start = start;
@@ -46,8 +46,8 @@ public class Graph {
     }
   }
   
-  Map<String, Vertex> vertices;
-  Map<String, Edge> edges;
+  public Map<String, Vertex> vertices;
+  public Map<String, Edge> edges;
   
   Graph() {
     vertices = new HashMap<String, Vertex>();
@@ -116,7 +116,7 @@ public class Graph {
       String idEnd = tokens[2];
       String name = tokens[3];
       String subSegs[] = tokens[5].split(" ");
-        
+       
       Vertex source = vertexBuffer.get(idStart);
       Vertex dest = vertexBuffer.get(idEnd);
     

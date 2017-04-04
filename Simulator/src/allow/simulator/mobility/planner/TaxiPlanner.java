@@ -42,7 +42,7 @@ public final class TaxiPlanner implements IPlannerService {
 	}
 	
 	@Override
-	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
+	public boolean requestJourney(JourneyRequest request, List<Itinerary> itineraries) {
 		TType modes[] = request.TransportTypes;
 		boolean success = false;
 		
@@ -418,7 +418,7 @@ public final class TaxiPlanner implements IPlannerService {
 		LocalTime t = req2.ArrivalTime != null ? req2.ArrivalTime : req2.DepartureTime;
 		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, t), false, new TType[] { TType.CAR }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
-		planner.requestSingleJourney(req, temp);
+		planner.requestJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {

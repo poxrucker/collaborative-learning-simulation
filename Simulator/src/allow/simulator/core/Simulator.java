@@ -31,7 +31,6 @@ import allow.simulator.mobility.data.RoutingData;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.data.gtfs.GTFSData;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
-import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
@@ -126,7 +125,7 @@ public final class Simulator {
 		Weather weather = new Weather(config.getWeatherPath(), time);
 		
 		JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService,
-				bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
+				bikeRentalPlanner, threadpool);
 		
 		// Create global context from world, time, planner and data services, and weather.
 		context = new Context(world, new EntityManager(), time, planner, 

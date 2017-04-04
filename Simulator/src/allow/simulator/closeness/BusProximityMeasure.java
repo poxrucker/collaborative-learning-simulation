@@ -39,8 +39,8 @@ public final class BusProximityMeasure implements IProximityMeasure {
 
 		List<Entity> passengers = new ArrayList<Entity>();
 
-		// If entity is using public transportation, add bus and passengers as
-		// possible exchange candidates.
+		// If entity is using public transportation, add bus and passengers as possible 
+		// exchange candidates.
 		TransportationEntity b = ((UsePublicTransport) a).getMeansOfTransportation();
 
 		if ((b != null) && (b.getId() != entity.getId())) {

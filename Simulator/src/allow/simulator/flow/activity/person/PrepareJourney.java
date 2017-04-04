@@ -47,7 +47,7 @@ public final class PrepareJourney extends Activity<Person> {
 	
 	@Override
 	public double execute(double deltaT) {
-		// Person entity.
+		// Person entity
 		entity.setCurrentItinerary(journey);
 		
 		if (journey.initialWaitingTime > 0) {

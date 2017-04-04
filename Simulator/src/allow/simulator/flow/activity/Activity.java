@@ -19,10 +19,6 @@ public abstract class Activity<V extends Entity> {
 	// Entity executing the activity
 	protected final V entity;
 	
-	// Starting and ending timestamps
-	protected long tStart;
-	protected long tEnd;
-	
 	/**
 	 * Constructor.
 	 * 
@@ -33,8 +29,6 @@ public abstract class Activity<V extends Entity> {
 		this.type = type;
 		this.entity = entity;
 		finished = false;
-		tStart = -1;
-		tEnd = -1;
 	}
 	
 	/**

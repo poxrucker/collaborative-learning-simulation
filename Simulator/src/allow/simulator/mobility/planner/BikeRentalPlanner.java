@@ -18,7 +18,7 @@ public class BikeRentalPlanner implements IPlannerService {
 	}
 
 	@Override
-	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
+	public boolean requestJourney(JourneyRequest request, List<Itinerary> itineraries) {
 		TType modes[] = request.TransportTypes;
 		boolean success = false;
 		
@@ -76,7 +76,7 @@ public class BikeRentalPlanner implements IPlannerService {
 		RequestId reqId = new RequestId();
 		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, req2.DepartureTime), false, new TType[] { TType.WALK }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
-		planner.requestSingleJourney(req, temp);
+		planner.requestJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {
@@ -96,7 +96,7 @@ public class BikeRentalPlanner implements IPlannerService {
 		RequestId reqId = new RequestId();
 		JourneyRequest req = JourneyRequest.createWalkRequest(from, to, LocalDateTime.of(req2.Date, req2.ArrivalTime), false, new TType[] { TType.BICYCLE }, reqId);
 		List<Itinerary> temp = new ArrayList<Itinerary>();
-		planner.requestSingleJourney(req, temp);
+		planner.requestJourney(req, temp);
 		Itinerary candidateIt = null;
 		
 		for (Itinerary it : temp) {

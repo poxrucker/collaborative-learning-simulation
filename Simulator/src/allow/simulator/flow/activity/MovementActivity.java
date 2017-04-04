@@ -33,6 +33,10 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 	protected double streetTravelTime;
 	protected List<Experience> experiences;
 
+	//Starting and ending timestamps
+	protected long tStart;
+	protected long tEnd;
+ 
 	/**
 	 * Creates a new Activity to move an entity.
 	 * 
@@ -44,6 +48,8 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 		// Call constructor of superclass specifying type of activity and entity. 
 		super(type, entity);
 		this.path = polyLine;
+		tStart = -1;
+    tEnd = -1;
 		initialize();
 	}
 

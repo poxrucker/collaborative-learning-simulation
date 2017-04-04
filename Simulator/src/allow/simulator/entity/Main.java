@@ -164,13 +164,13 @@ public class Main {
 				event.arriveBy(), transitJourney, reqId);
 		s.MaximumWalkDistance = 500;
 		List<Itinerary> temp = new ArrayList<Itinerary>();
-		planner.requestSingleJourney(s, temp);
+		planner.requestJourney(s, temp);
 		// if (temp != null) it.addAll(temp);
 
 		// Add walking journeys
 		s.TransportTypes = walkingJourney;
 		s.MaximumWalkDistance = 1500;
-		planner.requestSingleJourney(s, temp);
+		planner.requestJourney(s, temp);
 		// if (temp != null) it.addAll(temp);
 		int nMeans = 2;
 
@@ -178,7 +178,7 @@ public class Main {
 		if (hasCar) {
 			s.TransportTypes = carJourney;
 			s.MaximumWalkDistance = 500;
-			planner.requestSingleJourney(s, temp);
+			planner.requestJourney(s, temp);
 			// if (temp != null) it.addAll(temp);
 			nMeans++;
 		}
@@ -187,7 +187,7 @@ public class Main {
 		if (hasBike) {
 			s.TransportTypes = bikeJourney;
 			s.MaximumWalkDistance = 500;
-			planner.requestSingleJourney(s, temp);
+			planner.requestJourney(s, temp);
 			// if (temp != null) it.addAll(temp);
 			nMeans++;
 		}

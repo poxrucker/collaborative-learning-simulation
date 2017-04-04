@@ -90,7 +90,7 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 	}
 	
 	@Override
-	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries) {
+	public boolean requestJourney(JourneyRequest request, List<Itinerary> itineraries) {
 		// Create new get request and set URI.
 		HttpGet getRequest = new HttpGet();
 

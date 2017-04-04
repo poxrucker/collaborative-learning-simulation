@@ -20,11 +20,7 @@ public class ReturnToAgency extends Activity<Bus> {
 
 	@Override
 	public double execute(double deltaT) {
-		// Note tStart.
-		if (tStart == -1) {
-			tStart = entity.getContext().getTime().getTimestamp();
-		}
-		
+
 		if (entity.getPassengers().size() > 0) {
 			System.out.println("Warning: Passengers still on public transportation " + entity + " of trip " + entity.getCurrentTrip().getTripId());
 

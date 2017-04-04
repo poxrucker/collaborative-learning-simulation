@@ -3,8 +3,8 @@ package allow.simulator.mobility.planner;
 import java.util.List;
 
 /**
- * Interface of a journey planner service for the Allow Ensembles urban
- * traffic simulator.
+ * Interface of a journey planner service providing a set of possible travel
+ * plans for a given request.
  * 
  * @author Andreas Poxrucker (DFKI)
  *
@@ -23,6 +23,6 @@ public interface IPlannerService {
 	 * @return Reference to itineraries parameter if planning was successful,
 	 * null otherwise.
 	 */
-	public boolean requestSingleJourney(JourneyRequest request, List<Itinerary> itineraries);
+	public boolean requestJourney(JourneyRequest request, List<Itinerary> itineraries);
 	
 }

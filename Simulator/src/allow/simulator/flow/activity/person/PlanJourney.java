@@ -45,12 +45,6 @@ public final class PlanJourney extends Activity<Person> {
 			
 	@Override
 	public double execute(double deltaT) {	
-		// Update preferences
-		//double dist = Geometry.haversineDistance(start, destination);
-		//Preferences prefs = entity.getRankingFunction().getPreferences();
-		//prefs.setTmax(1500);
-		//prefs.setCmax(2.5);
-		//prefs.setWmax(Math.min(dist, 500));
 		
 		if (requestFuture == null) {
 			RequestId reqId = new RequestId();
@@ -76,9 +70,6 @@ public final class PlanJourney extends Activity<Person> {
 			
 				// if (person.hasBike())
 				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));
-			
-				// if (person.useFlexiBus())
-				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
 			requestFuture = entity.getContext().getJourneyPlanner().requestSingleJourney(requests, entity.getBuffer());
 			return deltaT;
@@ -86,7 +77,7 @@ public final class PlanJourney extends Activity<Person> {
 		} else if (!requestFuture.isDone() && (stepsWaited < 3)) {
 			stepsWaited++;
 			return deltaT;
-			
+
 		} else {
 			List<Itinerary> it = null;
 			

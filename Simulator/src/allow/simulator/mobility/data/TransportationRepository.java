@@ -12,7 +12,6 @@ import java.util.Map;
 import allow.simulator.core.Context;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.BusAgency;
-import allow.simulator.entity.FlexiBusAgency;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.mobility.data.TimeTable.Day;
@@ -28,9 +27,6 @@ import allow.simulator.world.Street;
 public final class TransportationRepository {
 	// Collection of available GTFS transportation agencies.
 	private Map<String, BusAgency> gtfsAgencies;
-
-	// FlexiBus agency providing dynamic on-request bus scheduling.
-	private FlexiBusAgency flexiBusAgency;
 	
 	// Taxi agency providing single and shared taxi rides
 	private TaxiAgency taxiAgency;
@@ -87,17 +83,7 @@ public final class TransportationRepository {
 			}
 			gtfsAgencies.put(newAgency.getAgencyId(), newAgency);
 		}
-		
-		// Create FlexiBus agency and assign buses.
-		flexiBusAgency = new FlexiBusAgency(context.getEntityManager().getNextId(), context, "flexibusagency");
-		context.getEntityManager().addEntity(flexiBusAgency);
-
-		for (int i = 0; i < 200; i++) {
-			// PublicTransportation b = (PublicTransportation) simulator.addEntity(Entity.Type.BUS);
-			//b.setTransportationAgency(flexiBusAgency);
-			//flexiBusAgency.addVehicle(b);
-		}
-		
+	
 		// Create taxi agency and assign taxis
 		taxiAgency = new TaxiAgency(context.getEntityManager().getNextId(), context, "taxiagency");
 		context.getEntityManager().addEntity(taxiAgency);
@@ -160,10 +146,6 @@ public final class TransportationRepository {
 
 	public BusAgency getBusAgency(String agencyId) {
 		return gtfsAgencies.get(agencyId);
-	}
-	
-	public FlexiBusAgency getFlexiBusAgency() {
-		return flexiBusAgency;
 	}
 	
 	public TaxiAgency getTaxiAgency() {

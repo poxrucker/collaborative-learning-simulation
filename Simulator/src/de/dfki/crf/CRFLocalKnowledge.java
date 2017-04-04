@@ -85,7 +85,7 @@ public class CRFLocalKnowledge implements IKnowledgeModel<Experience> {
 
 		String stmtString = "";
 		
-		try (Connection con = dbConnector.getConnection(); PreparedStatement stmt = con.prepareStatement("")) {
+		try (Connection con = dbConnector.getConnection(); Statement stmt = con.createStatement()) {
 
 			// create a new table for an agent representing his EvoKnowledge if it doesnt exist already
 			if (!tableExists) {

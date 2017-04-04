@@ -11,24 +11,27 @@ import allow.simulator.utility.Preferences;
 
 public class RankAlternatives extends Activity<Person> {
 	// Itineraries to rank
-	private List<Itinerary> toRank;
-		
+	private final List<Itinerary> toRank;
+	
+	private boolean preferencesUpdated;
+	
 	public RankAlternatives(Person entity, List<Itinerary> it) {
 		super(ActivityType.RANK_ALTERNATIVES, entity);
 		toRank = it;
+		preferencesUpdated = false;
 	}
 
 	@Override
 	public double execute(double deltaT) {
 
-		if (tStart == -1) {
-			tStart = 1;
+		if (!preferencesUpdated) {
+		  preferencesUpdated = true;
 			updatePreferences();
 			updateItineraryParameters();
 			return deltaT;
 		}
-		toRank = entity.getRankingFunction().reason(toRank);
-		entity.getFlow().addActivity(new PrepareJourney(entity, toRank.get(0)));
+		List<Itinerary> ret = entity.getRankingFunction().reason(toRank);
+		entity.getFlow().addActivity(new PrepareJourney(entity, ret.get(0)));
 		setFinished();
 		return 0.0;
 	}

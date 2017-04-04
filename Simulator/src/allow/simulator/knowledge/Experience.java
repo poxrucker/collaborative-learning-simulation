@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import allow.simulator.mobility.planner.TType;
-import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 
@@ -89,14 +88,6 @@ public final class Experience {
 	
 	public double getSegmentLength() {
 		return segment.getLength();
-	}
-	
-	public Coordinate getStartPosition() {
-		return segment.getStartingNode().getPosition();
-	}
-	
-	public Coordinate getEndPosition() {
-		return segment.getEndNode().getPosition();
 	}
 	
 	public double getTravelTime() {

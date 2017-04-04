@@ -49,11 +49,6 @@ public enum TType {
 	TRANSIT,
 	
 	/**
-	 * Using a FlexiBus
-	 */
-	FLEXIBUS,
-	
-	/**
 	 * Using a normal taxi
 	 */
 	TAXI,

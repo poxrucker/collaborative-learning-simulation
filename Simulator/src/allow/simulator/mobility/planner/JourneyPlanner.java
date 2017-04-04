@@ -17,19 +17,14 @@ public final class JourneyPlanner {
 	// Taxi planner service instance
 	private final TaxiPlanner taxiPlanner;
 	
-	// FlexiBus planner service instance
-	private final FlexiBusPlanner flexiBusPlanner;
-	
 	// Bike rental planner service instance
 	private final BikeRentalPlanner bikeRentalPlanner;
 	
 	public JourneyPlanner(List<OTPPlanner> otpPlanner, TaxiPlanner taxiPlanner, 
-			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner,
-			ExecutorService service) {
+			BikeRentalPlanner bikeRentalPlanner, ExecutorService service) {
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;
 		this.bikeRentalPlanner = bikeRentalPlanner;
-		this.flexiBusPlanner = flexiBusPlanner;
 		this.service = service;
 	}
 	
@@ -42,21 +37,19 @@ public final class JourneyPlanner {
 				
 				for (JourneyRequest req : requests) {
 					
-					if (req.TransportTypes[0] == TType.FLEXIBUS) {
-						flexiBusPlanner.requestSingleJourney(req, buffer);
-					
-					} else if (req.TransportTypes[0] == TType.SHARED_BICYCLE) {
-						bikeRentalPlanner.requestSingleJourney(req, buffer);
+					if (req.TransportTypes[0] == TType.SHARED_BICYCLE) {
+						bikeRentalPlanner.requestJourney(req, buffer);
 						
 					} else if ((req.TransportTypes[0] == TType.TAXI) || (req.TransportTypes[0] == TType.SHARED_TAXI)) {
-						taxiPlanner.requestSingleJourney(req, buffer);
+						taxiPlanner.requestJourney(req, buffer);
 						
 					} else {
+					  
 						int i = 0;
 						IPlannerService planner = otpPlanner.get(ThreadLocalRandom.current().nextInt(otpPlanner.size()));
 						while (i < 2) {
 							try {
-								boolean success = planner.requestSingleJourney(req, buffer);
+								boolean success = planner.requestJourney(req, buffer);
 
 								if (success) {
 									break;
@@ -75,10 +68,6 @@ public final class JourneyPlanner {
 	
 	public TaxiPlanner getTaxiPlannerService() {
 		return taxiPlanner;
-	}
-	
-	public FlexiBusPlanner getFlexiBusPlannerService() {
-		return flexiBusPlanner;
 	}
 	
 	public BikeRentalPlanner getBikeRentalPlannerService() {

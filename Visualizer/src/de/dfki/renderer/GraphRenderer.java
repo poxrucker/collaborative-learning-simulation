@@ -60,7 +60,14 @@ public final class GraphRenderer extends AbstractRenderer<GraphDisplayAdapter> {
     drawEdges = draw;
   }
   
-
+  public void setVertexColor(int vertexColor) {
+    vertexRenderer.setColor(vertexColor);
+  }
+  
+  public void setEdgeColor(int edgeColor) {
+    edgeRenderer.setColor(edgeColor);
+  }
+  
   private void drawEdges(List<Edge> edges, PGraphics g) {
     g.pushStyle();
     

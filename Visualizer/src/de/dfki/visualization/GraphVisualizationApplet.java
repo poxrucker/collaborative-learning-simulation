@@ -26,7 +26,7 @@ import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import processing.core.PApplet;
 
-public final class GraphVisualization extends PApplet {
+public final class GraphVisualizationApplet extends PApplet {
 
   private static final long serialVersionUID = -1934157616453575554L;
   
@@ -38,7 +38,6 @@ public final class GraphVisualization extends PApplet {
 
   // Display state
   private boolean showEdges;
-  private boolean showVertices;
   private boolean showTiles;
   private int previousWidth;
   private int previousHeight;
@@ -67,9 +66,8 @@ public final class GraphVisualization extends PApplet {
     size(getSize().width, getSize().height, OPENGL);
 
     // Setup display options
-    showTiles = false;
-    showEdges = true;
-    showVertices = false;
+    showTiles = true;
+    showEdges = false;
     edgeSelectionMode = false;
     vertexSelectionMode = false;
 
@@ -92,7 +90,7 @@ public final class GraphVisualization extends PApplet {
     map.zoomAndPanTo(13, trento);
     map.setZoomRange(13, 19);
     map.setPanningRestriction(trento, 4);
-    frameRate(60);
+    frameRate(45);
 
     MapUtils.createDefaultEventDispatcher(this, map);
 
@@ -100,10 +98,10 @@ public final class GraphVisualization extends PApplet {
     GeoToScreenPositionConverter conv = new GeoToScreenPositionConverter(map);
     graphRenderer = new GraphRenderer(conv, g);
     cursorVertexRenderer = new SimpleVertexRenderer(conv, color(255, 0, 0), 2, 2, true);
-    lastSelectedVertexRenderer = new SimpleVertexRenderer(conv, color(0, 255, 0), 2, 2, true);
+    lastSelectedVertexRenderer = new SimpleVertexRenderer(conv, color(0, 0, 255), 2, 2, true);
     cursorEdgeRenderer = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, true, false);
     cursorEdgeRendererWithoutLabels = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, false, true);
-    selectedEdgesRenderer = new DirectedEdgeRenderer(conv, color(0, 255, 0), 2, 0, false, false);
+    selectedEdgesRenderer = new DirectedEdgeRenderer(conv, color(0, 0, 255), 2, 0, false, false);
     
     //vertexSelection = new VertexSelection(graphDisplay);
   }
@@ -124,8 +122,7 @@ public final class GraphVisualization extends PApplet {
       graphRenderer.setDrawEdges(showEdges);
       
     } else if (key == 'v') {
-      showVertices = !showVertices;
-      graphRenderer.setDrawVertices(showVertices);
+      graphRenderer.setDrawVertices(!graphRenderer.drawVertices());
       
     } else if (key == 's') {
       edgeSelectionMode = !edgeSelectionMode;
@@ -221,6 +218,22 @@ public final class GraphVisualization extends PApplet {
     }
   }
 
+  public void toggleShowMap() {
+    showTiles = !showTiles;
+  }
+  
+  public void toggleShowGraph() {
+    showEdges = !showEdges;
+  }
+  
+  public void setVertexColor(int color) {
+    graphRenderer.setVertexColor(color);
+  }
+  
+  public void toggleShowVertices() {
+    graphRenderer.setDrawVertices(!graphRenderer.drawVertices());
+  }
+  
   @Override
   public void mouseMoved() {
     if (!showEdges)
@@ -318,6 +331,9 @@ public final class GraphVisualization extends PApplet {
       previousHeight = height;
     }
 
+    if ((width == 0) || (height == 0))
+      return;
+    
     if (showTiles)
       map.draw();
     else
@@ -344,16 +360,15 @@ public final class GraphVisualization extends PApplet {
         if (cursorEdge != null && !selectedEdges.contains(cursorEdge))
           cursorEdgeRendererWithoutLabels.draw(cursorEdge, g);
       }
-
-      if (edgeSelectionMode || vertexSelectionMode)
-        drawSelectedEdges(selectedEdges);
+      
     }
+    drawSelectedEdges(selectedEdges);
   }
 
   private void drawSelectedEdges(List<Edge> edges) {
     pushStyle();
     strokeWeight(2);
-    stroke(0, 255, 0);
+    stroke(0, 0, 255);
 
     for (Edge e : edges) {
       selectedEdgesRenderer.draw(e, g);

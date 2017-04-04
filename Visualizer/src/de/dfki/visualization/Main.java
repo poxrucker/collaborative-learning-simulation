@@ -9,7 +9,6 @@ public class Main {
     //create your JFrame
     GraphAnalysis frame = new GraphAnalysis();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //frame.setSize(new Dimension(1024, 768));
     frame.run();
     //create your sketch
     //GraphVisualization pt = new GraphVisualization();

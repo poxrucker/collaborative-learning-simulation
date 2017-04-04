@@ -40,6 +40,10 @@ public final class SimpleVertexRenderer extends AbstractRenderer<Vertex> {
     this.showLabel = showLabel;
   }
   
+  public void setColor(int vertexColor) {
+    this.color = vertexColor;
+  }
+  
   @Override
   public void draw(Vertex vertex, PGraphics g) {
     // Preparing drawing settings

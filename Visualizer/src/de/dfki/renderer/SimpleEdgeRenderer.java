@@ -19,6 +19,10 @@ public final class SimpleEdgeRenderer extends AbstractRenderer<Edge> {
     this.strokeWeight = strokeWeight;
   }
   
+  public void setColor(int edgeColor) {
+    this.color = edgeColor;
+  }
+  
   @Override
   public void draw(Edge edge, PGraphics g) {
     // Prepare drawing

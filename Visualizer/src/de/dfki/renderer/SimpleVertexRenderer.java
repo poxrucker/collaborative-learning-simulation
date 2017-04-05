@@ -1,7 +1,7 @@
 package de.dfki.renderer;
 
 import de.dfki.data.Graph.Vertex;
-import de.dfki.visualization.GeoToScreenPositionConverter;
+import de.dfki.util.GeoToScreenPositionConverter;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 import processing.core.PGraphics;
 

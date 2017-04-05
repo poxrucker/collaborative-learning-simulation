@@ -3,7 +3,7 @@ package de.dfki.renderer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import de.dfki.data.Graph.Edge;
-import de.dfki.visualization.GeoToScreenPositionConverter;
+import de.dfki.util.GeoToScreenPositionConverter;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 import processing.core.PGraphics;
 import processing.core.PVector;

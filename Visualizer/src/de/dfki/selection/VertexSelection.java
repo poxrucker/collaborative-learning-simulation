@@ -6,10 +6,10 @@ import java.util.List;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
+import de.dfki.data.GraphView;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
 import de.dfki.util.Util;
-import de.dfki.visualization.GraphDisplayAdapter;
 import de.fhpotsdam.unfolding.geo.Location;
 
 public class VertexSelection {
@@ -20,9 +20,9 @@ public class VertexSelection {
   private Vertex selectedVertex;
   private List<Edge> selectedEdges;
   
-  private final GraphDisplayAdapter graph;
+  private final GraphView graph;
   
-  public VertexSelection(GraphDisplayAdapter graph) {
+  public VertexSelection(GraphView graph) {
     this.graph = graph;
     selectedEdges = new ArrayList<Edge>();
   }

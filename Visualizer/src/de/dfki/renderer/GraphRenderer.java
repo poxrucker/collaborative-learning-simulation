@@ -2,13 +2,13 @@ package de.dfki.renderer;
 
 import java.util.List;
 
+import de.dfki.data.GraphView;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
-import de.dfki.visualization.GeoToScreenPositionConverter;
-import de.dfki.visualization.GraphDisplayAdapter;
+import de.dfki.util.GeoToScreenPositionConverter;
 import processing.core.PGraphics;
 
-public final class GraphRenderer extends AbstractRenderer<GraphDisplayAdapter> {
+public final class GraphRenderer extends AbstractRenderer<GraphView> {
   // Indicate whether to draw graph edges
   private boolean drawEdges;
   
@@ -32,7 +32,7 @@ public final class GraphRenderer extends AbstractRenderer<GraphDisplayAdapter> {
   }
   
   @Override
-  public void draw(GraphDisplayAdapter graph, PGraphics g) {
+  public void draw(GraphView graph, PGraphics g) {
     g.pushStyle();
 
     if (drawEdges)

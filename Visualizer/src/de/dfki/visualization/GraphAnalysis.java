@@ -17,8 +17,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -312,11 +314,12 @@ public class GraphAnalysis extends JFrame {
     return ret;
   }
   
+  private ListModel<PathView> pathViewModel = new DefaultListModel<>();
+  
   private Container createPathOptionsPanel() {
     Container ret = new JPanel();
-    ret.setBackground(Color.GREEN);
-    ret.add(new JLabel("Path options panel"));
-    ret.add(new JButton("Do something"));
+    JLabel lblPaths = new JLabel("Paths");
+    JList<PathView> lbPaths = new JList<>(pathViewModel);
     return ret;
   }
 }

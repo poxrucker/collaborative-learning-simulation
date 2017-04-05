@@ -1,4 +1,4 @@
-package de.dfki.visualization;
+package de.dfki.util;
 
 import com.vividsolutions.jts.geom.Coordinate;
 

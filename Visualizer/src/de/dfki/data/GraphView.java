@@ -1,22 +1,21 @@
-package de.dfki.visualization;
+package de.dfki.data;
 
 import java.util.List;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
-import de.dfki.data.Graph;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
 
-public final class GraphDisplayAdapter {
+public final class GraphView {
 
   private Graph graph;
   private Envelope currentEnvelope;
   private STRtree vertexIndex;
   private STRtree edgeIndex;
 
-  public GraphDisplayAdapter(Graph graph) {
+  public GraphView(Graph graph) {
     this.graph = graph;
     Graph undirected = Graph.toUndirectedGraph(graph);
     buildSpatialIndex(undirected);

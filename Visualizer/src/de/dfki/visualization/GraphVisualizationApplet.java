@@ -11,11 +11,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import de.dfki.data.Graph;
+import de.dfki.data.GraphView;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
 import de.dfki.renderer.DirectedEdgeRenderer;
 import de.dfki.renderer.GraphRenderer;
 import de.dfki.renderer.SimpleVertexRenderer;
+import de.dfki.util.GeoToScreenPositionConverter;
 import de.dfki.util.Util;
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.events.MapEvent;
@@ -31,7 +33,7 @@ public final class GraphVisualizationApplet extends PApplet {
   private static final long serialVersionUID = -1934157616453575554L;
   
   // Wrapper a graph to display
-  private GraphDisplayAdapter graphDisplay;
+  private GraphView graphDisplay;
   
   // Map tiles to show
   private UnfoldingMap map;
@@ -74,7 +76,7 @@ public final class GraphVisualizationApplet extends PApplet {
     // Load graph
     try {
       Graph graph = Graph.load(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world"));
-      graphDisplay = new GraphDisplayAdapter(graph);
+      graphDisplay = new GraphView(graph);
       
     } catch (IOException e) {
       e.printStackTrace();
@@ -376,8 +378,6 @@ public final class GraphVisualizationApplet extends PApplet {
     popStyle();
   }
 
-  
-  
   private Envelope getVisibleArea() {
     Location topLeftTemp = map.getTopLeftBorder();
     Coordinate topLeft = new Coordinate(topLeftTemp.x, topLeftTemp.y);

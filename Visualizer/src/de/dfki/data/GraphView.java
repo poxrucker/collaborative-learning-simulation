@@ -10,7 +10,7 @@ import de.dfki.data.Graph.Vertex;
 
 public final class GraphView {
 
-  private Graph graph;
+  private final Graph graph;
   private Envelope currentEnvelope;
   private STRtree vertexIndex;
   private STRtree edgeIndex;
@@ -21,7 +21,7 @@ public final class GraphView {
     buildSpatialIndex(undirected);
   }
   
-  private synchronized void buildSpatialIndex(Graph graph) {
+  private void buildSpatialIndex(Graph graph) {
     vertexIndex = new STRtree();
     edgeIndex = new STRtree();
 
@@ -30,8 +30,9 @@ public final class GraphView {
     }
 
     for (Edge e : graph.edges.values()) {
+      
       if (e.geometry == null)
-        return;
+        continue;
 
       edgeIndex.insert(e.geometry.getEnvelopeInternal(), e);
     }

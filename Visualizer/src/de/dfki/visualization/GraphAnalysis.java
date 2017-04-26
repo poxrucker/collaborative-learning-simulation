@@ -122,6 +122,16 @@ public class GraphAnalysis extends JFrame {
       }
     });
     
+    final JCheckBox dataSet = new JCheckBox("Dataset");
+    dataSet.setSelected(false);
+    dataSet.addItemListener(new ItemListener() {
+      
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        showGraph.toggleShowDataset(); 
+      }
+    });
+    
     final JCheckBox paths = new JCheckBox("Paths");
     paths.setSelected(false);
     paths.addItemListener(new ItemListener() {
@@ -133,6 +143,7 @@ public class GraphAnalysis extends JFrame {
     });
     model.addElement(map);
     model.addElement(graph);
+    model.addElement(dataSet);
     model.addElement(paths);
     return model;
   }

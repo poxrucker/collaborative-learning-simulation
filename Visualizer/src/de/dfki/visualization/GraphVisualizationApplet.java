@@ -10,10 +10,15 @@ import javax.swing.JOptionPane;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
+import de.dfki.data.AggregatedDatasetView;
+import de.dfki.data.BrowsableDatasetView;
+import de.dfki.data.Dataset;
 import de.dfki.data.Graph;
-import de.dfki.data.GraphView;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
+import de.dfki.data.GraphView;
+import de.dfki.renderer.AggregatedDatasetRenderer;
+import de.dfki.renderer.BrowsableDatasetrenderer;
 import de.dfki.renderer.DirectedEdgeRenderer;
 import de.dfki.renderer.GraphRenderer;
 import de.dfki.renderer.SimpleVertexRenderer;
@@ -33,7 +38,11 @@ public final class GraphVisualizationApplet extends PApplet {
   private static final long serialVersionUID = -1934157616453575554L;
   
   // Wrapper a graph to display
-  private GraphView graphDisplay;
+  private GraphView graphView;
+  
+  // Dataset to visualize
+  private AggregatedDatasetView aggregatedDatasetView;
+  private BrowsableDatasetView browsableDatasetView;
   
   // Map tiles to show
   private UnfoldingMap map;
@@ -41,13 +50,13 @@ public final class GraphVisualizationApplet extends PApplet {
   // Display state
   private boolean showEdges;
   private boolean showTiles;
+  private boolean showDataset;
   private int previousWidth;
   private int previousHeight;
 
   // Selection modes
   private boolean edgeSelectionMode;
   private boolean vertexSelectionMode;
-  //private VertexSelection vertexSelection;
 
   List<Edge> selectedEdges;
   Vertex lastSelectedVertex;
@@ -62,7 +71,9 @@ public final class GraphVisualizationApplet extends PApplet {
   private DirectedEdgeRenderer cursorEdgeRenderer;
   private DirectedEdgeRenderer cursorEdgeRendererWithoutLabels;
   private DirectedEdgeRenderer selectedEdgesRenderer;
-  
+  private AggregatedDatasetRenderer aggregatedDatasetRenderer;
+  private BrowsableDatasetrenderer browsableDatasetRenderer;
+
   public void setup() {
     // Setup window
     size(getSize().width, getSize().height, OPENGL);
@@ -70,14 +81,25 @@ public final class GraphVisualizationApplet extends PApplet {
     // Setup display options
     showTiles = true;
     showEdges = false;
+    showDataset = false;
     edgeSelectionMode = false;
     vertexSelectionMode = false;
 
     // Load graph
     try {
       Graph graph = Graph.load(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world"));
-      graphDisplay = new GraphView(graph);
+      graphView = new GraphView(graph);
       
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+    
+    // Load dataset
+    try {
+      Dataset dataset = Dataset.loadDataset(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/evaluation/via_berlino/15/run_2017_03_15_1/100/aggregated.txt"));
+      aggregatedDatasetView = new AggregatedDatasetView(graphView.getGraph(), dataset);
+      browsableDatasetView = new BrowsableDatasetView(graphView.getGraph(), dataset);
     } catch (IOException e) {
       e.printStackTrace();
       return;
@@ -87,7 +109,7 @@ public final class GraphVisualizationApplet extends PApplet {
     map = new UnfoldingMap(this, "tiles", new OpenStreetMap.OpenStreetMapProvider());
     map.mapDisplay.resize(width, height);
     
-    Envelope baseEnv = graphDisplay.getBaseEnvelope();
+    Envelope baseEnv = graphView.getBaseEnvelope();
     Location trento = new Location(baseEnv.centre().x, baseEnv.centre().y);
     map.zoomAndPanTo(13, trento);
     map.setZoomRange(13, 19);
@@ -104,7 +126,8 @@ public final class GraphVisualizationApplet extends PApplet {
     cursorEdgeRenderer = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, true, false);
     cursorEdgeRendererWithoutLabels = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, false, true);
     selectedEdgesRenderer = new DirectedEdgeRenderer(conv, color(0, 0, 255), 2, 0, false, false);
-    
+    aggregatedDatasetRenderer = new AggregatedDatasetRenderer(conv);
+    browsableDatasetRenderer = new BrowsableDatasetrenderer(conv);
     //vertexSelection = new VertexSelection(graphDisplay);
   }
 
@@ -113,7 +136,10 @@ public final class GraphVisualizationApplet extends PApplet {
     
     if (!e.equals(ZoomMapEvent.TYPE_ZOOM) && !e.equals(PanMapEvent.TYPE_PAN))
       return;
-    graphDisplay.setVisibleArea(getVisibleArea());
+    
+    Envelope visibleArea = getVisibleArea();
+    graphView.setVisibleArea(visibleArea);
+    aggregatedDatasetView.setVisibleArea(visibleArea);
   }
 
   @Override
@@ -179,7 +205,7 @@ public final class GraphVisualizationApplet extends PApplet {
       lastSelectedVertex = null;
 
     } else {
-      Edge candidate = graphDisplay.getGraph().edges.get(lastSelectedVertex.label + ";;" + cursorVertex.label);
+      Edge candidate = graphView.getGraph().edges.get(lastSelectedVertex.label + ";;" + cursorVertex.label);
       lastSelectedVertex = cursorVertex;
 
       if (candidate == null || selectedEdges.contains(candidate))
@@ -201,12 +227,12 @@ public final class GraphVisualizationApplet extends PApplet {
     } else {
       List<Edge> temp = new ArrayList<Edge>();
 
-      Edge first = graphDisplay.getGraph().edges.get(cursorEdge.start.label + ";;" + cursorEdge.end.label);
+      Edge first = graphView.getGraph().edges.get(cursorEdge.start.label + ";;" + cursorEdge.end.label);
 
       if (first != null)
         temp.add(first);
 
-      Edge second = graphDisplay.getGraph().edges.get(cursorEdge.end.label + ";;" + cursorEdge.start.label);
+      Edge second = graphView.getGraph().edges.get(cursorEdge.end.label + ";;" + cursorEdge.start.label);
 
       if (second != null)
         temp.add(second);
@@ -226,6 +252,10 @@ public final class GraphVisualizationApplet extends PApplet {
   
   public void toggleShowGraph() {
     showEdges = !showEdges;
+  }
+  
+  public void toggleShowDataset() {
+    showDataset = !showDataset;
   }
   
   public void setVertexColor(int color) {
@@ -267,16 +297,16 @@ public final class GraphVisualizationApplet extends PApplet {
     
     // Determine close vertex
     cursorVertex = getClosestVertex(mouseEnv);
-
+   
     if (cursorVertex == null || lastSelectedVertex == null) {
       cursorEdge = null;
       return;
     }
-    cursorEdge = graphDisplay.getGraph().edges.get(lastSelectedVertex.label + ";;" + cursorVertex.label);
+    cursorEdge = graphView.getGraph().edges.get(lastSelectedVertex.label + ";;" + cursorVertex.label);
   }
   
   private Vertex getClosestVertex(Envelope mouseEnv) {
-    List<Vertex> closeVertices = graphDisplay.getVerticesInEnv(mouseEnv);
+    List<Vertex> closeVertices = graphView.getVerticesInEnv(mouseEnv);
 
     if (closeVertices.size() == 0)
       return null;
@@ -293,13 +323,13 @@ public final class GraphVisualizationApplet extends PApplet {
       if (dist < minDist) {
         closestVertex = v;
         minDist = dist;
-      }
+      } 
     }
     return closestVertex;
   }
 
   private Edge getClosestEdge(Envelope mouseEnv) {
-    List<Edge> closeEdges = graphDisplay.getEdgesInEnv(mouseEnv);
+    List<Edge> closeEdges = graphView.getEdgesInEnv(mouseEnv);
 
     if (closeEdges.size() == 0)
       return null;
@@ -342,8 +372,16 @@ public final class GraphVisualizationApplet extends PApplet {
       background(255);
 
     if (showEdges) {
-      graphRenderer.draw(graphDisplay, g);
-
+      graphRenderer.draw(graphView, g);
+    }
+    
+    if (showDataset) {
+      browsableDatasetRenderer.draw(browsableDatasetView, g);
+      //aggregatedDatasetRenderer.draw(aggregatedDatasetView, g);
+    }
+    
+    if (showEdges) {
+      
       if (edgeSelectionMode) {
 
         if (cursorEdge != null)

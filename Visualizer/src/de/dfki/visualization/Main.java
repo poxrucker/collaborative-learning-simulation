@@ -1,10 +1,15 @@
 package de.dfki.visualization;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import javax.swing.JFrame;
+
+import de.dfki.data.Dataset;
 
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     //GraphVisualization temp = new GraphVisualization(null);
     //create your JFrame
     GraphAnalysis frame = new GraphAnalysis();

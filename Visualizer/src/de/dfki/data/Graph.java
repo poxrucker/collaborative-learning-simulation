@@ -32,6 +32,7 @@ public class Graph {
     public final String label;
     public boolean directed;
     public final LineString geometry;
+    public final Object property;
     
     public Edge(Vertex start, Vertex end, String label, LineString geometry, boolean directed) {
       this.start = start;
@@ -39,6 +40,16 @@ public class Graph {
       this.label = label;
       this.geometry = geometry;
       this.directed = directed;
+      this.property = null;
+    }
+    
+    public Edge(Vertex start, Vertex end, String label, LineString geometry, boolean directed, Object property) {
+      this.start = start;
+      this.end = end;
+      this.label = label;
+      this.geometry = geometry;
+      this.directed = directed;
+      this.property = property;
     }
     
     public String toString() {

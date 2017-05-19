@@ -97,7 +97,7 @@ public final class GraphVisualizationApplet extends PApplet {
     
     // Load dataset
     try {
-      Dataset dataset = Dataset.loadDataset(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/evaluation/via_berlino/15/run_2017_03_15_1/100/aggregated.txt"));
+      Dataset dataset = Dataset.loadDataset(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/evaluation/via_berlino/15/run_2017_03_15_1/0/aggregated.txt"));
       aggregatedDatasetView = new AggregatedDatasetView(graphView.getGraph(), dataset);
       browsableDatasetView = new BrowsableDatasetView(graphView.getGraph(), dataset);
     } catch (IOException e) {
@@ -279,6 +279,10 @@ public final class GraphVisualizationApplet extends PApplet {
       updateVertexSelectorState();
     }
 
+  }
+  
+  public BrowsableDatasetView getDataset() {
+    return browsableDatasetView;
   }
   
   private void updateEdgeSelectorState() {

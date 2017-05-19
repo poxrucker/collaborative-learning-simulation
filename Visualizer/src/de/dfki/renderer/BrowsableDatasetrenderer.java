@@ -27,37 +27,44 @@ public class BrowsableDatasetrenderer extends AbstractRenderer<BrowsableDatasetV
     Collection<Edge> edges = dataSet.getVisibleEdges();
     
     for (Edge edge : edges) {
+      
+      if (edge.geometry == null)
+        continue;
+      
+      g.strokeWeight(1);
+      g.stroke(150, 150, 150);
+      drawEdge(edge, g);
+
       double val = (double) edge.property;
       
       if (val < 0) {
-        continue;
-        //g.strokeWeight(2);
-        //g.stroke(getColor(g, 70, 70, 70, 255, 0, 0, -val));
-
-      } else if (val > 0) {
-        g.strokeWeight(2);
-        g.stroke(getColor(g, 10, 70, 10, 0, 255, 0, val));
         //continue;
-      } else {
-        g.strokeWeight(1);
-        g.stroke(150, 150, 150);
+        g.strokeWeight(2);
+        g.stroke(getColor(g, 70, 70, 70, 255, 0, 0, -val));
+        drawEdge(edge, g);
+
+      } else if (val > 0.1) {
+        //g.strokeWeight(2);
+        //g.stroke(getColor(g, 10, 70, 10, 0, 255, 0, val));
+        continue;
       }
-            
-      if (edge.geometry == null)
-        return;
-
-      Coordinate[] coords = edge.geometry.getCoordinates();
-
-      for (int j = 0; j < coords.length - 1; j++) {
-        ScreenPosition pos = conv.toScreenPosition(coords[j]);
-        ScreenPosition next = conv.toScreenPosition(coords[j + 1]);
-        g.line(pos.x, pos.y, next.x, next.y);
-      }
-
+         
+      
     }
     
   }
 
+  private void drawEdge(Edge edge, PGraphics g) {
+    Coordinate[] coords = edge.geometry.getCoordinates();
+
+    for (int j = 0; j < coords.length - 1; j++) {
+      ScreenPosition pos = conv.toScreenPosition(coords[j]);
+      ScreenPosition next = conv.toScreenPosition(coords[j + 1]);
+      g.line(pos.x, pos.y, next.x, next.y);
+    }
+
+  }
+  
   private int getColor(PGraphics g, int r1, int g1, int b1, int r2, int g2, int b2, double p) {
     
     if (p <= 0)

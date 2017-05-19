@@ -121,15 +121,15 @@ public final class Simulator {
 		for (Street s : streetsInROI) {
 			if (s.getName().equals("Fußweg")
 					|| s.getName().equals("Bürgersteig")
-					|| s.getName().equals("Parkplatz")
+					// || s.getName().equals("Parkplatz")
 					|| s.getName().equals("Stufen")
 					|| s.getName().equals("Weg") || s.getName().equals("Gasse")
 					|| s.getName().equals("Fußgängertunnel")
 					|| s.getName().equals("Fahrradweg")
-					|| s.getName().equals("Anliegerstraße")
-					|| s.getName().equals("Straße")
-					|| s.getName().equals("Fußgängerbrücke")
-					|| s.getName().equals("Fahrweg"))
+					// || s.getName().equals("Anliegerstraße")
+					// || s.getName().equals("Straße")
+					|| s.getName().equals("Fußgängerbrücke"))
+					// || s.getName().equals("Fahrweg"))
 				toRemove.add(s);
 		}
 

@@ -45,13 +45,24 @@ public class BrowsableDatasetView {
   private void buildCurrentIndex() {
     
     synchronized (currentIndex) {
+      
+      if (currentTime < dataSet.getMinimumTime() || currentTime > dataSet.getMaximumTime())
+        throw new IllegalArgumentException();
+      
+      int[] time = dataSet.getTime();
+      int index = 0;
+      
+      while (time[index] < currentTime)
+        index++;
+      
       @SuppressWarnings("unchecked")
       List<Edge> edges = edgeIndex.query((Envelope)edgeIndex.getRoot().getBounds());
       currentIndex = new STRtree();
       
+      
       for (Edge edge : edges) {
         double[] all = (double[]) edge.property;
-        Edge newEdge = graph.new Edge(edge.start, edge.end, edge.label, edge.geometry, edge.directed, all[24]);
+        Edge newEdge = graph.new Edge(edge.start, edge.end, edge.label, edge.geometry, edge.directed, all[index]);
         currentIndex.insert(newEdge.geometry.getEnvelopeInternal(), newEdge);
       }
       currentIndex.build();

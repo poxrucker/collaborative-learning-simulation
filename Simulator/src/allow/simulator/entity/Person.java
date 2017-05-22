@@ -104,6 +104,9 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private double originalTripDistance;
 	
+	@JsonIgnore
+  private boolean participating;
+  
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -399,8 +402,8 @@ public final class Person extends Entity {
 	}
 	
 	public void setSharing() {
-		this.sharing = true;
-		this.receiving = true;
+		sharing = true;
+		receiving = true;
 	}
 	
 	@JsonIgnore
@@ -409,7 +412,7 @@ public final class Person extends Entity {
 	}
 	
 	public void setReceiving() {
-		this.receiving = true;
+		receiving = true;
 	}
 	
 	@JsonIgnore
@@ -428,6 +431,14 @@ public final class Person extends Entity {
 	
 	public void setOriginalTripDistance(double dist) {
 		originalTripDistance = dist;
+	}
+	
+	public boolean isParticipating() {
+	  return participating;
+	}
+	
+	public void setParticipating() {
+	  participating = true;
 	}
 	
 	@SuppressWarnings("unchecked")

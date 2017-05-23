@@ -1,8 +1,5 @@
 package allow.simulator.core;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -16,13 +13,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import allow.simulator.entity.DailyRoutine;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
-import allow.simulator.entity.Profile;
-import allow.simulator.entity.TravelEvent;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -37,19 +36,13 @@ import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
-import allow.simulator.utility.NormalizedLinearUtility;
-import allow.simulator.utility.Preferences;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Main class of simulator for collaborative learning in the scenario of
@@ -61,8 +54,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public final class Simulator {
 	// Simulation context
 	private Context context;
-
-	private Collection<Street> streetsInROI;
 
 	// Threadpool for executing multiple tasks in parallel
 	private ExecutorService threadpool;
@@ -77,17 +68,12 @@ public final class Simulator {
 	 * 
 	 * @throws IOException
 	 */
-	public void setup(Configuration config, SimulationParameter params)
-			throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime()
-				.availableProcessors() * 2);
+	public void setup(Configuration config, SimulationParameter params) throws IOException {
+		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 		// Setup world.
-		// System.out.println("Loading world...");
 		StreetMap world = new StreetMap(config.getMapPath());
 
-		// System.out.println("  Adding layer \"" + OVERLAY_DISTRICTS +
-		// "\"...");
 		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
 		if (l == null)
 			throw new IllegalStateException("Error: Missing layer with key \""
@@ -98,24 +84,14 @@ public final class Simulator {
 		world.addOverlay(rasterOverlay, OVERLAY_RASTER);
 		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 
-		// Block streets
-		if (params.Scenario.equals("TrentoCentro")) {
-			initializeBlockedStreetsTrentoCentro(world);
-		} else if (params.Scenario.equals("PiazzaVenezia")) {
-			initializeBlockedStreetsPiazzaVenezia(world);
-		} else if (params.Scenario.equals("ViaBerlino")) {
-			initializeBlockedStreetsViaBerlino(world);
-		} else if (params.Scenario.equals("Normal")) {
-			params.Scenario = "";
-		} else
-			throw new IllegalArgumentException("Unknown scenarion "
-					+ params.Scenario);
+		// Set scenario to normal
+		params.Scenario = "";
 
 		// Initialize streets in region of interest
 		//streetsInROI = world.getStreetsInROI(new double[] { 11.1178, 11.1332, 46.0646, 46.0739 });
-		streetsInROI = new ArrayList<Street>(world.getStreets());
+		List<Street> streetsInROI = new ArrayList<Street>(world.getStreets());
 		
-		// Filter walking only streets from name
+		// Filter walking and biking only streets by name
 		List<Street> toRemove = new ObjectArrayList<Street>();
 
 		for (Street s : streetsInROI) {
@@ -136,21 +112,7 @@ public final class Simulator {
 		for (Street s : toRemove) {
 			streetsInROI.remove(s);
 		}
-		System.out.println(streetsInROI.size());
 		
-		// Write to file
-		Path streetMapping = Paths.get(params.LoggingFolder + "/"
-				+ params.BehaviourSpaceRunNumber + "_mapping.txt");
-
-		try (BufferedWriter wr = Files.newBufferedWriter(streetMapping)) {
-
-			for (Street street : streetsInROI) {
-				wr.write(street.getId() + ";" + street.getName() + ";"
-						+ street.getStartingNode().getLabel() + ";"
-						+ street.getEndNode().getLabel() + "\n");
-			}
-		}
-
 		// Create data services.
 		// System.out.println("Creating data services...");
 		List<IDataService> dataServices = new ArrayList<IDataService>();
@@ -206,7 +168,7 @@ public final class Simulator {
 		// Create global context from world, time, planner and data services,
 		// and weather.
 		context = new Context(world, new EntityManager(), time, planner,
-				dataServices.get(0), weather, new Statistics(500), params);
+				dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
 
 		// Setup entities.
 		// System.out.println("Loading entities from file...");
@@ -224,127 +186,14 @@ public final class Simulator {
 		// Update world
 		world.update(context);
 
-		// Create logger
-		logger = new StreetCapacityLogger(context, params.SamplingRateInSeconds);
-		logger.start(Paths.get(params.LoggingFolder + "/streets_"
-				+ params.BehaviourSpaceRunNumber + ".txt"));
-		logger.log(streetsInROI);
-
-		System.out.println("Setup simulation run "
-				+ params.BehaviourSpaceRunNumber);
-	}
-
-	private void initializeBlockedStreetsTrentoCentro(StreetMap world) {
-		// Close roads
-		world.setStreetBlocked(
-				world.getStreet("osm:node:278180296", "osm:node:339334743"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:339334743",
-		// "osm:node:278180296"), true);
-
-		world.setStreetBlocked(
-				world.getStreet("osm:node:339334743", "osm:node:339334723"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:339334723",
-		// "osm:node:339334743"), true);
-
-		world.setStreetBlocked(
-				world.getStreet("osm:node:339334723", "osm:node:1797200899"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:1797200899",
-		// "osm:node:339334723"), true);
-
-		world.setStreetBlocked(
-				world.getStreet("osm:node:1797200899", "osm:node:1797200783"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:1797200783",
-		// "osm:node:1797200899"), true);
-
-		world.setStreetBlocked(
-				world.getStreet("osm:node:1797200783", "osm:node:1797200897"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:1797200897",
-		// "osm:node:1797200783"), true);
-
-		world.setStreetBlocked(
-				world.getStreet("osm:node:256827486", "osm:node:1797200899"),
-				true);
-		// world.setStreetBlocked(world.getStreet("osm:node:1797200899",
-		// "osm:node:256827486"), true);
-
-	}
-
-	private void initializeBlockedStreetsPiazzaVenezia(StreetMap world) {
-		world.setStreetBlocked(world.getStreet("osm:node:2477700667", "osm:node:248798251"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:248798251", "osm:node:2477700667"), true);
-	}
-	
-	private void initializeBlockedStreetsViaBerlino(StreetMap world) {
-		world.setStreetBlocked(world.getStreet("osm:node:1213655165", "osm:node:1213655184"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1213655184", "osm:node:1213655165"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1213655184", "osm:node:1213655169"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1213655169", "osm:node:1213655184"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1213655169", "osm:node:9202675"), true);		
-		world.setStreetBlocked(world.getStreet("osm:node:9202675", "osm:node:1213655169"), true);		
-
-		world.setStreetBlocked(world.getStreet("osm:node:260915399", "osm:node:432436654"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:432436654", "osm:node:260915399"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:432436654", "osm:node:1109380756"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1109380756", "osm:node:432436654"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1109380756", "osm:node:1109380685"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1109380685", "osm:node:1109380756"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1109380685", "osm:node:256827548"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:256827548", "osm:node:1109380685"), true);
-
-
-		world.setStreetBlocked(world.getStreet("osm:node:9207036", "osm:node:258510005"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:258510005", "osm:node:9207036"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:258510005", "osm:node:9197745"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9197745", "osm:node:258510005"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:9199072", "osm:node:9193468"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9193468", "osm:node:9199072"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:260915539", "osm:node:260915543"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:260915543", "osm:node:260915539"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:9210951", "osm:node:193574934"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:193574934", "osm:node:9210951"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm:node:330302388"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:330302388", "osm:node:2275120574"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:432436400"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:432436400", "osm:node:256827544"), true);
+		// Initialize length of street network
+		double length = 0.0;
 		
-		world.setStreetBlocked(world.getStreet("osm:node:330302346", "osm:node:330302382"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:330302382", "osm:node:330302346"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:330302382", "osm:node:2275120574"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:2275120574", "osm:node:330302382"), true);
-
-		//world.setStreetBlocked(world.getStreet("osm:node:432436400", "osm:node:435148101"), true);
-		//world.setStreetBlocked(world.getStreet("osm:node:435148101", "osm:node:432436400"), true);
-
-		//world.setStreetBlocked(world.getStreet("osm:node:435148101", "osm:node:256827544"), true);
-		//world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:435148101"), true);
-
-		world.setStreetBlocked(world.getStreet("osm:node:476648008", "osm:node:9202675"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9202675", "osm:node:9202879"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9202879", "osm:node:256827544"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:256827544", "osm:node:75697034"), true);	
-		world.setStreetBlocked(world.getStreet("osm:node:75697034", "osm:node:1520990382"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:1520990382", "osm:node:256827546"), true);		
-		world.setStreetBlocked(world.getStreet("osm:node:256827546", "osm:node:330302388"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:330302388", "osm:node:256827547"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:256827547", "osm:node:260915539"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:260915539", "osm:node:256827548"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:256827548", "osm:node:9193468"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9193468", "osm:node:9207036"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9207036", "osm:node:9197745"), true);
-		world.setStreetBlocked(world.getStreet("osm:node:9197745", "osm:node:9210951"), true);	
-		world.setStreetBlocked(world.getStreet("osm:node:9210951", "osm:node:476648008"), true);
+		for (Street s : streetsInROI) {
+		  length += s.getLength();
+		}
+		context.getStatistics().setTotalStreetNetworkLength(length);
+		System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
 	}
 
 	private void loadEntitiesFromFile(Path config, SimulationParameter param)
@@ -361,197 +210,6 @@ public final class Simulator {
 			initializePerson(person, context, param);
 			context.getEntityManager().addEntity(person);
 		}
-
-		Collection<Entity> persons = new ArrayList<Entity>(context
-				.getEntityManager().getEntitiesOfType(EntityTypes.PERSON));
-		ArrayList<Person> workers = new ArrayList<Person>();
-		ArrayList<Person> homemaker = new ArrayList<Person>();
-
-		for (Entity e : persons) {
-			Person p = (Person) e;
-
-			if (p.getProfile() == Profile.WORKER) {
-				workers.add(p);
-			} else if (p.getProfile() == Profile.HOMEMAKER) {
-				homemaker.add(p);
-			}
-		}
-		
-		// Clone early shift workers
-		int earlyShiftWorkersToClone = param.EarlyShiftWorkers ? (int) (workers
-				.size() * (double) param.PercentEarlyShiftWorkers / 100.0) : 0;
-
-		for (int i = 0; i < earlyShiftWorkersToClone; i++) {
-			Person person = workers.get(i);
-			// Clone preferences
-			Preferences p1 = person.getRankingFunction().getPreferences();
-			Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(),
-					p1.getWDweight(), p1.getNCweight(), p1.getTmax(),
-					p1.getCmax(), p1.getWmax(), p1.getBusPreference(),
-					p1.getCarPreference());
-
-			// Clone daily routine
-			DailyRoutine dr1 = person.getDailyRoutine();
-			List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
-
-			for (int j = 1; j < 8; j++) {
-				List<TravelEvent> toClone = dr1.getDailyRoutine(j);
-				List<TravelEvent> clone = new ArrayList<TravelEvent>(
-						toClone.size());
-
-				for (TravelEvent event : toClone) {
-					TravelEvent temp = new TravelEvent(event.getTime()
-							.plusHours(-2), event.getStartingPoint(),
-							event.getDestination(), event.arriveBy());
-					clone.add(temp);
-				}
-				events.add(clone);
-			}
-			DailyRoutine dr2 = new DailyRoutine(events);
-
-			Person person2 = new Person(context.getEntityManager().getNextId(),
-					person.getGender(), person.getProfile(),
-					new NormalizedLinearUtility(), p2, new Coordinate(
-							person.getHome().x, person.getHome().y),
-					person.hasCar(), person.hasBike(), person.useFlexiBus(),
-					dr2);
-			initializePerson(person2, context, param);
-			context.getEntityManager().addEntity(person2);
-		}
-
-		// Clone back shift workers
-		int backShiftWorkersToClone = param.BackShiftWorkers ? (int) (workers.size() * (double) param.PercentBackShiftWorkers / 100.0) : 0;
-
-		for (int i = 0; i < backShiftWorkersToClone; i++) {
-			Person person = workers.get(i);
-			// Clone preferences
-			Preferences p1 = person.getRankingFunction().getPreferences();
-			Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(),
-					p1.getWDweight(), p1.getNCweight(), p1.getTmax(),
-					p1.getCmax(), p1.getWmax(), p1.getBusPreference(),
-					p1.getCarPreference());
-
-			// Clone daily routine
-			DailyRoutine dr1 = person.getDailyRoutine();
-			List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
-
-			for (int j = 1; j < 8; j++) {
-				List<TravelEvent> toClone = dr1.getDailyRoutine(j);
-				List<TravelEvent> clone = new ArrayList<TravelEvent>(
-						toClone.size());
-
-				for (TravelEvent event : toClone) {
-					TravelEvent temp = new TravelEvent(event.getTime()
-							.plusHours(4), event.getStartingPoint(),
-							event.getDestination(), event.arriveBy());
-					clone.add(temp);
-				}
-				events.add(clone);
-			}
-			DailyRoutine dr2 = new DailyRoutine(events);
-
-			Person person2 = new Person(context.getEntityManager().getNextId(),
-					person.getGender(), person.getProfile(),
-					new NormalizedLinearUtility(), p2, new Coordinate(
-							person.getHome().x, person.getHome().y),
-					person.hasCar(), person.hasBike(), person.useFlexiBus(),
-					dr2);
-			initializePerson(person2, context, param);
-			context.getEntityManager().addEntity(person2);
-		}
-		
-		// Clone homemaker
-		int homemakersToClone = param.ExtraHomemaker ? (int) (homemaker.size() * (double) param.PercentExtraHomemaker / 100.0) : 0;
-
-		for (int i = 0; i < homemakersToClone; i++) {
-			Person person = homemaker.get(i);
-			// Clone preferences 
-			Preferences p1 = person.getRankingFunction().getPreferences();
-			Preferences p2 = new Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(),
-			p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(), p1.getBusPreference(), p1.getCarPreference()); 
-			Person person2 = new Person(context.getEntityManager().getNextId(), person.getGender(),
-			person.getProfile(), new NormalizedLinearUtility(), p2, new
-			Coordinate(person.getHome().x, person.getHome().y), person.hasCar(),
-			person.hasBike(), person.useFlexiBus(), new DailyRoutine());
-			initializePerson(person2, context, param);
-			context.getEntityManager().addEntity(person2); 
-			}
-
-		/*
-		 * for (Entity entity : persons) { Person person = (Person)entity;
-		 * 
-		 * if (param.EarlyShiftWorkers && (person.getProfile() ==
-		 * Profile.WORKER) && (ThreadLocalRandom.current().nextInt(100) <
-		 * param.PercentEarlyShiftWorkers)) {
-		 * 
-		 * // Clone preferences Preferences p1 =
-		 * person.getRankingFunction().getPreferences(); Preferences p2 = new
-		 * Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(),
-		 * p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(),
-		 * p1.getBusPreference(), p1.getCarPreference());
-		 * 
-		 * // Clone daily routine DailyRoutine dr1 = person.getDailyRoutine();
-		 * List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
-		 * 
-		 * for (int i = 1; i < 8; i++) { List<TravelEvent> toClone =
-		 * dr1.getDailyRoutine(i); List<TravelEvent> clone = new
-		 * ArrayList<TravelEvent>(toClone.size());
-		 * 
-		 * for (TravelEvent event : toClone) { TravelEvent temp = new
-		 * TravelEvent(event.getTime().plusHours(-2), event.getStartingPoint(),
-		 * event.getDestination(), event.arriveBy()); clone.add(temp); }
-		 * events.add(clone); } DailyRoutine dr2 = new DailyRoutine(events);
-		 * 
-		 * Person person2 = new Person(context.getEntityManager().getNextId(),
-		 * person.getGender(), person.getProfile(), new
-		 * NormalizedLinearUtility(), p2, new Coordinate(person.getHome().x,
-		 * person.getHome().y), person.hasCar(), person.hasBike(),
-		 * person.useFlexiBus(), dr2); initializePerson(person2, context,
-		 * param); context.getEntityManager().addEntity(person2); }
-		 * 
-		 * if (param.BackShiftWorkers && (person.getProfile() == Profile.WORKER)
-		 * && (ThreadLocalRandom.current().nextInt(100) <
-		 * param.PercentBackShiftWorkers)) {
-		 * 
-		 * // Clone preferences Preferences p1 =
-		 * person.getRankingFunction().getPreferences(); Preferences p2 = new
-		 * Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(),
-		 * p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(),
-		 * p1.getBusPreference(), p1.getCarPreference());
-		 * 
-		 * // Clone daily routine DailyRoutine dr1 = person.getDailyRoutine();
-		 * List<List<TravelEvent>> events = new ArrayList<List<TravelEvent>>(7);
-		 * 
-		 * for (int i = 1; i < 8; i++) { List<TravelEvent> toClone =
-		 * dr1.getDailyRoutine(i); List<TravelEvent> clone = new
-		 * ArrayList<TravelEvent>(toClone.size());
-		 * 
-		 * for (TravelEvent event : toClone) { TravelEvent temp = new
-		 * TravelEvent(event.getTime().plusHours(4), event.getStartingPoint(),
-		 * event.getDestination(), event.arriveBy()); clone.add(temp); }
-		 * events.add(clone); } DailyRoutine dr2 = new DailyRoutine(events);
-		 * 
-		 * Person person2 = new Person(context.getEntityManager().getNextId(),
-		 * person.getGender(), person.getProfile(), new
-		 * NormalizedLinearUtility(), p2, new Coordinate(person.getHome().x,
-		 * person.getHome().y), person.hasCar(), person.hasBike(),
-		 * person.useFlexiBus(), dr2); initializePerson(person2, context,
-		 * param); context.getEntityManager().addEntity(person2); }
-		 * 
-		 * if (param.ExtraHomemaker && (person.getProfile() ==
-		 * Profile.HOMEMAKER) && (ThreadLocalRandom.current().nextInt(100) <
-		 * param.PercentExtraHomemaker)) { // Clone preferences Preferences p1 =
-		 * person.getRankingFunction().getPreferences(); Preferences p2 = new
-		 * Preferences(p1.getTTweight(), p1.getCweight(), p1.getWDweight(),
-		 * p1.getNCweight(), p1.getTmax(), p1.getCmax(), p1.getWmax(),
-		 * p1.getBusPreference(), p1.getCarPreference()); Person person2 = new
-		 * Person(context.getEntityManager().getNextId(), person.getGender(),
-		 * person.getProfile(), new NormalizedLinearUtility(), p2, new
-		 * Coordinate(person.getHome().x, person.getHome().y), person.hasCar(),
-		 * person.hasBike(), person.useFlexiBus(), new DailyRoutine());
-		 * initializePerson(person2, context, param);
-		 * context.getEntityManager().addEntity(person2); } }
-		 */
 	}
 
 	private void initializePerson(Person person, Context context,
@@ -559,31 +217,17 @@ public final class Simulator {
 		person.setContext(context);
 		PlanGenerator.generateDayPlan(person);
 
-		person.setInformed(ThreadLocalRandom.current().nextInt(100) < param.PercentInitiallyInformed);
-
-		boolean memberOfParticipatingGroup = (param.WithWorkers && (person
-				.getProfile() == Profile.WORKER))
-				|| (param.WithStudents && (person.getProfile() == Profile.STUDENT))
-				|| (param.WithChildren && (person.getProfile() == Profile.CHILD))
-				|| (param.WithHomemaker && (person.getProfile() == Profile.HOMEMAKER));
-
-		if (memberOfParticipatingGroup) {
-
-			if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
-
-				if (ThreadLocalRandom.current().nextInt(100) < param.PercentSharing)
-					person.setSharing();
-				else
-					person.setReceiving();
-			}
+		if (person.hasCar()) {
+		  
+		  if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
+		    person.setParticipating();
+		  }
 		}
 	}
 
 	/**
 	 * Advances the simulation by one step.
 	 * 
-	 * @param deltaT
-	 *            Time interval for this step.
 	 * @throws IOException
 	 */
 	public void tick() throws IOException {
@@ -608,7 +252,7 @@ public final class Simulator {
 		}
 
 		// Log streets
-		boolean logged = logger.log(streetsInROI);
+		/*boolean logged = logger.log(streetsInROI);
 
 		if (logged) {
 			StreetMap map = (StreetMap)context.getWorld();
@@ -616,7 +260,7 @@ public final class Simulator {
 			for (Street street : map.getStreets()) {
 				street.resetUsageStatistics();
 			}
-		}
+		}*/
 
 		/*
 		 * if (context.getTime().getCurrentTime().getHour() == 3 &&
@@ -637,10 +281,6 @@ public final class Simulator {
 	 */
 	public Context getContext() {
 		return context;
-	}
-
-	public Collection<Street> getStreetsInROI() {
-		return streetsInROI;
 	}
 
 	public void finish() throws IOException {

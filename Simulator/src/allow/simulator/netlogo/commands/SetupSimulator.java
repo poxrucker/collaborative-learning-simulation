@@ -40,29 +40,10 @@ public class SetupSimulator extends DefaultReporter {
 		// Parse simulation model parameters
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
-		params.LoggingFolder = args[2].getString();
-		params.SamplingRateInSeconds = args[3].getIntValue();
-		
+	
 		LogoList settings = args[4].getList();
 		params.Scenario = (String) settings.get(0);
-		params.PercentInitiallyInformed = (int) (double) settings.get(1);
-		params.PercentParticipating = (int) (double) settings.get(2);
-		params.PercentSharing = (int) (double) settings.get(3);
-		params.WithWorkers = (boolean) settings.get(4);
-		params.WithStudents = (boolean) settings.get(5);
-		params.WithChildren = (boolean) settings.get(6);
-		params.WithHomemaker = (boolean) settings.get(7);
-		params.Car = (boolean) settings.get(8);
-		params.Bus = (boolean) settings.get(9);
-		params.Walk = (boolean) settings.get(10);
-		params.Bike = (boolean) settings.get(11);
-		params.Idle = (boolean) settings.get(12);
-		params.EarlyShiftWorkers = (boolean) settings.get(13);
-		params.PercentEarlyShiftWorkers = (int) (double) settings.get(14);
-		params.BackShiftWorkers = (boolean) settings.get(15);
-		params.PercentBackShiftWorkers = (int) (double) settings.get(16);
-		params.ExtraHomemaker = (boolean) settings.get(17);
-		params.PercentExtraHomemaker = (int) (double) settings.get(18);
+		params.PercentParticipating = (int) (double) settings.get(1);
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
@@ -86,22 +67,8 @@ public class SetupSimulator extends DefaultReporter {
 		listBuilder.add(ctx.getTime().toString());
 		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
 		Statistics s = ctx.getStatistics();
-		listBuilder.add(s.getMeanPriorCarTravelTime());
-		listBuilder.add(s.getMeanPosteriorCarTravelTime());
-		listBuilder.add(s.getMeanPriorBusTravelTime());
-		listBuilder.add(s.getMeanPosteriorBusTravelTime());
-		listBuilder.add((double)s.getNumberOfPlannings());
-		listBuilder.add((double)s.getInformedPlannings());
-		listBuilder.add((double)s.getNumberOfAffectedPlannings());
-		listBuilder.add((double)s.getInformedPlanningsAffected());
-		listBuilder.add((double)s.getIntermediateReplannings());
-		listBuilder.add((double)s.getConstructionSiteReplannings());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteRaw());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteRaw());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteActual());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteActual());
-		listBuilder.add((double)s.getMeanPriorTripDistance());
-		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
+		listBuilder.add((double)s.getTotalStreetNetworkLength());
+		listBuilder.add((double)s.getVisitedStreetNetworkLength());
 		return listBuilder.toLogoList();
 	}
 

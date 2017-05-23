@@ -1,12 +1,15 @@
 package allow.simulator.statistics;
 
 import java.util.Collection;
+import java.util.Set;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.utility.Preferences;
+import allow.simulator.world.StreetSegment;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class Statistics {
 	// Prior and posterior travel times for car journeys
@@ -79,6 +82,10 @@ public class Statistics {
 	private SlidingWindow priorTripDistance;
 	private SlidingWindow posteriorTripDistance;
 	
+	private double totalStreetNetworkLength;
+	private double visitedStreetNetworkLength;
+	private Set<StreetSegment> visitedLinks;
+	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -125,6 +132,8 @@ public class Statistics {
 		
 		priorTripDistance = new SlidingWindow(windowSize);
 		posteriorTripDistance = new SlidingWindow(windowSize);
+		
+		visitedLinks = new ObjectOpenHashSet<>();
 	}
 	
 	public void reset() {
@@ -378,6 +387,26 @@ public class Statistics {
 	public void reportPriorAndPosteriorUtilityBus(double priorToAdd, double posteriorToAdd) {
 		priorUtilityBus.addValue(priorToAdd);
 		posteriorUtilityBus.addValue(posteriorToAdd);
+	}
+	
+	public double getTotalStreetNetworkLength() {
+	  return totalStreetNetworkLength;
+	}
+	
+	public void setTotalStreetNetworkLength(double length) {
+	  totalStreetNetworkLength = length;
+	}
+	
+	public double getVisitedStreetNetworkLength() {
+	  return visitedStreetNetworkLength;
+	}
+	
+	public void reportVisitedLink(StreetSegment seg) {
+	  if (visitedLinks.contains(seg))
+	    return;
+	  
+	  visitedLinks.add(seg);
+	  visitedStreetNetworkLength += seg.getLength();
 	}
 	
 	public void updateGlobalStatistics(Context simulationContext) {

@@ -40,23 +40,9 @@ public class Tick extends DefaultReporter {
 		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
 		
 		Statistics s = ctx.getStatistics();
-		listBuilder.add(s.getMeanPriorCarTravelTime());
-		listBuilder.add(s.getMeanPosteriorCarTravelTime());
-		listBuilder.add(s.getMeanPriorBusTravelTime());
-		listBuilder.add(s.getMeanPosteriorBusTravelTime());
-		listBuilder.add((double)s.getNumberOfPlannings());
-		listBuilder.add((double)s.getInformedPlannings());
-		listBuilder.add((double)s.getNumberOfAffectedPlannings());
-		listBuilder.add((double)s.getInformedPlanningsAffected());		
-		listBuilder.add((double)s.getIntermediateReplannings());
-		listBuilder.add((double)s.getConstructionSiteReplannings());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteRaw());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteRaw());
-		listBuilder.add((double)s.getMeanPriorCarTravelTimeConstructionSiteActual());
-		listBuilder.add((double)s.getMeanPosteriorCarTravelTimeConstructionSiteActual());
-		listBuilder.add((double)s.getMeanPriorTripDistance());
-		listBuilder.add((double)s.getMeanPosteriorPriorTripDistance());
-		return listBuilder.toLogoList();
+    listBuilder.add((double)s.getTotalStreetNetworkLength());
+    listBuilder.add((double)s.getVisitedStreetNetworkLength());
+    return listBuilder.toLogoList();
 	}
 
 	public Syntax getSyntax() {

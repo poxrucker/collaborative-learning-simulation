@@ -1,9 +1,14 @@
 package allow.simulator.core;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.statistics.Statistics;
+import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 import allow.simulator.world.World;
 
@@ -42,6 +47,9 @@ public final class Context {
 	// (Externally) provided simulation parameters
 	private final SimulationParameter params;
 	
+	// Streets of interest
+	private final Set<Street> roiStreets;
+
 	/**
 	 * Creates new instance of the Context class holding context information
 	 * globally available within the simulation.
@@ -60,7 +68,8 @@ public final class Context {
 			IDataService dataService,
 			Weather weather,
 			Statistics stats,
-			SimulationParameter params) {
+			SimulationParameter params,
+			Collection<Street> roiStreets) {
 		this.world = world;
 		this.entityManager = entityManager;
 		this.time = time;
@@ -69,6 +78,11 @@ public final class Context {
 		this.weather = weather;
 		this.stats = stats;
 		this.params = params;
+		this.roiStreets = new HashSet<>(roiStreets);
+	}
+	
+	public Collection<Street> getRoiStreets() {
+	  return roiStreets;
 	}
 	
 	/**

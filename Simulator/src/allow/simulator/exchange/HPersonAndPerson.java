@@ -1,10 +1,7 @@
 package allow.simulator.exchange;
 
-import allow.simulator.core.SimulationParameter;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 
 public class HPersonAndPerson extends ExchangeHandler {
 
@@ -42,17 +39,6 @@ public class HPersonAndPerson extends ExchangeHandler {
 	}
 	
 	private static boolean executesRelevantActivity(Person p) {
-		SimulationParameter param = p.getContext().getSimulationParameters();
-		@SuppressWarnings("unchecked")
-		Activity<Person> a = (Activity<Person>) p.getFlow().getCurrentActivity();
-		
-		if ((a == null) || (a.getType() == ActivityType.PLAN_JOURNEY) || (a.getType() == ActivityType.RANK_ALTERNATIVES)
-				|| (a.getType() == ActivityType.PREPARE_JOURNEY) || (a.getType() == ActivityType.REPLAN)) 
-			return param.Idle && p.hasUsedCar();
-		
-		return (param.Car && (a.getType() == ActivityType.DRIVE))
-				|| (param.Bus && (a.getType() == ActivityType.USE_PUBLIC_TRANSPORT) || (a.getType() == ActivityType.WAIT))
-				|| (param.Walk && (a.getType() == ActivityType.WALK))
-				|| (param.Bike && (a.getType() == ActivityType.CYCLE));
+		return false;
 	}
 }

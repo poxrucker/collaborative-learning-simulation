@@ -35,7 +35,7 @@ public class ShowBusyStreets extends DefaultCommand {
 			}
 		});
 		//sorted.addAll(wrapper.getSimulator().getStreetsInROI());
-		sorted.addAll(wrapper.getSimulator().getStreetsInROI());
+		sorted.addAll(wrapper.getSimulator().getContext().getRoiStreets());
 		
 		// Reset NetLogo link
 		resetLinks(wrapper.getLinkMapping());

@@ -61,8 +61,6 @@ public final class Simulator {
 	public static final String OVERLAY_DISTRICTS = "partitioning";
 	public static final String OVERLAY_RASTER = "raster";
 
-	private StreetCapacityLogger logger;
-
 	/**
 	 * Creates a new instance of the simulator.
 	 * 
@@ -284,7 +282,6 @@ public final class Simulator {
 	}
 
 	public void finish() throws IOException {
-		logger.close();
 		threadpool.shutdown();
 
 		try {

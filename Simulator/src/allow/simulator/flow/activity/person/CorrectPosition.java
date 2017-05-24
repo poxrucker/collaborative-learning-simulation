@@ -2,7 +2,6 @@ package allow.simulator.flow.activity.person;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.util.Coordinate;
 
 public class CorrectPosition extends Activity<Person> {

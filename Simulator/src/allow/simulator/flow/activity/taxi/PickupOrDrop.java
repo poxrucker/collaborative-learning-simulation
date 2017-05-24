@@ -5,7 +5,6 @@ import java.time.LocalTime;
 
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.Stop;
 
 public class PickupOrDrop extends Activity<Taxi> {

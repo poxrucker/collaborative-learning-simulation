@@ -11,7 +11,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictArea;
@@ -24,8 +24,8 @@ public class GetRegion extends DefaultReporter
 		Agent a = (Agent) context.getAgent();
 		
 		if (a instanceof IAgentAdapter) {
-			IAgentAdapter temp = (IAgentAdapter) a;
-			DistrictOverlay l = (DistrictOverlay) temp.getEntity().getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+			IAgentAdapter<?> temp = (IAgentAdapter<?>) a;
+			DistrictOverlay l = (DistrictOverlay) temp.getEntity().getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 			List<Area> areas = l.getAreasContainingPoint(temp.getEntity().getPosition());
 			
 			LogoListBuilder bldr = new LogoListBuilder();

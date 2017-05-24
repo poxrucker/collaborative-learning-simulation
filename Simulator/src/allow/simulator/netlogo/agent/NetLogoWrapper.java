@@ -14,7 +14,7 @@ import org.nlogo.api.AgentException;
 
 import allow.simulator.core.Context;
 import allow.simulator.core.EntityManager;
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
@@ -38,9 +38,9 @@ public final class NetLogoWrapper implements IContextWrapper {
 	private Transformation transformation;
 
 	// Simulator instance
-	private final Simulator simulator;
+	private final AllowSimulationModel simulator;
 	
-	public NetLogoWrapper(Simulator simulator, World netLogoWorld) {
+	public NetLogoWrapper(AllowSimulationModel simulator, World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simulator = simulator;
 		//this.simToNetLogo = new Int2LongOpenHashMap();
@@ -55,7 +55,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 		return netLogoWorld;
 	}
 	
-	public Simulator getSimulator() {
+	public AllowSimulationModel getSimulator() {
 		return simulator;
 	}
 	
@@ -91,7 +91,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 
 		for (Street street : streets) {		
 			List<StreetSegment> segs = street.getSubSegments();
-			double color = street.isBlocked() ? 15.0 : 5.0;
+			double color = 5.0;
 			
 			for (StreetSegment seg : segs) {
 				Turtle startNode = nodes.get(seg.getStartingNode().getId());
@@ -168,7 +168,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 		}
 	}
 	
-	public static NetLogoWrapper initialize(int runId, Simulator simulator, World world) {
+	public static NetLogoWrapper initialize(int runId, AllowSimulationModel simulator, World world) {
 		NetLogoWrapper instance = new NetLogoWrapper(simulator, world);
 		instance.wrap(simulator.getContext());
 		instances.put(runId, instance);

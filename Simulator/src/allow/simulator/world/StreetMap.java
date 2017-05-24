@@ -74,7 +74,7 @@ public final class StreetMap extends World implements Observer {
 		String tokens[] = headerNodes.split(" ");
 		int numberOfNodes = Integer.parseInt(tokens[1]);
 		nodes = new Object2ObjectOpenHashMap<String, StreetNode>();
-		long nodeIds = 0;
+		int nodeIds = 0;
 			
 		for (int i = 0; i < numberOfNodes; i++) {
 			String temp = lines.get(offset++);
@@ -95,7 +95,7 @@ public final class StreetMap extends World implements Observer {
 		String headerLinks = lines.get(offset++);
 		tokens = headerLinks.split(" ");
 		int numberOfLinks = Integer.parseInt(tokens[1]);
-		long linkIds = 1;
+		int linkIds = 1;
 		double mphTomps = 1.609 / 3.6;
 		
 		for (int i = 0; i < numberOfLinks; i++) {
@@ -121,13 +121,10 @@ public final class StreetMap extends World implements Observer {
 				StreetNode end = nodes.get(subSegs[j + 1]);
 				StreetSegment seg = new StreetSegment(linkIds++, start, end, speedLimit, Geometry.haversineDistance(start.getPosition(), end.getPosition()));
 				segments.add(seg);
-				//map.addEdge(seg, start, end, EdgeType.DIRECTED);
 				
 				// Add reversed segment for walking.
 				StreetSegment segRev = new StreetSegment(linkIds++, end, start, speedLimit, seg.getLength());
 				segmentsRev.add(segRev);
-				//if (end.getLabel().startsWith("split"))
-				//map.addEdge(segRev, end, start, EdgeType.DIRECTED); 
 			}
 			Street s = new Street(linkIds++, name, segments);
 			

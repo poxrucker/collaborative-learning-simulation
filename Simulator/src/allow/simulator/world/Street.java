@@ -14,7 +14,7 @@ import java.util.Observer;
  */
 public class Street extends Observable implements Observer {
 	// Unique Id of the street.
-	private long id;
+	private int id;
 
 	// Name of the street.
 	private String name;
@@ -29,9 +29,6 @@ public class Street extends Observable implements Observer {
 	// Subsegments this street is divided into.
 	private List<StreetSegment> subSegments;
 	
-	// Indicates that street is blocked and cannot be used
-	private boolean blocked;
-	
 	/**
 	 * Constructor.
 	 * Creates a new instance of a street.
@@ -40,7 +37,7 @@ public class Street extends Observable implements Observer {
 	 * @param name Name of the street.
 	 * @param subSegments Subsegments of the street.
 	 */
-	public Street(long id, String name, List<StreetSegment> subSegments) {
+	public Street(int id, String name, List<StreetSegment> subSegments) {
 		this.id = id;
 		this.name = name;
 		this.subSegments = subSegments;
@@ -56,7 +53,7 @@ public class Street extends Observable implements Observer {
 	 * 
 	 * @return Id of the segment.
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -97,16 +94,6 @@ public class Street extends Observable implements Observer {
 	}
 	
 	/**
-	 * Returns the number of subsegments this segment is divided into. 1 means
-	 * that segment is not divided at all.
-	 * 
-	 * @return Number of subsegments this segment is divided into.
-	 */
-	public int getNumberOfSubSegments() {
-		return subSegments.size();
-	}
-
-	/**
 	 * Returns the total number of vehicles currently moving on one of the
 	 * segments of this Street instance.
 	 * 
@@ -134,19 +121,6 @@ public class Street extends Observable implements Observer {
 	 */
 	public List<StreetSegment> getSubSegments() {
 		return subSegments;
-	}
-
-	public boolean isBlocked() {
-		return blocked;
-	}
-	
-	public void setBlocked(boolean blocked) {
-		this.blocked = blocked;
-		
-		if (!hasChanged()) {
-			setChanged();
-			notifyObservers();
-		}
 	}
 	
 	public String toString() {
@@ -220,9 +194,5 @@ public class Street extends Observable implements Observer {
 		}
 		numberOfVehicles = temp;
 		vehicleLengthRatio = numberOfVehicles / length;
-		
-		/*if (vehicleLengthRatio > 0.1) {
-			Simulator.Instance().getContext().getStatistics().reportCongestedStreet();
-		}*/
 	}
 }

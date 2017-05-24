@@ -22,7 +22,7 @@ public class ShowNotAtHome extends DefaultCommand {
 		AgentSet s = w.getBreed("PERSONS");
 		
 		for (Iterator it = s.iterator(); it.hasNext(); ) {
-			IAgentAdapter p = (IAgentAdapter) it.next();
+			IAgentAdapter<?> p = (IAgentAdapter<?>) it.next();
 			Person pers = (Person) p.getEntity();
 			
 			if (!pers.getPosition().equals(pers.getHome()))

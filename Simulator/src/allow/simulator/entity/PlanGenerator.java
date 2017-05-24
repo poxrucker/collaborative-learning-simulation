@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.person.PlanJourney;
-import allow.simulator.flow.activity.person.RegisterToFlexiBus;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
@@ -18,8 +17,6 @@ import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.DistrictType;
 
 public class PlanGenerator {
-
-	private static final long SECONDS_TO_REGISTER_BEFORE_PLAN = 1800;
 
 	public static void generateDayPlan(Person person) {
 
@@ -56,12 +53,6 @@ public class PlanGenerator {
 		return new Pair<LocalTime, Activity<Person>>(temp, new PlanJourney(p, t.getStartingPoint(), t.getDestination()));
 	}
 	
-	private static Pair<LocalTime, Activity<Person>> createRegistertoFB(Person p, TravelEvent t, long pOffsetSeconds) {
-		LocalTime pTemp = t.getTime().minusSeconds(pOffsetSeconds).withSecond(0);
-		LocalTime rTemp = pTemp.minusSeconds(SECONDS_TO_REGISTER_BEFORE_PLAN).withSecond(0);
-		return new Pair<LocalTime, Activity<Person>>(rTemp, new RegisterToFlexiBus(p, t.getStartingPoint(), t.getDestination(), pTemp));
-	}
-	
 	private static void generateDailyRoutine(Person person) {
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
@@ -70,10 +61,6 @@ public class PlanGenerator {
 		// Add daily routine travel events.
 		for (TravelEvent t : routine) {
 			long pOffsetSeconds = t.arriveBy() ? (long) Geometry.haversineDistance(t.getStartingPoint(), t.getDestination()) / 4 : 0;
-			
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, t, pOffsetSeconds));
-			}
 			schedule.add(createPlanJourney(person, t, pOffsetSeconds));
 		}
 	}
@@ -117,7 +104,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_STUDENT[] = { 25, 5, 70, 0, 0, 0 };
 
 	private static void generateStudentDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
@@ -125,10 +112,6 @@ public class PlanGenerator {
 		// 1. Home to work/university.
 		TravelEvent homeToWork = routine.get(0);
 		long pOffsetSeconds = (long) Geometry.haversineDistance(homeToWork.getStartingPoint(), homeToWork.getDestination()) / 4;
-
-		if (person.useFlexiBus()) {
-			schedule.add(createRegistertoFB(person, homeToWork, pOffsetSeconds));
-		}
 		schedule.add(createPlanJourney(person, homeToWork, pOffsetSeconds));
 
 		// 2. From work back home. 
@@ -182,17 +165,11 @@ public class PlanGenerator {
 						homeToWork.getStartingPoint())));
 			} else {
 				// Straight home (home - work - home).
-				if (person.useFlexiBus()) {
-					schedule.add(createRegistertoFB(person, workToHome, 0));
-				}
 				schedule.add(createPlanJourney(person, workToHome, 0));
 			}	
 			
 		} else {
 			// Straight home (home - work - home).
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, workToHome, 0));
-			}
 			schedule.add(createPlanJourney(person, workToHome, 0));
 		}	
 		
@@ -278,7 +255,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_WORKER[] = { 15, 10, 75, 0, 0, 0 };
 
 	private static void generateWorkerDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
@@ -286,10 +263,6 @@ public class PlanGenerator {
 		// 1. Going to work in the morning.
 		TravelEvent homeToWork = routine.get(0);
 		long pOffsetSeconds = (long) Geometry.haversineDistance(homeToWork.getStartingPoint(), homeToWork.getDestination()) / 4;
-
-		if (person.useFlexiBus()) {
-			schedule.add(createRegistertoFB(person, homeToWork, pOffsetSeconds));
-		}
 		schedule.add(createPlanJourney(person, homeToWork, pOffsetSeconds));
 
 		// 2. From work back home.
@@ -333,9 +306,6 @@ public class PlanGenerator {
 
 		} else {
 			// Straight home (home - work - home).
-			if (person.useFlexiBus()) {
-				schedule.add(createRegistertoFB(person, workToHome, 0));
-			}
 			schedule.add(createPlanJourney(person, workToHome, 0));
 		}
 				
@@ -405,7 +375,7 @@ public class PlanGenerator {
 	private static int PROP_DEST_HOMEMAKER[] = { 30, 10, 60, 0, 0, 0 };
 
 	private static void generateHomemakerDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// Journey in the morning?

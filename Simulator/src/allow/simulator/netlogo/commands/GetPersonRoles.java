@@ -8,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.entity.Profile;
+import allow.simulator.entity.Person.Profile;
 
 public class GetPersonRoles extends DefaultReporter
 {

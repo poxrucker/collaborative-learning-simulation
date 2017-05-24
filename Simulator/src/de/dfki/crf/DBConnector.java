@@ -9,23 +9,30 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
-
 public final class DBConnector {
 	// Database configuration to create connections
-	private EvoKnowledgeConfiguration config;
+	private final String dbUrl;
+	private final String dbName;
+	private final String userName;
+	private final String password;
 	
 	// Saves which tables already exist
 	private final Set<String> tableCache = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 	
-	public void init(EvoKnowledgeConfiguration config, String tablePrefix) throws ClassNotFoundException {
-	  this.config = config;
+	public DBConnector(String dbUrl, String dbName, String userName, String password) {
+	  this.dbUrl = dbUrl;
+	  this.dbName = dbName;
+	  this.userName = userName;
+	  this.password = password;
+	}
+	
+	public void init(String tablePrefix) throws ClassNotFoundException {
 	  initDatabase(tablePrefix);
 	  initTableCache(tablePrefix);
 	}
 	
 	public Connection getConnection() throws SQLException {
-    Connection conn = DriverManager.getConnection(config.getModelPath() + config.getModelName() + "?allowMultiQueries=true", config.getUser(), config.getPassword());
+    Connection conn = DriverManager.getConnection(dbUrl + dbName + "?allowMultiQueries=true", userName, password);
     return conn;
   }
 	
@@ -43,10 +50,10 @@ public final class DBConnector {
     
     try (Connection con = getConnection(); Statement stmt = con.createStatement()) {  
       // Database creation
-      stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + config.getModelName());
+      stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
       
       try (ResultSet queries = stmt.executeQuery("SELECT CONCAT(\"DROP TABLE \", table_name, \";\") "
-          + "FROM information_schema.tables WHERE table_schema = \"" + config.getModelName() + "\" "
+          + "FROM information_schema.tables WHERE table_schema = \"" + dbName + "\" "
           + "AND table_name LIKE \"" + tablePrefix + "%\";")) {
         
         // Deleting previous tables
@@ -70,7 +77,7 @@ public final class DBConnector {
     
     try (Connection con = getConnection(); Statement stmt = con.createStatement()){
       
-      try (ResultSet rs = stmt.executeQuery("SHOW TABLES FROM " + config.getModelName() + " LIKE '" + tableName + "'")) {
+      try (ResultSet rs = stmt.executeQuery("SHOW TABLES FROM " + dbName + " LIKE '" + tableName + "'")) {
 
         while (rs.next()) {
           String table = rs.getString(1);

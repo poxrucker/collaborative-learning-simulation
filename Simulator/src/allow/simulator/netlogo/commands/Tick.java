@@ -8,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
 
@@ -21,8 +21,8 @@ public class Tick extends DefaultReporter {
 		
 		// NetLogoWrapper
 		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
-		Simulator simulator = wrapper.getSimulator();
-		simulator.tick();
+		AllowSimulationModel simulator = wrapper.getSimulator();
+		simulator.step();
 		
 		// Return context and statistics.		
 		LogoListBuilder listBuilder = new LogoListBuilder();

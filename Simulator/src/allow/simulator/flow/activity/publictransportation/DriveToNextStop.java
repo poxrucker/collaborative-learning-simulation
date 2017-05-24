@@ -5,7 +5,6 @@ import java.util.List;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
@@ -102,7 +101,7 @@ public class DriveToNextStop extends MovementActivity<Bus> {
 				
 				Street street = getCurrentStreet();
 
-				if (segmentIndex == street.getNumberOfSubSegments()) {
+				if (segmentIndex == street.getSubSegments().size()) {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					

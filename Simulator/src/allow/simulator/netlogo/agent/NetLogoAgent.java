@@ -13,7 +13,7 @@ import org.nlogo.api.AgentException;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.flow.activity.Activity.ActivityType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Transformation;
 

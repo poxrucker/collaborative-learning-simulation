@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import allow.simulator.core.Time;
 import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.Stop;
 
 /**

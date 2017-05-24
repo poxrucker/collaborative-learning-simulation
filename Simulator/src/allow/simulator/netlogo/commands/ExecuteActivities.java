@@ -22,8 +22,8 @@ public class ExecuteActivities extends DefaultReporter {
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		Agent a = (Agent) context.getAgent();
 		
-		if (a instanceof IAgentAdapter) {
-			IAgentAdapter p = (IAgentAdapter) a;
+		if (a instanceof IAgentAdapter<?>) {
+			IAgentAdapter<?> p = (IAgentAdapter<?>) a;
 			return p.execute();
 
 		} else {

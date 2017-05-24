@@ -6,7 +6,6 @@ import java.util.concurrent.Future;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.knowledge.EvoKnowledgeUtil;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.utility.ItineraryParams;

@@ -1,10 +1,9 @@
 package allow.simulator.flow.activity.publictransportation;
 
+import allow.simulator.entity.Bus;
 import allow.simulator.entity.BusAgency;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.Bus;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 
 /**
  * Represents an activity to go back to a transport agency if trip is finished.

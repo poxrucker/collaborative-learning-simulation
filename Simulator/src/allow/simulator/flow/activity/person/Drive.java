@@ -4,7 +4,6 @@ import java.util.List;
 
 import allow.simulator.entity.Person;
 import allow.simulator.exchange.Relation;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
@@ -95,7 +94,7 @@ public final class Drive extends MovementActivity<Person> {
 				
 				Street street = getCurrentStreet();
 
-				if (segmentIndex == street.getNumberOfSubSegments()) {
+				if (segmentIndex == street.getSubSegments().size()) {
 					double sumTravelTime = streetTravelTime; // + tNextSegment;
 					tEnd = tStart + (long) sumTravelTime;
 					

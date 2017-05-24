@@ -2,7 +2,6 @@ package allow.simulator.flow.activity.person;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 
 public class Wait extends Activity<Person> {
 	// Time to wait

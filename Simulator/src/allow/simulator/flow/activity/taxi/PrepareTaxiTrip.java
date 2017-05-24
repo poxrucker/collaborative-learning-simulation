@@ -6,7 +6,6 @@ import java.util.List;
 
 import allow.simulator.entity.Taxi;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.person.Learn;
 import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;

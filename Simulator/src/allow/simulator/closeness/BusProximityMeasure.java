@@ -9,7 +9,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.TransportationEntity;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.flow.activity.Activity.ActivityType;
 import allow.simulator.flow.activity.person.UsePublicTransport;
 
 /**

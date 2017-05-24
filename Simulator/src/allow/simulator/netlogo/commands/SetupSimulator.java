@@ -3,6 +3,8 @@ package allow.simulator.netlogo.commands;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.nlogo.agent.World;
 import org.nlogo.api.Argument;
@@ -13,9 +15,9 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.core.Configuration;
 import allow.simulator.core.SimulationParameter;
-import allow.simulator.core.Simulator;
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
 
@@ -47,20 +49,15 @@ public class SetupSimulator extends DefaultReporter {
 		params.GridResY = w.worldHeight();
 		
 		// Create simulator and NetLogo binding
-		Simulator simulator = null;
-		
-		try {
-			simulator = new Simulator();
-			simulator.setup(config, params);
-			NetLogoWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
-			
-		} catch (IOException e) {
-			throw new ExtensionException(e.getMessage());
-			
-		} catch (ClassNotFoundException e) {
-      throw new ExtensionException(e.getMessage());
+		AllowSimulationModel simulator = null;
 
-    }
+    simulator = new AllowSimulationModel();
+    Map<String, Object> configuration = new HashMap<>();
+    configuration.put(AllowSimulationModel.PARAM_CONFIG, config);
+    configuration.put(AllowSimulationModel.PARAM_SIMULATION_PARAMETER, params);
+
+    simulator.setup(configuration);
+    NetLogoWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
 
 		// List buffer.
 		LogoListBuilder listBuilder = new LogoListBuilder();

@@ -4,7 +4,6 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 
 public final class ReturnToTaxiAgency extends Activity<Taxi> {
 	

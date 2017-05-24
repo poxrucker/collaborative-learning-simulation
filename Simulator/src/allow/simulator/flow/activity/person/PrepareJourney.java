@@ -11,7 +11,6 @@ import allow.simulator.entity.Person;
 import allow.simulator.entity.Taxi;
 import allow.simulator.entity.TaxiAgency;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.mobility.data.Route;
 import allow.simulator.mobility.data.Stop;
 import allow.simulator.mobility.data.Trip;

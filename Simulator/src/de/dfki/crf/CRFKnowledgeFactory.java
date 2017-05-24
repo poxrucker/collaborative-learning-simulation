@@ -1,10 +1,9 @@
 package de.dfki.crf;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.knowledge.IExchangeStrategy;
 
-public class CRFKnowledgeFactory {
+public final class CRFKnowledgeFactory {
 
   private final DBConnector dbConnector;
   private final String tablePrefix;
@@ -34,9 +33,10 @@ public class CRFKnowledgeFactory {
     return new LocalExchangeStrategy(dbConnector);
   }
   
-  public static CRFKnowledgeFactory create(EvoKnowledgeConfiguration config, String tablePrefix) throws ClassNotFoundException {
-    DBConnector dbConnector = new DBConnector();
-    dbConnector.init(config, tablePrefix);
+  public static CRFKnowledgeFactory create(String modelPath, String modelName, 
+      String userName, String password, String tablePrefix) throws ClassNotFoundException {
+    DBConnector dbConnector = new DBConnector(modelPath, modelName, userName, password);
+    dbConnector.init(tablePrefix);
     return new CRFKnowledgeFactory(dbConnector, tablePrefix);
   }
 }

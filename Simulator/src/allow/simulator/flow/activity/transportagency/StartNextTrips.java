@@ -5,7 +5,6 @@ import java.util.List;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.BusAgency;
 import allow.simulator.flow.activity.Activity;
-import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.publictransportation.PrepareTrip;
 import allow.simulator.mobility.data.PublicTransportationTrip;
 

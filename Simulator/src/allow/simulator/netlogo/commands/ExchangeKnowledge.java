@@ -7,8 +7,7 @@ import org.nlogo.api.DefaultCommand;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 
-import allow.simulator.entity.Person;
-import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.flow.activity.Activity.ActivityType;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 
 /**

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.entity.Entity;
 import allow.simulator.world.overlay.RasterOverlay;
 
@@ -18,7 +17,7 @@ public final class SpatialProximityMeasure implements IProximityMeasure {
 	
 	@Override
 	public Collection<Entity> getCloseEntities(Entity entity, double maxDist) {
-		RasterOverlay overlay = (RasterOverlay) entity.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_RASTER);
+		RasterOverlay overlay = entity.getContext().getWorld().getRaster();
 		Collection<Entity> close = overlay.getCloseEntities(entity.getPosition(), maxDist);
 		
 		if (close.size() == 0)

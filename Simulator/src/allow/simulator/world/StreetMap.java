@@ -1,8 +1,5 @@
 package allow.simulator.world;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,10 +17,14 @@ import java.util.Queue;
 import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.world.overlay.DistrictOverlay;
+import allow.simulator.world.overlay.RasterOverlay;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
-public final class StreetMap extends World implements Observer {
+public final class StreetMap implements Observer {
 	
 	private static final class StreetComparator implements Comparator<Street> {
 		
@@ -41,7 +42,10 @@ public final class StreetMap extends World implements Observer {
 		
 	}
 	
-	// Encodes network structure of StreetMap.
+	//Dimensions of the world (minX, minY, maxX, maxY)
+	private double[] dimensions;
+	private DistrictOverlay districts;
+	private RasterOverlay raster;
 	private Graph<StreetNode, Street> map;
 	private Object2ObjectOpenHashMap<String, StreetNode> nodesReduced;	
 	private Object2ObjectOpenHashMap<String, Street> streets;
@@ -148,16 +152,26 @@ public final class StreetMap extends World implements Observer {
 		+ dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
-	/**
-	 * Returns the nodes, i.e. beginning and end points of street (segments) 
-	 * forming the street graph together with the streets.
-	 * 
-	 * @return List of street nodes of the street graph.
-	 */
-	/*public List<StreetNode> getStreetNodes() {
-		return temp;
-	}*/
+	public double[] getDimensions() {
+	  return dimensions;
+	}
 	
+	public void setDistricts(DistrictOverlay districts) {
+	  this.districts = districts;
+	}
+	
+	public DistrictOverlay getDistricts() {
+	  return districts;
+	}
+	
+	public void setRaster(RasterOverlay raster) {
+    this.raster = raster;
+  }
+  
+  public RasterOverlay getRaster() {
+    return raster;
+  }
+  
 	public Collection<StreetNode> getStreetNodes() {
 		return Collections.unmodifiableCollection(map.getVertices());
 	}
@@ -196,7 +210,6 @@ public final class StreetMap extends World implements Observer {
 	/**
 	 * Updates all street segments which 
 	 */
-	@Override
 	public boolean update(Context context) {
 		boolean changed = false;
 		// Reset busiest streets queue. 
@@ -204,13 +217,10 @@ public final class StreetMap extends World implements Observer {
 		
 		for (Street toUpdate : streetsToUpdate) {
 			toUpdate.updatePossibleSpeedOnSegments();
-			
-			/*if (toUpdate.getNumberOfVehicles() > 0)
-				busiestStreets.add(toUpdate);*/
 			changed = true;
 		}
 		streetsToUpdate.clear();
-		return changed || super.update(context);
+		return changed;
 	}
 	
 	public List<Street> getNBusiestStreets(int n) {

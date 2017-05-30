@@ -62,7 +62,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 	@Override
 	public void wrap(Context context) {
 		// Wrap world
-		wrapWorld((StreetMap) context.getWorld());
+		wrapWorld(context.getWorld());
 
 		// Wrap entities
 		try {

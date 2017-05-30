@@ -100,7 +100,7 @@ public class Main {
 		// Determine home location.
 		StreetMap map = new StreetMap(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/trento.world"));
 		DistrictOverlay districtOverlay = DistrictOverlay.parse(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/partitioning.layer"), map);
-		map.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
+		map.setDistricts(districtOverlay);
 		
 		long t1 = System.nanoTime();
 		int numberToGenerate = 5000;
@@ -258,7 +258,7 @@ public class Main {
 	}
 	
 	private static Person createChild(int id, StreetMap map, IPlannerService planner) {
-		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
+		DistrictOverlay l = map.getDistricts();
 		List<Area> schools = l.getAreasOfType(DistrictType.SCHOOL);
 		Coordinate home = null, school = null;
 		TravelEvent homeToWork = null, workToHome = null;
@@ -301,7 +301,7 @@ public class Main {
 	private static int PROP_CAR_HOMEMAKER = 80;
 	
 	private static Person createHomemaker(int id, StreetMap map, IPlannerService planner) {
-		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
+	  DistrictOverlay l = map.getDistricts();
 		Coordinate home = null, second = null;
 		
 		//if (ThreadLocalRandom.current().nextInt(100) < 70) {
@@ -368,7 +368,7 @@ public class Main {
 	private static int PROP_BIKE_STUDENT = 80;
 
 	private static Person createStudent(int id, StreetMap map, IPlannerService planner) {
-		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
+	  DistrictOverlay l = map.getDistricts();
 		boolean hasCar = (ThreadLocalRandom.current().nextInt(100) < PROP_CAR_STUDENT);
 		boolean hasBike = (ThreadLocalRandom.current().nextInt(100) < PROP_BIKE_STUDENT);
 		Coordinate home = null, university = null;
@@ -435,7 +435,7 @@ public class Main {
 	
 	private static Person createWorker(int id, StreetMap map, IPlannerService planner) {
 		// Get layer.
-		DistrictOverlay l = (DistrictOverlay) map.getOverlay(OVERLAY_DISTRICTS);
+	  DistrictOverlay l = map.getDistricts();
 		
 		// Determine car availability.
 		boolean hasCar = (ThreadLocalRandom.current().nextInt(100) < PROP_CAR_WORKER);

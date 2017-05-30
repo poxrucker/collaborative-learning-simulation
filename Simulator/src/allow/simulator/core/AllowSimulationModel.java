@@ -42,7 +42,6 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
-import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
 import de.dfki.crf.CRFKnowledgeFactory;
 import de.dfki.crf.IKnowledgeModel;
@@ -92,7 +91,7 @@ public final class AllowSimulationModel extends SimulationModel {
 		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
 		if (l == null)
 			throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
-		IOverlay districtOverlay = null;
+		DistrictOverlay districtOverlay = null;
 		
     try {
       districtOverlay = DistrictOverlay.parse(l, world);
@@ -101,9 +100,10 @@ public final class AllowSimulationModel extends SimulationModel {
       e.printStackTrace();
       return;
     }
-		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
+		world.setDistricts(districtOverlay);
+		
 		RasterOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY);
-    world.addOverlay(rasterOverlay, OVERLAY_RASTER);
+    world.setRaster(rasterOverlay);
 
 		// Create data services.
 		System.out.println("Creating data services...");

@@ -14,7 +14,6 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
@@ -33,12 +32,12 @@ public class GetRegions extends DefaultReporter
 		// NetLogoWrapper
 		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
 		LogoListBuilder bldr = new LogoListBuilder();
-		StreetMap map = (StreetMap) wrapper.getSimulator().getContext().getWorld();
+		StreetMap map = wrapper.getSimulator().getContext().getWorld();
 		
 		if (map == null) 
 			throw new ExtensionException("Error: Simulator is not initialized.");
 		
-		DistrictOverlay l = (DistrictOverlay) map.getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
+		DistrictOverlay l = map.getDistricts();
 		Set<String> areas = new HashSet<String>();
 		HashMap<String, List<String>> types = new HashMap<String, List<String>>();
 		HashMap<String, Coordinate> centers = new HashMap<String, Coordinate>();

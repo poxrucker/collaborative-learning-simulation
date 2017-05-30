@@ -4,8 +4,8 @@ import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.statistics.Statistics;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
-import allow.simulator.world.World;
 
 /**
  * Represents context (i.e. world, time, a.s.o. shared by all entities) of 
@@ -15,8 +15,8 @@ import allow.simulator.world.World;
  *
  */
 public final class Context {
-	// World including the StreetMap
-	private final World world;
+	// Simulation world
+	private final StreetMap world;
 	
 	// EntityManager instance holding all entities
 	private final EntityManager entityManager;
@@ -46,14 +46,14 @@ public final class Context {
 	 * Creates new instance of the Context class holding context information
 	 * globally available within the simulation.
 	 * 
-	 * @param world World instance
+	 * @param world StreetMap instance
 	 * @param entityManager EntityManager instance
 	 * @param time Time instance
 	 * @param dataService Data service to be used
 	 * @param plannerService Planner services to be used.
 	 * @param weather Current weather.
 	 */
-	public Context(World world,
+	public Context(StreetMap world,
 			EntityManager entityManager,
 			Time time,
 			JourneyPlanner journeyPlanner,
@@ -76,7 +76,7 @@ public final class Context {
 	 * 
 	 * @return World of the simulation.
 	 */
-	public World getWorld() {
+	public StreetMap getWorld() {
 		return world;
 	}
 	

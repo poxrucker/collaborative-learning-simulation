@@ -82,9 +82,15 @@ public final class Drive extends MovementActivity<Person> {
 			StreetSegment s = getCurrentSegment();
 	    s.registerVehicle(person);
 
-			if (person.getContext().getRoiStreets().contains(getCurrentStreet()) && person.isParticipating()) 
-			  person.getContext().getStatistics().reportVisitedLink(s);
-			
+			if (person.getContext().getRoiStreets().contains(getCurrentStreet()) && person.isParticipating()) {
+			  long time = person.getContext().getTime().getTimestamp();
+			  person.getContext().getStatistics().reportVisitedLink(time, s);
+			  
+			  StreetSegment rev = getReverseSegment(getCurrentStreet(), s);
+			  
+			  if (rev != null)
+		       person.getContext().getStatistics().reportVisitedLink(time, rev);
+			}
 			double v = s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
 			Coordinate p = getCurrentPosition();
 			
@@ -167,5 +173,21 @@ public final class Drive extends MovementActivity<Person> {
 	
 	public String toString() {
 		return "Drive " + entity;
+	}
+	
+	private StreetSegment getReverseSegment(Street street, StreetSegment seg) {
+    StreetMap map = (StreetMap) entity.getContext().getWorld();
+    Street rev = map.getStreetReduced(street.getEndNode(), street.getStartingNode());
+    
+    if (rev == null)
+      return null;
+    
+    for (StreetSegment temp : rev.getSubSegments()) {
+      
+      if (temp.getStartingNode().equals(seg.getEndingNode()) 
+          && temp.getEndingNode().equals(seg.getStartingNode()))
+          return temp;
+    }
+    return null;
 	}
 }

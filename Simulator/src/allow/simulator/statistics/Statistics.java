@@ -1,7 +1,6 @@
 package allow.simulator.statistics;
 
 import java.util.Collection;
-import java.util.Set;
 
 import allow.simulator.core.Context;
 import allow.simulator.entity.Entity;
@@ -9,7 +8,6 @@ import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.StreetSegment;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class Statistics {
 	// Prior and posterior travel times for car journeys
@@ -81,10 +79,8 @@ public class Statistics {
 
 	private SlidingWindow priorTripDistance;
 	private SlidingWindow posteriorTripDistance;
-	
-	private double totalStreetNetworkLength;
-	private double visitedStreetNetworkLength;
-	private Set<StreetSegment> visitedLinks;
+
+	private CoverageStatistics coverageStats;
 	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
@@ -131,9 +127,7 @@ public class Statistics {
 		posteriorCarTravelTimeConstructionSiteActual = new SlidingWindow(windowSize);
 		
 		priorTripDistance = new SlidingWindow(windowSize);
-		posteriorTripDistance = new SlidingWindow(windowSize);
-		
-		visitedLinks = new ObjectOpenHashSet<>();
+		posteriorTripDistance = new SlidingWindow(windowSize);		
 	}
 	
 	public void reset() {
@@ -390,29 +384,26 @@ public class Statistics {
 	}
 	
 	public double getTotalStreetNetworkLength() {
-	  return totalStreetNetworkLength;
-	}
-	
-	public void setTotalStreetNetworkLength(double length) {
-	  totalStreetNetworkLength = length;
+	  return coverageStats.getTotalNetworkLength();
 	}
 	
 	public double getVisitedStreetNetworkLength() {
-	  return visitedStreetNetworkLength;
+	  return coverageStats.getVisitedNetworkLength();
 	}
 	
-	public void reportVisitedLink(StreetSegment seg) {
-	  if (visitedLinks.contains(seg))
-	    return;
-	  
-	  visitedLinks.add(seg);
-	  visitedStreetNetworkLength += seg.getLength();
+	public void setCoverageStats(CoverageStatistics stats) {
+	  this.coverageStats = stats;
+	}
+	
+	public void reportVisitedLink(long time, StreetSegment seg) {
+	  coverageStats.updateSegment(time, seg);
 	}
 	
 	public void updateGlobalStatistics(Context simulationContext) {
 		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
+		coverageStats.updateStatistics(simulationContext.getTime().getTimestamp());
 	}
 	
 	private void updateMeanTransportPreferences(Collection<Entity> persons) {

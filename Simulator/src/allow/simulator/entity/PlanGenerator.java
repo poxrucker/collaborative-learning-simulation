@@ -199,7 +199,7 @@ public final class PlanGenerator {
 		}
 	}
 
-	private static int PROP_DEST_HOMEMAKER[] = { 30, 10, 60, 0, 0, 0 };
+	private static int PROP_DEST_HOMEMAKER[] = { 25, 20, 25, 5, 0, 15 };
 
 	private static void generateHomemakerDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
@@ -207,32 +207,32 @@ public final class PlanGenerator {
 
 		// Journey in the morning?
 		int rand = ThreadLocalRandom.current().nextInt(100);
-		if (rand < 50) {
+		if (rand < 90) {
 			// Random destination.
 			Coordinate dest = newLocation(partitioning, PROP_DEST_HOMEMAKER);
-			LocalTime tStart = gaussianPointInTime(600, 30);
+			LocalTime tStart = gaussianPointInTime(600, 60);
 
 			schedule.add(new Pair<LocalTime, Activity<Person>>(tStart, new PlanJourney(
 					person, person.getHome(), dest)));
 
 			schedule.add(new Pair<LocalTime, Activity<Person>>(
-					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(120,
+					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(60,
 							180)), new PlanJourney(person, dest, person
 							.getHome())));
 		}
 
 		// Journey in the afternoon?
 		rand = ThreadLocalRandom.current().nextInt(100);
-		if (rand < 50) {
+		if (rand < 90) {
 			// Random destination.
 			Coordinate dest = newLocation(partitioning, PROP_DEST_HOMEMAKER);
-			LocalTime tStart = gaussianPointInTime(960, 30);
+			LocalTime tStart = gaussianPointInTime(960, 60);
 
 			schedule.add(new Pair<LocalTime, Activity<Person>>(tStart, new PlanJourney(
 					person, person.getHome(), dest)));
 
 			schedule.add(new Pair<LocalTime, Activity<Person>>(
-					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(120,
+					tStart.plusMinutes(ThreadLocalRandom.current().nextInt(60,
 							180)), new PlanJourney(person, dest, person
 							.getHome())));
 		}

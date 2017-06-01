@@ -8,6 +8,8 @@ public final class SimulationParameter {
 				
 	public int PercentParticipating;
 	
+	public int MaximumVisitedTime;
+	
 	public int GridResX;
 	
 	public int GridResY;

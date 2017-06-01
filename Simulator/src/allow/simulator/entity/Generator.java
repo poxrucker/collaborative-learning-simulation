@@ -37,7 +37,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class Main {
+public class Generator {
 	
 	public static final String OVERLAY_DISTRICTS = "partitioning";
 	

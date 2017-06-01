@@ -18,10 +18,13 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import allow.simulator.entity.DailyRoutine;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
+import allow.simulator.entity.Gender;
 import allow.simulator.entity.Person;
 import allow.simulator.entity.PlanGenerator;
+import allow.simulator.entity.Profile;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -34,8 +37,11 @@ import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
+import allow.simulator.statistics.CoverageStatistics;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
+import allow.simulator.utility.NormalizedLinearUtility;
+import allow.simulator.utility.Preferences;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
@@ -190,7 +196,8 @@ public final class Simulator {
 		for (Street s : streetsInROI) {
 		  length += s.getLength();
 		}
-		context.getStatistics().setTotalStreetNetworkLength(length);
+		CoverageStatistics stats = new CoverageStatistics(params.MaximumVisitedTime * 60, length);
+		context.getStatistics().setCoverageStats(stats);
 		System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
 	}
 
@@ -202,16 +209,39 @@ public final class Simulator {
 
 		List<String> lines = Files.readAllLines(config,
 				Charset.defaultCharset());
-
+		// List<Person> homemakers = new ArrayList<Person>();
+		List<Coordinate> homeLocations = new ArrayList<Coordinate>();
+		
 		for (String line : lines) {
 			Person person = mapper.readValue(line, Person.class);
+			
+			// if (person.getProfile() == Profile.HOMEMAKER)
+			  // homemakers.add(person);
+			if (person.hasCar()) 
+			  homeLocations.add(person.getHome());
+			
 			initializePerson(person, context, param);
 			context.getEntityManager().addEntity(person);
 		}
+		
+		for (int i = 0; i < 5000; i++) {
+		  // Person p = homemakers.get(ThreadLocalRandom.current().nextInt(homemakers.size()));
+		  int id = context.getEntityManager().getNextId();
+		  Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
+		  NormalizedLinearUtility utility = new NormalizedLinearUtility();
+		  Preferences prefs = new Preferences();
+		  prefs.setCarPreference(1);
+		  Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
+		  
+		  Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs,
+		      home, true, false, false, new DailyRoutine());
+		  initializePerson(newHomemaker, context, param);
+		  context.getEntityManager().addEntity(newHomemaker);
+		}
+		
 	}
 
-	private void initializePerson(Person person, Context context,
-			SimulationParameter param) {
+	private void initializePerson(Person person, Context context, SimulationParameter param) {
 		person.setContext(context);
 		PlanGenerator.generateDayPlan(person);
 

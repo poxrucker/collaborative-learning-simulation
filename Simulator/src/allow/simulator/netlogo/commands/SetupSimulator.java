@@ -44,6 +44,7 @@ public class SetupSimulator extends DefaultReporter {
 		LogoList settings = args[4].getList();
 		params.Scenario = (String) settings.get(0);
 		params.PercentParticipating = (int) (double) settings.get(1);
+		params.MaximumVisitedTime = (int) (double) (settings.get(2));
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();

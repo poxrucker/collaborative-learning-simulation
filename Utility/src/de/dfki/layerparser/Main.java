@@ -20,14 +20,14 @@ import allow.simulator.world.overlay.DistrictType;
 public class Main {
 	
 	public static void main(String args[]) throws IOException {
-		Path rawGisOutput = Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/poly.txt");
+		Path rawGisOutput = Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\shapes.txt");
 		List<String> lines = Files.readAllLines(rawGisOutput);
-		BufferedWriter wr = Files.newBufferedWriter(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/partitioning.layer"), Charset.defaultCharset());
+		BufferedWriter wr = Files.newBufferedWriter(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\partitioning.layer"), Charset.defaultCharset());
 		List<Coordinate> parsedCoordinates = new ArrayList<Coordinate>();
 		
 		for (String line : lines) {
 			System.out.println(line);
-			String tokens[] = line.split("\t");
+			String tokens[] = line.split("\\t");
 			
 			// Parse coordinate part.
 			String coordString = tokens[0].substring(0, tokens[0].length() - 2);
@@ -44,10 +44,11 @@ public class Main {
 		}
 
 		// Now add schools.
-		Path base = Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world");
-		StreetMap map = new StreetMap(base.resolve("trento.world"));
+		Path base = Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser");
+		StreetMap map = new StreetMap(base.resolve("trento_merged.world"));
 		DistrictOverlay districtOverlay = DistrictOverlay.parse(base.resolve("partitioning.layer"), map);
-		map.addOverlay(districtOverlay, "partitioning");
+		//:TODO commented below line since the use of the method is not know.
+		//map.addOverlay(districtOverlay, "partitioning");
 		
 		List<Area> residentialAreas = districtOverlay.getAreasOfType(DistrictType.RESIDENTIAL);
 		

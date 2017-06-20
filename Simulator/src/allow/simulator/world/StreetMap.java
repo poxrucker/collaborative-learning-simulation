@@ -1,6 +1,7 @@
 package allow.simulator.world;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Queue;
 import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.util.Pair;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -62,11 +64,12 @@ public final class StreetMap implements Observer {
 		nodesReduced = new Object2ObjectOpenHashMap<String, StreetNode>();
 		posNodes = new Object2ObjectOpenHashMap<String, StreetNode>();
 		busiestStreets = new LinkedList<Street>();
+		dimensions = new double[4];
 		loadStreetNetwork(path);
 	}
 	
 	private void loadStreetNetwork(Path mapFile) throws IOException {
-		List<String> lines = Files.readAllLines(mapFile);
+		List<String> lines = Files.readAllLines(mapFile, Charset.forName("Cp1252"));
 		int offset = 0;
 		dimensions[0] = 180.0;
 		dimensions[1] = -180.0;
@@ -138,7 +141,7 @@ public final class StreetMap implements Observer {
 				map.addEdge(s, segments.get(0).getStartingNode(), segments.get(segments.size() - 1).getEndingNode());
 			//}
 
-			Collections.reverse(segmentsRev);
+				Collections.reverse(segmentsRev);
 			Street sRev = new Street(linkIds++, name, segmentsRev);
 			
 			//if (!streets.containsKey(dest.getLabel() + ";;" + source.getLabel())) {
@@ -148,8 +151,7 @@ public final class StreetMap implements Observer {
 			//}
 		}
 		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 2);
-		System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " 
-		+ dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
+		System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " + dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
 	public double[] getDimensions() {
@@ -186,26 +188,43 @@ public final class StreetMap implements Observer {
 		return map.getEdges();
 	}*/
 	
-	/*public Pair<StreetNode, StreetNode> getIncidentNodes(Street seg) {
-		edu.uci.ics.jung.graph.util.Pair<StreetNode> nodes = map.getEndpoints(seg);
-		return new Pair<StreetNode, StreetNode>(nodes.getFirst(), nodes.getSecond());
-	}*/
 
-	public Collection<Street> getIncidentEdges(StreetNode node) {
-		return map.getIncidentEdges(node);
+	public Collection<StreetSegment> getIncidentEdges(StreetNode node) {
+		return getStreetSegment(map.getIncidentEdges(node));
 	}
 	
-	/*public Collection<StreetSegment> getOutGoingSegments(StreetNode source) {
-		return map.getOutEdges(source);
+	private Collection<StreetSegment> getStreetSegment(Collection<Street> streets) {
+		Collection<StreetSegment> streetSegment = new ArrayList<>();
+		if (null != streets && !streets.isEmpty()) {
+			System.out.println(streets);
+			for (Street street : streets) {
+				if (null != street) {
+					streetSegment.addAll(street.getSubSegments());
+				}
+			}
+		}
+		return streetSegment;
+	}
+
+	public Collection<StreetSegment> getOutGoingSegments(StreetNode source) {
+		return getStreetSegment(map.getOutEdges(source));
+	}
+	
+
+	public Pair<StreetNode, StreetNode> getIncidentNodes(StreetSegment initialSegment) {
+		//edu.uci.ics.jung.graph.util.Pair<StreetNode> nodes = map.getEndpoints(initialSegment);
+		return new Pair<StreetNode, StreetNode>(initialSegment.getStartingNode(), initialSegment.getEndingNode());
 	}
 	
 	public StreetNode getSource(StreetSegment seg) {
-		return map.getSource(seg);
+		//return map.getSource(seg);
+		return seg.getStartingNode();
 	}
 	
 	public StreetNode getDestination(StreetSegment seg) {
-		return map.getDest(seg);
-	}*/
+		//return map.getDest(seg);
+		return seg.getEndingNode();
+	}
 	
 	/**
 	 * Updates all street segments which 

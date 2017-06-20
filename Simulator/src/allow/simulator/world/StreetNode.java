@@ -54,7 +54,7 @@ public final class StreetNode {
 	
 	@Override
 	public String toString() {
-		return "[StreetNode" + id + "]";
+		return "[StreetNode : " + id + "]";
 	}
 	
 	@Override

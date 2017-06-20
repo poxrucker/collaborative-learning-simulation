@@ -23,7 +23,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 	private Path path;
 	
 	// Graph to use.
-	private StreetMap graph;
+	private StreetMap map;
 	
 	// Score of path (accumulated distances of points to segments).
 	private double score;
@@ -36,7 +36,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 	
 	public ScoredPath(StreetMap g, Coordinate initialPos, StreetSegment initialSegment) {
 		// Initialize graph, match list, and path list.
-		this.graph = g;
+		this.map = g;
 		matches = new ArrayList<Match>();
 		path = new Path();
 		
@@ -52,12 +52,12 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		path.addSegment(initialSegment);
 
 		// Initialize length on current segment.
-		Pair<StreetNode, StreetNode> nodes = graph.getIncidentNodes(initialSegment);
+		Pair<StreetNode, StreetNode> nodes = map.getIncidentNodes(initialSegment);
 		lengthOnCurrentSegment = Geometry.haversineDistance(proj, nodes.first.getPosition());	
 	}
 		
 	public ScoredPath(ScoredPath toCopy) {
-		this.graph = toCopy.graph;
+		this.map = toCopy.map;
 		this.matches = new ArrayList<Match>(toCopy.matches);
 		this.path = new Path(toCopy.path);
 		this.score = toCopy.score;
@@ -68,7 +68,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 	public ScoredPath() {
 		matches = new ArrayList<Match>();
 		path = new Path();
-		graph = null;
+		map = null;
 		score = 0.0;
 		lengthOfCurrentSegment = 0.0;
 		lengthOnCurrentSegment = 0.0;
@@ -132,14 +132,14 @@ public class ScoredPath implements Comparable<ScoredPath> {
 				//if (newScore <= distLast + 35) {
 					// Create new ScoredPath instance for each path.
 					ScoredPath newScoredPath = new ScoredPath();
-					newScoredPath.graph = graph;
+					newScoredPath.map = map;
 				
 					// Update path.
 					newScoredPath.path = newPath;
 					newScoredPath.score = score + newScore;
 				
 					// Update length on and of current segment.
-					StreetNode source = graph.getSource(nearest);
+					StreetNode source = map.getSource(nearest);
 					newScoredPath.lengthOnCurrentSegment = Geometry.haversineDistance(proj, source.getPosition());
 					newScoredPath.lengthOfCurrentSegment = nearest.getLength();
 				
@@ -252,9 +252,9 @@ public class ScoredPath implements Comparable<ScoredPath> {
 					StreetSegment seg = segs.get(segs.size() - 1);
 					
 					// Get destination node and all its outgoing segments.
-					StreetNode segDest = graph.getDestination(seg);
+					StreetNode segDest = map.getDestination(seg);
 					//StreetNode segSource = graph.getSource(seg);
-					Collection<StreetSegment> outgoingSegs = graph.getOutGoingSegments(segDest);
+					Collection<StreetSegment> outgoingSegs = map.getOutGoingSegments(segDest);
 					
 					for (StreetSegment out : outgoingSegs) {
 						//StreetNode outDest = graph.getDestination(out);

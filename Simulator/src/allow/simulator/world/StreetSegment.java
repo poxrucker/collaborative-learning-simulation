@@ -230,6 +230,6 @@ public class StreetSegment extends Observable implements Comparable<StreetSegmen
 	}
 	
 	public String toString() {
-		return "[StreetSegment" + id + " " + start.getLabel() + " " + end.getLabel() + "]";
+		return "[StreetSegment Id : " + id + ", Start :  " + start.getLabel() + ", End : " + end.getLabel() + "]\n";
 	}
 }

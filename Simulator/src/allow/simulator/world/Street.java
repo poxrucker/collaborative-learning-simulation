@@ -124,7 +124,7 @@ public class Street extends Observable implements Observer {
 	}
 	
 	public String toString() {
-		return "[Street" + id + ", " + name + " " + length + "]";
+		return "[Street id : " + id + ", Street Name :  " + name + ", Street Length : " + length + "]\n";
 	}
 
 	@Override

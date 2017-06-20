@@ -1,7 +1,6 @@
 package de.dfki.mapmatching;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,9 +20,9 @@ import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 
 public class Main {
-	
-	private static final Map<String, MapMatching> matchings;
-	
+
+	/*private static final Map<String, MapMatching> matchings;
+
 	static {
 		matchings = new HashMap<String, MapMatching>();
 		try {
@@ -42,20 +41,23 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String args[]) throws IOException {		
+
+
+
+	public static void main(String args[]) throws IOException {
+
 		// Load street map.
-		// StreetMap map = new StreetMap(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/data/trento/matching_graph_bike"));
-	
-		List<String> traces = Files.readAllLines(Paths.get("/Users/Andi/Desktop/traces"));
+		StreetMap map = new StreetMap(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\trento_merged.world"));
+
+		List<String> traces = Files.readAllLines(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\shapes.txt"));
 		// MapMatching m = new MapMatching(map);
 
 		for (int i = 0; i < traces.size(); i++) {
 			String tokens[] = traces.get(i).split(";;");
-			System.out.println("Matching alternative " + tokens[0] + ", leg " + tokens[1]); 
+			System.out.println("Matching alternative " + tokens[0] + ", leg " + tokens[1]);
 			List<Coordinate> trace = Geometry.decodePolyline(tokens[3]);
 			BufferedWriter wr = Files.newBufferedWriter(Paths.get("/Users/Andi/Desktop/mapping/trace " + tokens[0] + "," + tokens[1]), Charset.defaultCharset());
-			
+
 			wr.write("lat,lon\n");
 			for (Coordinate c : trace) {
 				wr.write(c.y + "," + c.x + "\n");
@@ -66,9 +68,10 @@ public class Main {
 			System.out.println(p);
 			if (p != null) {
 				wr.write("lat,lon\n");
-				
+
 				for (StreetSegment s : p.getPath()) {
-					//wr.write(s.getStartingNode().getPosition().y + "," + s.getStartingNode().getPosition().x + "\n");
+					// wr.write(s.getStartingNode().getPosition().y + "," +
+					// s.getStartingNode().getPosition().x + "\n");
 					wr.write(s.getStartingNode().getLabel() + ";;" + s.getEndingNode().getLabel() + "\n");
 				}
 				Coordinate end = p.getPath().get(p.getPath().size() - 1).getEndPoint();
@@ -76,94 +79,97 @@ public class Main {
 			}
 			wr.close();
 		}
-		
+
 		// Load mobility repository.
-		/*MobilityRepository repos = new MobilityRepository(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/data/trento/trento-gtfs/"), map);
-		
+		MobilityRepository repos = new MobilityRepository(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/data/trento/trento-gtfs/"), map);
+
 		// Traces from shapes.txt
 		Map<String, List<StreetSegment>> traces = readShapesFromFile("/Users/Andi/Documents/DFKI/Allow Ensembles/Simulator/Trento/data/trento/trento-gtfs/shapes.txt");
 
 		// Get agency.
 		Map<String, GTFSAgency> agencies = repos.getAgencies();
-		
+
 		Map<String, List<List<Coordinate>>> finalShapes = new HashMap<String, List<List<Coordinate>>>();
 		Map<String, List<GTFSStop>> stopPositions = new HashMap<String, List<GTFSStop>>();
-		
-		for (Iterator<String> ai = agencies.keySet().iterator(); ai.hasNext(); ) {
+
+		for (Iterator<String> ai = agencies.keySet().iterator(); ai.hasNext();) {
 			String agencyId = ai.next();
 			List<GTFSRoute> routes = repos.getRoutes().get(agencyId);
-			
-			for (Iterator<GTFSRoute> ri = routes.iterator(); ri.hasNext(); ) {
+
+			for (Iterator<GTFSRoute> ri = routes.iterator(); ri.hasNext();) {
 				GTFSRoute route = ri.next();
 				List<GTFSTrip> trips = repos.getTrips().get(route.getId());
-				
-				for (Iterator<GTFSTrip> ti = trips.iterator(); ti.hasNext(); ) {
+
+				for (Iterator<GTFSTrip> ti = trips.iterator(); ti.hasNext();) {
 					GTFSTrip trip = ti.next();
 					String[] stopIds = repos.getStopTimes().get(trip.getTripId()).getStopIds();
-					
+
 					// Check if shape has already been processed.
 					if (finalShapes.containsKey(trip.getShapeId())) {
 						continue;
 					}
-					
-					// Get trace of shape and continue, if no trace is available.
+
+					// Get trace of shape and continue, if no trace is
+					// available.
 					List<StreetSegment> trace = traces.get(trip.getShapeId());
 					if (trace == null || trace.size() == 0) {
 						continue;
 					}
-					
+
 					// Otherwise split trace along stops.
 					List<List<Coordinate>> newShape = new ArrayList<List<Coordinate>>(stopIds.length);
 					List<GTFSStop> stops = new ArrayList<GTFSStop>(stopIds.length);
 					int lastIndex = 0;
 					Coordinate lastCoordinate = trace.get(0).getStartingPoint();
-					
+
 					for (int i = 0; i < stopIds.length; i++) {
 						// Get position of next stop.
 						GTFSStop stop = repos.getStops().get(stopIds[i]);
 						Coordinate stopPos = new Coordinate(stop.getLon(), stop.getLat());
 						stops.add(stop);
-						
+
 						List<Coordinate> s = new ArrayList<Coordinate>();
-						
-						// Find closest segment by projecting stop position to segment and measure distance.
+
+						// Find closest segment by projecting stop position to
+						// segment and measure distance.
 						int minIndex = 0;
 						double minDist = Geometry.haversine(stopPos, projectPointToSegment(stopPos, trace.get(0)));
 						Coordinate minCoord = projectPointToSegment(stopPos, trace.get(0));
-						
+
 						for (int j = 0; j < trace.size(); j++) {
 							Coordinate d = projectPointToSegment(stopPos, trace.get(j));
 							double dist = Geometry.haversine(stopPos, d);
-							
+
 							if (dist < minDist) {
 								minDist = dist;
 								minIndex = j;
 								minCoord = d;
 							}
 						}
-						
+
 						if (minIndex >= lastIndex) {
 							StreetSegment seg = trace.get(lastIndex);
 							Coordinate start = lastCoordinate;
 							s.add(start);
-							
+
 							for (int k = lastIndex; k < minIndex; k++) {
 								seg = trace.get(k);
 								s.add(seg.getEndPoint());
 							}
 							s.add(minCoord);
-							
+
 						} else {
 							StreetSegment seg = trace.get(lastIndex);
 							Coordinate start = lastCoordinate;
 							s.add(start);
 
-							// If point is closer to one of previous segments, iterate 
+							// If point is closer to one of previous segments,
+							// iterate
 							for (int k = lastIndex; k < trace.size(); k++) {
 								seg = trace.get(k);
 								s.add(seg.getEndPoint());
 							}
-							
+
 							for (int k = 0; k < minIndex; k++) {
 								seg = trace.get(k);
 								s.add(seg.getEndPoint());
@@ -175,13 +181,9 @@ public class Main {
 						lastCoordinate = minCoord;
 						newShape.add(s);
 					}
-					
-					if (trip.getShapeId().equals("D587_T0863a_Andata_sub1")
-							|| trip.getShapeId().equals("D173_F1212_Ritorno_sub2")
-							|| trip.getShapeId().equals("D640_T1222a_Ritorno_sub1")
-							|| trip.getShapeId().equals("D639_T1212_Ritorno_sub2")
-							|| trip.getShapeId().equals("D566_T0762a_Ritorno_sub1")
-							|| trip.getShapeId().equals("D136_F0402_Ritorno_sub1")
+
+					if (trip.getShapeId().equals("D587_T0863a_Andata_sub1") || trip.getShapeId().equals("D173_F1212_Ritorno_sub2") || trip.getShapeId().equals("D640_T1222a_Ritorno_sub1")
+							|| trip.getShapeId().equals("D639_T1212_Ritorno_sub2") || trip.getShapeId().equals("D566_T0762a_Ritorno_sub1") || trip.getShapeId().equals("D136_F0402_Ritorno_sub1")
 							|| trip.getShapeId().equals("D679_T3201a_Circolare_giro_lungo_PRINCIPALE_sub1")) {
 						System.out.println(trip.getShapeId());
 						getDistanceMatrix(stops, trace);
@@ -192,12 +194,12 @@ public class Main {
 				}
 			}
 		}
-		
+
 		// stopPositions contains the list of stop positions for each shape.
 		// finalShapes contains the traces to get to each stop.
-		
+
 		// 1. Write the split traces.
-		for (Iterator<String> stopKeys = stopPositions.keySet().iterator(); stopKeys.hasNext(); ) {
+		for (Iterator<String> stopKeys = stopPositions.keySet().iterator(); stopKeys.hasNext();) {
 			String key = stopKeys.next();
 			List<GTFSStop> c = stopPositions.get(key);
 			BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Andi/Documents/GPS/split traces/" + key + "_stops")));
@@ -205,7 +207,7 @@ public class Main {
 			for (int i = 0; i < c.size(); i++) {
 				wr.write(c.get(i).getLat() + "," + c.get(i).getLon() + "," + i + "\n");
 			}
-			
+
 			List<List<Coordinate>> b = finalShapes.get(key);
 			for (int i = 0; i < b.size(); i++) {
 				List<Coordinate> t = b.get(i);
@@ -216,46 +218,46 @@ public class Main {
 			}
 			wr.close();
 		}
-		
+
 		// Now the actual map matching.
 		MapMatching matching = new MapMatching(map);
 		List<String> failedMatching = new ArrayList<String>();
 		String shapeIds[] = new String[stopPositions.keySet().size()];
 		stopPositions.keySet().toArray(shapeIds);
-		
+
 		for (int k = 0; k < shapeIds.length; k++) {
 			// Print status.
 			String shapeId = shapeIds[k];
 			System.out.println("Matching traces of shape " + shapeId);
-			
+
 			// Get list of coordinates between stops (split trace).
 			List<List<Coordinate>> b = finalShapes.get(shapeId);
 			List<ScoredPath> result = new ArrayList<ScoredPath>(b.size());
-			
+
 			// Now match first trace (from stop 0 to stop 1).
 			ScoredPath first = matching.mapMatch(b.get(1));
-			
+
 			if (first == null || first.getPath().size() == 0) {
 				System.out.println(" No matching for segment 1");
 				failedMatching.add(shapeId);
 				continue;
-			} 
+			}
 			result.add(first);
-			
+
 			for (int i = 2; i < b.size(); i++) {
 				List<StreetSegment> last = result.get(result.size() - 1).getPath();
 				List<StreetSegment> tt = new ArrayList<StreetSegment>();
 				tt.add(last.get(last.size() - 1));
-				
+
 				if (last.size() >= 2) {
 					tt.add(last.get(last.size() - 2));
 				}
-				
+
 				if (last.size() >= 3) {
 					tt.add(last.get(last.size() - 3));
 				}
 				ScoredPath next = matching.mapMatch(b.get(i), tt);
-				
+
 				if (next == null || next.getPath().size() == 0) {
 					System.out.println(" No matching for segment " + i);
 					failedMatching.add(shapeId);
@@ -268,7 +270,7 @@ public class Main {
 
 			for (int i = 0; i < b.size(); i++) {
 				List<Coordinate> temp = b.get(i);
-				
+
 				for (int j = 0; j < temp.size(); j++) {
 					wr.write(temp.get(j).y + "," + temp.get(j).x + "," + i + "\n");
 				}
@@ -278,11 +280,11 @@ public class Main {
 			if (!failedMatching.contains(shapeId)) {
 				BufferedWriter wr2 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Andi/Documents/GPS/mapping/" + shapeId)));
 				List<GTFSStop> traceStops = stopPositions.get(shapeId);
-				
+
 				for (int i = 0; i < traceStops.size() - 1; i++) {
 					wr2.write(traceStops.get(i).getId() + "," + traceStops.get(i + 1).getId() + "\n");
 					List<StreetSegment> trace = result.get(i).getPath();
-					
+
 					for (int j = 0; j < trace.size(); j++) {
 						StreetSegment segToWrite = trace.get(j);
 						wr2.write(segToWrite.getStartingNode().getLabel() + " ");
@@ -292,39 +294,65 @@ public class Main {
 				wr2.close();
 			}
 		}
-		
+
 		// Print ids of shapes with failed matching.
 		System.out.println("Errors: ");
-		
+
 		for (int i = 0; i < failedMatching.size(); i++) {
 			System.out.println(" " + failedMatching.get(i));
-		}*/
+		}
+	}*/
+	
+	
+	public static void main(String args[]) throws IOException {
+		// Load street map.
+		StreetMap map = new StreetMap(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\trento_merged.world"));
+
+		MapMatching matching = new MapMatching(map);
+		List<Coordinate> tracesList = readGPSCoordinate("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\shapes.txt");
+		ScoredPath p = matching.mapMatch(tracesList);
+		System.out.println(p);
+
 	}
 	
+	static List<Coordinate> readGPSCoordinate(String fileLoc) throws IOException {
+		List<Coordinate> tracesList = new ArrayList<Coordinate>();
+
+		List<String> lines = Files.readAllLines(Paths.get(fileLoc), Charset.forName("Cp1252"));
+
+		for (int i = 1; i < lines.size(); i++) {
+			String tokens[] = lines.get(i).split(",");
+			tracesList.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
+
+		}
+
+		return tracesList;
+	}
+
 	private static Map<String, List<StreetSegment>> readShapesFromFile(String file) throws IOException {
 		// Map to return.
 		Map<String, List<StreetSegment>> ret = new HashMap<String, List<StreetSegment>>();
-		
+
 		// Read from files.
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-		
+
 		// Read first commentary line.
 		reader.readLine();
-				
+
 		// Read first data line.
 		String line = reader.readLine();
 		List<Coordinate> currentSequence = null;
 		String currentId = "";
-		
+
 		while (line != null) {
 			// Split current line.
 			String tokens[] = line.split(",");
-			
+
 			if (!tokens[0].equals(currentId)) {
-				
+
 				if (currentSequence != null && !currentId.equals("")) {
-					List<StreetSegment> temp =  new ArrayList<StreetSegment>(currentSequence.size());
-					
+					List<StreetSegment> temp = new ArrayList<StreetSegment>(currentSequence.size());
+
 					for (int i = 0; i < currentSequence.size() - 1; i++) {
 						temp.add(new StreetSegment(0, new StreetNode(-1, "", currentSequence.get(i)), new StreetNode(-1, "", currentSequence.get(i + 1)), 0, 0));
 					}
@@ -336,8 +364,8 @@ public class Main {
 			currentSequence.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
 			line = reader.readLine();
 		}
-		List<StreetSegment> temp =  new ArrayList<StreetSegment>(currentSequence.size());
-		
+		List<StreetSegment> temp = new ArrayList<StreetSegment>(currentSequence.size());
+
 		for (int i = 0; i < currentSequence.size() - 1; i++) {
 			temp.add(new StreetSegment(0, new StreetNode(-1, "", currentSequence.get(i)), new StreetNode(-1, "", currentSequence.get(i + 1)), 0, 0));
 		}
@@ -345,37 +373,37 @@ public class Main {
 		reader.close();
 		return ret;
 	}
-	
+
 	private static Coordinate projectPointToSegment(Coordinate c, StreetSegment s) {
 		Coordinate start = s.getStartingPoint();
 		Coordinate end = s.getEndPoint();
 		Coordinate a = new Coordinate(end.x - start.x, end.y - start.y);
 		Coordinate b = new Coordinate(c.x - start.x, c.y - start.y);
-		
+
 		double norm_a_square = a.x * a.x + a.y * a.y;
 		double r = (a.x * b.x + a.y * b.y) / norm_a_square;
-		
+
 		if (r < 0.0) {
 			return start;
-			
+
 		} else if (r >= 0.0 && r < 1.0) {
 			return new Coordinate(start.x + r * a.x, start.y + r * a.y);
-		
+
 		} else {
 			return end;
 		}
 	}
-	
+
 	private static double[][] getDistanceMatrix(List<GTFSStop> stops, List<StreetSegment> polyTrace) {
 		List<Coordinate> stopPositions = new ArrayList<Coordinate>(stops.size());
-		
+
 		for (int i = 0; i < stops.size(); i++) {
 			stopPositions.add(new Coordinate(stops.get(i).getLon(), stops.get(i).getLat()));
 		}
 		double mat[][] = new double[stopPositions.size()][polyTrace.size()];
-		
+
 		for (int i = 0; i < stopPositions.size(); i++) {
-			
+
 			for (int j = 0; j < polyTrace.size(); j++) {
 				mat[i][j] = Geometry.haversineDistance(stopPositions.get(i), projectPointToSegment(stopPositions.get(i), polyTrace.get(j)));
 			}
@@ -383,27 +411,24 @@ public class Main {
 		System.out.println(mat.length * mat[0].length);
 		return mat;
 	}
-	
+
 	/*private static List<Integer> splitTraceAlongStops(List<StreetSegment> polyTrace, List<GTFSStop> stops) {
 		double distanceMatrix[][] = getDistanceMatrix(stops, polyTrace);
 		boolean trackingMatix[][] = new boolean[distanceMatrix.length][distanceMatrix[0].length];
-		
+
 		boolean foundSplitting = false;
-		
-		
+
 		while (!foundSplitting) {
 			List<Integer> indices = new ArrayList<Integer>(stops.size());
-			
+
 			double cumulatedError = findSplitting(distanceMatrix, trackingMatrix, indices);
-			
+
 			if (cumulatedError != -1) {
 				return indices;
 			}
-			
-			
+
 		}
-		
-		
+
 		return null;
 	}
 
@@ -433,22 +458,20 @@ public class Main {
 			}
 		}
 		return minIndex;
-	}*/
-	/*private static List<StreetSegment> createPolyTrace(List<Coordinate> coordinates) {
+	}
+
+	private static List<StreetSegment> createPolyTrace(List<Coordinate> coordinates) {
 		if (coordinates == null) {
 			return null;
 		}
-		
+
 		if (coordinates.size() == 0) {
 			return new ArrayList<StreetSegment>(0);
 		}
 		List<StreetSegment> ret = new ArrayList<StreetSegment>(coordinates.size() - 1);
-		
+
 		for (int i = 0; i < coordinates.size() - 1; i++) {
-			ret.add(new StreetSegment(-i, 
-					new StreetNode(i, "", coordinates.get(i)),
-					new StreetNode(i + 1, "", coordinates.get(i + 1)),
-					9.0,
+			ret.add(new StreetSegment(-i, new StreetNode(i, "", coordinates.get(i)), new StreetNode(i + 1, "", coordinates.get(i + 1)), 9.0,
 					PolylinesUtil.haversine(coordinates.get(i), coordinates.get(i + 1))));
 		}
 		return ret;

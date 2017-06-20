@@ -74,7 +74,7 @@ public class MapMatching {
 
 			for (StreetSegment incident : incidentEdges) {
 				ScoredPath newPath = new ScoredPath(map, gpsTrace.get(0), incident);
-				
+				//TODO: Why the value is 25 ?
 				if (newPath.getScore() <= 25.0 && !initialPaths.contains(newPath)) {
 					initialPaths.add(newPath);
 				}

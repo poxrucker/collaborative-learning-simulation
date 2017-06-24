@@ -103,6 +103,6 @@ public class Match implements Comparable<Match> {
 	}
 	
 	public String toString() {
-		return "[Match " + segment.toString() + ", " + point.toString() + ", " + score + "]";
+		return "[Match :  " + segment.toString() + ", Point: " + point.toString() + ", Score :" + score + "]";
 	}
 }

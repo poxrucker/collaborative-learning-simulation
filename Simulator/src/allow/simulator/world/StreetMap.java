@@ -48,7 +48,7 @@ public final class StreetMap implements Observer {
 	private double[] dimensions;
 	private DistrictOverlay districts;
 	private RasterOverlay raster;
-	private Graph<StreetNode, Street> map;
+	private Graph<StreetNode, StreetSegment> map;
 	private Object2ObjectOpenHashMap<String, StreetNode> nodesReduced;	
 	private Object2ObjectOpenHashMap<String, Street> streets;
 	private Object2ObjectOpenHashMap<String, StreetNode> nodes;
@@ -59,7 +59,7 @@ public final class StreetMap implements Observer {
 	private Queue<Street> busiestStreets;
 	
 	public StreetMap(Path path) throws IOException {
-		map = new DirectedSparseMultigraph<StreetNode, Street>(); 
+		map = new DirectedSparseMultigraph<StreetNode, StreetSegment>(); 
 		streets = new Object2ObjectOpenHashMap<String, Street>();
 		nodesReduced = new Object2ObjectOpenHashMap<String, StreetNode>();
 		posNodes = new Object2ObjectOpenHashMap<String, StreetNode>();
@@ -120,20 +120,23 @@ public final class StreetMap implements Observer {
 			nodesReduced.put(dest.getLabel(), dest);
 			
 			// Add a new street from the loaded segments.						
-			List<StreetSegment> segments = new ArrayList<StreetSegment>();
-			List<StreetSegment> segmentsRev = new ArrayList<StreetSegment>();
+			//List<StreetSegment> segments = new ArrayList<StreetSegment>();
+			//List<StreetSegment> segmentsRev = new ArrayList<StreetSegment>();
 			
 			for (int j = 0; j < subSegs.length - 1; j++) {
 				StreetNode start = nodes.get(subSegs[j]);
 				StreetNode end = nodes.get(subSegs[j + 1]);
 				StreetSegment seg = new StreetSegment(linkIds++, start, end, speedLimit, Geometry.haversineDistance(start.getPosition(), end.getPosition()));
-				segments.add(seg);
+				//segments.add(seg);
 				
 				// Add reversed segment for walking.
 				StreetSegment segRev = new StreetSegment(linkIds++, end, start, speedLimit, seg.getLength());
-				segmentsRev.add(segRev);
+				//segmentsRev.add(segRev);
+				
+				map.addEdge(seg, seg.getStartingNode(), seg.getEndingNode());
+				//map.addEdge(segRev, segRev.getStartingNode(), segRev.getEndingNode());
 			}
-			Street s = new Street(linkIds++, name, segments);
+		/*	Street s = new Street(linkIds++, name, segments);
 			
 			//if (!streets.containsKey(source.getLabel() + ";;" + dest.getLabel())) {
 				s.addObserver(this);
@@ -149,7 +152,7 @@ public final class StreetMap implements Observer {
 				streets.put(dest.getLabel() + ";;" + source.getLabel(), sRev);
 				map.addEdge(sRev, segmentsRev.get(0).getStartingNode(), segmentsRev.get(segmentsRev.size() - 1).getEndingNode());
 			//}
-		}
+*/		}
 		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 2);
 		System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " + dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
@@ -175,7 +178,8 @@ public final class StreetMap implements Observer {
   }
   
 	public Collection<StreetNode> getStreetNodes() {
-		return Collections.unmodifiableCollection(map.getVertices());
+		//return Collections.unmodifiableCollection(map.getVertices());
+		return map.getVertices();
 	}
 	
 	/**
@@ -190,7 +194,7 @@ public final class StreetMap implements Observer {
 	
 
 	public Collection<StreetSegment> getIncidentEdges(StreetNode node) {
-		return getStreetSegment(map.getIncidentEdges(node));
+		return map.getIncidentEdges(node);
 	}
 	
 	private Collection<StreetSegment> getStreetSegment(Collection<Street> streets) {
@@ -207,23 +211,23 @@ public final class StreetMap implements Observer {
 	}
 
 	public Collection<StreetSegment> getOutGoingSegments(StreetNode source) {
-		return getStreetSegment(map.getOutEdges(source));
+		return map.getOutEdges(source);
 	}
 	
 
 	public Pair<StreetNode, StreetNode> getIncidentNodes(StreetSegment initialSegment) {
-		//edu.uci.ics.jung.graph.util.Pair<StreetNode> nodes = map.getEndpoints(initialSegment);
-		return new Pair<StreetNode, StreetNode>(initialSegment.getStartingNode(), initialSegment.getEndingNode());
+		edu.uci.ics.jung.graph.util.Pair<StreetNode> nodes = map.getEndpoints(initialSegment);
+		return new Pair<StreetNode, StreetNode>(nodes.getFirst(), nodes.getSecond());
 	}
 	
 	public StreetNode getSource(StreetSegment seg) {
-		//return map.getSource(seg);
-		return seg.getStartingNode();
+		return map.getSource(seg);
+		//return seg.getStartingNode();
 	}
 	
 	public StreetNode getDestination(StreetSegment seg) {
-		//return map.getDest(seg);
-		return seg.getEndingNode();
+		return map.getDest(seg);
+		//return seg.getEndingNode();
 	}
 	
 	/**
@@ -268,9 +272,10 @@ public final class StreetMap implements Observer {
 	}
 
 	public Collection<Street> getStreets() {
-		return Collections.unmodifiableCollection(streets.values());
+		//return Collections.unmodifiableCollection(streets.values());
+		return streets.values();
 	}
-	public Street getStreetReduced(StreetNode first, StreetNode second) {
+	public StreetSegment getStreetReduced(StreetNode first, StreetNode second) {
 		return map.findEdge(first, second);
 	}
 	

@@ -73,7 +73,7 @@ public class MapMatching {
 			Collection<StreetSegment> incidentEdges = map.getIncidentEdges(n);
 
 			for (StreetSegment incident : incidentEdges) {
-				ScoredPath newPath = new ScoredPath(map, gpsTrace.get(0), incident);
+				ScoredPath newPath = new ScoredPath(map, firstPoint, incident);
 				//TODO: Why the value is 25 ?
 				if (newPath.getScore() <= 25.0 && !initialPaths.contains(newPath)) {
 					initialPaths.add(newPath);
@@ -88,6 +88,9 @@ public class MapMatching {
 	}
 	
 	private ScoredPath match(List<Coordinate> gpsTrace, List<ScoredPath> candidatePaths) {
+		TimeWatch watch = TimeWatch.start();
+		
+
 		// Initialize buffer queues creating one path per candidate segment.
 		Queue<ScoredPath> inputBuffer = new PriorityQueue<ScoredPath>(1024);
 		Queue<ScoredPath> outputBuffer = new PriorityQueue<ScoredPath>(1024);
@@ -102,7 +105,7 @@ public class MapMatching {
 		// Match each remaining point of trace.
 		for (int j = 1; j < gpsTrace.size(); j++) {
 			//System.out.println("Matching point " + j + " of " + gpsTrace.size());
-			int loopMax = Math.min(inputBuffer.size(), 150);
+			int loopMax = Math.min(inputBuffer.size(), 50);
 			final Coordinate next = gpsTrace.get(j);
 
 			for (int i = 0; i < loopMax; i++) {
@@ -118,13 +121,15 @@ public class MapMatching {
 				}
 			}
 			inputBuffer.clear();
-			
+			//TODO : Check here!!
 			// Swap buffer handles.
 			Queue<ScoredPath> temp = inputBuffer;
 			inputBuffer = outputBuffer;
 			outputBuffer = temp;
 			outputBuffer.clear();
 		}
-		return inputBuffer.peek();
+		ScoredPath ret = inputBuffer.peek();
+		System.out.println("match : "+ watch.toMinuteSeconds());
+		return ret;
 	}
 }

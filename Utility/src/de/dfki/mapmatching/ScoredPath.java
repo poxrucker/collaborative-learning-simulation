@@ -83,6 +83,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		double distLast = Geometry.haversineDistance(newPoint, projectPointToSegment(previousMatch.getPoint(), previousMatch.getSegment()));
 		Coordinate projTemp = projectPointToSegment(newPoint, previousMatch.getSegment());
 
+		//:TODO ?
 		if (lengthOnCurrentSegment + distLast < lengthOfCurrentSegment * 0.6) {
 			// If end of current segment is not yet reached, project current point
 			// to current segment and check lengthOnCurrentSegment.
@@ -235,7 +236,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		double maxLength = init.getLength() + length;
 
 		while (input.size() > 0) {
-			int maxLoop = Math.min(input.size(), 60);
+			int maxLoop = Math.min(input.size(), 150);
 			
 			for (int i = 0; i < maxLoop; i++) {
 				Pair<Match, Path> match = input.poll();
@@ -265,7 +266,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 							Coordinate t = projectPointToSegment(currentPoint, out);
 							Match newMatch = new Match(out, t, distancePointSegment(t, temp));
 							Pair<Match, Path> newPair = new Pair<Match, Path>(newMatch, newPath);
-							
+							//:TODO just try with 200 insted of 500
 							if (newMatch.getScore() <= 500.0 && !output.contains(newPair)) {
 								output.add(newPair);
 							}
@@ -339,13 +340,31 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		return ret;*/
 	}
 
-	public String toString() {
-		return "[ScoredPath " + score / matches.size() + " " + matches.get(matches.size() - 1) + "]";
-		
-
-	}
 	
 	@Override
+	public String toString() {
+		return "ScoredPath [matches=" + matches + ", path=" + path + ", map=" + map + ", score=" + score + ", lengthOfCurrentSegment=" + lengthOfCurrentSegment + ", lengthOnCurrentSegment="
+				+ lengthOnCurrentSegment + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(lengthOfCurrentSegment);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(lengthOnCurrentSegment);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((map == null) ? 0 : map.hashCode());
+		result = prime * result + ((matches == null) ? 0 : matches.hashCode());
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		temp = Double.doubleToLongBits(score);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+/*	@Override
 	public boolean equals(Object other) {
 		
 		if (other == this) {
@@ -361,6 +380,20 @@ public class ScoredPath implements Comparable<ScoredPath> {
 				&& path.equals(p.path)
 				&& lengthOnCurrentSegment == p.lengthOnCurrentSegment
 				&& lengthOfCurrentSegment == p.lengthOfCurrentSegment;
-	}
+	}*/
 	
+	
+	@Override
+	public boolean equals(Object other) {
+
+		if (other == this) {
+			return true;
+		}
+
+		if (!(other instanceof ScoredPath)) {
+			return false;
+		}
+		ScoredPath p = (ScoredPath) other;
+		return score == p.score && path.equals(p.path);
+	}
 }

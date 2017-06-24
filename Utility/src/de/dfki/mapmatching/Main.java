@@ -1,6 +1,7 @@
 package de.dfki.mapmatching;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import allow.simulator.mobility.data.gtfs.GTFSStop;
 import allow.simulator.util.Coordinate;
@@ -310,9 +312,30 @@ public class Main {
 
 		MapMatching matching = new MapMatching(map);
 		List<Coordinate> tracesList = readGPSCoordinate("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\shapes.txt");
+		
+		
 		ScoredPath p = matching.mapMatch(tracesList);
+		
 		System.out.println(p);
+		BufferedWriter wr = Files.newBufferedWriter(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\out.txt"), Charset.defaultCharset());
+		if (p != null) {
+			wr.write("lat,lon\n");
 
+			for (StreetSegment s : p.getPath()) {
+				// wr.write(s.getStartingNode().getPosition().y + "," +
+				// s.getStartingNode().getPosition().x + "\n");
+				wr.write(printCoOrdinates(s.getStartingPoint()));
+				//System.out.println(s.getStartingNode().getLabel() + ";;" + s.getEndingNode().getLabel() + "\n");
+			}
+			Coordinate end = p.getPath().get(p.getPath().size() - 1).getEndPoint();
+			wr.write(printCoOrdinates(end));
+		}
+		wr.close();
+
+	}
+	private static String printCoOrdinates(Coordinate coOrdinate) {
+		
+		return coOrdinate.y + "," + coOrdinate.x + "\n";
 	}
 	
 	static List<Coordinate> readGPSCoordinate(String fileLoc) throws IOException {

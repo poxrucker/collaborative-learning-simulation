@@ -336,7 +336,7 @@ System.out.println("Done !!");
 		Set<String> keyset = gpsTraces.keySet();
 
 		for (String key : keyset) {
-			System.out.print("\"" + key + "\" --> ");
+			System.out.print("\n\"" + key + "\" --> ");
 			ScoredPath scoredPath = matching.mapMatch(gpsTraces.get(key));
 			if (null != scoredPath && null != scoredPath.getPath()) {
 				printMatchingPath(key, scoredPath.getPath());

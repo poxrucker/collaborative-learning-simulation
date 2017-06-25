@@ -63,7 +63,7 @@ public class MapMatching {
 		Coordinate secondPoint = gpsTrace.get(1);
 		
 		//List<StreetNode> nearest = new ArrayList<>();
-		List<StreetNode> firstNearest = quad.getNNearestNeighbours(firstPoint.x, firstPoint.y, 10,0.0005);
+		List<StreetNode> firstNearest = quad.getNNearestNeighbours(firstPoint.x, firstPoint.y, 10,10);
 		/*if(firstNearest.size()<30){
 			
 			firstNearest = quad.get(firstPoint.x, firstPoint.y, 0.001);
@@ -123,7 +123,7 @@ public class MapMatching {
 		}
 		
 		if (inputBuffer.size() == 0) {
-			System.out.println(", Error: No initial paths.");
+			System.out.print(", Error: No initial paths.");
 		}
 		return match(gpsTrace, inputBuffer);
 	}
@@ -163,7 +163,7 @@ public class MapMatching {
 			outputBuffer.clear();
 		}
 		ScoredPath ret = inputBuffer.poll();
-		System.out.println(", Match Timer : "+ watch.toMinuteSeconds());
+		System.out.print(", Match Timer : "+ watch.toMinuteSeconds());
 		return ret;
 	}
 	

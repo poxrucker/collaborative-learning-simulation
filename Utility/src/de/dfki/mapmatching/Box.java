@@ -90,12 +90,12 @@ public class Box {
 			distanceY = Math.min(Math.abs(this.minY - y), Math.abs(this.maxY - y));
 		}
 		
-	/*	double sinDLon = Math.sin(FACTOR * (distanceX));
+		double sinDLon = Math.sin(FACTOR * (distanceX));
 		double sinDLat = Math.sin(FACTOR * (distanceY));
-		double a = sinDLat * sinDLat + sinDLon * sinDLon * Math.cos(DEG2RAD * y) * Math.cos(DEG2RAD * this.minY);
-		return EARTH_FACTOR * Math.atan2(Math.sqrt(a), Math.sqrt((1.0 - a)));*/
+		double a = sinDLat * sinDLat + sinDLon * sinDLon * Math.cos(DEG2RAD * y) * Math.cos(DEG2RAD * this.maxY);
+		return EARTH_FACTOR * Math.atan2(Math.sqrt(a), Math.sqrt((1.0 - a)));
 		
-		return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+		//return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 	}
 	
 	public Box scale(double scaleX, double scaleY) {

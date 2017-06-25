@@ -2,6 +2,7 @@ package de.dfki.mapmatching;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import allow.simulator.mobility.data.gtfs.GTFSStop;
@@ -306,30 +308,60 @@ public class Main {
 	}*/
 	
 	
-	public static void main(String args[]) throws IOException {
+	/*public static void main(String args[]) throws IOException {
 		// Load street map.
-		StreetMap map = new StreetMap(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\trento_merged.world"));
+		StreetMap map = new StreetMap(Paths.get("./Utility/src/de/dfki/layerparser/trento_merged.world"));
 
 		MapMatching matching = new MapMatching(map);
-		List<Coordinate> tracesList = readGPSCoordinate("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\shapes.txt");
-		
+		List<Coordinate> tracesList = readGPSCoordinate("./Utility/src/de/dfki/layerparser/shapes.txt");
 		
 		ScoredPath p = matching.mapMatch(tracesList);
 		
-		System.out.println(p);
-		BufferedWriter wr = Files.newBufferedWriter(Paths.get("D:\\\\Work\\Try5\\Source Code\\branches\\map-matching\\Utility\\src\\de\\dfki\\layerparser\\out.txt"), Charset.defaultCharset());
-		if (p != null) {
-			wr.write("lat,lon\n");
+		printMatchingPath("out",p.getPath());
+		
+System.out.println("Done !!");
+	}*/
+	
+	public static void main(String args[]) throws IOException {
+		TimeWatch watch = TimeWatch.start();
+		// Load street map.
+		StreetMap map = new StreetMap(Paths.get("./Utility/src/de/dfki/layerparser/trento_merged.world"));
 
-			for (StreetSegment s : p.getPath()) {
-				// wr.write(s.getStartingNode().getPosition().y + "," +
-				// s.getStartingNode().getPosition().x + "\n");
-				wr.write(printCoOrdinates(s.getStartingPoint()));
-				//System.out.println(s.getStartingNode().getLabel() + ";;" + s.getEndingNode().getLabel() + "\n");
+		MapMatching matching = new MapMatching(map);
+		// List<Coordinate> tracesList =readGPSCoordinate("./Utility/src/de/dfki/layerparser/shapes.txt");
+		List<String> unMatchedList = new ArrayList<String>();
+
+		Map<String, List<Coordinate>> gpsTraces = readShapesFromFile("./Utility/src/de/dfki/layerparser/shapes.txt");
+
+		Set<String> keyset = gpsTraces.keySet();
+
+		for (String key : keyset) {
+			System.out.print("\"" + key + "\" --> ");
+			ScoredPath scoredPath = matching.mapMatch(gpsTraces.get(key));
+			if (null != scoredPath && null != scoredPath.getPath()) {
+				printMatchingPath(key, scoredPath.getPath());
+			} else {
+				unMatchedList.add(key);
+				System.out.println(", No path found for \"" + key + "\"");
 			}
-			Coordinate end = p.getPath().get(p.getPath().size() - 1).getEndPoint();
-			wr.write(printCoOrdinates(end));
 		}
+		System.out.println("Total Number of traces : "+keyset.size());
+		System.out.println("Total Number of un Matched List : "+unMatchedList.size());
+		System.out.println("Total Time consumed for full execution : " + watch.toMinuteSeconds());
+	}
+
+	private static void printMatchingPath(String fileName, List<StreetSegment> list) throws IOException {
+
+		BufferedWriter wr = Files.newBufferedWriter(Paths.get("./Utility/src/de/dfki/layerparser/out/" + fileName + ".txt"), Charset.defaultCharset());
+
+		wr.write("lat,lon\n");
+
+		for (StreetSegment s : list) {
+			wr.write(printCoOrdinates(s.getStartingPoint()));
+		}
+		Coordinate end = list.get(list.size() - 1).getEndPoint();
+		wr.write(printCoOrdinates(end));
+
 		wr.close();
 
 	}
@@ -341,7 +373,7 @@ public class Main {
 	static List<Coordinate> readGPSCoordinate(String fileLoc) throws IOException {
 		List<Coordinate> tracesList = new ArrayList<Coordinate>();
 
-		List<String> lines = Files.readAllLines(Paths.get(fileLoc), Charset.forName("Cp1252"));
+		List<String> lines = Files.readAllLines(Paths.get(fileLoc), Charset.defaultCharset());
 
 		for (int i = 1; i < lines.size(); i++) {
 			String tokens[] = lines.get(i).split(",");
@@ -352,9 +384,9 @@ public class Main {
 		return tracesList;
 	}
 
-	private static Map<String, List<StreetSegment>> readShapesFromFile(String file) throws IOException {
+	private static Map<String, List<Coordinate>> readShapesFromFile(String file) throws IOException {
 		// Map to return.
-		Map<String, List<StreetSegment>> ret = new HashMap<String, List<StreetSegment>>();
+		Map<String, List<Coordinate>> gpsTraces = new HashMap<String, List<Coordinate>>();
 
 		// Read from files.
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -364,37 +396,32 @@ public class Main {
 
 		// Read first data line.
 		String line = reader.readLine();
-		List<Coordinate> currentSequence = null;
+		List<Coordinate> currentSequence = new ArrayList<Coordinate>();
 		String currentId = "";
+
+		// Split first line.
+		String firstLineTokens[] = line.split(",");
+		currentId = firstLineTokens[0];
 
 		while (line != null) {
 			// Split current line.
 			String tokens[] = line.split(",");
 
-			if (!tokens[0].equals(currentId)) {
-
-				if (currentSequence != null && !currentId.equals("")) {
-					List<StreetSegment> temp = new ArrayList<StreetSegment>(currentSequence.size());
-
-					for (int i = 0; i < currentSequence.size() - 1; i++) {
-						temp.add(new StreetSegment(0, new StreetNode(-1, "", currentSequence.get(i)), new StreetNode(-1, "", currentSequence.get(i + 1)), 0, 0));
-					}
-					ret.put(currentId, temp);
-				}
-				currentId = tokens[0];
-				currentSequence = new ArrayList<Coordinate>(256);
+			if (tokens[0].equals(currentId)) {
+				currentSequence.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
 			}
-			currentSequence.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
-			line = reader.readLine();
-		}
-		List<StreetSegment> temp = new ArrayList<StreetSegment>(currentSequence.size());
 
-		for (int i = 0; i < currentSequence.size() - 1; i++) {
-			temp.add(new StreetSegment(0, new StreetNode(-1, "", currentSequence.get(i)), new StreetNode(-1, "", currentSequence.get(i + 1)), 0, 0));
+			else {
+				gpsTraces.put(currentId, currentSequence);
+				currentId = tokens[0];
+				currentSequence = new ArrayList<Coordinate>();
+				currentSequence.add(new Coordinate(Double.parseDouble(tokens[2]), Double.parseDouble(tokens[1])));
+			}
+			line = reader.readLine(); // Read next line
 		}
-		ret.put(currentId, temp);
+		gpsTraces.put(currentId, currentSequence);
 		reader.close();
-		return ret;
+		return gpsTraces;
 	}
 
 	private static Coordinate projectPointToSegment(Coordinate c, StreetSegment s) {

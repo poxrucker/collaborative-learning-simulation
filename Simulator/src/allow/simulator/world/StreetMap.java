@@ -130,10 +130,10 @@ public final class StreetMap implements Observer {
 				//segments.add(seg);
 				
 				// Add reversed segment for walking.
-				StreetSegment segRev = new StreetSegment(linkIds++, end, start, speedLimit, seg.getLength());
+				//StreetSegment segRev = new StreetSegment(linkIds++, end, start, speedLimit, seg.getLength());
 				//segmentsRev.add(segRev);
 				
-				map.addEdge(seg, seg.getStartingNode(), seg.getEndingNode());
+				map.addEdge(seg, start, end);
 				//map.addEdge(segRev, segRev.getStartingNode(), segRev.getEndingNode());
 			}
 		/*	Street s = new Street(linkIds++, name, segments);

@@ -52,8 +52,10 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		path.addSegment(initialSegment);
 
 		// Initialize length on current segment.
-		Pair<StreetNode, StreetNode> nodes = map.getIncidentNodes(initialSegment);
-		lengthOnCurrentSegment = Geometry.haversineDistance(proj, nodes.first.getPosition());	
+		//TODO: Verify with Andi!!  changed the initial point to segments initial point
+		//Pair<StreetNode, StreetNode> nodes = map.getIncidentNodes(initialSegment);
+		
+		lengthOnCurrentSegment = Geometry.haversineDistance(proj, initialSegment.getStartingPoint());	
 	}
 		
 	public ScoredPath(ScoredPath toCopy) {
@@ -125,7 +127,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 				for (int i = toRemove; i < segments.size(); i++) {
 					newPath.removeLastSegment();
 				}
-				
+				//TODO: max score/ min score idea!!!
 				// Compute projection score.
 				Coordinate proj = projectPointToSegment(newPoint, nearest);
 				double newScore = Geometry.haversineDistance(proj, newPoint);
@@ -236,7 +238,8 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		double maxLength = init.getLength() + length;
 
 		while (input.size() > 0) {
-			int maxLoop = Math.min(input.size(), 150);
+			//TODO: 150 taking lot time, so please verify what is the optimum value.
+			int maxLoop = Math.min(input.size(), 50);
 			
 			for (int i = 0; i < maxLoop; i++) {
 				Pair<Match, Path> match = input.poll();

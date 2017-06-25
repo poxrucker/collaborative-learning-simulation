@@ -71,6 +71,10 @@ public class Box {
 				Math.max(this.maxY, b.maxY));
 	}
 	
+	private static final double FACTOR = (Math.PI / 360.0);
+	private static final double DEG2RAD = (Math.PI / 180.0);
+	private static final double EARTH_FACTOR = 12742000.0; // 2 * 6371 * 1000.
+	
 	public double calcDist(double x, double y) {
 		double distanceX;
 		double distanceY;
@@ -85,7 +89,12 @@ public class Box {
 		} else {
 			distanceY = Math.min(Math.abs(this.minY - y), Math.abs(this.maxY - y));
 		}
-
+		
+	/*	double sinDLon = Math.sin(FACTOR * (distanceX));
+		double sinDLat = Math.sin(FACTOR * (distanceY));
+		double a = sinDLat * sinDLat + sinDLon * sinDLon * Math.cos(DEG2RAD * y) * Math.cos(DEG2RAD * this.minY);
+		return EARTH_FACTOR * Math.atan2(Math.sqrt(a), Math.sqrt((1.0 - a)));*/
+		
 		return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 	}
 	

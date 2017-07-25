@@ -11,6 +11,9 @@ public class PathComparator implements Comparator<Pair<Match, Path>>{
 		int score1 = (int) Math.ceil(o1.first.getScore() / 7.0) * 7;
 		int score2 = (int) Math.ceil(o2.first.getScore() / 7.0) * 7;
 
+		/*double score1 = o1.first.getScore() ;
+		double score2 = o2.first.getScore() ;*/
+		
 		if (score1 < score2) {
 			return -1;
 			

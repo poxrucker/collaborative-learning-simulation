@@ -331,12 +331,14 @@ System.out.println("Done !!");
 		// List<Coordinate> tracesList =readGPSCoordinate("./Utility/src/de/dfki/layerparser/shapes.txt");
 		List<String> unMatchedList = new ArrayList<String>();
 
+//		Map<String, List<Coordinate>> gpsTraces = readShapesFromFile("./Utility/src/de/dfki/layerparser/shapes_no_match.txt");
 		Map<String, List<Coordinate>> gpsTraces = readShapesFromFile("./Utility/src/de/dfki/layerparser/shapes.txt");
-
+		
 		Set<String> keyset = gpsTraces.keySet();
 
 		for (String key : keyset) {
 			System.out.print("\n\"" + key + "\" --> ");
+			
 			ScoredPath scoredPath = matching.mapMatch(gpsTraces.get(key));
 			if (null != scoredPath && null != scoredPath.getPath()) {
 				printMatchingPath(key, scoredPath.getPath());
@@ -345,7 +347,21 @@ System.out.println("Done !!");
 				System.out.println(", No path found for \"" + key + "\"");
 			}
 		}
-		System.out.println("Total Number of traces : "+keyset.size());
+		
+		BufferedWriter wr = Files.newBufferedWriter(Paths.get("./Utility/src/de/dfki/layerparser/out/UnMatched.txt"),Charset.defaultCharset());
+		wr.write("shape_id,latitude,longitude\n");
+
+		for (String unmatchedKeys : unMatchedList) {
+
+			for (Coordinate coOrdinate : gpsTraces.get(unmatchedKeys)) {
+
+				wr.write(unmatchedKeys+","+printCoOrdinates(coOrdinate));
+			}
+
+		}
+		wr.close();
+
+		System.out.println("\nTotal Number of traces : "+keyset.size());
 		System.out.println("Total Number of un Matched List : "+unMatchedList.size());
 		System.out.println("Total Time consumed for full execution : " + watch.toMinuteSeconds());
 	}
@@ -365,6 +381,9 @@ System.out.println("Done !!");
 		wr.close();
 
 	}
+	
+	
+	
 	private static String printCoOrdinates(Coordinate coOrdinate) {
 		
 		return coOrdinate.y + "," + coOrdinate.x + "\n";

@@ -169,6 +169,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
  	public double getScore() {
  		int scoreTemp = (int) (Math.ceil(score / 7.0) * 7);
  		return scoreTemp;
+ 		//return score;
  	}
  	
  	public int countMatches() {
@@ -367,7 +368,7 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		return result;
 	}
 
-/*	@Override
+	@Override
 	public boolean equals(Object other) {
 		
 		if (other == this) {
@@ -383,10 +384,10 @@ public class ScoredPath implements Comparable<ScoredPath> {
 				&& path.equals(p.path)
 				&& lengthOnCurrentSegment == p.lengthOnCurrentSegment
 				&& lengthOfCurrentSegment == p.lengthOfCurrentSegment;
-	}*/
+	}
 	
 	
-	@Override
+/*	@Override
 	public boolean equals(Object other) {
 
 		if (other == this) {
@@ -398,5 +399,5 @@ public class ScoredPath implements Comparable<ScoredPath> {
 		}
 		ScoredPath p = (ScoredPath) other;
 		return score == p.score && path.equals(p.path);
-	}
+	}*/
 }

@@ -61,9 +61,12 @@ public class MapMatching {
 		// Get initial candidate segments using the quad tree structure.
 		Coordinate firstPoint = gpsTrace.get(0);
 		Coordinate secondPoint = gpsTrace.get(1);
-		
+		if(!isGPSCoordinateInBoundingBox(firstPoint)){
+			System.out.print("  Out Of the bounding box. ");
+			return null;
+		}
 		//List<StreetNode> nearest = new ArrayList<>();
-		List<StreetNode> firstNearest = quad.getNNearestNeighbours(firstPoint.x, firstPoint.y, 10,10);
+		List<StreetNode> firstNearest = quad.getNNearestNeighbours(firstPoint.x, firstPoint.y, 10,0.005);
 		/*if(firstNearest.size()<30){
 			
 			firstNearest = quad.get(firstPoint.x, firstPoint.y, 0.001);
@@ -107,20 +110,28 @@ public class MapMatching {
 
 		// Initialize input buffer queues for first candidate segment.
 		Queue<ScoredPath> inputBuffer = new PriorityQueue<ScoredPath>(1024);
+
+		//double min =9999999;
 		
 		// Otherwise add all segments incident to the candidate nodes to the set.
 		for (StreetNode n : firstNearest) {
 			Collection<StreetSegment> incidentEdges = map.getIncidentEdges(n);
 
-			
 			for (StreetSegment incident : incidentEdges) {
 				ScoredPath newPath = new ScoredPath(map, firstPoint, incident);
-				//TODO: Why the value is 25 ?
+				//TODO: Why the value is 25 ? remove below minimum calcualtion
+				//System.out.print(" :: "+newPath.getScore());
+			/*	if(min>newPath.getScore()){
+					min = newPath.getScore();
+				}
+			*/	
 				if (newPath.getScore() <= 25.0 && !inputBuffer.contains(newPath)) {
 					inputBuffer.add(newPath);
 				}
 			}
+			
 		}
+		//System.out.println("\nMin Score : "+min);
 		
 		if (inputBuffer.size() == 0) {
 			System.out.print(", Error: No initial paths.");
@@ -128,6 +139,11 @@ public class MapMatching {
 		return match(gpsTrace, inputBuffer);
 	}
 	
+
+	private boolean isGPSCoordinateInBoundingBox(Coordinate coOrdinate) {
+		double[] dimentions = map.getDimensions();
+		return dimentions[0]<coOrdinate.x & dimentions[1]> coOrdinate.x & dimentions[2]< coOrdinate.y& dimentions[3]>coOrdinate.y;
+	}
 
 	private ScoredPath match(List<Coordinate> gpsTrace, Queue<ScoredPath> inputBuffer) {
 		TimeWatch watch = TimeWatch.start();
@@ -139,9 +155,14 @@ public class MapMatching {
 		// Match each remaining point of trace.
 		for (int j = 1; j < gpsTrace.size(); j++) {
 			//System.out.println("Matching point " + j + " of " + gpsTrace.size());
-			int loopMax = Math.min(inputBuffer.size(), 25);
+			int loopMax = Math.min(inputBuffer.size(), 150);
 			final Coordinate next = gpsTrace.get(j);
-
+			
+			if(!isGPSCoordinateInBoundingBox(next)){
+				System.out.print("  Out Of the bounding box. ");
+				return null;
+			}
+			
 			for (int i = 0; i < loopMax; i++) {
 				// Add point to current path.
 				final List<ScoredPath> addPaths = inputBuffer.poll().addPoint(next);
@@ -161,10 +182,22 @@ public class MapMatching {
 			inputBuffer = outputBuffer;
 			outputBuffer = temp;
 			outputBuffer.clear();
+			
+			//Break the gps trace loop if there is no initial points in buffer.
+			if(inputBuffer.isEmpty()){
+				break;
+			}
 		}
+
+		/*for (ScoredPath scoredPath : inputBuffer) {
+			System.out.println("Score : "+ scoredPath.getScore() +" :: Length : " + scoredPath.getLength()+" :: Path Size : " + scoredPath.getPath().size());
+		}*/
 		ScoredPath ret = inputBuffer.poll();
+
 		System.out.print(", Match Timer : "+ watch.toMinuteSeconds());
-		return ret;
+		/*if(null!=ret)
+		System.out.println("Score : "+ ret.getScore() +" :: Length : " + ret.getLength());
+		*/return ret;
 	}
 	
 	private ScoredPath match(List<Coordinate> gpsTrace, List<ScoredPath> candidatePaths) {
@@ -188,7 +221,7 @@ public class MapMatching {
 		// Match each remaining point of trace.
 		for (int j = 1; j < gpsTrace.size(); j++) {
 			//System.out.println("Matching point " + j + " of " + gpsTrace.size());
-			int loopMax = Math.min(inputBuffer.size(), 25);
+			int loopMax = Math.min(inputBuffer.size(), 50);
 			final Coordinate next = gpsTrace.get(j);
 
 			for (int i = 0; i < loopMax; i++) {

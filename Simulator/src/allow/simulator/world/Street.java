@@ -44,7 +44,6 @@ public class Street extends Observable implements Observer {
 	private int nHomemakers;
 	
 	/**
-	 * Constructor.
 	 * Creates a new instance of a street.
 	 * 
 	 * @param id Id of the street.

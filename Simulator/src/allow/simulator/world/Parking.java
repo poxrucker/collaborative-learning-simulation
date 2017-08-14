@@ -7,19 +7,28 @@ import allow.simulator.entity.Person;
 import allow.simulator.util.Coordinate;
 
 public final class Parking {
+  // Name of the parking (e.g. street name, garage...)
   private final String name;
+  
+  // Position
   private final Coordinate position;
+  
+  // Price per hour
   private final double pricePerHour;
-  private final int maxCapacity;
-  private final Set<Person> cars;
+  
+  // Total number of available parking spots
+  private final int numberOfParkingSpots;
+  
+  // Currently parking cars
+  private final Set<Person> parkingCars;
   
   public Parking(String name, Coordinate position,
-      double pricePerHour, int maxCapacity) {
+      double pricePerHour, int numberOfParkingSpots) {
     this.name = name;
     this.position = position;
     this.pricePerHour = pricePerHour;
-    this.maxCapacity = maxCapacity;
-    cars = new HashSet<>(maxCapacity);
+    this.numberOfParkingSpots = numberOfParkingSpots;
+    parkingCars = new HashSet<>(numberOfParkingSpots);
   }
   
   public String getName() {
@@ -34,15 +43,24 @@ public final class Parking {
     return pricePerHour;
   }
   
+  public int getNumberOfParkingSpots() {
+    return numberOfParkingSpots;
+  }
+  
+  public int getNumberOfFreeParkingSpots() {
+    return (numberOfParkingSpots - parkingCars.size());
+  }
+  
   public boolean park(Person person) {
     
-    if (cars.size() == maxCapacity)
+    if (getNumberOfFreeParkingSpots() == 0)
         return false;
-    cars.add(person);
+    
+    parkingCars.add(person);
     return true;
   }
   
   public void leave(Person person) {
-    cars.remove(person);
+    parkingCars.remove(person);
   }
 }

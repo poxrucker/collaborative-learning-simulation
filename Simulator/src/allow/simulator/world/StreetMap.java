@@ -1,10 +1,5 @@
 package allow.simulator.world;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +19,10 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public final class StreetMap extends World implements Observer {
 	
@@ -51,6 +50,7 @@ public final class StreetMap extends World implements Observer {
 	private Object2ObjectOpenHashMap<String, Street> streets;
 	private Object2ObjectOpenHashMap<String, StreetNode> nodes;
 	private Object2ObjectOpenHashMap<String, StreetNode> posNodes;
+	private Object2ObjectOpenHashMap<String, List<Street>> streetsByName;
 	
 	// Set of street segments to update after each time step.
 	private ObjectOpenHashSet<Street> streetsToUpdate;
@@ -61,6 +61,7 @@ public final class StreetMap extends World implements Observer {
 	public StreetMap(Path path) throws IOException {
 		map = new DirectedSparseMultigraph<StreetNode, Street>(); 
 		streets = new Object2ObjectOpenHashMap<String, Street>();
+		streetsByName = new Object2ObjectOpenHashMap<>();
 		nodesReduced = new Object2ObjectOpenHashMap<String, StreetNode>();
 		posNodes = new Object2ObjectOpenHashMap<String, StreetNode>();
 		busiestStreets = new LinkedList<Street>();
@@ -143,7 +144,14 @@ public final class StreetMap extends World implements Observer {
 				streets.put(source.getLabel() + ";;" + dest.getLabel(), s);
 				map.addEdge(s, segments.get(0).getStartingNode(), segments.get(segments.size() - 1).getEndingNode());
 			//}
-
+			List<Street> byName = streetsByName.get(name);
+			
+			if (byName == null) {
+			  byName = new ArrayList<Street>();
+		    streetsByName.put(name, byName);
+			}
+			byName.add(s);
+			
 			//Collections.reverse(segmentsRev);
 			//Street sRev = new Street(linkIds++, name, segmentsRev);
 			
@@ -214,6 +222,14 @@ public final class StreetMap extends World implements Observer {
 
 	public Collection<Street> getIncidentEdges(StreetNode node) {
 		return map.getIncidentEdges(node);
+	}
+	
+	public List<Street> getStreetsByName(String name) {
+	  return streetsByName.get(name);
+	}
+	
+	public Collection<String> getStreetNames() {
+	  return streetsByName.keySet();
 	}
 	
 	/*public Collection<StreetSegment> getOutGoingSegments(StreetNode source) {

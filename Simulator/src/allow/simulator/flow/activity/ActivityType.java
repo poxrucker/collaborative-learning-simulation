@@ -46,6 +46,8 @@ public enum ActivityType {
 	
 	WAIT,
 	
+	FIND_PARKING_SPOT,
+	
 	/**
 	 * Taxi activities.
 	 */

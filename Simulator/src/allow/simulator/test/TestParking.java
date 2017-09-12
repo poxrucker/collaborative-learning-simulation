@@ -17,4 +17,6 @@ public final class TestParking {
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingMap.load(streetMap, streetParkingPath, garageParkingPath);
   }
+  
+  
 }

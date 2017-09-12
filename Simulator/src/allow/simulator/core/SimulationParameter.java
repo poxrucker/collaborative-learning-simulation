@@ -14,4 +14,8 @@ public final class SimulationParameter {
 	
 	public int GridResY;
 	
+	public String StreetParkingPath;
+	
+	public String GarageParkingPath;
+	
 }

@@ -7,6 +7,7 @@ import java.util.Set;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.planner.JourneyPlanner;
+import allow.simulator.parking.ParkingMap;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
@@ -22,6 +23,9 @@ import allow.simulator.world.World;
 public final class Context {
 	// World including the StreetMap
 	private final World world;
+	
+	// Mapping of streets to parking possibilities
+	private final ParkingMap parkingMap;
 	
 	// EntityManager instance holding all entities
 	private final EntityManager entityManager;
@@ -55,6 +59,7 @@ public final class Context {
 	 * globally available within the simulation.
 	 * 
 	 * @param world World instance
+	 * @param parkingMap ParkingMap instance
 	 * @param entityManager EntityManager instance
 	 * @param time Time instance
 	 * @param dataService Data service to be used
@@ -62,6 +67,7 @@ public final class Context {
 	 * @param weather Current weather.
 	 */
 	public Context(World world,
+	    ParkingMap parkingMap,
 			EntityManager entityManager,
 			Time time,
 			JourneyPlanner journeyPlanner,
@@ -71,6 +77,7 @@ public final class Context {
 			SimulationParameter params,
 			Collection<Street> roiStreets) {
 		this.world = world;
+		this.parkingMap = parkingMap;
 		this.entityManager = entityManager;
 		this.time = time;
 		this.journeyPlanner = journeyPlanner;
@@ -92,6 +99,15 @@ public final class Context {
 	 */
 	public World getWorld() {
 		return world;
+	}
+	
+	/**
+	 * Returns the ParkingMap instance.
+	 * 
+	 * @return ParkingMap instance
+	 */
+	public ParkingMap getParkingMap() {
+	  return parkingMap;
 	}
 	
 	/**

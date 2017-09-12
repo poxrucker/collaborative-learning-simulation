@@ -225,9 +225,6 @@ public final class StreetMap extends World implements Observer {
 		return map.getIncidentEdges(node);
 	}
 	
-	public Map<String, List<Street>> getStreetsByName() {
-	  return streetsByName;
-	}
 	public List<Street> getStreetByName(String name) {
 	  return streetsByName.get(name);
 	}

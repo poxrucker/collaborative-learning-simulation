@@ -48,7 +48,9 @@ public class SetupSimulator extends DefaultReporter {
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
-
+		params.StreetParkingPath = (String) settings.get(3);
+		params.GarageParkingPath = (String) settings.get(4);
+		
 		// Create simulator and NetLogo binding
 		Simulator simulator = null;
 		

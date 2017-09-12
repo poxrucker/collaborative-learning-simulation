@@ -37,6 +37,7 @@ import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
+import allow.simulator.parking.ParkingMap;
 import allow.simulator.statistics.CoverageStatistics;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
@@ -68,7 +69,7 @@ public final class Simulator {
 	public static final String OVERLAY_RASTER = "raster";
 
 	/**
-	 * Creates a new instance of the simulator.
+	 * Initializes the simulator
 	 * 
 	 * @throws IOException
 	 */
@@ -101,15 +102,11 @@ public final class Simulator {
 		for (Street s : streetsInROI) {
 			if (s.getName().equals("Fußweg")
 					|| s.getName().equals("Bürgersteig")
-					// || s.getName().equals("Parkplatz")
 					|| s.getName().equals("Stufen")
 					|| s.getName().equals("Weg") || s.getName().equals("Gasse")
 					|| s.getName().equals("Fußgängertunnel")
 					|| s.getName().equals("Fahrradweg")
-					// || s.getName().equals("Anliegerstraße")
-					// || s.getName().equals("Straße")
 					|| s.getName().equals("Fußgängerbrücke"))
-					// || s.getName().equals("Fahrweg"))
 				toRemove.add(s);
 		}
 
@@ -130,8 +127,7 @@ public final class Simulator {
 						dataConfig.getPort()));
 
 			} else {
-				// For offline queries create mobility repository and offline
-				// service.
+				// For offline queries create mobility repository and offline service.
 				GTFSData gtfs = GTFSData.parse(Paths.get(dataConfig.getURL()));
 				RoutingData routing = RoutingData.parse(
 						Paths.get(dataConfig.getURL()), world, gtfs);
@@ -162,16 +158,20 @@ public final class Simulator {
 		Coordinate bikeRentalStation = new Coordinate(11.1248895, 46.0711398);
 		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(
 				plannerServices, bikeRentalStation);
-		// System.out.println("Loading weather model...");
+		
+		// Initialize journey planner instance
+    JourneyPlanner planner = new JourneyPlanner(plannerServices,
+        taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(),
+        threadpool);
+    
+		// Initialize weather model
 		Weather weather = new Weather(config.getWeatherPath(), time);
 
-		JourneyPlanner planner = new JourneyPlanner(plannerServices,
-				taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(),
-				threadpool);
-
-		// Create global context from world, time, planner and data services,
-		// and weather.
-		context = new Context(world, new EntityManager(), time, planner,
+		// Initialize parking map
+		ParkingMap parkingMap = ParkingMap.load(world, Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
+		
+		// Create global context from world, time, planner and data services, and weather
+		context = new Context(world, parkingMap, new EntityManager(), time, planner,
 				dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
 
 		// Setup entities.

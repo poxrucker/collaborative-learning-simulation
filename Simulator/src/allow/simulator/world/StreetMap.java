@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
@@ -224,7 +225,10 @@ public final class StreetMap extends World implements Observer {
 		return map.getIncidentEdges(node);
 	}
 	
-	public List<Street> getStreetsByName(String name) {
+	public Map<String, List<Street>> getStreetsByName() {
+	  return streetsByName;
+	}
+	public List<Street> getStreetByName(String name) {
 	  return streetsByName.get(name);
 	}
 	

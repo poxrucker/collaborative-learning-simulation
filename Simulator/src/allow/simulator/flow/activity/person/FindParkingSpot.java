@@ -1,6 +1,8 @@
 package allow.simulator.flow.activity.person;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
@@ -8,6 +10,7 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.parking.Parking;
 import allow.simulator.parking.ParkingMap;
 import allow.simulator.world.Street;
+import allow.simulator.world.StreetMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class FindParkingSpot extends Activity<Person> {
@@ -43,11 +46,12 @@ public final class FindParkingSpot extends Activity<Person> {
     
     if (parkings == null) {
       // If there is no parking at all, choose next street to look for spot
-      Street nextStreet = chooseNextStreet();
-      entity.getFlow().addActivity(new Drive(entity, new ObjectArrayList<>(new Street[] { nextStreet })));
-      entity.getFlow().addActivity(new FindParkingSpot(entity, visitedStreets));
-      setFinished();
-      return 0;
+      Street nextStreet = chooseNextStreet(current);
+      visitedStreets.add(nextStreet);
+      
+      // TODO: Move entity along street
+      
+      return deltaT;
     }
     
     // Choose suitable parking if available
@@ -55,11 +59,12 @@ public final class FindParkingSpot extends Activity<Person> {
     
     if (parking == null) {
       // If there is no parking at all, choose next street to look for spot
-      Street nextStreet = chooseNextStreet();
-      entity.getFlow().addActivity(new Drive(entity, new ObjectArrayList<>(new Street[] { nextStreet })));
-      entity.getFlow().addActivity(new FindParkingSpot(entity, visitedStreets));
-      setFinished();
-      return 0;
+      Street nextStreet = chooseNextStreet(current);
+      visitedStreets.add(nextStreet);
+      
+      // TODO: Move entity along street
+
+      return deltaT;
     }
     
     // If parking was found, park car and calculate way to original destination
@@ -79,7 +84,19 @@ public final class FindParkingSpot extends Activity<Person> {
     return null;
   }
   
-  private Street chooseNextStreet() {
-    return null;
+  private Street chooseNextStreet(Street currentStreet) {
+    // Get street map
+    StreetMap map = (StreetMap) entity.getContext().getWorld();
+    Collection<Street> outgoingStreets = map.getIncidentEdges(currentStreet.getEndNode());
+    
+    if (outgoingStreets.size() == 0)
+      return null;
+    
+    return getRandomStreet(outgoingStreets);
+  }
+  
+  private Street getRandomStreet(Collection<Street> streets) {
+    Street[] temp = streets.toArray(new Street[streets.size()]);
+    return temp[ThreadLocalRandom.current().nextInt(streets.size())];
   }
 }

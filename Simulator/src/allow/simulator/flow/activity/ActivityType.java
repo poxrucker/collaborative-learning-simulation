@@ -48,6 +48,8 @@ public enum ActivityType {
 	
 	FIND_PARKING_SPOT,
 	
+	LEAVE_PARKING_SPOT,
+	
 	/**
 	 * Taxi activities.
 	 */

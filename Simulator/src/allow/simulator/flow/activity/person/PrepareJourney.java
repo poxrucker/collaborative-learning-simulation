@@ -108,8 +108,13 @@ public final class PrepareJourney extends Activity<Person> {
 			case CAR:
 				if (l.streets.size() == 0)
 					continue;
+				// Leave current parking spot
+				entity.getFlow().addActivity(new LeaveParkingSpot(entity));
 				
+				// Drive to destination
 				entity.getFlow().addActivity(new Drive(entity, l.streets));
+				
+				// Find a new parking spot
 				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1)));
 				break;
 				

@@ -6,11 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import allow.simulator.core.Context;
 import allow.simulator.core.Simulator;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
+import allow.simulator.parking.Parking;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.utility.IUtility;
@@ -20,11 +26,6 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -107,6 +108,9 @@ public final class Person extends Entity {
 	@JsonIgnore
   private boolean participating;
   
+	@JsonIgnore
+	private Parking currentParking;
+	
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -344,6 +348,14 @@ public final class Person extends Entity {
 	 */
 	public void setReplanning(boolean isReplanning) {
 		this.isReplanning = isReplanning;
+	}
+	
+	public Parking getCurrentParking() {
+	  return currentParking;
+	}
+	
+	public void setCurrentParking(Parking parking) {
+	  this.currentParking = parking;
 	}
 	
 	/**

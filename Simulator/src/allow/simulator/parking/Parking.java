@@ -43,7 +43,11 @@ public abstract class Parking {
   }
   
   public final int getNumberOfFreeParkingSpots() {
-    return (numberOfParkingSpots - parkingCars.size());
+    return numberOfParkingSpots - parkingCars.size();
+  }
+  
+  public boolean hasFreeParkingSpot() {
+    return getNumberOfFreeParkingSpots() > 0;
   }
   
   public final boolean park(Person person) {

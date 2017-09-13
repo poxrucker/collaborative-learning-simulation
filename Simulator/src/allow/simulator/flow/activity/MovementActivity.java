@@ -48,14 +48,8 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 	}
 
 	private void initialize() {
+	  
 		if (!path.isEmpty()) {
-			
-			// Calculate overall distance.
-			// distance = 0.0;
-		
-			/*for (StreetSegment seg : path) {
-				distance += seg.getLength();
-			}*/
 			streetIndex = 0;
 			distOnStreet = 0.0;
 			

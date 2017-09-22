@@ -37,11 +37,14 @@ public class Tick extends DefaultReporter {
 		ctx.getStatistics().updateGlobalStatistics(ctx);
 		
 		listBuilder.add(ctx.getTime().toString());
-		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
+		// listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
 		
 		Statistics s = ctx.getStatistics();
-    listBuilder.add((double)s.getTotalStreetNetworkLength());
-    listBuilder.add((double)s.getVisitedStreetNetworkLength());
+		listBuilder.add((double)s.getSuccessfulParking());
+		listBuilder.add((double)s.getFailedParking());
+    listBuilder.add((double)s.getMeanSearchTimeParking());
+    // listBuilder.add((double)s.getTotalStreetNetworkLength());
+    // listBuilder.add((double)s.getVisitedStreetNetworkLength());
     return listBuilder.toLogoList();
 	}
 

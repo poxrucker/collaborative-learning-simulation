@@ -205,20 +205,9 @@ public final class StreetMap extends World implements Observer {
 		return Collections.unmodifiableCollection(map.getVertices());
 	}
 	
-	/**
-	 * Returns the street segments forming the street graph together with the
-	 * set of street nodes.
-	 * 
-	 * @return Set of street segments of the street graph.
-	 */
-	/*public Collection<StreetSegment> getStreetSegments() {
-		return map.getEdges();
-	}*/
-	
-	/*public Pair<StreetNode, StreetNode> getIncidentNodes(Street seg) {
-		edu.uci.ics.jung.graph.util.Pair<StreetNode> nodes = map.getEndpoints(seg);
-		return new Pair<StreetNode, StreetNode>(nodes.getFirst(), nodes.getSecond());
-	}*/
+	public Collection<Street> getOutgoingEdges(StreetNode node) {
+	  return map.getOutEdges(node);
+	}
 
 	public Collection<Street> getIncidentEdges(StreetNode node) {
 		return map.getIncidentEdges(node);

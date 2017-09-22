@@ -1,13 +1,11 @@
 package allow.simulator.flow.activity;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 import allow.simulator.entity.Entity;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class Flow<V extends Activity<? extends Entity>> {
 	// Manages the actual flow of activities.
-	private final Queue<V> flow;
+	private final ObjectArrayList<V> flow;
 	
 	// Currently executed activity.
 	private V currentActivity;
@@ -16,7 +14,7 @@ public final class Flow<V extends Activity<? extends Entity>> {
 	 * Creates new instance with empty flow.
 	 */
 	public Flow() {
-		flow = new ArrayDeque<V>();
+		flow = new ObjectArrayList<V>();
 		currentActivity = null;
 	}
 	
@@ -77,6 +75,12 @@ public final class Flow<V extends Activity<? extends Entity>> {
 		updateCurrentActivity();
 	}
 	
+	public void addAfter(V other, V a) {
+	  int index = flow.indexOf(other);
+	  flow.add(index + 1, a);
+	  updateCurrentActivity();
+	}
+	
 	public void clear() {
 		flow.clear();
 		currentActivity = null;
@@ -85,7 +89,7 @@ public final class Flow<V extends Activity<? extends Entity>> {
 	private void updateCurrentActivity() {
 		// If current activity is null or has finished, update current activity.
 		if ((currentActivity == null) || currentActivity.isFinished()) {
-			currentActivity = flow.poll();
+		  currentActivity = flow.isEmpty() ? null : flow.remove(0);
 		} 
 	}
 	

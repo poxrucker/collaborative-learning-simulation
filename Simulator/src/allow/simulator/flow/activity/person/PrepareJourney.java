@@ -61,6 +61,11 @@ public final class PrepareJourney extends Activity<Person> {
 		// Reset replanning flag
 		entity.setReplanning(false);
 
+		// Reset parking spot search time
+		entity.setSearchStartTime(0);
+		entity.setSearchEndTime(0);
+		entity.getVisitedStreets().clear();
+		
 		// Create a new Activity for every leg
 		for (int i = 0; i < journey.legs.size(); i++) {
 			Leg l = journey.legs.get(i);
@@ -106,11 +111,13 @@ public final class PrepareJourney extends Activity<Person> {
 				break;
 				
 			case CAR:
+			  // Leave current parking spot
+        entity.getFlow().addActivity(new LeaveParkingSpot(entity));
+        
+        // If there are no segments, continue
 				if (l.streets.size() == 0)
 					continue;
-				// Leave current parking spot
-				entity.getFlow().addActivity(new LeaveParkingSpot(entity));
-				
+					
 				// Drive to destination
 				entity.getFlow().addActivity(new Drive(entity, l.streets));
 				

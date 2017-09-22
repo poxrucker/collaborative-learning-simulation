@@ -23,4 +23,8 @@ public final class LeaveParkingSpot extends Activity<Person> {
     setFinished();
     return 0;
   }
+  
+  public String toString() {
+    return "LeaveParkingSpot " + entity;
+  }
 }

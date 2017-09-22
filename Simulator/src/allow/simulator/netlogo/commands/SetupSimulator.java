@@ -42,9 +42,9 @@ public class SetupSimulator extends DefaultReporter {
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
 	
 		LogoList settings = args[4].getList();
-		params.Scenario = (String) settings.get(0);
-		params.PercentParticipating = (int) (double) settings.get(1);
-		params.MaximumVisitedTime = (int) (double) (settings.get(2));
+		params.Model = (String) settings.get(0);
+		params.PercentUsers = (int) (double) settings.get(1);
+		params.PercentSensorCars = (int) (double) (settings.get(2));
 		org.nlogo.api.World w = context.getAgent().world();
 		params.GridResX = w.worldWidth();
 		params.GridResY = w.worldHeight();
@@ -67,11 +67,15 @@ public class SetupSimulator extends DefaultReporter {
 		LogoListBuilder listBuilder = new LogoListBuilder();
 		allow.simulator.core.Context ctx = simulator.getContext();
 		ctx.getStatistics().updateGlobalStatistics(ctx);
+		
 		listBuilder.add(ctx.getTime().toString());
-		listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
+		// listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
 		Statistics s = ctx.getStatistics();
-		listBuilder.add((double)s.getTotalStreetNetworkLength());
-		listBuilder.add((double)s.getVisitedStreetNetworkLength());
+    listBuilder.add((double)s.getSuccessfulParking());
+    listBuilder.add((double)s.getFailedParking());
+    listBuilder.add((double)s.getMeanSearchTimeParking());
+		// listBuilder.add((double)s.getTotalStreetNetworkLength());
+		// listBuilder.add((double)s.getVisitedStreetNetworkLength());
 		return listBuilder.toLogoList();
 	}
 

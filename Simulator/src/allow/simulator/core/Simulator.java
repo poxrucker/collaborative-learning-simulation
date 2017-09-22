@@ -247,9 +247,18 @@ public final class Simulator {
 
 		if (person.hasCar()) {
 		  
-		  if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
-		    person.setParticipating();
+		  if (ThreadLocalRandom.current().nextInt(100) < param.PercentUsers) {
+		    
+		    if (ThreadLocalRandom.current().nextInt(100) < param.PercentSensorCars) {
+		      person.setHasSensorCar();
+		      
+		    } else {
+		      person.setUser();
+		    }
 		  }
+		  /*if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
+		    person.setParticipating();
+		  }*/
 		}
 	}
 

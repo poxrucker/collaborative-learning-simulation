@@ -1,4 +1,4 @@
-package allow.simulator.netlogo.commands;
+package de.dfki.netlogo.commands.constructionsite;
 
 import org.nlogo.agent.Agent;
 import org.nlogo.agent.AgentSet;

@@ -82,6 +82,10 @@ public class Statistics {
 
 	private CoverageStatistics coverageStats;
 	
+	private int successfulParking;
+	private int failedParking;
+	private SlidingWindow parkingSpotSearchTime;
+	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -127,7 +131,9 @@ public class Statistics {
 		posteriorCarTravelTimeConstructionSiteActual = new SlidingWindow(windowSize);
 		
 		priorTripDistance = new SlidingWindow(windowSize);
-		posteriorTripDistance = new SlidingWindow(windowSize);		
+		posteriorTripDistance = new SlidingWindow(windowSize);
+		
+		parkingSpotSearchTime = new SlidingWindow(windowSize);
 	}
 	
 	public void reset() {
@@ -166,6 +172,10 @@ public class Statistics {
 		constructionSiteReplannings = 0;
 		totalNumberOfPlannings = 0;
 		totalNumberOfAffectedPlannings = 0;
+		
+		parkingSpotSearchTime.reset();
+		successfulParking = 0;
+		failedParking = 0;
 	}
 	
 	public double getCarJourneyRatio() {
@@ -397,6 +407,30 @@ public class Statistics {
 	
 	public void reportVisitedLink(long time, StreetSegment seg) {
 	  coverageStats.updateSegment(time, seg);
+	}
+	
+	public void reportSuccessfulParking() {
+	  successfulParking++;
+	}
+	
+	public int getSuccessfulParking() {
+	  return successfulParking;
+	}
+	
+	public void reportFailedParking() {
+	  failedParking++;
+	}
+	
+	public int getFailedParking() {
+	  return failedParking;
+	}
+	
+	public void reportSearchTimeParking(double searchTime) {
+	  parkingSpotSearchTime.addValue(searchTime);
+	}
+	
+	public double getMeanSearchTimeParking() {
+	  return parkingSpotSearchTime.getMean();
 	}
 	
 	public void updateGlobalStatistics(Context simulationContext) {

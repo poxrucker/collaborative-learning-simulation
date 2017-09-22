@@ -1,16 +1,25 @@
-package allow.simulator.netlogo.commands;
+package de.dfki.netlogo.commands.constructionsite;
 
 import org.nlogo.api.DefaultClassManager;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.PrimitiveManager;
 
-import de.dfki.netlogo.commands.constructionsite.IsInformed;
-import de.dfki.netlogo.commands.constructionsite.IsReceiving;
-import de.dfki.netlogo.commands.constructionsite.IsSharing;
-import de.dfki.netlogo.commands.constructionsite.UpdateGrid;
+import allow.simulator.netlogo.commands.ExchangeKnowledge;
+import allow.simulator.netlogo.commands.ExecuteActivities;
+import allow.simulator.netlogo.commands.ExecuteBus;
+import allow.simulator.netlogo.commands.ExecuteTransportAgencies;
+import allow.simulator.netlogo.commands.GetPersonRole;
+import allow.simulator.netlogo.commands.GetPersonRoles;
+import allow.simulator.netlogo.commands.GetRegion;
+import allow.simulator.netlogo.commands.GetRegions;
+import allow.simulator.netlogo.commands.SetupSimulator;
+import allow.simulator.netlogo.commands.ShowActivity;
+import allow.simulator.netlogo.commands.ShowNotAtHome;
+import allow.simulator.netlogo.commands.ShutDownSimulator;
+import allow.simulator.netlogo.commands.Tick;
 
 
-public class ExtensionManager extends DefaultClassManager {
+public class ExtensionManagerConstructionSite extends DefaultClassManager {
 
 	public static final String EXTENSION_NAME = "mobility";
 	
@@ -33,7 +42,6 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("is-informed", new IsInformed());
 		primitiveManager.addPrimitive("is-sharing", new IsSharing());
 		primitiveManager.addPrimitive("is-receiving", new IsReceiving());
-		primitiveManager.addPrimitive("show-busy-streets", new ShowBusyStreets());
 	}
 	
 	@Override

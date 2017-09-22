@@ -24,8 +24,10 @@ import allow.simulator.utility.ItineraryParams;
 import allow.simulator.utility.JourneyRankingFunction;
 import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
+import allow.simulator.world.Street;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -90,27 +92,36 @@ public final class Person extends Entity {
 	// Name of home area
 	private String homeAreaName;
 	
+	// Properties for construction site simulation models
 	@JsonIgnore
 	private boolean informed;
-	
 	@JsonIgnore
 	private boolean sharing;
-	
 	@JsonIgnore
 	private boolean receiving;
-	
 	@JsonIgnore
-	private long originalTravelTime;
-	
+	private long originalTravelTime;	
 	@JsonIgnore
 	private double originalTripDistance;
 	
+	// Properties for street coverage simulation models
 	@JsonIgnore
   private boolean participating;
-  
+	
+	// Properties for parking spot search simulations
+	@JsonIgnore
+  private boolean isUser;
+	@JsonIgnore
+	private boolean hasSensorCar;
 	@JsonIgnore
 	private Parking currentParking;
-	
+	@JsonIgnore
+	private List<Street> visitedStreets;
+	@JsonIgnore
+	private long searchStartTime;
+	@JsonIgnore
+	private long searchEndTime;
+
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -153,6 +164,7 @@ public final class Person extends Entity {
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
+		visitedStreets = new ObjectArrayList<>();
 	}
 	
 	/**
@@ -196,6 +208,7 @@ public final class Person extends Entity {
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
+    visitedStreets = new ObjectArrayList<>();
 	}
 	
 	/**
@@ -350,6 +363,23 @@ public final class Person extends Entity {
 		this.isReplanning = isReplanning;
 	}
 	
+	public void setUser() {
+	  isUser = true;
+	}
+	
+	public boolean isUser() {
+	  return isUser;
+	}
+	
+	public void setHasSensorCar() {
+	  hasSensorCar = true;
+	  isUser = true;
+	}
+	
+	public boolean hasSensorCar() {
+	  return hasSensorCar;
+	}
+	
 	public Parking getCurrentParking() {
 	  return currentParking;
 	}
@@ -451,6 +481,26 @@ public final class Person extends Entity {
 	
 	public void setParticipating() {
 	  participating = true;
+	}
+	
+	public List<Street> getVisitedStreets() {
+	  return visitedStreets;
+	}
+	
+	public long getSearchStartTime() {
+	  return searchStartTime;
+	}
+	
+	public void setSearchStartTime(long searchStartTime) {
+	  this.searchStartTime = searchStartTime;
+	}
+	
+	public long getSearchEndTime() {
+	  return searchEndTime;
+	}
+	
+	public void setSearchEndTime(long searchEndTime) {
+	  this.searchEndTime = searchEndTime;
 	}
 	
 	@SuppressWarnings("unchecked")

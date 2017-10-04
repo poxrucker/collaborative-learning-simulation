@@ -84,6 +84,8 @@ public class Statistics {
 	
 	private int successfulParking;
 	private int failedParking;
+	private int reasonMaxSearchTimeExceeded;
+	private int reasonNoPath;
 	private SlidingWindow parkingSpotSearchTime;
 	
 	public Statistics(int windowSize) {
@@ -176,6 +178,8 @@ public class Statistics {
 		parkingSpotSearchTime.reset();
 		successfulParking = 0;
 		failedParking = 0;
+		reasonMaxSearchTimeExceeded = 0;
+		reasonNoPath = 0;
 	}
 	
 	public double getCarJourneyRatio() {
@@ -417,12 +421,26 @@ public class Statistics {
 	  return successfulParking;
 	}
 	
-	public void reportFailedParking() {
+	public void reportFailedParking(int reason) {
 	  failedParking++;
+	  
+	  if (reason == 0)
+	    reasonMaxSearchTimeExceeded++;
+	  
+	  else if (reason == 1)
+	    reasonNoPath++;
 	}
 	
 	public int getFailedParking() {
 	  return failedParking;
+	}
+	
+	public int getReasonMaxSearchTimeExceeded() {
+	  return reasonMaxSearchTimeExceeded;
+	}
+	
+	public int getReasonNoPath() {
+	  return reasonNoPath;
 	}
 	
 	public void reportSearchTimeParking(double searchTime) {

@@ -8,6 +8,8 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
+import allow.simulator.parking.Parking;
+import allow.simulator.parking.ParkingRepository;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
@@ -132,28 +134,18 @@ public final class Drive extends MovementActivity<Person> {
 					segmentIndex = 0;
 					tStart = tEnd;
 					
+					// Parking spot model: If the end of a street is reached and user 
+					// has a sensor car, update parking map instance
+					updateParkingMap(street);
+					
+					// Construction site checks
 					if (experiences.size() < path.size()) {
+					  
+					  if (checkForBlockedStreets())
+					    return deltaT;
+				  
+					} 
 					
-						boolean intermediateReplaning = false;
-					
-						if (person.isInformed() && !checkedForBlockedStreets) {
-							StreetMap map = (StreetMap) person.getContext().getWorld();
-							intermediateReplaning = map.containsBlockedStreet(path);
-							checkedForBlockedStreets = true;
-						}
-					
-						Street nextStreet = getCurrentStreet();
-					
-						if (nextStreet.isBlocked())
-							person.setInformed(true);
-				
-						if (intermediateReplaning || nextStreet.isBlocked()) {
-							entity.getFlow().clear();
-							entity.getFlow().addActivity(new ReplanCarJourney(entity, nextStreet.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !nextStreet.isBlocked()));
-							setFinished();
-							return deltaT;
-						}
-					}
 				}		
 				deltaT += tNextSegment;
 				
@@ -173,6 +165,52 @@ public final class Drive extends MovementActivity<Person> {
 	
 	public String toString() {
 		return "Drive " + entity;
+	}
+	
+	private void updateParkingMap(Street street) {
+	  // Count number of free parking spots
+	  ParkingRepository parkingRepository = entity.getContext().getParkingRepository();
+	  List<Parking> parkings = parkingRepository.getParkingInStreet(street);
+	  
+	  if (parkings == null)
+	    return;
+	  
+	  int nSpots = 0;
+	  int nFreeSpots = 0;
+	  
+	  for (Parking parking : parkings) {
+	    nSpots += parking.getNumberOfParkingSpots();
+	    nFreeSpots += parking.getNumberOfFreeParkingSpots();
+	  }
+	  
+	  long time = entity.getContext().getTime().getTimestamp();
+	  entity.getLocalParkingMap().update(street, nSpots, nFreeSpots, time);
+	  
+	  if (entity.hasSensorCar())
+	    entity.getGlobalParkingMap().update(street, nSpots, nFreeSpots, time);
+	}
+	
+	private boolean checkForBlockedStreets() {
+    boolean intermediateReplaning = false;
+  
+    if (entity.isInformed() && !checkedForBlockedStreets) {
+      StreetMap map = (StreetMap) entity.getContext().getWorld();
+      intermediateReplaning = map.containsBlockedStreet(path);
+      checkedForBlockedStreets = true;
+    }
+  
+    Street nextStreet = getCurrentStreet();
+  
+    if (nextStreet.isBlocked())
+      entity.setInformed(true);
+
+    if (intermediateReplaning || nextStreet.isBlocked()) {
+      entity.getFlow().clear();
+      entity.getFlow().addActivity(new ReplanCarJourney(entity, nextStreet.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !nextStreet.isBlocked()));
+      setFinished();
+      return true;
+    }
+    return false;
 	}
 	
 	private StreetSegment getReverseSegment(Street street, StreetSegment seg) {

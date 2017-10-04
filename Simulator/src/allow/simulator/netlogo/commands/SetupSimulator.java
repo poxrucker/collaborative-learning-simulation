@@ -74,6 +74,10 @@ public class SetupSimulator extends DefaultReporter {
     listBuilder.add((double)s.getSuccessfulParking());
     listBuilder.add((double)s.getFailedParking());
     listBuilder.add((double)s.getMeanSearchTimeParking());
+    listBuilder.add((double)s.getReasonMaxSearchTimeExceeded());
+    listBuilder.add((double)s.getReasonNoPath());
+    listBuilder.add((double)ctx.getParkingRepository().getTotalNumberOfParkingSpots());
+    listBuilder.add((double)ctx.getParkingRepository().getTotalNumberOfFreeParkingSpots());
 		// listBuilder.add((double)s.getTotalStreetNetworkLength());
 		// listBuilder.add((double)s.getVisitedStreetNetworkLength());
 		return listBuilder.toLogoList();

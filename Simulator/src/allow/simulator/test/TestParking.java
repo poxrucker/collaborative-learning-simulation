@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import allow.simulator.parking.ParkingMap;
+import allow.simulator.parking.ParkingRepository;
 import allow.simulator.world.StreetMap;
 
 public final class TestParking {
@@ -15,7 +15,7 @@ public final class TestParking {
     Path garageParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/coverage/garage_parking.csv");
 
     StreetMap streetMap = new StreetMap(streetMapPath);
-    ParkingMap.load(streetMap, streetParkingPath, garageParkingPath);
+    ParkingRepository.load(streetMap, streetParkingPath, garageParkingPath);
   }
   
   

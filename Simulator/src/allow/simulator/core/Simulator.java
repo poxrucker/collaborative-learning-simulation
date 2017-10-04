@@ -37,7 +37,10 @@ import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
+import allow.simulator.parking.ParkingGuidanceSystem;
 import allow.simulator.parking.ParkingMap;
+import allow.simulator.parking.ParkingMapFactory;
+import allow.simulator.parking.ParkingRepository;
 import allow.simulator.statistics.CoverageStatistics;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
@@ -59,275 +62,389 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *
  */
 public final class Simulator {
-	// Simulation context
-	private Context context;
 
-	// Threadpool for executing multiple tasks in parallel
-	private ExecutorService threadpool;
+  // Simulation context
+  private Context context;
 
-	public static final String OVERLAY_DISTRICTS = "partitioning";
-	public static final String OVERLAY_RASTER = "raster";
+  // Threadpool for executing multiple tasks in parallel
+  private ExecutorService threadpool;
 
-	/**
-	 * Initializes the simulator
-	 * 
-	 * @throws IOException
-	 */
-	public void setup(Configuration config, SimulationParameter params) throws IOException {
-		threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+  public static final String OVERLAY_DISTRICTS = "partitioning";
+  public static final String OVERLAY_RASTER = "raster";
 
-		// Setup world.
-		StreetMap world = new StreetMap(config.getMapPath());
+  /**
+   * Initializes the simulator
+   * 
+   * @throws IOException
+   */
+  public void setup(Configuration config, SimulationParameter params) throws IOException {
+    threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
-		Path l = config.getLayerPath(OVERLAY_DISTRICTS);
-		if (l == null)
-			throw new IllegalStateException("Error: Missing layer with key \""
-					+ OVERLAY_DISTRICTS + "\".");
-		RasterOverlay rasterOverlay = new RasterOverlay(world.getDimensions(),
-				params.GridResX, params.GridResY);
-		IOverlay districtOverlay = DistrictOverlay.parse(l, world);
-		world.addOverlay(rasterOverlay, OVERLAY_RASTER);
-		world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
+    // Setup world
+    StreetMap world = initializeStreetMap(config, params);
 
-		// Set scenario to normal
-		params.Scenario = "";
+    // Set scenario to normal
+    params.Scenario = "";
 
-		// Initialize streets in region of interest
-		//streetsInROI = world.getStreetsInROI(new double[] { 11.1178, 11.1332, 46.0646, 46.0739 });
-		List<Street> streetsInROI = new ArrayList<Street>(world.getStreets());
-		
-		// Filter walking and biking only streets by name
-		List<Street> toRemove = new ObjectArrayList<Street>();
+    // Initialize streets in region of interest
+    List<Street> streetsInROI = initializeStreetsInROI(world);
 
-		for (Street s : streetsInROI) {
-			if (s.getName().equals("Fußweg")
-					|| s.getName().equals("Bürgersteig")
-					|| s.getName().equals("Stufen")
-					|| s.getName().equals("Weg") || s.getName().equals("Gasse")
-					|| s.getName().equals("Fußgängertunnel")
-					|| s.getName().equals("Fahrradweg")
-					|| s.getName().equals("Fußgängerbrücke"))
-				toRemove.add(s);
-		}
+    // Create data services
+    List<IDataService> dataServices = initializeDataServices(config, world);
 
-		for (Street s : toRemove) {
-			streetsInROI.remove(s);
-		}
-		
-		// Create data services.
-		// System.out.println("Creating data services...");
-		List<IDataService> dataServices = new ArrayList<IDataService>();
-		List<Service> dataConfigs = config.getDataServiceConfiguration();
+    // Create time
+    Time time = new Time(config.getStartingDate(), 10);
 
-		for (Service dataConfig : dataConfigs) {
+    // Create weather model
+    Weather weather = new Weather(config.getWeatherPath(), time);
 
-			if (dataConfig.isOnline()) {
-				// For online queries create online data services.
-				dataServices.add(new OnlineDataService(dataConfig.getURL(),
-						dataConfig.getPort()));
+    // Create planner services.
+    List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
+    List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
 
-			} else {
-				// For offline queries create mobility repository and offline service.
-				GTFSData gtfs = GTFSData.parse(Paths.get(dataConfig.getURL()));
-				RoutingData routing = RoutingData.parse(
-						Paths.get(dataConfig.getURL()), world, gtfs);
-				dataServices.add(new OfflineDataService(gtfs, routing));
-			}
-		}
+    for (int i = 0; i < plannerConfigs.size(); i++) {
+      Service plannerConfig = plannerConfigs.get(i);
+      plannerServices.add(new OTPPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world, dataServices.get(0), time));
+    }
 
-		// Create time and weather.
-		Time time = new Time(config.getStartingDate(), 10);
+    // Create taxi planner service
+    Coordinate taxiRank = new Coordinate(11.1198448, 46.0719489);
+    TaxiPlanner taxiPlannerService = new TaxiPlanner(plannerServices, taxiRank);
 
-		// Create planner services.
-		// System.out.println("Creating planner services...");
-		List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
-		List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
+    // Create bike rental service
+    Coordinate bikeRentalStation = new Coordinate(11.1248895, 46.0711398);
+    BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, bikeRentalStation);
 
-		for (int i = 0; i < plannerConfigs.size(); i++) {
-			Service plannerConfig = plannerConfigs.get(i);
-			plannerServices.add(new OTPPlanner(plannerConfig.getURL(),
-					plannerConfig.getPort(), world, dataServices.get(0), time));
-		}
+    // Initialize journey planner instance
+    JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 
-		// Create taxi planner service
-		Coordinate taxiRank = new Coordinate(11.1198448, 46.0719489);
-		TaxiPlanner taxiPlannerService = new TaxiPlanner(plannerServices,
-				taxiRank);
+    // Initialize parking map
+    ParkingRepository parkingRepo = ParkingRepository.load(world, Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
 
-		// Create bike rental service
-		Coordinate bikeRentalStation = new Coordinate(11.1248895, 46.0711398);
-		BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(
-				plannerServices, bikeRentalStation);
-		
-		// Initialize journey planner instance
-    JourneyPlanner planner = new JourneyPlanner(plannerServices,
-        taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(),
-        threadpool);
+    // Create global context from world, time, planner and data services, and
+    // weather
+    context = new Context(world, parkingRepo, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params,
+        streetsInROI);
+
+    // Setup entities
+    initializeEntities(config.getAgentConfigurationPath(), params);
+    configureParkingSpotModel(context, params);
+
+    // Create public transportation repository
+    TransportationRepository repos = new TransportationRepository(context);
+    context.setTransportationRepository(repos);
+
+    // Initialize EvoKnowlegde and setup logger.
+    EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), "without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
+
+    // Update world
+    world.update(context);
+
+    // Initialize length of street network
+    double length = 0.0;
+
+    for (Street s : streetsInROI) {
+      length += s.getLength();
+    }
+    CoverageStatistics stats = new CoverageStatistics(params.MaximumVisitedTime * 60, length);
+    context.getStatistics().setCoverageStats(stats);
+    System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
+  }
+
+  private StreetMap initializeStreetMap(Configuration config, SimulationParameter params) throws IOException {
+    StreetMap world = new StreetMap(config.getMapPath());
+
+    Path l = config.getLayerPath(OVERLAY_DISTRICTS);
+
+    if (l == null)
+      throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
+
+    IOverlay districtOverlay = DistrictOverlay.parse(l, world);
+    IOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY);
+    world.addOverlay(rasterOverlay, OVERLAY_RASTER);
+    world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
+    return world;
+  }
+
+  private List<Street> initializeStreetsInROI(StreetMap map) {
+    List<Street> ret = new ObjectArrayList<Street>(map.getStreets());
+
+    // Filter walking and biking only streets by name
+    List<Street> toRemove = new ObjectArrayList<Street>();
+
+    for (Street s : ret) {
+      if (s.getName().equals("Fußweg") || s.getName().equals("Bürgersteig") || s.getName().equals("Stufen") || s.getName().equals("Weg")
+          || s.getName().equals("Gasse") || s.getName().equals("Fußgängertunnel") || s.getName().equals("Fahrradweg")
+          || s.getName().equals("Fußgängerbrücke"))
+        toRemove.add(s);
+    }
+
+    for (Street s : toRemove) {
+      ret.remove(s);
+    }
+    return ret;
+  }
+
+  private List<IDataService> initializeDataServices(Configuration config, StreetMap map) throws IOException {
+    List<IDataService> dataServices = new ObjectArrayList<IDataService>();
+    List<Service> dataConfigs = config.getDataServiceConfiguration();
+
+    for (Service dataConfig : dataConfigs) {
+
+      if (dataConfig.isOnline()) {
+        // For online queries create online data services.
+        dataServices.add(new OnlineDataService(dataConfig.getURL(), dataConfig.getPort()));
+
+      } else {
+        // For offline queries create mobility repository and offline service.
+        GTFSData gtfs = GTFSData.parse(Paths.get(dataConfig.getURL()));
+        RoutingData routing = RoutingData.parse(Paths.get(dataConfig.getURL()), map, gtfs);
+        dataServices.add(new OfflineDataService(gtfs, routing));
+      }
+    }
+    return dataServices;
+  }
+
+  private void initializeEntities(Path config, SimulationParameter param) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+    List<String> lines = Files.readAllLines(config, Charset.defaultCharset());
+    List<Coordinate> homeLocations = new ArrayList<Coordinate>();
+
+    for (String line : lines) {
+      Person person = mapper.readValue(line, Person.class);
+
+      if (person.hasCar())
+        homeLocations.add(person.getHome());
+
+      context.getEntityManager().addEntity(person);
+      person.setContext(context);
+      PlanGenerator.generateDayPlan(person);
+    }
+
+    for (int i = 0; i < 5000; i++) {
+      int id = context.getEntityManager().getNextId();
+      Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
+      NormalizedLinearUtility utility = new NormalizedLinearUtility();
+      Preferences prefs = new Preferences();
+      prefs.setCarPreference(1);
+      Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
+
+      Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs, home, true, false, false, new DailyRoutine());
+      context.getEntityManager().addEntity(newHomemaker);
+      newHomemaker.setContext(context);
+      PlanGenerator.generateDayPlan(newHomemaker);
+    }
+  }
+
+  private void configureParkingSpotModel(Context context, SimulationParameter param) {
+    // Get all persons
+    Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
+    ParkingMapFactory factory = new ParkingMapFactory(context.getWorld().getDimensions(), param.GridResY, param.GridResX);
+
+    switch (param.Model) {
+
+    case "Baseline":
+      initializeBaselineModel(persons, factory);
+      break;
+
+    case "MappingDisplay":
+      initializeMappingDisplayModel(persons, factory, param.PercentUsers, param.PercentSensorCars);
+      break;
+
+    case "GuidanceSystem":
+      initializeGuidanceSystemModel(persons, factory, param.PercentUsers, param.PercentSensorCars);
+      break;
+
+    default:
+      throw new IllegalArgumentException();
+
+    }
+  }
+
+  private void initializeBaselineModel(Collection<Entity> persons, ParkingMapFactory factory) {
+
+    for (Entity entity : persons) {
+      // Get person
+      Person person = (Person) entity;
+
+      // If person does not have a car, there is nothing to do
+      if (!person.hasCar())
+        continue;
+
+      // Otherwise, create a new ParkingMap instance and assign it to the person
+      person.setLocalParkingMap(factory.createParkingMap());
+    }
+  }
+
+  private void initializeMappingDisplayModel(Collection<Entity> persons, ParkingMapFactory factory, int percentUsers, int percentSensorCars) {
+    // Create a ParkingMap instance which is shared by Users
+    ParkingMap sharedMap = factory.createParkingMap();
+
+    for (Entity entity : persons) {
+      // Get person
+      Person person = (Person) entity;
+
+      // If person does not have a car, there is nothing to do
+      if (!person.hasCar())
+        continue;
+
+      // Create and assign local parking map instance
+      person.setLocalParkingMap(factory.createParkingMap());
+      
+      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
+        // Person is a user; set property and assign shared parking map
+        person.setUser();
+        person.setGlobalParkingMap(sharedMap);
+        
+        // Determine is person has a sensor car
+        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
+          person.setHasSensorCar(); 
+      } 
+    }
+  }
+
+  private void initializeGuidanceSystemModel(Collection<Entity> persons, ParkingMapFactory factory, 
+      int percentUsers, int percentSensorCars) {
+    // Create a ParkingMap instance which is shared by Users
+    ParkingMap sharedMap = factory.createParkingMap();
+
+    // Create a GuidanceSystem instance assigning parking spots to Users
+    ParkingGuidanceSystem guidanceSystem = new ParkingGuidanceSystem(sharedMap);
     
-		// Initialize weather model
-		Weather weather = new Weather(config.getWeatherPath(), time);
+    for (Entity entity : persons) {
+      // Get person
+      Person person = (Person) entity;
 
-		// Initialize parking map
-		ParkingMap parkingMap = ParkingMap.load(world, Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
-		
-		// Create global context from world, time, planner and data services, and weather
-		context = new Context(world, parkingMap, new EntityManager(), time, planner,
-				dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
+      // If person does not have a car, there is nothing to do
+      if (!person.hasCar())
+        continue;
 
-		// Setup entities.
-		// System.out.println("Loading entities from file...");
-		loadEntitiesFromFile(config.getAgentConfigurationPath(), params);
+      // Create and assign local parking map instance
+      person.setLocalParkingMap(factory.createParkingMap());
 
-		// Create public transportation.
-		// System.out.println("Creating public transportation system...");
-		TransportationRepository repos = new TransportationRepository(context);
-		context.setTransportationRepository(repos);
+      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
+        // Person is a user; set property and assign shared parking map
+        person.setUser();
+        person.setGlobalParkingMap(sharedMap);
 
-		// Initialize EvoKnowlegde and setup logger.
-		EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(),
-				"without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
+        // Determine is person has a sensor car
+        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
+          person.setHasSensorCar();
+      }
+    }
+  }
 
-		// Update world
-		world.update(context);
+  private void initializeCoverageEntities(Path config, SimulationParameter param) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-		// Initialize length of street network
-		double length = 0.0;
-		
-		for (Street s : streetsInROI) {
-		  length += s.getLength();
-		}
-		CoverageStatistics stats = new CoverageStatistics(params.MaximumVisitedTime * 60, length);
-		context.getStatistics().setCoverageStats(stats);
-		System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
-	}
+    List<String> lines = Files.readAllLines(config, Charset.defaultCharset());
+    List<Coordinate> homeLocations = new ArrayList<Coordinate>();
 
-	private void loadEntitiesFromFile(Path config, SimulationParameter param)
-			throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    for (String line : lines) {
+      Person person = mapper.readValue(line, Person.class);
 
-		List<String> lines = Files.readAllLines(config,
-				Charset.defaultCharset());
-		// List<Person> homemakers = new ArrayList<Person>();
-		List<Coordinate> homeLocations = new ArrayList<Coordinate>();
-		
-		for (String line : lines) {
-			Person person = mapper.readValue(line, Person.class);
-			
-			// if (person.getProfile() == Profile.HOMEMAKER)
-			  // homemakers.add(person);
-			if (person.hasCar()) 
-			  homeLocations.add(person.getHome());
-			
-			initializePerson(person, context, param);
-			context.getEntityManager().addEntity(person);
-		}
-		
-		for (int i = 0; i < 5000; i++) {
-		  // Person p = homemakers.get(ThreadLocalRandom.current().nextInt(homemakers.size()));
-		  int id = context.getEntityManager().getNextId();
-		  Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
-		  NormalizedLinearUtility utility = new NormalizedLinearUtility();
-		  Preferences prefs = new Preferences();
-		  prefs.setCarPreference(1);
-		  Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
-		  
-		  Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs,
-		      home, true, false, false, new DailyRoutine());
-		  initializePerson(newHomemaker, context, param);
-		  context.getEntityManager().addEntity(newHomemaker);
-		}
-		
-	}
+      if (person.hasCar())
+        homeLocations.add(person.getHome());
 
-	private void initializePerson(Person person, Context context, SimulationParameter param) {
-		person.setContext(context);
-		PlanGenerator.generateDayPlan(person);
+      initializeCoveragePerson(person, context, param);
+      context.getEntityManager().addEntity(person);
+    }
 
-		if (person.hasCar()) {
-		  
-		  if (ThreadLocalRandom.current().nextInt(100) < param.PercentUsers) {
-		    
-		    if (ThreadLocalRandom.current().nextInt(100) < param.PercentSensorCars) {
-		      person.setHasSensorCar();
-		      
-		    } else {
-		      person.setUser();
-		    }
-		  }
-		  /*if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
-		    person.setParticipating();
-		  }*/
-		}
-	}
+    for (int i = 0; i < 5000; i++) {
+      int id = context.getEntityManager().getNextId();
+      Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
+      NormalizedLinearUtility utility = new NormalizedLinearUtility();
+      Preferences prefs = new Preferences();
+      prefs.setCarPreference(1);
+      Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
 
-	/**
-	 * Advances the simulation by one step.
-	 * 
-	 * @throws IOException
-	 */
-	public void tick() throws IOException {
-		// Save current day to trigger routine scheduling
-		int days = context.getTime().getDays();
+      Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs, home, true, false, false, new DailyRoutine());
+      initializeCoveragePerson(newHomemaker, context, param);
+      context.getEntityManager().addEntity(newHomemaker);
+    }
+  }
 
-		// Update time
-		context.getTime().tick();
+  private void initializeCoveragePerson(Person person, Context context, SimulationParameter param) {
+    person.setContext(context);
+    PlanGenerator.generateDayPlan(person);
 
-		// Update world
-		context.getWorld().update(context);
+    if (person.hasCar()) {
 
-		// Trigger routine scheduling.
-		if (days != context.getTime().getDays()) {
-			Collection<Entity> persons = context.getEntityManager()
-					.getEntitiesOfType(EntityTypes.PERSON);
+      if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
+        person.setParticipating();
+      }
+    }
+  }
 
-			for (Entity p : persons) {
-				PlanGenerator.generateDayPlan((Person) p);
-				p.getRelations().resetBlackList();
-			}
-		}
+  /**
+   * Advances the simulation by one step.
+   * 
+   * @throws IOException
+   */
+  public void tick() throws IOException {
+    // Save current day to trigger routine scheduling
+    int days = context.getTime().getDays();
 
-		// Log streets
-		/*boolean logged = logger.log(streetsInROI);
+    // Update time
+    context.getTime().tick();
 
-		if (logged) {
-			StreetMap map = (StreetMap)context.getWorld();
+    // Update world
+    context.getWorld().update(context);
 
-			for (Street street : map.getStreets()) {
-				street.resetUsageStatistics();
-			}
-		}*/
+    // Trigger routine scheduling.
+    if (days != context.getTime().getDays()) {
+      Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
-		/*
-		 * if (context.getTime().getCurrentTime().getHour() == 3 &&
-		 * context.getTime().getCurrentTime().getMinute() == 0 &&
-		 * context.getTime().getCurrentTime().getSecond() == 0) {
-		 * context.getStatistics().reset(); }
-		 */
+      for (Entity p : persons) {
+        PlanGenerator.generateDayPlan((Person) p);
+        p.getRelations().resetBlackList();
+      }
+    }
 
-		// context.getWorld().getStreetMap().getNBusiestStreets(20);
-		EvoKnowledge.invokeRequest();
-		EvoKnowledge.cleanModel();
-	}
+    // Log streets
+    /*
+     * boolean logged = logger.log(streetsInROI);
+     * 
+     * if (logged) { StreetMap map = (StreetMap)context.getWorld();
+     * 
+     * for (Street street : map.getStreets()) { street.resetUsageStatistics(); }
+     * }
+     */
 
-	/**
-	 * Returns the context associated with this Simulator instance.
-	 * 
-	 * @return Context of this Simulator instance
-	 */
-	public Context getContext() {
-		return context;
-	}
+    /*
+     * if (context.getTime().getCurrentTime().getHour() == 3 &&
+     * context.getTime().getCurrentTime().getMinute() == 0 &&
+     * context.getTime().getCurrentTime().getSecond() == 0) {
+     * context.getStatistics().reset(); }
+     */
 
-	public void finish() throws IOException {
-		threadpool.shutdown();
+    // context.getWorld().getStreetMap().getNBusiestStreets(20);
+    EvoKnowledge.invokeRequest();
+    EvoKnowledge.cleanModel();
+  }
 
-		try {
-			threadpool.awaitTermination(2, TimeUnit.SECONDS);
+  /**
+   * Returns the context associated with this Simulator instance.
+   * 
+   * @return Context of this Simulator instance
+   */
+  public Context getContext() {
+    return context;
+  }
 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+  public void finish() throws IOException {
+    threadpool.shutdown();
+
+    try {
+      threadpool.awaitTermination(2, TimeUnit.SECONDS);
+
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
 }

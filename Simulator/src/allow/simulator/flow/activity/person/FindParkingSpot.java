@@ -1,35 +1,47 @@
 package allow.simulator.flow.activity.person;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.parking.IParkingSearchStrategy;
+import allow.simulator.parking.IParkingSelectionStrategy;
 import allow.simulator.parking.Parking;
-import allow.simulator.parking.ParkingMap;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
-import allow.simulator.world.StreetNode;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public final class FindParkingSpot extends Activity<Person> {
+  // Delay in seconds modeling the time between a having found a parking spot
+  // and finishing parking
+  private static final int DEFAULT_PARKING_DELAY = 5 * 60;
 
-  private static final int DEFAULT_PARKING_DELAY = 7 * 60;
-
-  // Street to look for parking spot
+  // Maximum time parking spot searching is executed before it is reported
+  // as a failure
+  private static final int MAX_SEARCH_TIME = 15 * 60;
+  
+  // Current street to look for parking spot
   private final Street current;
 
-  // Time to wait
+  // Selection strategy to apply when there is more than one possibility in the current street
+  private final IParkingSelectionStrategy selectionStrategy;
+ 
+  // Search strategy to apply when there is no parking spot in the current street
+  private final IParkingSearchStrategy searchStrategy;
+  
+  // Indicates if user has found a parking spot in the current street
   private boolean hasParking;
+  
+  // Counts down the time necessary to park
   private double parkingTime;
 
-  public FindParkingSpot(Person entity, Street street) {
+  public FindParkingSpot(Person entity, Street current,
+      IParkingSelectionStrategy selectionStrategy,
+      IParkingSearchStrategy searchStrategy) {
     super(ActivityType.FIND_PARKING_SPOT, entity);
-    this.current = street;
+    this.current = current;
+    this.selectionStrategy = selectionStrategy;
+    this.searchStrategy = searchStrategy;
   }
 
   @Override
@@ -37,10 +49,10 @@ public final class FindParkingSpot extends Activity<Person> {
     // Check if it is the first attempt to find a parking spot
     if (entity.getSearchStartTime() == 0)
       entity.setSearchStartTime(entity.getContext().getTime().getTimestamp());
-
+    
     // Check if entity has already found a parking spot
     if (!hasParking()) {
-
+      
       // Check if parking is not required at all (e.g. destination is home)
       if (!parkingRequired()) {
         // Set parking flag
@@ -50,34 +62,33 @@ public final class FindParkingSpot extends Activity<Person> {
         setParkingTime(DEFAULT_PARKING_DELAY / 2.0);
         return 0;
       }
-
-      // If parking is required, find one in current street
-      Parking parking = findParking();
+      // Check if there is a free parking spot in the current street
+      Parking parking = selectionStrategy.selectParking(current, 0);
 
       if (parking == null) {
         // Check if parking threshold is exceeded
         if (maxSearchTimeExceeded()) {
           setHasParking();
           setParkingTime(0);
-          reportStatistics(false);
+          reportFailure(0);
           setFinished();
           return 0;
         }
         // If there is no parking in current street, choose next street to look for spot
-        entity.getVisitedStreets().add(current);
-        List<Street> nextStreets = getPathToNextStreet(current);
+        List<Street> nextStreets = searchStrategy.getPathToNextPossibleParking(current);
 
         if (nextStreets == null) {
           setHasParking();
           setParkingTime(0);
-          reportStatistics(false);
+          reportFailure(1);
           setFinished();
           return 0;
         }
         // Drive along next street and look for parking spot there
         Activity<Person> drive = new Drive(entity, nextStreets);
-        entity.getFlow().addAfter(this, drive);
-        entity.getFlow().addAfter(drive, new FindParkingSpot(entity, nextStreets.get(nextStreets.size() - 1)));
+        entity.getFlow().addAfter(this, drive); 
+        Activity<Person> park = new FindParkingSpot(entity, nextStreets.get(nextStreets.size() - 1), selectionStrategy, searchStrategy);
+        entity.getFlow().addAfter(drive, park);
         setFinished();
         return 0;
       }
@@ -85,6 +96,7 @@ public final class FindParkingSpot extends Activity<Person> {
       // If parking was found, park car setting parking time
       parking.park(entity);
       entity.setCurrentParking(parking);
+      entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
       setHasParking();
       setParkingTime(DEFAULT_PARKING_DELAY);
       return 0;
@@ -95,7 +107,7 @@ public final class FindParkingSpot extends Activity<Person> {
     }
     
     // Parking is finished
-    reportStatistics(true);
+    reportSuccess();
     setFinished();
     return deltaT;
   }
@@ -123,149 +135,28 @@ public final class FindParkingSpot extends Activity<Person> {
   }
   
   private boolean maxSearchTimeExceeded() {
-    return (entity.getContext().getTime().getTimestamp() - entity.getSearchStartTime()) >= 15 * 60 * 1000;
+    return (entity.getContext().getTime().getTimestamp() - entity.getSearchStartTime()) >= MAX_SEARCH_TIME * 1000;
   } 
-  
-  private void reportStatistics(boolean success) {
+
+  private void reportFailure(int reason) {
     Statistics stats = entity.getContext().getStatistics();
-    
-    if (success) {
-      stats.reportSuccessfulParking();
-      stats.reportSearchTimeParking((entity.getContext().getTime().getTimestamp() - entity.getSearchStartTime()) / 1000.0);
-      
-    } else {
-      stats.reportFailedParking();
-    }
-      
+    stats.reportFailedParking(reason);
   }
   
-  private Parking findParking() {
-    // ParkingMap instance
-    ParkingMap parkingMap = entity.getContext().getParkingMap();
-
-    // Check if there is a free parking spot in the current street
-    List<Parking> parkings = parkingMap.getParkingInStreet(current.getName());
-
-    if (parkings == null) 
-      return null;
-
-    // Choose suitable parking if available
-    Parking parking = chooseParking(parkings);
-    return parking;
+  private void reportSuccess() {
+    Statistics stats = entity.getContext().getStatistics();
+    stats.reportSuccessfulParking();
+    stats.reportSearchTimeParking((entity.getSearchEndTime() - entity.getSearchStartTime()) / 1000.0);     
   }
-
-  private Parking chooseParking(List<Parking> parkings) {
-
-    for (Parking parking : parkings) {
-
-      if (parking.hasFreeParkingSpot())
-        return parking;
-    }
-    return null;
-  }
-
-  private List<Street> getPathToNextStreet(Street currentStreet) {
-    // Get all outgoing streets starting at current intersection
-    Set<StreetNode> visitedNodes = getVisitedNodes(entity.getVisitedStreets());
-    List<List<Street>> paths = getInitialPaths();
-    
-    if (paths == null)
-      return null;
-    
-    List<List<Street>> candidates = null;
-
-    while ((candidates = getCandidatePaths(paths, visitedNodes)).size() == 0) {
-      paths = updatePaths(paths);
-    }
-    return chooseRandomPath(candidates);
-  }
-
-  private List<List<Street>> getInitialPaths() {
-    // Get all streets starting at the end of the current street from StreetMap
-    // instance
-    StreetMap map = (StreetMap) entity.getContext().getWorld();
-    List<Street> outgoingStreets = new ObjectArrayList<>(map.getOutgoingEdges(current.getEndNode()));
-
-    // Create a separate path for each candidate street
-    List<List<Street>> initialCandidates = new ObjectArrayList<>(outgoingStreets.size());
-
-    for (Street street : outgoingStreets) {
-      
-      if (!isValidStreet(street))
-        continue;
-      
-      initialCandidates.add(new ObjectArrayList<>(new Street[] { current, street }));
-    }
-    return initialCandidates;
-  }
-
-  private List<List<Street>> getCandidatePaths(List<List<Street>> paths, Set<StreetNode> visitedNodes) {
-    // Get all destination nodes from initial candidates
-    List<List<Street>> candidates = new ObjectArrayList<>(paths.size());
-
-    for (List<Street> path : paths) {
-      // Check if last street end on node which has already been visited
-      Street last = path.get(path.size() - 1);
-
-      if (visitedNodes.contains(last.getEndNode()))
-        continue;
-
-      candidates.add(path);
-    }
-    return candidates;
-  }
-
-  private List<List<Street>> updatePaths(List<List<Street>> paths) {
-    // Get all streets starting at the end of each path from StreetMap instance
-    StreetMap map = (StreetMap) entity.getContext().getWorld();
-    List<List<Street>> ret = new ObjectArrayList<>();
-
-    for (List<Street> path : paths) {
-      Street last = path.get(path.size() - 1);
-      List<Street> outgoingStreets = new ObjectArrayList<>(map.getOutgoingEdges(last.getEndNode()));
-
-      for (Street street : outgoingStreets) {
-        
-        if (!isValidStreet(street))
-          continue;
-          
-        List<Street> newPath = new ObjectArrayList<>(path.size() + 1);
-        newPath.addAll(path);
-        newPath.add(street);
-        ret.add(newPath);
-      }
-    }
-    return ret;
-  }
-
-  private boolean isValidStreet(Street street) {
-    return !(street.getName().equals("Fußweg")
-        || street.getName().equals("Bürgersteig")
-        || street.getName().equals("Stufen")
-        || street.getName().equals("Weg") || street.getName().equals("Gasse")
-        || street.getName().equals("Fußgängertunnel")
-        || street.getName().equals("Fahrradweg")
-        || street.getName().equals("Fußgängerbrücke"));
-  }
-  private Set<StreetNode> getVisitedNodes(List<Street> path) {
-    Set<StreetNode> nodes = new ObjectOpenHashSet<>();
-    nodes.add(path.get(0).getStartingNode());
-
-    for (Street street : path) {
-      nodes.add(street.getEndNode());
-    }
-    return nodes;
-  }
-
+ 
   private void setHasParking() {
     hasParking = true;
+    entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
   }
 
   private void setParkingTime(double parkingTime) {
     this.parkingTime = parkingTime;
   }
 
-  private List<Street> chooseRandomPath(List<List<Street>> streets) {
-    return streets.get(ThreadLocalRandom.current().nextInt(streets.size()));
-  }
+  
 }

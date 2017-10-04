@@ -18,7 +18,12 @@ import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
+import allow.simulator.parking.IParkingSearchStrategy;
+import allow.simulator.parking.IParkingSelectionStrategy;
+import allow.simulator.parking.RandomParkingSearchStrategy;
+import allow.simulator.parking.UtilityParkingSelectionStrategy;
 import allow.simulator.world.Street;
+import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 
 /**
@@ -64,7 +69,6 @@ public final class PrepareJourney extends Activity<Person> {
 		// Reset parking spot search time
 		entity.setSearchStartTime(0);
 		entity.setSearchEndTime(0);
-		entity.getVisitedStreets().clear();
 		
 		// Create a new Activity for every leg
 		for (int i = 0; i < journey.legs.size(); i++) {
@@ -111,9 +115,11 @@ public final class PrepareJourney extends Activity<Person> {
 				break;
 				
 			case CAR:
+        entity.setUsedCar(true);
+
 			  // Leave current parking spot
         entity.getFlow().addActivity(new LeaveParkingSpot(entity));
-        
+
         // If there are no segments, continue
 				if (l.streets.size() == 0)
 					continue;
@@ -122,7 +128,9 @@ public final class PrepareJourney extends Activity<Person> {
 				entity.getFlow().addActivity(new Drive(entity, l.streets));
 				
 				// Find a new parking spot
-				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1)));
+				IParkingSearchStrategy searchStrategy = new RandomParkingSearchStrategy((StreetMap) entity.getContext().getWorld());
+				IParkingSelectionStrategy selectionStrategy = new UtilityParkingSelectionStrategy(entity.getContext().getParkingRepository());
+				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1), selectionStrategy, searchStrategy));
 				break;
 				
 			case TAXI:
@@ -144,12 +152,7 @@ public final class PrepareJourney extends Activity<Person> {
 				throw new IllegalArgumentException("Error: Activity " + l.mode + " is not supported.");
 			}
 		}
-		
-		// Set used car flag if person uses the car
-		if (journey.itineraryType == TType.CAR) {
-			entity.setUsedCar(true);
-		}
-		
+
 		// Report statistics
 		reportItineraryType(journey.itineraryType);
 		entity.getFlow().addActivity(new CorrectPosition(entity, journey.to));

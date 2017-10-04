@@ -1,111 +1,105 @@
 package allow.simulator.parking;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
-import allow.simulator.world.StreetMap;
+import allow.simulator.util.Coordinate;
+import allow.simulator.world.Street;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ParkingMap {
 
-  private final StreetMap streetMap;
-  private final Map<String, List<Parking>> parkingMap;
-
-  public ParkingMap(StreetMap streetMap, Map<String, List<Parking>> parkingMap) {
-    this.streetMap = streetMap;
-    this.parkingMap = parkingMap;
-  }
-
-  public List<Parking> getParkingInStreet(String street) {
-    return parkingMap.get(street);
-  }
-  
-  public static ParkingMap load(StreetMap streetMap, Path streetParking, Path garageParking) throws IOException {
-    // Destination to store loaded parking
-    Map<String, List<Parking>> parkings = new Object2ObjectOpenHashMap<>();
+  public final class ParkingMapEntry {
+    private Coordinate position;
+    private int nParkingSpots;
+    private int nFreeParkingSpots;
+    private long lastUpdate;
     
-    // All known street names
-    Collection<String> streetNames = streetMap.getStreetNames();
-    
-    // Load fixed price street parking
-    System.out.println("Loading street parking...");
-    loadStreetParking(streetParking, streetNames, parkings);
-    
-    // Load dynamic price street parking
-    System.out.println("Loading garage parking...");
-    loadGarageParking(garageParking, streetNames, parkings);
-    
-    for (String name : parkings.keySet()) {
-      System.out.println(name + " -> " + parkings.get(name));
+    public ParkingMapEntry(Coordinate position,
+        int nParkingSpots,
+        int nFreeParkingSpots,
+        long lastUpdate) {
+      this.position = position;
+      this.nParkingSpots = nParkingSpots;
+      this.nFreeParkingSpots = nFreeParkingSpots;
+      this.lastUpdate = lastUpdate;
     }
-    return new ParkingMap(streetMap, parkings);
-  }
-
-  private static void loadStreetParking(Path streetParking, Collection<String> streets, Map<String, List<Parking>> parkings) throws NumberFormatException, IOException {
-   
-    try (BufferedReader reader = Files.newBufferedReader(streetParking)) {
-      String line = null;
-      
-      while ((line = reader.readLine()) != null) {
-        String[] tokens = line.split(";");
-        String name = tokens[0];
-        name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        int numberOfParkingSpots = !tokens[1].equals("") ? Integer.parseInt(tokens[1]) : 0;
-        double pricePerHour = !tokens[2].equals("") ? Double.parseDouble(tokens[2].replaceAll(",", ".")) : 0;
-        
-        if (!streets.contains(name)) {
-          System.out.println(name);
-         
-        } else {
-          
-          List<Parking> temp = parkings.get(name);
-          
-          if (temp == null) {
-            temp = new ObjectArrayList<>();
-            parkings.put(name, temp);
-          }
-          temp.add(new FixedPriceParking(name, pricePerHour, numberOfParkingSpots));
-        }
-      }
+    
+    public ParkingMapEntry(Coordinate position,
+        int nParkingSpots,
+        int nFreeParkingSpots) {
+      this(position, nFreeParkingSpots, nFreeParkingSpots, -1);
+    }
+    
+    public Coordinate getPosition() {
+      return position;
+    }
+    
+    public int getNParkingSpots() {
+      return nParkingSpots;
+    }
+    
+    public int getNFreeParkingSpots() {
+      return nFreeParkingSpots;
+    }
+    
+    public long getLastUpdate() {
+      return lastUpdate;
+    }
+    
+    public void updateEntry(int nFreeParkingSpots, long ts) {
+      this.nFreeParkingSpots = nFreeParkingSpots;
+      this.lastUpdate = ts;
     }
   }
   
-  private static void loadGarageParking(Path garageParking, Collection<String> streets, Map<String, List<Parking>> parkings) throws NumberFormatException, IOException {
-    
-    try (BufferedReader reader = Files.newBufferedReader(garageParking)) {
-      // Headline
-      String line = null;
-
-      while ((line = reader.readLine()) != null) {
-        String[] tokens = line.split(";");
-        String name = tokens[0];
-        name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        String address = tokens[1];
-        address = address.substring(0, 1).toUpperCase() + address.substring(1);
-
-        int numberOfParkingSpots = !tokens[2].equals("") ? Integer.parseInt(tokens[2]) : 0;
-        double pricePerHour = !tokens[3].equals("") ? Double.parseDouble(tokens[3].replaceAll(",", ".")) : 0;
- 
-        if (!streets.contains(address)) {
-          System.out.println(address);
-         
-        } else {        
-          List<Parking> temp = parkings.get(address);
-          
-          if (temp == null) {
-            temp = new ObjectArrayList<>();
-            parkings.put(address, temp);
-          }
-          temp.add(new DynamicPriceParking(name, pricePerHour, numberOfParkingSpots));
-        }
-      }
-    }
+  private final Map<String, ParkingMapEntry> dataMap;
+  private final ParkingGrid spatialMap;
+  
+  public ParkingMap(double[] areaBounds, int nRows, int nCols) {
+    this.dataMap = new Object2ObjectOpenHashMap<>();
+    this.spatialMap = new ParkingGrid(areaBounds, nRows, nCols);
   }
-
+  
+  public void update(Street street, int nParkingSpots, int nFreeParkingSpots, long ts) {
+    // Try to find existing entry in parking map
+    ParkingMapEntry entry = null;
+    
+    // First, try normal key
+    String key = getKey(street);
+    entry = dataMap.get(key);
+    
+    if (entry != null) {
+      entry.updateEntry(nFreeParkingSpots, ts);
+      return;
+    }
+    
+    // If normal key was not found, try reversed key
+    String reversedKey = getReverseKey(street);
+    entry = dataMap.get(reversedKey);
+    
+    if (entry != null) {
+      entry.updateEntry(nFreeParkingSpots, ts);
+      return;
+    }
+    
+    // If none of the keys is contained in the map, add new entry to data map and spatial index
+    entry = new ParkingMapEntry(street.getEndNode().getPosition(), nParkingSpots, nFreeParkingSpots, ts);
+    dataMap.put(key, entry);
+    
+    Coordinate pos = street.getEndNode().getPosition();
+    spatialMap.insert(pos, entry);
+  }
+  
+  public Collection<ParkingMapEntry> findPossibleParking(Coordinate position, double maxDistance) {
+    return spatialMap.query(position, maxDistance);
+  }
+  
+  private static String getKey(Street street) {
+    return street.getStartingNode().getLabel() + "->" + street.getEndNode().getLabel();
+  }
+  
+  private static String getReverseKey(Street street) {
+    return street.getEndNode().getLabel() + "->" + street.getStartingNode().getLabel();
+  }
 }

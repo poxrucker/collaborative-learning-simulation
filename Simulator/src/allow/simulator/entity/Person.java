@@ -17,6 +17,7 @@ import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.parking.Parking;
+import allow.simulator.parking.ParkingMap;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.utility.IUtility;
@@ -24,10 +25,8 @@ import allow.simulator.utility.ItineraryParams;
 import allow.simulator.utility.JourneyRankingFunction;
 import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
-import allow.simulator.world.Street;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -116,11 +115,13 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private Parking currentParking;
 	@JsonIgnore
-	private List<Street> visitedStreets;
-	@JsonIgnore
 	private long searchStartTime;
 	@JsonIgnore
 	private long searchEndTime;
+	@JsonIgnore
+	private ParkingMap localParkingMap;
+	@JsonIgnore
+	private ParkingMap globalParkingMap;
 
 	/**
 	 * Creates new instance of a person.
@@ -164,7 +165,7 @@ public final class Person extends Entity {
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
-		visitedStreets = new ObjectArrayList<>();
+		//visitedStreets = new ObjectArrayList<>();
 	}
 	
 	/**
@@ -208,7 +209,7 @@ public final class Person extends Entity {
 		currentItinerary = null;
 		usedCar = false;
 		isReplanning = false;
-    visitedStreets = new ObjectArrayList<>();
+    //visitedStreets = new ObjectArrayList<>();
 	}
 	
 	/**
@@ -373,7 +374,6 @@ public final class Person extends Entity {
 	
 	public void setHasSensorCar() {
 	  hasSensorCar = true;
-	  isUser = true;
 	}
 	
 	public boolean hasSensorCar() {
@@ -387,6 +387,22 @@ public final class Person extends Entity {
 	public void setCurrentParking(Parking parking) {
 	  this.currentParking = parking;
 	}
+	
+	public ParkingMap getLocalParkingMap() {
+	  return localParkingMap;
+	}
+	
+	public void setLocalParkingMap(ParkingMap parkingMap) {
+	  this.localParkingMap = parkingMap;
+	}
+	
+	public ParkingMap getGlobalParkingMap() {
+    return globalParkingMap;
+  }
+  
+  public void setGlobalParkingMap(ParkingMap parkingMap) {
+    this.globalParkingMap = parkingMap;
+  }
 	
 	/**
 	 * Returns the daily routine of this person, i.e. set of travelling events
@@ -481,10 +497,6 @@ public final class Person extends Entity {
 	
 	public void setParticipating() {
 	  participating = true;
-	}
-	
-	public List<Street> getVisitedStreets() {
-	  return visitedStreets;
 	}
 	
 	public long getSearchStartTime() {

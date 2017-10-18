@@ -8,13 +8,13 @@ import allow.simulator.flow.activity.ActivityType;
 import allow.simulator.flow.activity.MovementActivity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
-import allow.simulator.parking.Parking;
-import allow.simulator.parking.ParkingRepository;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
+import de.dfki.parking.model.ParkingMap;
+import de.dfki.parking.model.ParkingMap.ParkingMapEntry;
 
 /**
  * Class representing driving Activity.
@@ -134,8 +134,7 @@ public final class Drive extends MovementActivity<Person> {
 					segmentIndex = 0;
 					tStart = tEnd;
 					
-					// Parking spot model: If the end of a street is reached and user 
-					// has a sensor car, update parking map instance
+					// Parking spot model: If the end of a street is reached update parking map(s)
 					updateParkingMap(street);
 					
 					// Construction site checks
@@ -169,25 +168,23 @@ public final class Drive extends MovementActivity<Person> {
 	
 	private void updateParkingMap(Street street) {
 	  // Count number of free parking spots
-	  ParkingRepository parkingRepository = entity.getContext().getParkingRepository();
-	  List<Parking> parkings = parkingRepository.getParkingInStreet(street);
+	  ParkingMap parkingMap = entity.getContext().getParkingMap();
+	  List<ParkingMapEntry> parkings = parkingMap.getParkingsInStreet(street);
 	  
 	  if (parkings == null)
 	    return;
 	  
-	  int nSpots = 0;
-	  int nFreeSpots = 0;
-	  
-	  for (Parking parking : parkings) {
-	    nSpots += parking.getNumberOfParkingSpots();
-	    nFreeSpots += parking.getNumberOfFreeParkingSpots();
-	  }
-	  
 	  long time = entity.getContext().getTime().getTimestamp();
-	  entity.getLocalParkingMap().update(street, nSpots, nFreeSpots, time);
-	  
-	  if (entity.hasSensorCar())
-	    entity.getGlobalParkingMap().update(street, nSpots, nFreeSpots, time);
+
+	  for (ParkingMapEntry parking : parkings) {
+	    int nSpots = parking.getParking().getNumberOfParkingSpots();
+	    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
+	    
+	    entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, time);
+
+	    if (entity.hasSensorCar())
+	      entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, time);
+	  }  
 	}
 	
 	private boolean checkForBlockedStreets() {

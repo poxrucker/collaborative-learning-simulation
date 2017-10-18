@@ -16,8 +16,6 @@ import allow.simulator.core.Simulator;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
-import allow.simulator.parking.Parking;
-import allow.simulator.parking.ParkingMap;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Pair;
 import allow.simulator.utility.IUtility;
@@ -27,6 +25,9 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
+import de.dfki.parking.knowledge.ParkingKnowledge;
+import de.dfki.parking.model.Parking;
+import de.dfki.parking.selection.IParkingSelectionStrategy;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -119,10 +120,12 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private long searchEndTime;
 	@JsonIgnore
-	private ParkingMap localParkingMap;
+	private ParkingKnowledge localParkingKnowledge;
 	@JsonIgnore
-	private ParkingMap globalParkingMap;
-
+	private ParkingKnowledge globalParkingKnowledge;
+	@JsonIgnore
+	private IParkingSelectionStrategy selectionStrategy;
+	
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -368,6 +371,7 @@ public final class Person extends Entity {
 	  isUser = true;
 	}
 	
+	@JsonIgnore
 	public boolean isUser() {
 	  return isUser;
 	}
@@ -376,10 +380,12 @@ public final class Person extends Entity {
 	  hasSensorCar = true;
 	}
 	
+	@JsonIgnore
 	public boolean hasSensorCar() {
 	  return hasSensorCar;
 	}
 	
+	@JsonIgnore
 	public Parking getCurrentParking() {
 	  return currentParking;
 	}
@@ -388,22 +394,51 @@ public final class Person extends Entity {
 	  this.currentParking = parking;
 	}
 	
-	public ParkingMap getLocalParkingMap() {
-	  return localParkingMap;
+	@JsonIgnore
+	public ParkingKnowledge getLocalParkingKnowledge() {
+	  return localParkingKnowledge;
 	}
 	
-	public void setLocalParkingMap(ParkingMap parkingMap) {
-	  this.localParkingMap = parkingMap;
+	public void setLocalParkingKnowledge(ParkingKnowledge knowledge) {
+	  this.localParkingKnowledge = knowledge;
 	}
 	
-	public ParkingMap getGlobalParkingMap() {
-    return globalParkingMap;
+	@JsonIgnore
+	public ParkingKnowledge getGlobalParkingKnowledge() {
+    return globalParkingKnowledge;
   }
   
-  public void setGlobalParkingMap(ParkingMap parkingMap) {
-    this.globalParkingMap = parkingMap;
+  public void setGlobalParkingKnowledge(ParkingKnowledge knowledge) {
+    this.globalParkingKnowledge = knowledge;
   }
 	
+  @JsonIgnore
+  public IParkingSelectionStrategy getParkingSelectionStrategy() {
+    return selectionStrategy;
+  }
+  
+  public void setParkingSelectionStrategy(IParkingSelectionStrategy strategy) {
+    this.selectionStrategy = strategy;
+  }
+  
+  @JsonIgnore
+  public long getSearchStartTime() {
+    return searchStartTime;
+  }
+  
+  public void setSearchStartTime(long searchStartTime) {
+    this.searchStartTime = searchStartTime;
+  }
+  
+  @JsonIgnore
+  public long getSearchEndTime() {
+    return searchEndTime;
+  }
+  
+  public void setSearchEndTime(long searchEndTime) {
+    this.searchEndTime = searchEndTime;
+  }
+  
 	/**
 	 * Returns the daily routine of this person, i.e. set of travelling events
 	 * which are executed regularly on specific days, e.g. going to work on back
@@ -497,22 +532,6 @@ public final class Person extends Entity {
 	
 	public void setParticipating() {
 	  participating = true;
-	}
-	
-	public long getSearchStartTime() {
-	  return searchStartTime;
-	}
-	
-	public void setSearchStartTime(long searchStartTime) {
-	  this.searchStartTime = searchStartTime;
-	}
-	
-	public long getSearchEndTime() {
-	  return searchEndTime;
-	}
-	
-	public void setSearchEndTime(long searchEndTime) {
-	  this.searchEndTime = searchEndTime;
 	}
 	
 	@SuppressWarnings("unchecked")

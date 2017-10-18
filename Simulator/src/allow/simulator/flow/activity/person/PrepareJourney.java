@@ -18,12 +18,7 @@ import allow.simulator.mobility.data.Trip;
 import allow.simulator.mobility.planner.Itinerary;
 import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
-import allow.simulator.parking.IParkingSearchStrategy;
-import allow.simulator.parking.IParkingSelectionStrategy;
-import allow.simulator.parking.RandomParkingSearchStrategy;
-import allow.simulator.parking.UtilityParkingSelectionStrategy;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 
 /**
@@ -116,7 +111,7 @@ public final class PrepareJourney extends Activity<Person> {
 				
 			case CAR:
         entity.setUsedCar(true);
-
+        
 			  // Leave current parking spot
         entity.getFlow().addActivity(new LeaveParkingSpot(entity));
 
@@ -128,9 +123,7 @@ public final class PrepareJourney extends Activity<Person> {
 				entity.getFlow().addActivity(new Drive(entity, l.streets));
 				
 				// Find a new parking spot
-				IParkingSearchStrategy searchStrategy = new RandomParkingSearchStrategy((StreetMap) entity.getContext().getWorld());
-				IParkingSelectionStrategy selectionStrategy = new UtilityParkingSelectionStrategy(entity.getContext().getParkingRepository());
-				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1), selectionStrategy, searchStrategy));
+				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1)));
 				break;
 				
 			case TAXI:

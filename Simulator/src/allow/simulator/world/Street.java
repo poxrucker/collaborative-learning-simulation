@@ -19,7 +19,7 @@ import allow.simulator.entity.Person;
  */
 public class Street extends Observable implements Observer {
 	// Unique Id of the street.
-	private long id;
+	private int id;
 
 	// Name of the street.
 	private String name;
@@ -50,7 +50,7 @@ public class Street extends Observable implements Observer {
 	 * @param name Name of the street.
 	 * @param subSegments Subsegments of the street.
 	 */
-	public Street(long id, String name, List<StreetSegment> subSegments) {
+	public Street(int id, String name, List<StreetSegment> subSegments) {
 		this.id = id;
 		this.name = name;
 		this.subSegments = subSegments;
@@ -67,7 +67,7 @@ public class Street extends Observable implements Observer {
 	 * 
 	 * @return Id of the segment.
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 

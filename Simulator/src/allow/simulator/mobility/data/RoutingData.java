@@ -200,8 +200,8 @@ public final class RoutingData {
 		return ret;
 	}
 	
-	private static long virtualSegId = 1;
-	private static long virtualNodeId = 0;
+	private static int virtualSegId = 1;
+	private static int virtualNodeId = 0;
 	
 	private static List<Street> createPolyTraceStreet(List<Coordinate> coordinates) {
 		if (coordinates == null) {

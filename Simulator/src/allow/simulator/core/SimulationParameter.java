@@ -18,5 +18,5 @@ public final class SimulationParameter {
 	public String GarageParkingPath;
 	public int PercentUsers;
 	public int PercentSensorCars;
-	
+	public int ValidTime;
 }

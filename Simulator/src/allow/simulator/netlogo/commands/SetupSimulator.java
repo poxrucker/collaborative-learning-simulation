@@ -76,8 +76,10 @@ public class SetupSimulator extends DefaultReporter {
     listBuilder.add((double)s.getMeanSearchTimeParking());
     listBuilder.add((double)s.getReasonMaxSearchTimeExceeded());
     listBuilder.add((double)s.getReasonNoPath());
-    listBuilder.add((double)ctx.getParkingRepository().getTotalNumberOfParkingSpots());
-    listBuilder.add((double)ctx.getParkingRepository().getTotalNumberOfFreeParkingSpots());
+    listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfStreetParkingSpots());
+    listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfGarageParkingSpots());
+    listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfFreeStreetParkingSpots());
+    listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfFreeGarageParkingSpots());
 		// listBuilder.add((double)s.getTotalStreetNetworkLength());
 		// listBuilder.add((double)s.getVisitedStreetNetworkLength());
 		return listBuilder.toLogoList();

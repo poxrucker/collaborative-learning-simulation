@@ -3,7 +3,7 @@ package allow.simulator.flow.activity.person;
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import allow.simulator.parking.Parking;
+import de.dfki.parking.model.Parking;
 
 public final class LeaveParkingSpot extends Activity<Person> {
 
@@ -19,6 +19,7 @@ public final class LeaveParkingSpot extends Activity<Person> {
     if (parking != null) { 
       parking.leave(entity);
       entity.setCurrentParking(null);
+      updateParkingMaps(parking);
     }
     setFinished();
     return 0;
@@ -26,5 +27,15 @@ public final class LeaveParkingSpot extends Activity<Person> {
   
   public String toString() {
     return "LeaveParkingSpot " + entity;
+  }
+  
+  private void updateParkingMaps(Parking parking) {
+    long time = entity.getContext().getTime().getTimestamp();
+    int nSpots = parking.getNumberOfParkingSpots();
+    int nFreeSpots = parking.getNumberOfFreeParkingSpots();
+    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);
+
+    if (entity.hasSensorCar())
+        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);  
   }
 }

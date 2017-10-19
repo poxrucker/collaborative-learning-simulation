@@ -3,6 +3,7 @@ package de.dfki.parking.selection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
+import allow.simulator.world.Street;
 import de.dfki.parking.model.ParkingGuidanceSystem;
 
 public final class GuidanceSystemSelectionStrategy implements IParkingSelectionStrategy {
@@ -14,7 +15,7 @@ public final class GuidanceSystemSelectionStrategy implements IParkingSelectionS
   }
   
   @Override
-  public List<ParkingPossibility> selectParking(Coordinate currentPosition, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(Street current, Coordinate destination, long currentTime) {
     // TODO Auto-generated method stub
     return null;
   }

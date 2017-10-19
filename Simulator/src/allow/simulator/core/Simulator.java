@@ -48,6 +48,7 @@ import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
+import de.dfki.parking.exploration.LocalExplorationStrategy;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.model.ParkingGuidanceSystem;
 import de.dfki.parking.model.ParkingMap;
@@ -288,6 +289,7 @@ public final class Simulator {
       person.setLocalParkingKnowledge(knowledge);
       ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
       person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, validTime));
+      person.setExplorationStrategy(new LocalExplorationStrategy(knowledge, prefs, parkingMap, validTime));
     }
   }
 

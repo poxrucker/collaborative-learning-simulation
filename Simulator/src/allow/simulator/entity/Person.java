@@ -25,6 +25,7 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
+import de.dfki.parking.exploration.IExplorationStrategy;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.selection.IParkingSelectionStrategy;
@@ -125,6 +126,8 @@ public final class Person extends Entity {
 	private ParkingKnowledge globalParkingKnowledge;
 	@JsonIgnore
 	private IParkingSelectionStrategy selectionStrategy;
+	@JsonIgnore
+	private IExplorationStrategy explorationStrategy;
 	
 	/**
 	 * Creates new instance of a person.
@@ -419,6 +422,15 @@ public final class Person extends Entity {
   
   public void setParkingSelectionStrategy(IParkingSelectionStrategy strategy) {
     this.selectionStrategy = strategy;
+  }
+  
+  @JsonIgnore
+  public IExplorationStrategy getExplorationStrategy() {
+    return explorationStrategy;
+  }
+  
+  public void setExplorationStrategy(IExplorationStrategy strategy) {
+    this.explorationStrategy = strategy;
   }
   
   @JsonIgnore

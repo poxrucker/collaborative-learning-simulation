@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Triple;
+import allow.simulator.world.Street;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledge.ParkingKnowledgeEntry;
 import de.dfki.parking.model.ParkingPreferences;
@@ -33,21 +34,21 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
   }
   
   @Override
-  public List<ParkingPossibility> selectParking(Coordinate currentPosition, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(Street current, Coordinate destination, long currentTime) {
     // Filter those which are completely occupied
-    List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(destination, preferences.getWdmax(), currentTime);
+    List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
     
     if (freeParkings.size() == 0)
       return new ObjectArrayList<>(0);
     
     // If there is free parking possibilities, select a random one. Otherwise return null
-    return rank(freeParkings, currentPosition, destination);
+    return rank(freeParkings, current.getEndNode().getPosition(), destination);
   }
 
-  private List<ParkingKnowledgeEntry> findPossibleParkings(Coordinate destination, double maxDistance, long currentTime) {
+  private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    List<ParkingKnowledgeEntry> local = localParkingMap.findParkingNearby(destination, maxDistance);
-    List<ParkingKnowledgeEntry> global = globalParkingMap.findParkingNearby(destination, maxDistance);
+    List<ParkingKnowledgeEntry> local = localParkingMap.findParkingInStreet(current);
+    List<ParkingKnowledgeEntry> global = globalParkingMap.findParkingInStreet(current);
     List<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
     
     // Filter those which are valid and which have free parking spots

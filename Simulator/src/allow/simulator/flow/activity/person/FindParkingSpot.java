@@ -84,7 +84,6 @@ public final class FindParkingSpot extends Activity<Person> {
       }
 
       // Otherwise, select parking spot using selection strategy
-      Coordinate current = entity.getPosition();
       Coordinate dest = entity.getCurrentItinerary().to;
       long currentTime = entity.getContext().getTime().getTimestamp();
       List<ParkingPossibility> possibleParking = entity.getParkingSelectionStrategy().selectParking(current, dest, currentTime);     
@@ -113,7 +112,23 @@ public final class FindParkingSpot extends Activity<Person> {
         }
         return 0;
       }
+      // Select next destination to look for parking possibility
+      Coordinate next = entity.getExplorationStrategy().findNextPossibleParking(entity.getPosition(), dest, currentTime);
+      
+      if (next != null) {
+        // Calculate path to parking spot
+        List<Street> path = getPathToParking(next);
 
+        // Add Drive and FindParkingSpot activities
+        if (path != null && path.size() > 0) {
+          Activity<Person> drive = new Drive(entity, path);
+          entity.getFlow().addAfter(this, drive);
+          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1));
+          entity.getFlow().addAfter(drive, park);
+        }
+        setFinished();
+        return 0;
+      }
       // Otherwise, do fallback
       reportFailure(1);
       setFinished();

@@ -10,11 +10,13 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
+import allow.simulator.core.Simulator;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
+import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.model.Parking.Type;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -191,6 +193,9 @@ public final class ParkingMap {
   }
   
   public static ParkingMap build(StreetMap map, ParkingRepository parkingRepository) {
+    // Get DistrictsLayer from StreetMap
+    DistrictOverlay overlay = (DistrictOverlay)map.getOverlay(Simulator.OVERLAY_DISTRICTS);
+
     // Mapping of ParkingId to respective ParkingMapEntry instance
     Int2ObjectMap<ParkingMapEntry> parkingToParkingMapEntry = new Int2ObjectOpenHashMap<>();
     
@@ -205,7 +210,8 @@ public final class ParkingMap {
       List<Parking> parkings = parkingRepository.getParking(street);
       
       if (((parkings == null) || (parkings.size() == 0)) && isRelevantStreet(street)) {
-        int maxNumberOfSpots = (int)(street.getLength() / 10.0);
+        
+        int maxNumberOfSpots = (int)(street.getLength() / 15.0);
         
         if (maxNumberOfSpots == 0)
           continue;
@@ -215,8 +221,8 @@ public final class ParkingMap {
         if (nSpots == 0)
           continue;
         
-        // Parking p = new FixedPriceParking(Type.STREET, street.getName(), street.getName(), 1.0, nSpots);
-        // parkings.add(p);
+        Parking p = new FixedPriceParking(Type.STREET, street.getName(), street.getName(), 1.0, nSpots);
+        parkings.add(p);
       }
       
       // List of entries to add to street to StreetId to ParkingMapEntry mapping

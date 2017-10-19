@@ -86,12 +86,15 @@ public final class ParkingKnowledge {
   }
   
   public List<ParkingKnowledgeEntry> findParkingInStreet(Street street) {
+    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+
     // Get parking possibilities in street from ParkingMap
     List<ParkingMapEntry> entries = parkingMap.getParkingsInStreet(street);
     
-    // Filter entries which are unknown using parking knowledge mapping
-    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+    if (entries == null)
+      return ret;
     
+    // Filter entries which are unknown using parking knowledge mapping
     for (ParkingMapEntry entry : entries) {
       ParkingKnowledgeEntry temp = parkingKnowledge.get(entry.getParking().getId());
       

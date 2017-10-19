@@ -11,7 +11,7 @@ import allow.simulator.world.StreetNode;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
-public final class RandomParkingSearchStrategy implements IExplorationStrategy {
+public final class RandomParkingSearchStrategy {
   // StreetMap instance for path planning
   private final StreetMap map;
 
@@ -27,7 +27,7 @@ public final class RandomParkingSearchStrategy implements IExplorationStrategy {
     this.visitedStreets = new ObjectArrayList<>(visitedStreets);
   }
   
-  @Override
+  
   public List<Street> getPathToNextPossibleParking(Street current) {
     // Add street to visited streets
     visitedStreets.add(current);

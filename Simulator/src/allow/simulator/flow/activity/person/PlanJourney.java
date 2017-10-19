@@ -64,7 +64,7 @@ public final class PlanJourney extends Activity<Person> {
 				
 				} else {
 					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, ""));
-					requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, entity.getContext().getSimulationParameters().Scenario));
+					//requests.add(JourneyRequest.createDriveRequest(start, destination, date, false, reqId, entity.getContext().getSimulationParameters().Scenario));
 				}
 			}
 			
@@ -98,7 +98,7 @@ public final class PlanJourney extends Activity<Person> {
 				return 0.0;
 			}
 			
-			if (affectedByRoadBlock(it)) {
+			/*if (affectedByRoadBlock(it)) {
 				
 				if (entity.isInformed()) {
 					double tt = calculatePriorTravelTime(it.get(1));
@@ -131,7 +131,7 @@ public final class PlanJourney extends Activity<Person> {
 				
 			} else if ((it.size() > 1) && (it.get(0).itineraryType == TType.CAR) && (it.get(1).itineraryType != TType.CAR)) {
 				it.remove(0);
-			}
+			}*/
 			
 			if (!entity.isReplanning()) {
 				

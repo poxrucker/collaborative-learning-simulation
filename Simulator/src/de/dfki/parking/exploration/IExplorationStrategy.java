@@ -1,11 +1,9 @@
 package de.dfki.parking.exploration;
 
-import java.util.List;
-
-import allow.simulator.world.Street;
+import allow.simulator.util.Coordinate;
 
 public interface IExplorationStrategy {
 
-  List<Street> getPathToNextPossibleParking(Street current);
+  Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime);
   
 }

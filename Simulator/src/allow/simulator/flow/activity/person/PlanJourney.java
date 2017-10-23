@@ -71,12 +71,6 @@ public final class PlanJourney extends Activity<Person> {
 			if (!entity.hasUsedCar()) {
 				requests.add(JourneyRequest.createTransitRequest(start, destination, date, false, reqId, ""));
 				requests.add(JourneyRequest.createWalkRequest(start, destination, date, false, reqId, ""));
-			
-				// if (person.hasBike())
-				//	requests.add(createRequest(start, destination, date, time, bikeJourney, person, reqId, reqNumber++));
-			
-				// if (person.useFlexiBus())
-				//	requests.add(createRequest(start, destination, date, time, flexiBusJourney, person, reqId, reqNumber++));
 			}
 			requestFuture = entity.getContext().getJourneyPlanner().requestSingleJourney(requests, new ArrayList<Itinerary>(requests.size()));
 			return deltaT;
@@ -92,8 +86,13 @@ public final class PlanJourney extends Activity<Person> {
 			}
 			
 			if ((it == null) || (it.size() == 0))  {
+			  
+			  if (entity.hasUsedCar()) {
+			    System.out.println();
+			  }
 				// In case no trips were found, finish and set entity to destination
 				setFinished();
+				entity.getFlow().addActivity(new LeaveParkingSpot(entity));
 				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
 				return 0.0;
 			}

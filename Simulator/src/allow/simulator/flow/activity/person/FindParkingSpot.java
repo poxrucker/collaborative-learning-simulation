@@ -82,6 +82,7 @@ public final class FindParkingSpot extends Activity<Person> {
         
         // Save end time of parking spot search
         entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+        setFinished();
         return 0;
       }
 
@@ -226,7 +227,7 @@ public final class FindParkingSpot extends Activity<Person> {
 
     double c = parkingSpotCandidate.getCurrentPricePerHour();
     double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
-    double st = (double)(searchTime / 60.0);
+    double st = (double)(searchTime);
     double u = entity.getParkingUtility().computeUtility(new Triple<>(c, wd, st), entity.getParkingPreferences());
     stats.reportSearchUtility(u);
   }

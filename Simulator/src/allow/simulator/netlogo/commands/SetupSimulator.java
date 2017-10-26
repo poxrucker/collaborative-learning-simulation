@@ -50,6 +50,7 @@ public class SetupSimulator extends DefaultReporter {
 		params.GridResY = w.worldHeight();
 		params.StreetParkingPath = (String) settings.get(3);
 		params.GarageParkingPath = (String) settings.get(4);
+		params.DataScalingFactor = (double) settings.get(5);
 		
 		// Create simulator and NetLogo binding
 		Simulator simulator = null;
@@ -81,6 +82,10 @@ public class SetupSimulator extends DefaultReporter {
     listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfFreeStreetParkingSpots());
     listBuilder.add((double)ctx.getParkingMap().getTotalNumberOfFreeGarageParkingSpots());
     listBuilder.add((double)s.getMeanUtilityParking());
+    listBuilder.add((double) s.getCarJourneyRatio());
+    listBuilder.add((double) s.getTransitJourneyRatio());
+    listBuilder.add((double) s.getWalkJourneyRatio());
+
 		// listBuilder.add((double)s.getTotalStreetNetworkLength());
 		// listBuilder.add((double)s.getVisitedStreetNetworkLength());
 		return listBuilder.toLogoList();

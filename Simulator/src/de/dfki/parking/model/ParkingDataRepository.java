@@ -13,7 +13,7 @@ import de.dfki.parking.model.Parking.Type;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public final class ParkingRepository {
+public final class ParkingDataRepository {
   // Mapping of address to garage parking possibilities
   private final Map<String, List<Parking>> garageParkings;
   
@@ -26,7 +26,7 @@ public final class ParkingRepository {
   // Total number of street parking spots (calculated during initialization)
   private final int totalNumberOfStreetParkingSpots;
   
-  public ParkingRepository(Map<String, List<Parking>> streetParking, Map<String, List<Parking>> garageParking) {
+  public ParkingDataRepository(Map<String, List<Parking>> streetParking, Map<String, List<Parking>> garageParking) {
     this.streetParkings = streetParking;
     this.garageParkings = garageParking;
     totalNumberOfGarageParkingSpots = countTotalNumberOfParkingSpots(garageParking);
@@ -96,11 +96,11 @@ public final class ParkingRepository {
     return numberOfFreeSpots;
   }
   
-  public static ParkingRepository load(Path streetParkingFqfn, Path garageParkingFqfn) throws IOException {
+  public static ParkingDataRepository load(Path streetParkingFqfn, Path garageParkingFqfn, double scalingFactor) throws IOException {
     // Load fixed price street parking
     System.out.print("Loading street parking...");
     Map<String, List<Parking>> streetParking = new Object2ObjectOpenHashMap<>();  
-    int nStreetParkings = loadStreetParking(streetParkingFqfn, streetParking);
+    int nStreetParkings = loadStreetParking(streetParkingFqfn, streetParking, scalingFactor);
     System.out.println("found " + nStreetParkings);
     
     for (String key : streetParking.keySet()) {
@@ -109,16 +109,16 @@ public final class ParkingRepository {
     // Load dynamic price street parking
     System.out.print("Loading garage parking...");
     Map<String, List<Parking>> garageParking = new Object2ObjectOpenHashMap<>();  
-    int nGarageParkings = loadGarageParking(garageParkingFqfn, garageParking);
+    int nGarageParkings = loadGarageParking(garageParkingFqfn, garageParking, scalingFactor);
     System.out.println("found " + nGarageParkings);
     
     for (String key : garageParking.keySet()) {
       System.out.println("  " + key + ": " + garageParking.get(key));
     }
-    return new ParkingRepository(streetParking, garageParking);
+    return new ParkingDataRepository(streetParking, garageParking);
   }
 
-  private static int loadStreetParking(Path streetParkingFqfn, Map<String, List<Parking>> buffer) throws NumberFormatException, IOException {
+  private static int loadStreetParking(Path streetParkingFqfn, Map<String, List<Parking>> buffer, double scalingFactor) throws NumberFormatException, IOException {
     int added = 0;
     
     try (BufferedReader reader = Files.newBufferedReader(streetParkingFqfn)) {
@@ -126,7 +126,7 @@ public final class ParkingRepository {
       
       while ((line = reader.readLine()) != null) {
         // Parse parking
-        Parking parking = parseFixedPriceParking(line, Type.STREET);
+        Parking parking = parseFixedPriceParking(line, Type.STREET, scalingFactor);
         
         // Add to list
         List<Parking> temp = buffer.get(parking.address);
@@ -142,7 +142,7 @@ public final class ParkingRepository {
     return added;
   }
   
-  private static int loadGarageParking(Path garageParkingFqfn, Map<String, List<Parking>> parkings) throws NumberFormatException, IOException {
+  private static int loadGarageParking(Path garageParkingFqfn, Map<String, List<Parking>> parkings, double scalingFactor) throws NumberFormatException, IOException {
     int added = 0;
     
     try (BufferedReader reader = Files.newBufferedReader(garageParkingFqfn)) {
@@ -150,7 +150,7 @@ public final class ParkingRepository {
 
       while ((line = reader.readLine()) != null) {
         // Parse parking
-        Parking parking = parseDynamicPriceParking(line, Type.GARAGE);
+        Parking parking = parseDynamicPriceParking(line, Type.GARAGE, scalingFactor);
         
         // Add to list
         List<Parking> temp = parkings.get(parking.address);
@@ -166,23 +166,29 @@ public final class ParkingRepository {
     return added;
   }
   
-  private static Parking parseFixedPriceParking(String str, Type type) {
+  private static Parking parseFixedPriceParking(String str, Type type, double scalingFactor) {
     String[] tokens = str.split(";");
     String name = tokens[0];
     name = name.substring(0, 1).toUpperCase() + name.substring(1);
     int numberOfParkingSpots = !tokens[1].equals("") ? Integer.parseInt(tokens[1]) : 0;
     double pricePerHour = !tokens[2].equals("") ? Double.parseDouble(tokens[2].replaceAll(",", ".")) : 0;
-    return new FixedPriceParking(type, name, name, pricePerHour, numberOfParkingSpots);
+    return new FixedPriceParking(type, name, name, pricePerHour, scale(numberOfParkingSpots, scalingFactor));
   }
   
-  private static Parking parseDynamicPriceParking(String str, Type type) {
+  private static Parking parseDynamicPriceParking(String str, Type type, double scalingFactor) {
     String[] tokens = str.split(";");
     String name = tokens[0];
     name = name.substring(0, 1).toUpperCase() + name.substring(1);
     String address = tokens[1].substring(0, 1).toUpperCase() + tokens[1].substring(1);
     int numberOfParkingSpots = !tokens[2].equals("") ? Integer.parseInt(tokens[2]) : 0;
     double pricePerHour = !tokens[3].equals("") ? Double.parseDouble(tokens[3].replaceAll(",", ".")) : 0;
-    return new DynamicPriceParking(type, name, address, pricePerHour, numberOfParkingSpots);
-
+    return new DynamicPriceParking(type, name, address, pricePerHour, scale(numberOfParkingSpots, scalingFactor));
+  }
+  
+  private static int scale(int input, double scalingFactor) {
+    if (input == 0)
+      return 0;
+    
+    return (int) Math.ceil(input * scalingFactor);    
   }
 }

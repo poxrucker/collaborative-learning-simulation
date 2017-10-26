@@ -56,7 +56,7 @@ import de.dfki.parking.model.ParkingGuidanceSystem;
 import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingPreferences;
 import de.dfki.parking.model.ParkingPreferencesFactory;
-import de.dfki.parking.model.ParkingRepository;
+import de.dfki.parking.model.ParkingDataRepository;
 import de.dfki.parking.model.ParkingUtility;
 import de.dfki.parking.selection.BaselineSelectionStrategy;
 import de.dfki.parking.selection.GuidanceSystemSelectionStrategy;
@@ -128,7 +128,7 @@ public final class Simulator {
     JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 
     // Initialize ParkingRepository
-    ParkingRepository parkingRepo = ParkingRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
+    ParkingDataRepository parkingRepo = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath), params.DataScalingFactor);
 
     // Initialize ParkingMap
     ParkingIndex parkingMap = ParkingIndex.build(world, parkingRepo);

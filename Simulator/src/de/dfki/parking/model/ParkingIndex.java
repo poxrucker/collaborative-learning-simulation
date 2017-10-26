@@ -211,7 +211,7 @@ public final class ParkingIndex {
     return index;
   }
   
-  public static ParkingIndex build(StreetMap map, ParkingRepository parkingRepository) {
+  public static ParkingIndex build(StreetMap map, ParkingDataRepository parkingRepository) {
     // Mapping of ParkingId to respective ParkingMapEntry instance
     Int2ObjectMap<ParkingIndexEntry> parkingToParkingMapEntry = new Int2ObjectOpenHashMap<>();
     

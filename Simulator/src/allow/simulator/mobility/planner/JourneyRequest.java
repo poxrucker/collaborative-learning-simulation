@@ -18,7 +18,7 @@ public class JourneyRequest {
 	private static final TType transitJourney[] = new TType[] { TType.TRANSIT, TType.WALK };
 	private static final TType walkJourney[] = new TType[] { TType.WALK };
 	private static final TType bikeJourney[] = new TType[] { TType.BICYCLE };
-	private static final TType carJourney[] = new TType[] { TType.CAR, TType.WALK };
+	private static final TType carJourney[] = new TType[] { TType.CAR };
 	private static final TType taxiJourney[] = new TType[] { TType.TAXI };
 	private static final TType sharedTaxiJourney[] = new TType[] { TType.SHARED_TAXI };
 

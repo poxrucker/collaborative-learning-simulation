@@ -19,4 +19,5 @@ public final class SimulationParameter {
 	public int PercentUsers;
 	public int PercentSensorCars;
 	public int ValidTime;
+	public double DataScalingFactor;
 }

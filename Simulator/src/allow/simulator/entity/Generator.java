@@ -101,7 +101,7 @@ public class Generator {
 		map.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
 		long t1 = System.nanoTime();
-		int numberToGenerate = 30000;
+		int numberToGenerate = 20000;
 		Person buffer[] = new Person[numberToGenerate];
 		
 		int nThreads = Math.min(Runtime.getRuntime().availableProcessors(), numberToGenerate);
@@ -140,7 +140,7 @@ public class Generator {
 	}
 	
 	private static final TType transitJourney[] = new TType[] { TType.TRANSIT, TType.WALK };
-	private static final TType carJourney[] = new TType[] { TType.CAR, TType.WALK };
+	private static final TType carJourney[] = new TType[] { TType.CAR };
 	private static final TType walkingJourney[] = new TType[] { TType.WALK };
 	private static final TType bikeJourney[] = new TType[] { TType.BICYCLE };
 	
@@ -192,6 +192,7 @@ public class Generator {
 			nMeans++;
 		}
 		//System.out.println(nMeans + " " + it.size());
+
 		return temp.size() >= nMeans;
 		/*if (it.size() == 0) {
 			return false;
@@ -326,7 +327,7 @@ public class Generator {
 			double ttweight = weights[1]; // 1.0 - cweight;
 			// double wweight = weights[2];
 			// double tweight = weights[3];
-			double carPreference = ThreadLocalRandom.current().nextDouble(0.5);
+	    double carPreference = ThreadLocalRandom.current().nextDouble(0.5, 1.0);
 			double busPreference = 1.0 - carPreference;
 			Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
 			// Preferences prefs = new Preferences(ttweight, cweight, wweight, tweight, 0, 0, 0, busPreference, carPreference);
@@ -409,7 +410,7 @@ public class Generator {
 			//busPreference = ThreadLocalRandom.current().nextDouble(0.5, 1.0);
 			//carPreference = 1.0 - busPreference;
 		// } else {
-		carPreference = ThreadLocalRandom.current().nextDouble(0.5);
+    carPreference = ThreadLocalRandom.current().nextDouble(0.4, 1.0);
 		busPreference = 1.0 - carPreference;
 		//}
 		Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);
@@ -470,7 +471,7 @@ public class Generator {
 		//	busPreference = ThreadLocalRandom.current().nextDouble(0.5, 1.0);
 		//	carPreference = 1.0 - busPreference;
 		//} else {
-		carPreference = ThreadLocalRandom.current().nextDouble(0.5);
+		carPreference = ThreadLocalRandom.current().nextDouble(0.5, 1.0);
 			busPreference = 1.0 - carPreference;
 		//}
 		Preferences prefs = new Preferences(ttweight, cweight, 0.0, 0.0, 0, 0, 0, busPreference, carPreference);

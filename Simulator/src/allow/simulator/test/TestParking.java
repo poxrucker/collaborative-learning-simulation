@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import allow.simulator.world.StreetMap;
-import de.dfki.parking.model.ParkingMap;
+import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingRepository;
 
 public final class TestParking {
@@ -18,7 +18,7 @@ public final class TestParking {
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingRepository parkingRepository = ParkingRepository.load(streetParkingPath, garageParkingPath);
     
-    ParkingMap parkingMap = ParkingMap.build(streetMap, parkingRepository);
+    ParkingIndex parkingMap = ParkingIndex.build(streetMap, parkingRepository);
     
   }
   

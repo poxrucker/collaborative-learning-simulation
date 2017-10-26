@@ -86,8 +86,9 @@ public class Statistics {
 	private int failedParking;
 	private int reasonMaxSearchTimeExceeded;
 	private int reasonNoPath;
-	private SlidingWindow parkingSpotSearchTime;
-	
+	private SlidingWindow meanParkingSpotSearchTime;
+	private SlidingWindow meanParkingSpotSearchUtility;
+
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -135,7 +136,8 @@ public class Statistics {
 		priorTripDistance = new SlidingWindow(windowSize);
 		posteriorTripDistance = new SlidingWindow(windowSize);
 		
-		parkingSpotSearchTime = new SlidingWindow(windowSize);
+		meanParkingSpotSearchTime = new SlidingWindow(windowSize);
+		meanParkingSpotSearchUtility = new SlidingWindow(windowSize);
 	}
 	
 	public void reset() {
@@ -175,7 +177,8 @@ public class Statistics {
 		totalNumberOfPlannings = 0;
 		totalNumberOfAffectedPlannings = 0;
 		
-		parkingSpotSearchTime.reset();
+		meanParkingSpotSearchTime.reset();
+		meanParkingSpotSearchUtility.reset();
 		successfulParking = 0;
 		failedParking = 0;
 		reasonMaxSearchTimeExceeded = 0;
@@ -444,12 +447,20 @@ public class Statistics {
 	}
 	
 	public void reportSearchTimeParking(double searchTime) {
-	  parkingSpotSearchTime.addValue(searchTime);
+	  meanParkingSpotSearchTime.addValue(searchTime);
 	}
 	
 	public double getMeanSearchTimeParking() {
-	  return parkingSpotSearchTime.getMean();
+	  return meanParkingSpotSearchTime.getMean();
 	}
+	
+	public void reportSearchUtility(double utility) {
+    meanParkingSpotSearchUtility.addValue(utility);
+  }
+  
+  public double getMeanUtilityParking() {
+    return meanParkingSpotSearchUtility.getMean();
+  }
 	
 	public void updateGlobalStatistics(Context simulationContext) {
 		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);

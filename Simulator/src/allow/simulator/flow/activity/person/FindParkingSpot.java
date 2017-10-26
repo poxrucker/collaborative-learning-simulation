@@ -14,6 +14,8 @@ import allow.simulator.mobility.planner.JourneyRequest;
 import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
+import allow.simulator.util.Geometry;
+import allow.simulator.util.Triple;
 import allow.simulator.world.Street;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.selection.ParkingPossibility;
@@ -100,15 +102,20 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingSpotCandidate = p.getParking();
 
         // Calculate path to parking spot
-        List<Street> path = getPathToParking(p.getPosition());
+        if (!p.getPosition().equals(entity.getPosition())) {
+          List<Street> path = getPathToParking(p.getPosition());
 
-        // Add Drive and FindParkingSpot activities
-        if (path != null && path.size() > 0) {
-          Activity<Person> drive = new Drive(entity, path);
-          entity.getFlow().addAfter(this, drive);
-          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate);
-          entity.getFlow().addAfter(drive, park);
-          setFinished();
+          // Add Drive and FindParkingSpot activities
+          if (path != null && path.size() > 0) {
+            Activity<Person> drive = new Drive(entity, path);
+            entity.getFlow().addAfter(this, drive);
+            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate);
+            entity.getFlow().addAfter(drive, park);
+            setFinished();
+            
+          } else if (path == null){
+            System.out.println("No path to parking found initial");
+          }
         }
         return 0;
       }
@@ -125,6 +132,9 @@ public final class FindParkingSpot extends Activity<Person> {
           entity.getFlow().addAfter(this, drive);
           Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1));
           entity.getFlow().addAfter(drive, park);
+
+        } else if (path == null){
+          System.out.println("No path to parking found fallback");
         }
         setFinished();
         return 0;
@@ -202,10 +212,6 @@ public final class FindParkingSpot extends Activity<Person> {
     if (entity.hasSensorCar())
         entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);  
   }
-  
-  private boolean maxSearchTimeExceeded() {
-    return (entity.getContext().getTime().getTimestamp() - entity.getSearchStartTime()) >= MAX_SEARCH_TIME * 1000;
-  }
 
   private void reportFailure(int reason) {
     Statistics stats = entity.getContext().getStatistics();
@@ -217,6 +223,12 @@ public final class FindParkingSpot extends Activity<Person> {
     stats.reportSuccessfulParking();
     long searchTime = (long)((entity.getSearchEndTime() - entity.getSearchStartTime()) / 1000.0);
     stats.reportSearchTimeParking(searchTime);
+
+    double c = parkingSpotCandidate.getCurrentPricePerHour();
+    double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
+    double st = (double)(searchTime / 60.0);
+    double u = entity.getParkingUtility().computeUtility(new Triple<>(c, wd, st), entity.getParkingPreferences());
+    stats.reportSearchUtility(u);
   }
 
   private List<Street> getPathToParking(Coordinate to) {

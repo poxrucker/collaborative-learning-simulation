@@ -49,12 +49,15 @@ import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
 import de.dfki.parking.exploration.LocalExplorationStrategy;
+import de.dfki.parking.exploration.MappingDisplayExplorationStrategy;
 import de.dfki.parking.knowledge.ParkingKnowledge;
+import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingGuidanceSystem;
-import de.dfki.parking.model.ParkingMap;
+import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingPreferences;
 import de.dfki.parking.model.ParkingPreferencesFactory;
 import de.dfki.parking.model.ParkingRepository;
+import de.dfki.parking.model.ParkingUtility;
 import de.dfki.parking.selection.BaselineSelectionStrategy;
 import de.dfki.parking.selection.GuidanceSystemSelectionStrategy;
 import de.dfki.parking.selection.MappingDisplaySelectionStrategy;
@@ -128,7 +131,7 @@ public final class Simulator {
     ParkingRepository parkingRepo = ParkingRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
 
     // Initialize ParkingMap
-    ParkingMap parkingMap = ParkingMap.build(world, parkingRepo);
+    ParkingIndex parkingMap = ParkingIndex.build(world, parkingRepo);
     
     // Create global context from world, time, planner and data services, and weather
     context = new Context(world, parkingMap, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
@@ -231,7 +234,7 @@ public final class Simulator {
       PlanGenerator.generateDayPlan(person);
     }
 
-    for (int i = 0; i < 5000; i++) {
+    /*for (int i = 0; i < 5000; i++) {
       int id = context.getEntityManager().getNextId();
       Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
       NormalizedLinearUtility utility = new NormalizedLinearUtility();
@@ -243,7 +246,7 @@ public final class Simulator {
       context.getEntityManager().addEntity(newHomemaker);
       newHomemaker.setContext(context);
       PlanGenerator.generateDayPlan(newHomemaker);
-    }
+    }*/
   }
 
   private void configureParkingSpotModel(Context context, SimulationParameter param) {
@@ -251,7 +254,7 @@ public final class Simulator {
     Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
     
     // Get ParkingMap
-    ParkingMap parkingMap = context.getParkingMap();
+    ParkingIndex parkingMap = context.getParkingMap();
    
     switch (param.Model) {
 
@@ -259,11 +262,11 @@ public final class Simulator {
       initializeBaselineModel(persons, parkingMap, param.ValidTime);
       break;
 
-    case "MappingDisplay":
+    case "Mapping Display":
       initializeMappingDisplayModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime);
       break;
 
-    case "GuidanceSystem":
+    case "Central Guidance":
       initializeGuidanceSystemModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime);
       break;
 
@@ -273,8 +276,9 @@ public final class Simulator {
     }
   }
 
-  private void initializeBaselineModel(Collection<Entity> persons, ParkingMap parkingMap, long validTime) {
+  private void initializeBaselineModel(Collection<Entity> persons, ParkingIndex parkingMap, long validTime) {
     ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
+    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
     
     for (Entity entity : persons) {
       // Get person
@@ -285,20 +289,24 @@ public final class Simulator {
         continue;
 
       // Otherwise, create a new ParkingMap instance and preferences and assign them to person
-      ParkingKnowledge knowledge = new ParkingKnowledge(parkingMap);
+      ParkingKnowledge knowledge = knowledgeFactory.createWithGarages();
       person.setLocalParkingKnowledge(knowledge);
+      ParkingUtility utility = new ParkingUtility();
+      person.setParkingUtility(utility);
       ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, validTime));
-      person.setExplorationStrategy(new LocalExplorationStrategy(knowledge, prefs, parkingMap, validTime));
+      person.setParkingPreferences(prefs);
+      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, utility, validTime));
+      person.setExplorationStrategy(new LocalExplorationStrategy(knowledge, prefs, utility, parkingMap, validTime));
     }
   }
 
-  private void initializeMappingDisplayModel(Collection<Entity> persons, ParkingMap parkingMap,
+  private void initializeMappingDisplayModel(Collection<Entity> persons, ParkingIndex parkingMap,
       int percentUsers, int percentSensorCars, long validTime) {
     ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
+    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
 
     // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = new ParkingKnowledge(parkingMap);
+    ParkingKnowledge globalKnowledge = knowledgeFactory.createEmpty();
 
     for (Entity entity : persons) {
       // Get person
@@ -309,27 +317,32 @@ public final class Simulator {
         continue;
 
       // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = new ParkingKnowledge(parkingMap);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
+      ParkingKnowledge localKnowledge = knowledgeFactory.createWithGarages();
       person.setLocalParkingKnowledge(localKnowledge);
+      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
+      person.setParkingPreferences(prefs);
+      ParkingUtility utility = new ParkingUtility();
+      person.setParkingUtility(utility);
       
       if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
         // Person is a user; set property and assign shared parking map
         person.setUser();
         person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new MappingDisplaySelectionStrategy(localKnowledge, globalKnowledge, prefs, validTime));
-        
+        person.setParkingSelectionStrategy(new MappingDisplaySelectionStrategy(localKnowledge, globalKnowledge, prefs, utility, validTime));
+        person.setExplorationStrategy(new MappingDisplayExplorationStrategy(localKnowledge, globalKnowledge, prefs, utility, parkingMap, validTime));
+
         // Determine is person has a sensor car
         if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
           person.setHasSensorCar(); 
         
       } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, validTime));
+        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
+        person.setExplorationStrategy(new LocalExplorationStrategy(localKnowledge, prefs, utility, parkingMap, validTime));
       }
     }
   }
 
-  private void initializeGuidanceSystemModel(Collection<Entity> persons, ParkingMap parkingMap, 
+  private void initializeGuidanceSystemModel(Collection<Entity> persons, ParkingIndex parkingMap, 
       int percentUsers, int percentSensorCars, long validTime) {
     ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
 
@@ -348,9 +361,12 @@ public final class Simulator {
         continue;
 
       // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = new ParkingKnowledge(parkingMap);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
+      ParkingKnowledge localKnowledge = new ParkingKnowledge(parkingMap);   
       person.setLocalParkingKnowledge(localKnowledge);
+      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
+      person.setParkingPreferences(prefs);
+      ParkingUtility utility = new ParkingUtility();
+      person.setParkingUtility(utility);
       
       if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
         // Person is a user; set property and assign shared parking map
@@ -363,7 +379,7 @@ public final class Simulator {
           person.setHasSensorCar();
         
       } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, validTime));
+        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
       }
     }
   }

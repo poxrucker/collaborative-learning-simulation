@@ -28,6 +28,8 @@ import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.exploration.IExplorationStrategy;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.model.ParkingPreferences;
+import de.dfki.parking.model.ParkingUtility;
 import de.dfki.parking.selection.IParkingSelectionStrategy;
 
 /**
@@ -58,7 +60,6 @@ public final class Person extends Entity {
 	private final boolean hasBike;
 	
 	// True, if person will send requests to the FlexiBus planner, false otherwise.
-	@JsonIgnore
 	private final boolean useFlexiBus;
 	
 	// Daily routine of this person, i.e. set of travelling events which are
@@ -73,7 +74,9 @@ public final class Person extends Entity {
 	// Function for ranking journeys according to the person's preferences
 	@JsonIgnore
 	private JourneyRankingFunction rankingFunction;
-		
+	private Preferences preferences;
+	private IUtility<ItineraryParams, Preferences> utility;
+	
 	// Current destination of a person.
 	@JsonIgnore
 	private Itinerary currentItinerary;
@@ -88,9 +91,11 @@ public final class Person extends Entity {
 		
 	// Indicates whether a person used her car during the current travelling
 	// cycle which forbids replanning a journey with own car.
+	@JsonIgnore
 	private boolean usedCar;
 	
 	// Name of home area
+	@JsonIgnore
 	private String homeAreaName;
 	
 	// Properties for construction site simulation models
@@ -128,7 +133,10 @@ public final class Person extends Entity {
 	private IParkingSelectionStrategy selectionStrategy;
 	@JsonIgnore
 	private IExplorationStrategy explorationStrategy;
-	
+	@JsonIgnore
+	private ParkingUtility parkingUtility;
+	@JsonIgnore
+	private ParkingPreferences parkingPreferences;
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -157,6 +165,8 @@ public final class Person extends Entity {
 			DailyRoutine dailyRoutine,
 			Context context) {
 		super(id, context);
+		this.utility = utility;
+		this.preferences = prefs;
 		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = profile;
@@ -192,7 +202,7 @@ public final class Person extends Entity {
 	@JsonCreator
 	public Person(@JsonProperty("id") int id,
 			@JsonProperty("gender") Gender gender,
-			@JsonProperty("role") Profile role,
+			@JsonProperty("profile") Profile role,
 			@JsonProperty("utility") NormalizedLinearUtility utility,
 			@JsonProperty("preferences") Preferences prefs,
 			@JsonProperty("home") Coordinate homeLocation,
@@ -201,6 +211,8 @@ public final class Person extends Entity {
 			@JsonProperty("useFlexiBus") boolean useFlexiBus,
 			@JsonProperty("dailyRoutine") DailyRoutine dailyRoutine) {
 		super(id);
+		this.utility = utility;
+    this.preferences = prefs;
 		rankingFunction = new JourneyRankingFunction(prefs, utility);
 		this.gender = gender;
 		this.profile = role;
@@ -244,6 +256,7 @@ public final class Person extends Entity {
 		}
 	}
 	
+	@JsonIgnore
 	public JourneyRankingFunction getRankingFunction() {
 		return rankingFunction;
 	}
@@ -277,8 +290,17 @@ public final class Person extends Entity {
 		return home;
 	}
 	
+	@JsonIgnore
 	public String getHomeArea() {
 		return homeAreaName;
+	}
+	
+	public IUtility<ItineraryParams, Preferences> getUtility() {
+	  return utility;
+	}
+	
+	public Preferences getPreferences() {
+	  return preferences;
 	}
 	
 	public ArrayList<Experience> getExperienceBuffer() {
@@ -328,6 +350,7 @@ public final class Person extends Entity {
 	 * 
 	 * @return True, if person uses FlexiBus for travelling, false otherwise.
 	 */
+	@JsonIgnore
 	public boolean useFlexiBus() {
 		return false;
 	}
@@ -431,6 +454,24 @@ public final class Person extends Entity {
   
   public void setExplorationStrategy(IExplorationStrategy strategy) {
     this.explorationStrategy = strategy;
+  }
+  
+  @JsonIgnore
+  public ParkingUtility getParkingUtility() {
+    return parkingUtility;
+  }
+  
+  public void setParkingUtility(ParkingUtility utility) {
+    this.parkingUtility = utility;
+  }
+  
+  @JsonIgnore
+  public ParkingPreferences getParkingPreferences() {
+    return parkingPreferences;
+  }
+  
+  public void setParkingPreferences(ParkingPreferences preferences) {
+    this.parkingPreferences = preferences;
   }
   
   @JsonIgnore
@@ -573,6 +614,7 @@ public final class Person extends Entity {
 		// return (flow.getCurrentActivity() != null);
 	}
 
+	@JsonIgnore
 	@Override
 	public String getType() {
 		return EntityTypes.PERSON;

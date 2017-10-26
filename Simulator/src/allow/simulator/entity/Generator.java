@@ -66,15 +66,15 @@ public class Generator {
 				
 				int r = ThreadLocalRandom.current().nextInt(100);
 				try {
-				if (r < 25) {
+				if (r < 20) {
 					System.out.println(Thread.currentThread().getId() + " generating student.");
 					buffer[i] = createStudent(i, map, service);
 					
-				} else if (r < 40) {
+				} else if (r < 50) {
 					System.out.println(Thread.currentThread().getId() + " generating homemaker.");
 					buffer[i] = createHomemaker(i, map, service);
 
-				} else if (r < 50) {
+				} else if (r < 55) {
 					System.out.println(Thread.currentThread().getId() + " generating child.");
 					buffer[i] = createChild(i, map, service);
 					
@@ -96,12 +96,12 @@ public class Generator {
 	
 	public static void main(String args[]) throws IOException {
 		// Determine home location.
-		StreetMap map = new StreetMap(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/trento.world"));
-		DistrictOverlay districtOverlay = DistrictOverlay.parse(Paths.get("/Users/Andi/Documents/DFKI/Allow Ensembles/Repository/repos/Software/DFKI Simulator/NetLogo/data/world/partitioning.layer"), map);
+    StreetMap map = new StreetMap(Paths.get("/Users/Andi/Documents/DFKI/VW Simulation/models/data/world/trento_merged.world"));
+		DistrictOverlay districtOverlay = DistrictOverlay.parse(Paths.get("/Users/Andi/Documents/DFKI/VW Simulation/models/data/world/partitioning.layer"), map);
 		map.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
 		
 		long t1 = System.nanoTime();
-		int numberToGenerate = 5000;
+		int numberToGenerate = 30000;
 		Person buffer[] = new Person[numberToGenerate];
 		
 		int nThreads = Math.min(Runtime.getRuntime().availableProcessors(), numberToGenerate);
@@ -130,7 +130,7 @@ public class Generator {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		BufferedWriter wr = Files.newBufferedWriter(Paths.get("trento_small.agent"), Charset.defaultCharset());
+		BufferedWriter wr = Files.newBufferedWriter(Paths.get("/Users/Andi/Desktop/agents.agent"), Charset.defaultCharset());
 		
 		for (int i = 0; i < buffer.length; i++) {
 			wr.write(mapper.writeValueAsString(buffer[i]) + "\n");

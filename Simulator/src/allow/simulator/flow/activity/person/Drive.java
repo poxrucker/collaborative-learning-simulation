@@ -13,8 +13,8 @@ import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
-import de.dfki.parking.model.ParkingMap;
-import de.dfki.parking.model.ParkingMap.ParkingMapEntry;
+import de.dfki.parking.model.ParkingIndex;
+import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
 
 /**
  * Class representing driving Activity.
@@ -168,15 +168,15 @@ public final class Drive extends MovementActivity<Person> {
 	
 	private void updateParkingMap(Street street) {
 	  // Count number of free parking spots
-	  ParkingMap parkingMap = entity.getContext().getParkingMap();
-	  List<ParkingMapEntry> parkings = parkingMap.getParkingsInStreet(street);
+	  ParkingIndex parkingMap = entity.getContext().getParkingMap();
+	  List<ParkingIndexEntry> parkings = parkingMap.getParkingsInStreet(street);
 	  
 	  if (parkings == null)
 	    return;
 	  
 	  long time = entity.getContext().getTime().getTimestamp();
 
-	  for (ParkingMapEntry parking : parkings) {
+	  for (ParkingIndexEntry parking : parkings) {
 	    int nSpots = parking.getParking().getNumberOfParkingSpots();
 	    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
 	    

@@ -11,7 +11,7 @@ import allow.simulator.statistics.Statistics;
 import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 import allow.simulator.world.World;
-import de.dfki.parking.model.ParkingMap;
+import de.dfki.parking.model.ParkingIndex;
 
 /**
  * Represents context (i.e. world, time, a.s.o. shared by all entities) of 
@@ -25,7 +25,7 @@ public final class Context {
 	private final World world;
 	
 	// Mapping of streets to parking possibilities
-	private final ParkingMap parkingMap;
+	private final ParkingIndex parkingMap;
 	
 	// EntityManager instance holding all entities
 	private final EntityManager entityManager;
@@ -67,7 +67,7 @@ public final class Context {
 	 * @param weather Current weather.
 	 */
 	public Context(World world,
-	    ParkingMap parkingMap,
+	    ParkingIndex parkingMap,
 			EntityManager entityManager,
 			Time time,
 			JourneyPlanner journeyPlanner,
@@ -106,7 +106,7 @@ public final class Context {
 	 * 
 	 * @return ParkingMap instance
 	 */
-	public ParkingMap getParkingMap() {
+	public ParkingIndex getParkingMap() {
 	  return parkingMap;
 	}
 	

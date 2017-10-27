@@ -27,10 +27,6 @@ public final class FindParkingSpot extends Activity<Person> {
   // and finishing parking
   private static final int DEFAULT_PARKING_DELAY = 0 * 60;
 
-  // Maximum time parking spot searching is executed before it is reported
-  // as a failure
-  private static final int MAX_SEARCH_TIME = 15 * 60;
-
   // Current street to look for parking spot
   private final Street current;
 
@@ -68,8 +64,7 @@ public final class FindParkingSpot extends Activity<Person> {
     // Check if entity has already selected a parking spot
     if (!parkingSpotSelected) {
 
-      // Check if parking spot needs to be found at all (e.g. entity parks at
-      // home)
+      // Check if parking spot needs to be found at all (e.g. entity parks at home)
       if (!parkingSpotRequired()) {
         // Set parking spot selected
         parkingSpotSelected = true;
@@ -191,7 +186,8 @@ public final class FindParkingSpot extends Activity<Person> {
   }
 
   private boolean parkingSpotRequired() {
-    return !entity.getCurrentItinerary().to.equals(entity.getHome());
+    return !entity.getCurrentItinerary().to.equals(entity.getHome())
+        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to);
   }
 
   private double park(double deltaT) {

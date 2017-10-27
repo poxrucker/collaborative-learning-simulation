@@ -86,10 +86,6 @@ public final class PlanJourney extends Activity<Person> {
 			}
 			
 			if ((it == null) || (it.size() == 0))  {
-			  
-			  if (entity.hasUsedCar()) {
-			    System.out.println();
-			  }
 				// In case no trips were found, finish and set entity to destination
 				setFinished();
 				entity.getFlow().addActivity(new LeaveParkingSpot(entity));

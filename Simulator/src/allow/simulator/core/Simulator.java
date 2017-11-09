@@ -48,19 +48,20 @@ import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
-import de.dfki.parking.exploration.LocalExplorationStrategy;
-import de.dfki.parking.exploration.MappingDisplayExplorationStrategy;
+import de.dfki.parking.behavior.BaselineSelectionStrategy;
+import de.dfki.parking.behavior.GuidanceSystemSelectionStrategy;
+import de.dfki.parking.behavior.LocalExplorationStrategy;
+import de.dfki.parking.behavior.MappingDisplayExplorationStrategy;
+import de.dfki.parking.behavior.MappingDisplaySelectionStrategy;
+import de.dfki.parking.behavior.ParkingPreferences;
+import de.dfki.parking.behavior.ParkingPreferencesFactory;
+import de.dfki.parking.behavior.ParkingUtility;
+import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingGuidanceSystem;
 import de.dfki.parking.model.ParkingIndex;
-import de.dfki.parking.model.ParkingPreferences;
-import de.dfki.parking.model.ParkingPreferencesFactory;
-import de.dfki.parking.model.ParkingDataRepository;
-import de.dfki.parking.model.ParkingUtility;
-import de.dfki.parking.selection.BaselineSelectionStrategy;
-import de.dfki.parking.selection.GuidanceSystemSelectionStrategy;
-import de.dfki.parking.selection.MappingDisplaySelectionStrategy;
+import de.dfki.parking.model.ParkingRepository;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
@@ -127,14 +128,17 @@ public final class Simulator {
     // Initialize journey planner instance
     JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 
+    // Initialize ParkingDataRepository
+    ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
+    
     // Initialize ParkingRepository
-    ParkingDataRepository parkingRepo = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath), params.DataScalingFactor);
-
-    // Initialize ParkingMap
-    ParkingIndex parkingMap = ParkingIndex.build(world, parkingRepo);
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, params.DataScalingFactor);
+    
+    // Initialize ParkingIndex
+    ParkingIndex parkingIndex = ParkingIndex.build(world, parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
-    context = new Context(world, parkingMap, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
+    context = new Context(world, parkingIndex, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
@@ -259,15 +263,15 @@ public final class Simulator {
     switch (param.Model) {
 
     case "Baseline":
-      initializeBaselineModel(persons, parkingMap, param.ValidTime);
+      initializeBaselineModel(persons, parkingMap, param.ValidTime * 60);
       break;
 
     case "Mapping Display":
-      initializeMappingDisplayModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime);
+      initializeMappingDisplayModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
       break;
 
     case "Central Guidance":
-      initializeGuidanceSystemModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime);
+      initializeGuidanceSystemModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
       break;
 
     default:
@@ -306,7 +310,7 @@ public final class Simulator {
     ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
 
     // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = knowledgeFactory.createEmpty();
+    ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
 
     for (Entity entity : persons) {
       // Get person

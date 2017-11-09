@@ -1,4 +1,4 @@
-package de.dfki.parking.model;
+package de.dfki.parking.behavior;
 
 import allow.simulator.entity.Profile;
 
@@ -27,7 +27,7 @@ public final class ParkingPreferencesFactory {
     double wdweight = 50.0;
     double stweight = 15.0;
     double cmax = 2.8;
-    double wdmax = 500;
+    double wdmax = 300;
     double stmax = 8 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }
@@ -37,7 +37,7 @@ public final class ParkingPreferencesFactory {
     double wdweight = 15.0;
     double stweight = 35.0;
     double cmax = 2.8;
-    double wdmax = 500;
+    double wdmax = 300;
     double stmax = 8 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }
@@ -47,7 +47,7 @@ public final class ParkingPreferencesFactory {
     double wdweight = 35.0;
     double stweight = 50.0;
     double cmax = 2.8;
-    double wdmax = 500;
+    double wdmax = 300;
     double stmax = 8 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }

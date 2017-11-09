@@ -1,4 +1,4 @@
-package de.dfki.parking.selection;
+package de.dfki.parking.behavior;
 
 import java.util.List;
 

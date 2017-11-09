@@ -17,14 +17,12 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Triple;
 import allow.simulator.world.Street;
+import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.model.Parking;
-import de.dfki.parking.selection.ParkingPossibility;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class FindParkingSpot extends Activity<Person> {
-
-  // Delay in seconds modeling the time between a having found a parking spot
-  // and finishing parking
+  // Delay in seconds modeling the time between a having found a parking spot and finishing parking
   private static final int DEFAULT_PARKING_DELAY = 0 * 60;
 
   // Current street to look for parking spot
@@ -86,8 +84,7 @@ public final class FindParkingSpot extends Activity<Person> {
       long currentTime = entity.getContext().getTime().getTimestamp();
       List<ParkingPossibility> possibleParking = entity.getParkingSelectionStrategy().selectParking(current, dest, currentTime);     
       
-      // If parking spot candidate was found, calculate path, add Drive and
-      // FindParkingSpot activities
+      // If parking spot candidate was found, calculate path, add Drive and FindParkingSpot activities
       if (possibleParking.size() > 0) {
         ParkingPossibility p = possibleParking.get(0);
         
@@ -112,7 +109,7 @@ public final class FindParkingSpot extends Activity<Person> {
           } else if (path == null){
             System.out.println("No path to parking found initial");
           }
-        }
+        }        
         return 0;
       }
       // Select next destination to look for parking possibility
@@ -136,7 +133,7 @@ public final class FindParkingSpot extends Activity<Person> {
         return 0;
       }
       // Otherwise, do fallback
-      reportFailure(1);
+      // reportFailure(1);
       setFinished();
       return deltaT;
     }
@@ -158,14 +155,14 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingSpotCandidate.park(entity);
         
         // Update parking maps
-        updateParkingMaps(parkingSpotCandidate);
+        updateParkingMaps(parkingSpotCandidate, entity.isUser());
         
         // Save end time of parking spot search
         entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
         return 0;
       } 
       // Otherwise, update knowledge and reset parking spot selected
-      updateParkingMaps(parkingSpotCandidate);
+      updateParkingMaps(parkingSpotCandidate, false);
       parkingSpotSelected = false;
       return 0;
       
@@ -200,14 +197,13 @@ public final class FindParkingSpot extends Activity<Person> {
     return parkingTime <= 0.0;
   }
 
-  private void updateParkingMaps(Parking parking) {
+  private void updateParkingMaps(Parking parking, boolean userReport) {
     long time = entity.getContext().getTime().getTimestamp();
-    int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
-    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);
+    entity.getLocalParkingKnowledge().update(parking, nFreeSpots, time);
 
-    if (entity.hasSensorCar())
-        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);  
+    if (userReport || entity.hasSensorCar())
+        entity.getGlobalParkingKnowledge().update(parking, nFreeSpots, time);  
   }
 
   private void reportFailure(int reason) {
@@ -241,8 +237,10 @@ public final class FindParkingSpot extends Activity<Person> {
     try {
       List<Itinerary> it = entity.getContext().getJourneyPlanner().requestSingleJourney(temp, new ArrayList<Itinerary>(1)).get();
 
-      if (it.size() == 0)
+      if (it.size() == 0) {
+        System.out.println("No journey from " + from + " to " + to);
         return null;
+      }
 
       return it.get(0).legs.get(0).streets;
 

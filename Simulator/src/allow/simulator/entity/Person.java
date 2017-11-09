@@ -25,12 +25,12 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
-import de.dfki.parking.exploration.IExplorationStrategy;
+import de.dfki.parking.behavior.IExplorationStrategy;
+import de.dfki.parking.behavior.IParkingSelectionStrategy;
+import de.dfki.parking.behavior.ParkingPreferences;
+import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.model.Parking;
-import de.dfki.parking.model.ParkingPreferences;
-import de.dfki.parking.model.ParkingUtility;
-import de.dfki.parking.selection.IParkingSelectionStrategy;
 
 /**
  * Represents a person entity performing journeys within the simulated world

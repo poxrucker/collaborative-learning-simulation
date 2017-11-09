@@ -1,4 +1,4 @@
-package de.dfki.parking.selection;
+package de.dfki.parking.behavior;
 
 import allow.simulator.util.Coordinate;
 import de.dfki.parking.model.Parking;

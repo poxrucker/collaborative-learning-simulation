@@ -1,4 +1,4 @@
-package de.dfki.parking.model;
+package de.dfki.parking.behavior;
 
 
 public final class ParkingPreferences {

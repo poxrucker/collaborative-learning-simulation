@@ -51,6 +51,7 @@ public class SetupSimulator extends DefaultReporter {
 		params.StreetParkingPath = (String) settings.get(3);
 		params.GarageParkingPath = (String) settings.get(4);
 		params.DataScalingFactor = (double) settings.get(5);
+		params.ValidTime = (int) (double) settings.get(6);
 		
 		// Create simulator and NetLogo binding
 		Simulator simulator = null;

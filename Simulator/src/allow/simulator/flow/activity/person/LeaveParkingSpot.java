@@ -31,11 +31,10 @@ public final class LeaveParkingSpot extends Activity<Person> {
   
   private void updateParkingMaps(Parking parking) {
     long time = entity.getContext().getTime().getTimestamp();
-    int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
-    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);
+    entity.getLocalParkingKnowledge().update(parking, nFreeSpots, time);
 
     if (entity.hasSensorCar())
-        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, time);  
+        entity.getGlobalParkingKnowledge().update(parking, nFreeSpots, time);  
   }
 }

@@ -1,5 +1,6 @@
 package de.dfki.parking.knowledge;
 
+import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
@@ -14,111 +15,108 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 public final class ParkingKnowledge {
   
   public static final class ParkingKnowledgeEntry {
-    // Parking possibility
-    private ParkingIndexEntry parkingMapEntry;
+    // Referenced parking index entry
+    private ParkingIndexEntry parkingIndexEntry;
    
-    // Number of parking spots as known to an entity
-    private int nParkingSpots;
-    
     // Number of free parking spots as known to an entity
     private int nFreeParkingSpots;
     
     // Last time this entry was updated
     private long lastUpdate;
     
-    public ParkingKnowledgeEntry(ParkingIndexEntry parkingMapEntry,
-        int nParkingSpots,
+    private ParkingKnowledgeEntry(ParkingIndexEntry parkingMapEntry,
         int nFreeParkingSpots,
         long lastUpdate) {
-      this.parkingMapEntry = parkingMapEntry;
-      this.nParkingSpots = nParkingSpots;
+      this.parkingIndexEntry = parkingMapEntry;
       this.nFreeParkingSpots = nFreeParkingSpots;
       this.lastUpdate = lastUpdate;
     }
     
-    public ParkingKnowledgeEntry(ParkingIndexEntry parkingMapEntry,
-        int nParkingSpots,
-        int nFreeParkingSpots) {
-      this(parkingMapEntry, nFreeParkingSpots, nFreeParkingSpots, -1);
+    /**
+     * Returns the referenced ParkingIndexEntry.
+     * 
+     * @return Referenced ParkingIndexEntry
+     */
+    public ParkingIndexEntry getParkingIndexEntry() {
+      return parkingIndexEntry;
     }
     
-    public ParkingIndexEntry getParkingMapEntry() {
-      return parkingMapEntry;
-    }
-    
-    public int getNParkingSpots() {
-      return nParkingSpots;
-    }
-    
+    /**
+     * Returns the number of free parking spots as known at last update time.
+     *  
+     * @return Number of free parking spots
+     */
     public int getNFreeParkingSpots() {
       return nFreeParkingSpots;
     }
     
+    /**
+     * Returns the timestamp the entry was updated last.
+     * 
+     * @return Last update time
+     */
     public long getLastUpdate() {
       return lastUpdate;
     }
     
-    public void updateEntry(int nFreeParkingSpots, long ts) {
+    public void update(int nFreeParkingSpots, long ts) {
       this.nFreeParkingSpots = nFreeParkingSpots;
       this.lastUpdate = ts;
     }
   }
 
-  private final ParkingIndex parkingMap;
+  private final ParkingIndex parkingIndex;
   private final Int2ObjectMap<ParkingKnowledgeEntry> parkingKnowledge;
   
   public ParkingKnowledge(ParkingIndex parkingMap) {
-    this.parkingMap = parkingMap;
+    this.parkingIndex = parkingMap;
     this.parkingKnowledge = new Int2ObjectOpenHashMap<>();
   }
   
-  public void update(Parking parking, int nParkingSpots, int nFreeParkingSpots, long time) {
+  public void update(Parking parking, int nFreeParkingSpots, long time) {
     // Check if entry is known
     ParkingKnowledgeEntry ret = parkingKnowledge.get(parking.getId());
     
     if (ret == null) {
       // Get ParkingMapEntry from ParkingMap
-      ParkingIndexEntry entry = parkingMap.getForParking(parking);
-      ret = new ParkingKnowledgeEntry(entry, nParkingSpots, nFreeParkingSpots);
+      ParkingIndexEntry entry = parkingIndex.getForParking(parking);
+      ret = new ParkingKnowledgeEntry(entry, nFreeParkingSpots, -1);
       parkingKnowledge.put(parking.getId(), ret);
     }
-    ret.updateEntry(nFreeParkingSpots, time);
+    ret.update(nFreeParkingSpots, time);
   }
   
   public List<ParkingKnowledgeEntry> findParkingInStreet(Street street) {
-    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
-
     // Get parking possibilities in street from ParkingMap
-    List<ParkingIndexEntry> entries = parkingMap.getParkingsInStreet(street);
+    Collection<ParkingIndexEntry> indexEntries = parkingIndex.getParkingsInStreet(street);
     
-    if (entries == null)
-      return ret;
+    if (indexEntries == null)
+      return new ObjectArrayList<>(0);
     
-    // Filter entries which are unknown using parking knowledge mapping
-    for (ParkingIndexEntry entry : entries) {
-      ParkingKnowledgeEntry temp = parkingKnowledge.get(entry.getParking().getId());
-      
-      if (temp == null)
-        continue;
-      ret.add(temp);
-    }
-    return ret;
+    return filterUnknownFromIndex(indexEntries);
   }
   
   public List<ParkingKnowledgeEntry> findParkingNearby(Coordinate position, double maxDistance) {
     // Get nearby parking possibilities from ParkingMap
-    List<ParkingIndexEntry> entries = parkingMap.getParkingsWithMaxDistance(position, maxDistance);
+    Collection<ParkingIndexEntry> indexEntries = parkingIndex.getParkingsWithMaxDistance(position, maxDistance);
     
-    // Filter entries which are unknown using parking knowledge mapping
-    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+    if (indexEntries.size() == 0)
+      return new ObjectArrayList<>(0);
     
-    for (ParkingIndexEntry entry : entries) {
+    return filterUnknownFromIndex(indexEntries);
+  } 
+  
+  private List<ParkingKnowledgeEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
+    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>(indexEntries.size());
+    
+    for (ParkingIndexEntry entry : indexEntries) {
       ParkingKnowledgeEntry temp = parkingKnowledge.get(entry.getParking().getId());
       
       if (temp == null)
         continue;
+      
       ret.add(temp);
     }
     return ret;
-  }  
+  }
 }

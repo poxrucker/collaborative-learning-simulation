@@ -20,15 +20,6 @@ public abstract class Parking {
     GARAGE
     
   }
-  
-  private static int ids = 0;
-  
-  private static int nextId() {
-    int id = ids;
-    ids++;
-    return id;
-  }
-  
   // Unique id of parking
   protected final int id;
   
@@ -41,8 +32,7 @@ public abstract class Parking {
   // Address of the parking
   protected final String address;
   
-  // Default price per hour, can be dynamically changed depending on e.g. the
-  // number of cars currently parking) 
+  // Default price per hour, can be dynamically changed depending on e.g. the number of cars currently parking
   protected final double defaultPricePerHour;
   
   // Total number of available parking spots
@@ -51,8 +41,8 @@ public abstract class Parking {
   // Currently parking cars
   protected final Set<Person> parkingCars;
   
-  public Parking(Type type, String name, String address, double defaultPricePerHour, int numberOfParkingSpots) {
-    this.id = nextId();
+  public Parking(int id, Type type, String name, String address, double defaultPricePerHour, int numberOfParkingSpots) {
+    this.id = id;
     this.type = type;
     this.name = name;
     this.address = address;

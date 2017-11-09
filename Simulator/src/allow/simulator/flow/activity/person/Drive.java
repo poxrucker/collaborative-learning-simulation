@@ -177,13 +177,12 @@ public final class Drive extends MovementActivity<Person> {
 	  long time = entity.getContext().getTime().getTimestamp();
 
 	  for (ParkingIndexEntry parking : parkings) {
-	    int nSpots = parking.getParking().getNumberOfParkingSpots();
 	    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
 	    
-	    entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, time);
+	    entity.getLocalParkingKnowledge().update(parking.getParking(), nFreeSpots, time);
 
 	    if (entity.hasSensorCar())
-	      entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, time);
+	      entity.getGlobalParkingKnowledge().update(parking.getParking(), nFreeSpots, time);
 	  }  
 	}
 	

@@ -25,14 +25,13 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 public final class ParkingIndex {
 
   public static final class ParkingIndexEntry {
-
     // Referenced Parking instance
     private final Parking parking;
 
     // List of positions through which Parking is accessible
     private final List<Coordinate> accessPositions;
 
-    // Reference position of Parking instance in index
+    // Reference position of Parking instance
     private final Coordinate referencePosition;
 
     public ParkingIndexEntry(Parking parking, List<Coordinate> accessPositions) {
@@ -45,11 +44,11 @@ public final class ParkingIndex {
       return parking;
     }
 
-    public List<Coordinate> getNodes() {
+    public List<Coordinate> getAccessPositions() {
       return accessPositions;
     }
 
-    public Coordinate getMeanPosition() {
+    public Coordinate getReferencePosition() {
       return referencePosition;
     }
 
@@ -67,35 +66,35 @@ public final class ParkingIndex {
   }
 
   private static final class DistanceFilter implements ItemVisitor {
-
     // List of ParkingMapEntry instances filtered by distance
     private final List<ParkingIndexEntry> results;
 
     // Reference position
-    private final Coordinate reference;
+    private final Coordinate referencePosition;
 
     // Maximum allowed distance from reference position
     private final double maxDistance;
 
-    public DistanceFilter(List<ParkingIndexEntry> results, Coordinate reference, double maxDistance) {
+    public DistanceFilter(List<ParkingIndexEntry> results, Coordinate referencePosition, double maxDistance) {
       this.results = results;
-      this.reference = reference;
+      this.referencePosition = referencePosition;
       this.maxDistance = maxDistance;
     }
 
     @Override
     public void visitItem(Object item) {
-      // Get entry
       ParkingIndexEntry entry = (ParkingIndexEntry) item;
 
-      // If distance to reference position is bigger than maxDistance, filter
-      // current entry
-      if (allow.simulator.util.Geometry.haversineDistance(reference, entry.referencePosition) > maxDistance)
+      // Filter by maxDistance
+      if (allow.simulator.util.Geometry.haversineDistance(referencePosition, entry.referencePosition) > maxDistance)
         return;
 
       results.add(entry);
     }
   }
+
+  // Used for construction of JTS data structures
+  private static final GeometryFactory geometryFactory = new GeometryFactory();
 
   // Parking ids to ParkingIndexEntry
   private final Int2ObjectMap<ParkingIndexEntry> parkingToParkingIndexEntry;
@@ -135,7 +134,7 @@ public final class ParkingIndex {
 
   public List<ParkingIndexEntry> getParkingsWithMaxDistance(Coordinate position, double maxDistance) {
     // Create a query envelope centered around position
-    Envelope queryEnv = createQueryEnvelope(position, maxDistance);
+    Envelope queryEnv = ParkingIndexUtil.createQueryEnvelope(position, maxDistance, geometryFactory);
 
     // Query spatial index and filter results by distance
     List<ParkingIndexEntry> results = new ObjectArrayList<>();
@@ -156,7 +155,7 @@ public final class ParkingIndex {
   }
 
   public boolean containedInSpatialIndex(Coordinate pos) {
-    return spatialIndexHull.contains(geometryFactory.createPoint(convert(pos)));
+    return spatialIndexHull.contains(geometryFactory.createPoint(ParkingIndexUtil.convert(pos)));
   }
 
   public Geometry getIndexHull() {
@@ -219,7 +218,7 @@ public final class ParkingIndex {
     STRtree ret = new STRtree();
 
     for (ParkingIndexEntry parking : entries) {
-      ret.insert(geometryFactory.createPoint(convert(parking.getMeanPosition())).getEnvelopeInternal(), parking);
+      ret.insert(geometryFactory.createPoint(ParkingIndexUtil.convert(parking.getReferencePosition())).getEnvelopeInternal(), parking);
     }
     ret.build();
     return ret;
@@ -233,7 +232,7 @@ public final class ParkingIndex {
       if (entry.getParking().getNumberOfParkingSpots() == 0)
         continue;
 
-      entryPositions.add(convert(entry.getMeanPosition()));
+      entryPositions.add(ParkingIndexUtil.convert(entry.getReferencePosition()));
     }
     com.vividsolutions.jts.geom.Coordinate[] temp = entryPositions.toArray(new com.vividsolutions.jts.geom.Coordinate[entryPositions.size()]);
     ConvexHull hull = new ConvexHull(temp, geometryFactory);   
@@ -250,7 +249,7 @@ public final class ParkingIndex {
       // Get all parking possibilities in street from repository
       List<Parking> parkings = parkingRepository.getParking(street.getName());
 
-      if (parkings.size() == 0 && isRelevantStreet(street)) {
+      if (parkings.size() == 0 && ParkingIndexUtil.isRelevantStreet(street)) {
         // If none exists, create Parking with zero parking spots
         // parkings.add(parkingRepository.addStreetParking(street.getName(), 0,
         // 0));
@@ -325,43 +324,6 @@ public final class ParkingIndex {
         entries.add(indexEntry);
       }
     }
-
     return new ParkingIndex(parkingIdToParkingIndexEntry, streetIdToParkingIndexEntries);
-  }
-
-  private static final GeometryFactory geometryFactory = new GeometryFactory();
-
-  private static final double EARTH_CIRCUMFERENCE_IN_M = 40074 * 1000;
-  private static final double LAT_M_TO_DEG = 360.0 / EARTH_CIRCUMFERENCE_IN_M;
-
-  private static com.vividsolutions.jts.geom.Coordinate convert(Coordinate c) {
-    return new com.vividsolutions.jts.geom.Coordinate(c.x, c.y);
-  }
-
-  private static Envelope createQueryEnvelope(Coordinate center, double maxDistance) {
-    // Half maximum distance in every direction
-    double halfDistance = 0.5 * maxDistance;
-
-    // Sample four points from circle around center with radius maxDistance to
-    // obtain query envelope
-    Coordinate north = new Coordinate(center.x, center.y + LAT_M_TO_DEG * halfDistance);
-    Coordinate south = new Coordinate(center.x, center.y - LAT_M_TO_DEG * halfDistance);
-    double circumferenceCenter = Math.cos(Math.toRadians(center.y)) * EARTH_CIRCUMFERENCE_IN_M;
-    double lonMToDegCenter = 360.0 / circumferenceCenter;
-    Coordinate east = new Coordinate(center.x - lonMToDegCenter * halfDistance, center.y);
-    Coordinate west = new Coordinate(center.x + lonMToDegCenter * halfDistance, center.y);
-
-    // Create point sequence to build geometry and get Envelope instance
-    com.vividsolutions.jts.geom.Coordinate[] points = new com.vividsolutions.jts.geom.Coordinate[] {
-        new com.vividsolutions.jts.geom.Coordinate(north.x, north.y), new com.vividsolutions.jts.geom.Coordinate(east.x, east.y),
-        new com.vividsolutions.jts.geom.Coordinate(south.x, south.y), new com.vividsolutions.jts.geom.Coordinate(west.x, west.y) };
-    return geometryFactory.createMultiPoint(points).getEnvelopeInternal();
-  }
-
-  private static boolean isRelevantStreet(Street s) {
-    return !((s.getName().equals("Fußweg") || s.getName().equals("Bürgersteig") || s.getName().equals("Stufen") || s.getName().equals("Weg")
-        || s.getName().equals("Gasse") || s.getName().equals("Auffahrrampe") || s.getName().equals("Fußgängertunnel")
-        || s.getName().equals("Fahrradweg") || s.getName().equals("Fußgängerbrücke")) || s.getName().contains("Autostrada")
-        || s.getName().equals("Via Bolzano") || s.getName().contains("Strada Statale") || s.getName().contains("Tangenziale"));
   }
 }

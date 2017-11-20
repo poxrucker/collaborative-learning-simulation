@@ -50,7 +50,7 @@ public final class TestParking {
       Collection<ParkingIndexEntry> all = index.getAllParkings();
       
       for (ParkingIndexEntry entry : all) {
-        writer.write(entry.getMeanPosition().x + "," + entry.getMeanPosition().y + "\n");
+        writer.write(entry.getReferencePosition().x + "," + entry.getReferencePosition().y + "\n");
       }
     }
     

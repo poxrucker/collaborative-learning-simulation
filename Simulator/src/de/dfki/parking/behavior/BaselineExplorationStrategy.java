@@ -53,7 +53,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       ParkingIndexEntry entry = relevant.get(0);
 
       // Sample random position to reach
-      Coordinate ret = entry.getNodes().get(ThreadLocalRandom.current().nextInt(entry.getNodes().size()));
+      Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
       return ret;
     }
 
@@ -64,7 +64,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       ParkingIndexEntry entry = fromMap.get(0);
 
       // Sample random position to reach
-      Coordinate ret = entry.getNodes().get(ThreadLocalRandom.current().nextInt(entry.getNodes().size()));
+      Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
       return ret;
     }
     return null;
@@ -92,9 +92,9 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
     for (ParkingKnowledgeEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-      double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getMeanPosition(), destination);
-      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getMeanPosition(), currentPosition) / 4.1);
-      temp.add(new Triple<>(parking, parking.getParkingIndexEntry().getMeanPosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
+      double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 4.1);
+      temp.add(new Triple<>(parking, parking.getParkingIndexEntry().getReferencePosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
 
@@ -146,9 +146,9 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
     for (ParkingIndexEntry parking : parkings) {
       double c = 0.0;
-      double wd = Geometry.haversineDistance(parking.getMeanPosition(), destination);
-      double st = (Geometry.haversineDistance(parking.getMeanPosition(), currentPosition) / 4.1);
-      temp.add(new Triple<>(parking, parking.getMeanPosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
+      double wd = Geometry.haversineDistance(parking.getReferencePosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 4.1);
+      temp.add(new Triple<>(parking, parking.getReferencePosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
 

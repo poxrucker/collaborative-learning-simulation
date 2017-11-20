@@ -100,8 +100,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
 
     for (ParkingKnowledgeEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-      Coordinate pos = parking.getParkingIndexEntry().getNodes()
-          .get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getNodes().size()));
+      Coordinate pos = parking.getParkingIndexEntry().getReferencePosition();
       double wd = Geometry.haversineDistance(pos, destination);
       double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
       temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));

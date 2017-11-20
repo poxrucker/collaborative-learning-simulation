@@ -2,16 +2,16 @@ package de.dfki.parking.data;
 
 public final class ParkingData {
   // Name of the parking (e.g. street name, garage...)
-  protected final String name;
+  private final String name;
   
   // Address of the parking
-  protected final String address;
+  private final String address;
   
   // Price per hour
-  protected final double pricePerHour;
+  private final double pricePerHour;
   
   // Number of available parking spots
-  protected final int nParkingSpots;
+  private final int nParkingSpots;
   
   public ParkingData(String name, String address, double pricePerHour, int nParkingSpots) {
     this.name = name;

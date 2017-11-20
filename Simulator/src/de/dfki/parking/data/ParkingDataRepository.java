@@ -64,11 +64,11 @@ public final class ParkingDataRepository {
         ParkingData parking = parseStreetParking(line);
         
         // Add to list
-        List<ParkingData> temp = buffer.get(parking.address);
+        List<ParkingData> temp = buffer.get(parking.getAddress());
 
         if (temp == null) {
           temp = new ObjectArrayList<ParkingData>();
-          buffer.put(parking.address, temp);
+          buffer.put(parking.getAddress(), temp);
         }
         temp.add(parking);
         parsed++;
@@ -88,11 +88,11 @@ public final class ParkingDataRepository {
         ParkingData parking = parseGarageParking(line);
         
         // Add to list
-        List<ParkingData> temp = parkings.get(parking.address);
+        List<ParkingData> temp = parkings.get(parking.getAddress());
 
         if (temp == null) {
           temp = new ObjectArrayList<>();
-          parkings.put(parking.address, temp);
+          parkings.put(parking.getAddress(), temp);
         }
         temp.add(parking);
         parsed++;

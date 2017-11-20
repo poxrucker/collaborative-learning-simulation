@@ -20,23 +20,39 @@ public final class ParkingData {
     this.nParkingSpots = nParkingSpots;
   }
   
+  /**
+   * Returns the name of the parking possibility.
+   * 
+   * @return Name of the parking possibility
+   */
   public String getName() {
     return name;
   }
   
+  /**
+   * Returns the address of the parking possibility.
+   * 
+   * @return Address of the parking possibility
+   */
   public String getAddress() {
     return address;
   }
   
+  /**
+   * Returns the price per hour of the parking possibility.
+   * 
+   * @return Price per hour of the parking possibility
+   */
   public double getPricePerHour() {
     return pricePerHour;
   }
 
+  /**
+   * Returns the number of parking spots of the parking possibility.
+   * 
+   * @return Number of parking spots of the parking possibility
+   */
   public int getNumberOfParkingSpots() {
     return nParkingSpots;
   }
-   
-  public String toString() {
-    return name;
-  }  
 }

@@ -53,7 +53,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       ParkingIndexEntry entry = relevant.get(0);
 
       // Sample random position to reach
-      Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
+      Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
       return ret;
     }
 
@@ -64,7 +64,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       ParkingIndexEntry entry = fromMap.get(0);
 
       // Sample random position to reach
-      Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
+      Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
       return ret;
     }
     return null;

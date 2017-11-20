@@ -34,38 +34,41 @@ public final class ParkingIndex {
     // Reference position of Parking instance
     private final Coordinate referencePosition;
 
-    public ParkingIndexEntry(Parking parking, List<Coordinate> accessPositions) {
+    public ParkingIndexEntry(Parking parking, List<Coordinate> accessPositions, Coordinate referencePosition) {
       this.parking = parking;
       this.accessPositions = accessPositions;
-      this.referencePosition = updateReferencePosition(accessPositions);
+      this.referencePosition = referencePosition;
     }
 
+    /**
+     * Returns the Parking instance the index entry points to.
+     * 
+     * @return Parking instance the index entry points to
+     */
     public Parking getParking() {
       return parking;
     }
 
-    public List<Coordinate> getAccessPositions() {
+    /**
+     * Returns all access positions associated with the Parking instance.
+     * 
+     * @return Access positions associated with the Parking instance
+     */
+    public List<Coordinate> getAllAccessPositions() {
       return accessPositions;
     }
 
+    /**
+     * Returns the reference position associated with the Parking instance.
+     * 
+     * @return Reference position associated with the Parking instance
+     */
     public Coordinate getReferencePosition() {
       return referencePosition;
     }
-
-    private static Coordinate updateReferencePosition(List<Coordinate> positions) {
-      Coordinate mean = new Coordinate();
-
-      for (Coordinate pos : positions) {
-        mean.x += pos.x;
-        mean.y += pos.y;
-      }
-      mean.x /= positions.size();
-      mean.y /= positions.size();
-      return mean;
-    }
   }
 
-  private static final class DistanceFilter implements ItemVisitor {
+  public static final class DistanceFilter implements ItemVisitor {
     // List of ParkingMapEntry instances filtered by distance
     private final List<ParkingIndexEntry> results;
 
@@ -238,7 +241,7 @@ public final class ParkingIndex {
     ConvexHull hull = new ConvexHull(temp, geometryFactory);   
     return hull.getConvexHull();
   }
-
+  
   public static ParkingIndex build(StreetMap map, ParkingRepository parkingRepository) {
     Int2ObjectMap<Parking> parkingIdToParking = new Int2ObjectOpenHashMap<>();
     Int2ObjectMap<List<Coordinate>> parkingIdToPositions = new Int2ObjectOpenHashMap<>();
@@ -311,7 +314,7 @@ public final class ParkingIndex {
     for (int parkingId : parkingIdToParking.keySet()) {
       Parking parking = parkingIdToParking.get(parkingId);
       List<Coordinate> positions = parkingIdToPositions.get(parkingId);
-      ParkingIndexEntry indexEntry = new ParkingIndexEntry(parking, positions);
+      ParkingIndexEntry indexEntry = new ParkingIndexEntry(parking, positions, getReferencePosition(positions));
       parkingIdToParkingIndexEntry.put(parkingId, indexEntry);
 
       for (int streetId : parkingIdToStreetIds.get(parkingId)) {
@@ -325,5 +328,17 @@ public final class ParkingIndex {
       }
     }
     return new ParkingIndex(parkingIdToParkingIndexEntry, streetIdToParkingIndexEntries);
+  }
+  
+  private static Coordinate getReferencePosition(List<Coordinate> positions) {
+    Coordinate mean = new Coordinate();
+
+    for (Coordinate pos : positions) {
+      mean.x += pos.x;
+      mean.y += pos.y;
+    }
+    mean.x /= positions.size();
+    mean.y /= positions.size();
+    return mean;
   }
 }

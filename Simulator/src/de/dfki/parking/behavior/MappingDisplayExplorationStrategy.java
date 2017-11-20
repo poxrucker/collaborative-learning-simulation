@@ -58,7 +58,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      ParkingIndexEntry entry = relevant.get(0);
      
      // Sample random position to reach
-     Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
+     Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
      return ret;
    }
    
@@ -69,7 +69,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      ParkingIndexEntry entry = fromMap.get(0);
      
      // Sample random position to reach
-     Coordinate ret = entry.getAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAccessPositions().size()));
+     Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
      return ret;
    }
   return null; 
@@ -117,7 +117,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    
    for (ParkingKnowledgeEntry parking : parkings) {
      double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-     Coordinate pos = parking.getParkingIndexEntry().getAccessPositions().get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getAccessPositions().size()));
+     Coordinate pos = parking.getParkingIndexEntry().getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getAllAccessPositions().size()));
      double wd = Geometry.haversineDistance(pos, destination);
      double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));

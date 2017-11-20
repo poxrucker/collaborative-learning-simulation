@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public final class LocalExplorationStrategy implements IExplorationStrategy {
+public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
   // Queried first to find possible parking possibilities from observations
   private ParkingKnowledge knowledge;
@@ -31,7 +31,7 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
   // Timespan during which information from knowledge is considered relevant
   private long validTime;
 
-  public LocalExplorationStrategy(ParkingKnowledge knowledge, ParkingPreferences prefs, 
+  public BaselineExplorationStrategy(ParkingKnowledge knowledge, ParkingPreferences prefs, 
       ParkingUtility utility, ParkingIndex parkingMap, long validTime) {
     this.knowledge = knowledge;
     this.preferences = prefs;
@@ -43,10 +43,9 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
   @Override
   public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
     // Find all parking possibilities in range from knowledge
-    List<ParkingKnowledgeEntry> fromKnowledge = knowledge.findParkingNearby(destination, 750);
+    List<ParkingKnowledgeEntry> fromKnowledge = knowledge.findParkingNearby(destination, 500);
 
-    // See if recent relevant entries in knowledge exist and return them ranked
-    // by utility
+    // See if recent relevant entries in knowledge exist and return them ranked by utility
     List<ParkingIndexEntry> relevant = getRelevantEntriesFromKnowlede(fromKnowledge, position, destination, currentTime);
 
     if (relevant.size() != 0) {
@@ -76,17 +75,13 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
     List<ParkingKnowledgeEntry> filtered = new ObjectArrayList<>(fromKnowledge.size());
 
     for (ParkingKnowledgeEntry entry : fromKnowledge) {
-      // Filter by time
+      // Filter by time and free parking spots
       if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0)
         continue;
       
-      if (((currentTime - entry.getLastUpdate()) / 1000.0 > validTime) && entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots() == 0)
+      if (entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots() == 0)
         continue;
-
-      // Filter by free parking spots
-      if (entry.getNFreeParkingSpots() == 0)
-        continue;
-
+ 
       filtered.add(entry);
     }
     return rankFromKnowledge(filtered, position, destination);
@@ -97,14 +92,15 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
 
     for (ParkingKnowledgeEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-      Coordinate pos = parking.getParkingIndexEntry().getNodes()
-          .get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getNodes().size()));
-      double wd = Geometry.haversineDistance(pos, destination);
-      double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
-      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
+      double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getMeanPosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getMeanPosition(), currentPosition) / 4.1);
+      temp.add(new Triple<>(parking, parking.getParkingIndexEntry().getMeanPosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
 
+    if (temp.size() > 0 && temp.get(0).third == 0.0)
+      return new ObjectArrayList<>();
+    
     List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 
     for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {
@@ -116,13 +112,22 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
   private List<ParkingIndexEntry> getPossibleParkingFromIndex(List<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination,
       long currentTime) {
     // Filter those which are valid and which have free parking spots
-    List<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(position, 200);
+    List<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(destination, 500);
     // List<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
 
     IntSet knowledgeIds = new IntOpenHashSet();
 
     for (ParkingKnowledgeEntry entry : fromKnowledge) {
-      knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
+
+      if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0) {
+        knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
+        continue;
+      }
+      
+      if (entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots() == 0) {
+        knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
+        continue;
+      }
     }
 
     List<ParkingIndexEntry> ret = new ObjectArrayList<>();
@@ -141,13 +146,15 @@ public final class LocalExplorationStrategy implements IExplorationStrategy {
 
     for (ParkingIndexEntry parking : parkings) {
       double c = 0.0;
-      Coordinate pos = parking.getNodes().get(ThreadLocalRandom.current().nextInt(parking.getNodes().size()));
-      double wd = Geometry.haversineDistance(pos, destination);
-      double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
-      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
+      double wd = Geometry.haversineDistance(parking.getMeanPosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getMeanPosition(), currentPosition) / 4.1);
+      temp.add(new Triple<>(parking, parking.getMeanPosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
 
+    if (temp.size() > 0 && temp.get(0).third == 0.0)
+      return new ObjectArrayList<>();
+    
     List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 
     for (Triple<ParkingIndexEntry, Coordinate, Double> p : temp) {

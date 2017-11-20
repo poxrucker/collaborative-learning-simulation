@@ -107,7 +107,7 @@ public final class FindParkingSpot extends Activity<Person> {
             setFinished();
             
           } else if (path == null){
-            System.out.println("No path to parking found initial");
+            // System.out.println("No path to parking found initial");
           }
         }        
         return 0;
@@ -127,7 +127,7 @@ public final class FindParkingSpot extends Activity<Person> {
           entity.getFlow().addAfter(drive, park);
 
         } else if (path == null){
-          System.out.println("No path to parking found fallback");
+          // System.out.println("No path to parking found fallback");
         }
         setFinished();
         return 0;
@@ -199,11 +199,14 @@ public final class FindParkingSpot extends Activity<Person> {
 
   private void updateParkingMaps(Parking parking, boolean userReport) {
     long time = entity.getContext().getTime().getTimestamp();
+    int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
-    entity.getLocalParkingKnowledge().update(parking, nFreeSpots, time);
+    double price = parking.getCurrentPricePerHour();
+    
+    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
 
     if (userReport || entity.hasSensorCar())
-        entity.getGlobalParkingKnowledge().update(parking, nFreeSpots, time);  
+        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);  
   }
 
   private void reportFailure(int reason) {
@@ -222,6 +225,8 @@ public final class FindParkingSpot extends Activity<Person> {
     double st = (double)(searchTime);
     double u = entity.getParkingUtility().computeUtility(new Triple<>(c, wd, st), entity.getParkingPreferences());
     stats.reportSearchUtility(u);
+    stats.reportParkingCosts(c);
+    stats.reportParkingWalkingDistance(wd);
   }
 
   private List<Street> getPathToParking(Coordinate to) {
@@ -238,7 +243,7 @@ public final class FindParkingSpot extends Activity<Person> {
       List<Itinerary> it = entity.getContext().getJourneyPlanner().requestSingleJourney(temp, new ArrayList<Itinerary>(1)).get();
 
       if (it.size() == 0) {
-        System.out.println("No journey from " + from + " to " + to);
+        //System.out.println("No journey from " + from + " to " + to);
         return null;
       }
 

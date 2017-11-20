@@ -80,7 +80,7 @@ public final class ParkingRepository {
     for (Map.Entry<String, List<ParkingData>> entry : garageParkingData.entrySet()) {
       
       for (ParkingData data : entry.getValue()) {
-        ret.addGarageParking(entry.getKey(), data.getPricePerHour() + 1.0, scale(data.getNumberOfParkingSpots(), scalingFactor));
+        ret.addGarageParking(entry.getKey(), data.getPricePerHour(), scale(data.getNumberOfParkingSpots(), scalingFactor));
       }
     }
     return ret;

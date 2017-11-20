@@ -53,7 +53,8 @@ public class Tick extends DefaultReporter {
     listBuilder.add((double) s.getCarJourneyRatio());
     listBuilder.add((double) s.getTransitJourneyRatio());
     listBuilder.add((double) s.getWalkJourneyRatio());
-
+    listBuilder.add((double)s.getMeanParkingCosts());
+    listBuilder.add((double)s.getMeanParkingWalkingDistance());
     // listBuilder.add((double)s.getTotalStreetNetworkLength());
     // listBuilder.add((double)s.getVisitedStreetNetworkLength());
     return listBuilder.toLogoList();

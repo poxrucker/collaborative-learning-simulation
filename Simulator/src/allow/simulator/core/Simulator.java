@@ -50,7 +50,7 @@ import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
 import de.dfki.parking.behavior.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.GuidanceSystemSelectionStrategy;
-import de.dfki.parking.behavior.LocalExplorationStrategy;
+import de.dfki.parking.behavior.BaselineExplorationStrategy;
 import de.dfki.parking.behavior.MappingDisplayExplorationStrategy;
 import de.dfki.parking.behavior.MappingDisplaySelectionStrategy;
 import de.dfki.parking.behavior.ParkingPreferences;
@@ -300,7 +300,7 @@ public final class Simulator {
       ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
       person.setParkingPreferences(prefs);
       person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, utility, validTime));
-      person.setExplorationStrategy(new LocalExplorationStrategy(knowledge, prefs, utility, parkingMap, validTime));
+      person.setExplorationStrategy(new BaselineExplorationStrategy(knowledge, prefs, utility, parkingMap, validTime));
     }
   }
 
@@ -341,7 +341,7 @@ public final class Simulator {
         
       } else {
         person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
-        person.setExplorationStrategy(new LocalExplorationStrategy(localKnowledge, prefs, utility, parkingMap, validTime));
+        person.setExplorationStrategy(new BaselineExplorationStrategy(localKnowledge, prefs, utility, parkingMap, validTime));
       }
     }
   }

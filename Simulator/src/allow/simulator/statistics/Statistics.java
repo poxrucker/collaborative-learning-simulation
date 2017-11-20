@@ -88,7 +88,9 @@ public class Statistics {
 	private int reasonNoPath;
 	private SlidingWindow meanParkingSpotSearchTime;
 	private SlidingWindow meanParkingSpotSearchUtility;
-
+	private SlidingWindow meanParkingSpotCost;
+	private SlidingWindow meanParkingSpotWalkingDistance;
+	
 	public Statistics(int windowSize) {
 		priorCarTravelTime = new SlidingWindow(windowSize);
 		posteriorCarTravelTime = new SlidingWindow(windowSize);
@@ -138,6 +140,8 @@ public class Statistics {
 		
 		meanParkingSpotSearchTime = new SlidingWindow(windowSize);
 		meanParkingSpotSearchUtility = new SlidingWindow(windowSize);
+		meanParkingSpotCost = new SlidingWindow(windowSize);
+		meanParkingSpotWalkingDistance = new SlidingWindow(windowSize);
 	}
 	
 	public void reset() {
@@ -179,6 +183,8 @@ public class Statistics {
 		
 		meanParkingSpotSearchTime.reset();
 		meanParkingSpotSearchUtility.reset();
+		meanParkingSpotCost.reset();
+		meanParkingSpotWalkingDistance.reset();
 		successfulParking = 0;
 		failedParking = 0;
 		reasonMaxSearchTimeExceeded = 0;
@@ -453,6 +459,22 @@ public class Statistics {
 	public double getMeanSearchTimeParking() {
 	  return meanParkingSpotSearchTime.getMean();
 	}
+	
+	public void reportParkingCosts(double costs) {
+    meanParkingSpotCost.addValue(costs);
+  }
+  
+  public double getMeanParkingCosts() {
+    return meanParkingSpotCost.getMean();
+  }
+  
+  public void reportParkingWalkingDistance(double walkingDistance) {
+    meanParkingSpotWalkingDistance.addValue(walkingDistance);
+  }
+  
+  public double getMeanParkingWalkingDistance() {
+    return meanParkingSpotWalkingDistance.getMean();
+  }
 	
 	public void reportSearchUtility(double utility) {
     meanParkingSpotSearchUtility.addValue(utility);

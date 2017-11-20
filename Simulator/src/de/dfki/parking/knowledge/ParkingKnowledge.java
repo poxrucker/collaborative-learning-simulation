@@ -18,17 +18,27 @@ public final class ParkingKnowledge {
     // Referenced parking index entry
     private ParkingIndexEntry parkingIndexEntry;
    
-    // Number of free parking spots as known to an entity
+    // Number of parking spots
+    private int nParkingSpots;
+    
+    // Number of free parking spots as known at last update time
     private int nFreeParkingSpots;
+    
+    // Price per hour as known at last update time
+    private double pricePerHour;
     
     // Last time this entry was updated
     private long lastUpdate;
     
     private ParkingKnowledgeEntry(ParkingIndexEntry parkingMapEntry,
+        int nParkingSpots,
         int nFreeParkingSpots,
+        double pricePerHour,
         long lastUpdate) {
       this.parkingIndexEntry = parkingMapEntry;
+      this.nParkingSpots = nFreeParkingSpots;
       this.nFreeParkingSpots = nFreeParkingSpots;
+      this.pricePerHour = pricePerHour;
       this.lastUpdate = lastUpdate;
     }
     
@@ -42,12 +52,30 @@ public final class ParkingKnowledge {
     }
     
     /**
+     * Returns the total number of parking spots.
+     *  
+     * @return Total number parking spots
+     */
+    public int getNParkingSpots() {
+      return nParkingSpots;
+    }
+    
+    /**
      * Returns the number of free parking spots as known at last update time.
      *  
      * @return Number of free parking spots
      */
     public int getNFreeParkingSpots() {
       return nFreeParkingSpots;
+    }
+    
+    /**
+     * Returns the price per hour as known at last update time.
+     * 
+     * @return Price per hour
+     */
+    public double getPricePerHour() {
+      return pricePerHour;
     }
     
     /**
@@ -73,14 +101,14 @@ public final class ParkingKnowledge {
     this.parkingKnowledge = new Int2ObjectOpenHashMap<>();
   }
   
-  public void update(Parking parking, int nFreeParkingSpots, long time) {
+  public void update(Parking parking, int nParkingSpots, int nFreeParkingSpots, double pricePerHour, long time) {
     // Check if entry is known
     ParkingKnowledgeEntry ret = parkingKnowledge.get(parking.getId());
     
     if (ret == null) {
       // Get ParkingMapEntry from ParkingMap
       ParkingIndexEntry entry = parkingIndex.getForParking(parking);
-      ret = new ParkingKnowledgeEntry(entry, nFreeParkingSpots, -1);
+      ret = new ParkingKnowledgeEntry(entry, nParkingSpots, nFreeParkingSpots, pricePerHour, -1);
       parkingKnowledge.put(parking.getId(), ret);
     }
     ret.update(nFreeParkingSpots, time);

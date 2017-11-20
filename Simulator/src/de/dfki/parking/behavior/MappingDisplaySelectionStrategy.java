@@ -103,7 +103,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
       Coordinate pos = parking.getParkingIndexEntry().getNodes()
           .get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getNodes().size()));
       double wd = Geometry.haversineDistance(pos, destination);
-      double st = (Geometry.haversineDistance(pos, currentPosition) / 5.55) / 60.0;
+      double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
       temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> (int) (t1.third - t2.third));

@@ -24,7 +24,7 @@ public final class ParkingKnowledgeFactory {
     
     for (ParkingIndexEntry entry : entries) {
       Parking p = entry.getParking();
-      ret.update(p, p.getNumberOfFreeParkingSpots(), -1);
+      ret.update(p, p.getNumberOfParkingSpots(), p.getNumberOfFreeParkingSpots(), p.getCurrentPricePerHour(), -1);
     }
     return ret;
   }
@@ -35,7 +35,7 @@ public final class ParkingKnowledgeFactory {
     
     for (ParkingIndexEntry entry : entries) {
       Parking p = entry.getParking();
-      ret.update(p, p.getNumberOfFreeParkingSpots(), -1);
+      ret.update(p, p.getNumberOfParkingSpots(), p.getNumberOfFreeParkingSpots(), p.getCurrentPricePerHour(), -1);
     }
     return ret;
   }

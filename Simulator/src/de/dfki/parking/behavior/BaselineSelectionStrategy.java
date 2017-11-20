@@ -80,6 +80,9 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     }
     temp.sort((t1, t2) -> (int) (t2.third - t1.third));
 
+    if (temp.size() > 0 && temp.get(0).third == 0.0)
+      return new ObjectArrayList<>();
+    
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {

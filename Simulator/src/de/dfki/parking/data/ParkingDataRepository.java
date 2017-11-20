@@ -33,23 +33,23 @@ public final class ParkingDataRepository {
   
   public static ParkingDataRepository load(Path streetParkingFqfn, Path garageParkingFqfn) throws IOException {
     // Load fixed price street parking
-    System.out.print("Loading street parking...");
+    // System.out.print("Loading street parking...");
     Map<String, List<ParkingData>> streetParking = new Object2ObjectOpenHashMap<>();  
     int nStreetParking = loadStreetParking(streetParkingFqfn, streetParking);
-    System.out.println("found " + nStreetParking);
+    // System.out.println("found " + nStreetParking);
     
-    for (String key : streetParking.keySet()) {
+    /*for (String key : streetParking.keySet()) {
       System.out.println("  " + key + ": " + streetParking.get(key));
-    }
+    }*/
     // Load dynamic price street parking
-    System.out.print("Loading garage parking...");
+    // System.out.print("Loading garage parking...");
     Map<String, List<ParkingData>> garageParking = new Object2ObjectOpenHashMap<>();  
     int nGarageParking = loadGarageParking(garageParkingFqfn, garageParking);
-    System.out.println("found " + nGarageParking);
+    // System.out.println("found " + nGarageParking);
     
-    for (String key : garageParking.keySet()) {
+    /*for (String key : garageParking.keySet()) {
       System.out.println("  " + key + ": " + garageParking.get(key));
-    }
+    }*/
     return new ParkingDataRepository(streetParking, garageParking);
   }
 

@@ -51,42 +51,94 @@ public abstract class Parking {
     parkingCars = new HashSet<>(numberOfParkingSpots);
   }
   
+  /**
+   * Returns the id of the Parking instance.
+   * 
+   * @return Id of Parking instance
+   */
   public final int getId() {
     return id;
   }
   
+  /**
+   * Returns the type of the Parking instance (one of Street or Garage).
+   * 
+   * @return Type of Parking instance
+   */
   public Type getType() {
     return type;
   }
   
+  /**
+   * Returns the name of the Parking instance (e.g. street or garage name).
+   * 
+   * @return Name of the Parking instance
+   */
   public final String getName() {
     return name;
   }
   
+  /**
+   * Returns the address of the Parking instance.
+   * 
+   * @return Address of the Parking instance
+   */
   public final String getAddress() {
     return address;
   }
   
+  /**
+   * Returns the default price per hour of the Parking instance.
+   * 
+   * @return Default price per hour of the Parking instance
+   */
   public final double getDefaultPricePerHour() {
     return defaultPricePerHour;
   }
   
-  public double getCurrentPricePerHour() {
-    return getCurrentPrice();
-  }
+  /**
+   * Returns the current price per hour of the Parking instance.
+   * May be different from default price per hour.
+   * 
+   * @return Current price per hour of the Parking instance
+   */
+  public abstract double getCurrentPricePerHour();
   
+  /**
+   * Returns the total number of parking spots of the Parking instance.
+   * 
+   * @return Total number of parking spots of the Parking instance
+   */
   public final int getNumberOfParkingSpots() {
     return numberOfParkingSpots;
   }
   
+  /**
+   * Returns the number of free parking spots of the Parking instance.
+   * 
+   * @return Number of free parking spots of the Parking instance
+   */
   public final int getNumberOfFreeParkingSpots() {
     return numberOfParkingSpots - parkingCars.size();
   }
   
+  /**
+   * Indicates if the Parking instance has free parking spots.
+   * 
+   * @return True if Parking instance has free parking spots, false otherwise.
+   */
   public boolean hasFreeParkingSpot() {
     return getNumberOfFreeParkingSpots() > 0;
   }
   
+  /**
+   * Adds a Person to the set of entities currently parking at the Parking instance.
+   * Reduces the number of available parking spots by one. If there is no free 
+   * parking spot, false is returned.
+   * 
+   * @param person Person parking at the Parking instance
+   * @return True if parking was successful, false otherwise
+   */
   public final boolean park(Person person) {
     
     if (getNumberOfFreeParkingSpots() == 0)
@@ -96,14 +148,15 @@ public abstract class Parking {
     return true;
   }
   
-  public final void leave(Person person) {
-    parkingCars.remove(person);
+  /**
+   * Removes a Person from the set of entities currently parking at the Parking instance.
+   * Increases the number of available parking spots by one.
+   * 
+   * @param person Person to remove from the Parking instance
+   * @return True if person is removed from the set of currently parking entities, false
+   * if person is not parking at the Parking instance
+   */
+  public final boolean leave(Person person) {
+    return parkingCars.remove(person);
   }
-  
-  public String toString() {
-    return name;
-  }
-  
-  protected abstract double getCurrentPrice();
-  
 }

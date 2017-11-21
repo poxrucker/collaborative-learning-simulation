@@ -7,10 +7,11 @@ public final class DynamicPriceParking extends Parking {
   }
 
   @Override
-  protected double getCurrentPrice() {
+  public double getCurrentPricePerHour() {
     return defaultPricePerHour;
   }
   
+  @Override
   public String toString() {
     return "[DynamicPriceParking " + name + "]";
   }

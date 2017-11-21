@@ -21,22 +21,21 @@ public final class ParkingKnowledgeFactory {
   public ParkingKnowledge createWithGarages() {
     ParkingKnowledge ret = new ParkingKnowledge(parkingIndex);
     Collection<ParkingIndexEntry> entries = parkingIndex.getAllGarageParkingEntries();
-    
-    for (ParkingIndexEntry entry : entries) {
-      Parking p = entry.getParking();
-      ret.update(p, p.getNumberOfParkingSpots(), p.getNumberOfFreeParkingSpots(), p.getCurrentPricePerHour(), -1);
-    }
-    return ret;
+    return initialize(ret, entries);
   }
   
   public ParkingKnowledge createFull() {
     ParkingKnowledge ret = new ParkingKnowledge(parkingIndex);
     Collection<ParkingIndexEntry> entries = parkingIndex.getAllParkings();
+    return initialize(ret, entries);
+  }
+  
+  private static ParkingKnowledge initialize(ParkingKnowledge knowledge, Collection<ParkingIndexEntry> entries) {
     
     for (ParkingIndexEntry entry : entries) {
       Parking p = entry.getParking();
-      ret.update(p, p.getNumberOfParkingSpots(), p.getNumberOfFreeParkingSpots(), p.getCurrentPricePerHour(), -1);
+      knowledge.update(p, p.getNumberOfParkingSpots(), p.getNumberOfFreeParkingSpots(), p.getCurrentPricePerHour(), -1);
     }
-    return ret;
+    return knowledge;
   }
 }

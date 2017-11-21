@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior;
+package de.dfki.parking.behavior.baseline;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -6,6 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Triple;
+import de.dfki.parking.behavior.IExplorationStrategy;
+import de.dfki.parking.behavior.ParkingPreferences;
+import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledge.ParkingKnowledgeEntry;
 import de.dfki.parking.model.ParkingIndex;

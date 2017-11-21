@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior;
+package de.dfki.parking.behavior.mappingdisplay;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -7,14 +7,23 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Triple;
 import allow.simulator.world.Street;
+import de.dfki.parking.behavior.IParkingSelectionStrategy;
+import de.dfki.parking.behavior.ParkingPossibility;
+import de.dfki.parking.behavior.ParkingPreferences;
+import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledge.ParkingKnowledgeEntry;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public final class BaselineSelectionStrategy implements IParkingSelectionStrategy {
+public final class MappingDisplaySelectionStrategy implements IParkingSelectionStrategy {
 
   // Local ParkingMap instance
-  private final ParkingKnowledge knowledge;
+  private final ParkingKnowledge localParkingMap;
+
+  // Global ParkingMap instance
+  private final ParkingKnowledge globalParkingMap;
 
   // Parking preferences
   private final ParkingPreferences preferences;
@@ -25,9 +34,10 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   // Time during which information from parking maps is considered valid
   private final long validTime;
 
-  public BaselineSelectionStrategy(ParkingKnowledge knowledge, ParkingPreferences preferences,
-      ParkingUtility utility, long validTime) {
-    this.knowledge = knowledge;
+  public MappingDisplaySelectionStrategy(ParkingKnowledge localParkingMap, ParkingKnowledge globalParkingMap, 
+      ParkingPreferences preferences, ParkingUtility utility, long validTime) {
+    this.localParkingMap = localParkingMap;
+    this.globalParkingMap = globalParkingMap;
     this.preferences = preferences;
     this.utility = utility;
     this.validTime = validTime;
@@ -48,14 +58,16 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    List<ParkingKnowledgeEntry> initial = knowledge.findParkingInStreet(current);
+    List<ParkingKnowledgeEntry> local = localParkingMap.findParkingInStreet(current);
+    List<ParkingKnowledgeEntry> global = globalParkingMap.findParkingInStreet(current);
+    List<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
 
     // Filter those which are valid and which have free parking spots
-    List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(initial.size());
+    List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(local.size());
 
-    for (ParkingKnowledgeEntry entry : initial) {
+    for (ParkingKnowledgeEntry entry : merged) {
       // Filter by time
-      if ((currentTime - entry.getLastUpdate()) / 1000.0 > validTime)
+      if ((entry.getLastUpdate() < 0) || (currentTime - entry.getLastUpdate()) / 1000.0 > validTime)
         continue;
 
       // Filter by free parking spots
@@ -65,6 +77,26 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
       possible.add(entry);
     }
     return possible;
+  }
+
+  private List<ParkingKnowledgeEntry> mergeByTime(List<ParkingKnowledgeEntry> local, List<ParkingKnowledgeEntry> global) {
+    // Create a map to merge entries
+    List<ParkingKnowledgeEntry> merged = new ObjectArrayList<>(local.size() + global.size());
+    merged.addAll(local);
+    merged.addAll(global);
+    merged.sort((e1, e2) -> Long.compare(e2.getLastUpdate(), e1.getLastUpdate()));
+
+    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+    IntSet addedParking = new IntOpenHashSet();
+    
+    for (ParkingKnowledgeEntry entry : merged) {
+
+      if (addedParking.contains(entry.getParkingIndexEntry().getParking().getId()))
+        continue;
+      ret.add(entry);
+      addedParking.add(entry.getParkingIndexEntry().getParking().getId());
+    }
+    return ret;
   }
 
   private List<ParkingPossibility> rank(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
@@ -77,11 +109,8 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
       double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
       temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
-    temp.sort((t1, t2) -> (int) (t2.third - t1.third));
+    temp.sort((t1, t2) -> (int) (t1.third - t2.third));
 
-    if (temp.size() > 0 && temp.get(0).third == 0.0)
-      return new ObjectArrayList<>();
-    
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {

@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
@@ -21,15 +19,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ListModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import de.dfki.data.BrowsableDatasetView;
 
 public class GraphAnalysis extends JFrame {
 
@@ -45,8 +38,6 @@ public class GraphAnalysis extends JFrame {
   private Container mapOptionsPanel;
   private Container graphOptionsPanel;
   private Container pathOptionsPanel;
-  private Container datasetOptionsPanel;
-  private JSlider currentTime;
   
   public GraphAnalysis() {
     super();
@@ -130,16 +121,6 @@ public class GraphAnalysis extends JFrame {
       }
     });
     
-    final JCheckBox dataSet = new JCheckBox("Dataset");
-    dataSet.setSelected(false);
-    dataSet.addItemListener(new ItemListener() {
-      
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        showGraph.toggleShowDataset(); 
-      }
-    });
-    
     final JCheckBox paths = new JCheckBox("Paths");
     paths.setSelected(false);
     paths.addItemListener(new ItemListener() {
@@ -151,7 +132,6 @@ public class GraphAnalysis extends JFrame {
     });
     model.addElement(map);
     model.addElement(graph);
-    model.addElement(dataSet);
     model.addElement(paths);
     return model;
   }
@@ -185,17 +165,6 @@ public class GraphAnalysis extends JFrame {
           currentOptionsPanel.revalidate();
           break;
         case 2:
-          currentOptionsPanel.removeAll();
-          currentOptionsPanel.add(datasetOptionsPanel);
-          BrowsableDatasetView dataset = showGraph.getDataset();
-          currentTime.setMinimum((int) dataset.getMinimumTime());
-          currentTime.setMaximum((int) dataset.getMaximumTime());
-          currentTime.setValue((int) dataset.getCurrentTime());
-          currentTime.setMajorTickSpacing(3600);
-          currentTime.setPaintTicks(true);
-          currentOptionsPanel.revalidate();
-          break;
-        case 3:
           currentOptionsPanel.removeAll();
           currentOptionsPanel.add(pathOptionsPanel);
           currentOptionsPanel.revalidate();
@@ -259,7 +228,6 @@ public class GraphAnalysis extends JFrame {
     mapOptionsPanel = createMapOptionsPanel();
     graphOptionsPanel = createGraphOptionsPanel();
     pathOptionsPanel = createPathOptionsPanel();
-    datasetOptionsPanel = createDatasetOptionsPanel();
     currentOptionsPanel.setSize(new Dimension(100, 100));
 
     // Create layout and add controls
@@ -282,22 +250,7 @@ public class GraphAnalysis extends JFrame {
     Container ret = new JPanel();
     return ret;
   }
-  
-  private Container createDatasetOptionsPanel() {
-    Container ret = new JPanel();
-    currentTime = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
-    currentTime.addChangeListener(new ChangeListener() {
-      
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        JSlider temp = (JSlider)e.getSource();      
-        showGraph.getDataset().setCurrentTime(temp.getValue());
-      }
-    });
-    ret.add(currentTime);
-    return ret;
-  }
-  
+ 
   private Container createGraphOptionsPanel() {
     Container ret = new JPanel();
     

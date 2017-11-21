@@ -21,6 +21,8 @@ public final class StreetParkingFileParser implements IParkingDataFileParser {
         // Parse line
         ParkingData parking = parseLine(line);
         
+        if (parking.getNumberOfParkingSpots() > 0)
+          System.out.println(parking.getName() + ": " + parking.getNumberOfParkingSpots());
         // Add to list
         ret.add(parking);
         }

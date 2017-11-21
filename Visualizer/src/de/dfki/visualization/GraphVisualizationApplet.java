@@ -10,15 +10,10 @@ import javax.swing.JOptionPane;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-import de.dfki.data.AggregatedDatasetView;
-import de.dfki.data.BrowsableDatasetView;
-import de.dfki.data.Dataset;
 import de.dfki.data.Graph;
 import de.dfki.data.Graph.Edge;
 import de.dfki.data.Graph.Vertex;
 import de.dfki.data.GraphView;
-import de.dfki.renderer.AggregatedDatasetRenderer;
-import de.dfki.renderer.BrowsableDatasetrenderer;
 import de.dfki.renderer.DirectedEdgeRenderer;
 import de.dfki.renderer.GraphRenderer;
 import de.dfki.renderer.SimpleVertexRenderer;
@@ -37,12 +32,8 @@ public final class GraphVisualizationApplet extends PApplet {
 
   private static final long serialVersionUID = -1934157616453575554L;
   
-  // Wrapper a graph to display
+  // Wrapper for graph to display
   private GraphView graphView;
-  
-  // Dataset to visualize
-  private AggregatedDatasetView aggregatedDatasetView;
-  private BrowsableDatasetView browsableDatasetView;
   
   // Map tiles to show
   private UnfoldingMap map;
@@ -50,7 +41,6 @@ public final class GraphVisualizationApplet extends PApplet {
   // Display state
   private boolean showEdges;
   private boolean showTiles;
-  private boolean showDataset;
   private int previousWidth;
   private int previousHeight;
 
@@ -71,8 +61,6 @@ public final class GraphVisualizationApplet extends PApplet {
   private DirectedEdgeRenderer cursorEdgeRenderer;
   private DirectedEdgeRenderer cursorEdgeRendererWithoutLabels;
   private DirectedEdgeRenderer selectedEdgesRenderer;
-  private AggregatedDatasetRenderer aggregatedDatasetRenderer;
-  private BrowsableDatasetrenderer browsableDatasetRenderer;
 
   public void setup() {
     // Setup window
@@ -81,30 +69,19 @@ public final class GraphVisualizationApplet extends PApplet {
     // Setup display options
     showTiles = true;
     showEdges = false;
-    showDataset = false;
     edgeSelectionMode = false;
     vertexSelectionMode = false;
 
     // Load graph
     try {
-      Graph graph = Graph.load(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/data/world/trento_merged.world"));
+      Graph graph = Graph.load(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/data/world/trento_merged.world"));
       graphView = new GraphView(graph);
       
     } catch (IOException e) {
       e.printStackTrace();
       return;
     }
-    
-    // Load dataset
-    try {
-      Dataset dataset = Dataset.loadDataset(Paths.get("/Users/Andi/Documents/DFKI/VW simulation/evaluation/via_berlino/15/run_2017_03_15_1/0/aggregated.txt"));
-      aggregatedDatasetView = new AggregatedDatasetView(graphView.getGraph(), dataset);
-      browsableDatasetView = new BrowsableDatasetView(graphView.getGraph(), dataset);
-    } catch (IOException e) {
-      e.printStackTrace();
-      return;
-    }
-    
+   
     // Initialize map
     map = new UnfoldingMap(this, "tiles", new OpenStreetMap.OpenStreetMapProvider());
     map.mapDisplay.resize(width, height);
@@ -126,8 +103,6 @@ public final class GraphVisualizationApplet extends PApplet {
     cursorEdgeRenderer = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, true, false);
     cursorEdgeRendererWithoutLabels = new DirectedEdgeRenderer(conv, color(255, 0, 0), 2, 3.0f, false, true);
     selectedEdgesRenderer = new DirectedEdgeRenderer(conv, color(0, 0, 255), 2, 0, false, false);
-    aggregatedDatasetRenderer = new AggregatedDatasetRenderer(conv);
-    browsableDatasetRenderer = new BrowsableDatasetrenderer(conv);
     //vertexSelection = new VertexSelection(graphDisplay);
   }
 
@@ -139,7 +114,6 @@ public final class GraphVisualizationApplet extends PApplet {
     
     Envelope visibleArea = getVisibleArea();
     graphView.setVisibleArea(visibleArea);
-    aggregatedDatasetView.setVisibleArea(visibleArea);
   }
 
   @Override
@@ -253,11 +227,7 @@ public final class GraphVisualizationApplet extends PApplet {
   public void toggleShowGraph() {
     showEdges = !showEdges;
   }
-  
-  public void toggleShowDataset() {
-    showDataset = !showDataset;
-  }
-  
+ 
   public void setVertexColor(int color) {
     graphRenderer.setVertexColor(color);
   }
@@ -280,11 +250,7 @@ public final class GraphVisualizationApplet extends PApplet {
     }
 
   }
-  
-  public BrowsableDatasetView getDataset() {
-    return browsableDatasetView;
-  }
-  
+
   private void updateEdgeSelectorState() {
     // Create mouse envelope
     Location l = map.getLocation(mouseX, mouseY);
@@ -377,11 +343,6 @@ public final class GraphVisualizationApplet extends PApplet {
 
     if (showEdges) {
       graphRenderer.draw(graphView, g);
-    }
-    
-    if (showDataset) {
-      browsableDatasetRenderer.draw(browsableDatasetView, g);
-      //aggregatedDatasetRenderer.draw(aggregatedDatasetView, g);
     }
     
     if (showEdges) {

@@ -1,7 +1,6 @@
 package de.dfki.parking.behavior.mappingdisplay;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -18,7 +17,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class MappingDisplaySelectionStrategy implements IParkingSelectionStrategy {
-
   // Local ParkingMap instance
   private final ParkingKnowledge localParkingMap;
 

@@ -1,7 +1,6 @@
 package de.dfki.parking.behavior.baseline;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;

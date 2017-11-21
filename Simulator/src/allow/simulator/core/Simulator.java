@@ -48,9 +48,9 @@ import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
+import de.dfki.parking.behavior.BaselineExplorationStrategy;
 import de.dfki.parking.behavior.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.GuidanceSystemSelectionStrategy;
-import de.dfki.parking.behavior.BaselineExplorationStrategy;
 import de.dfki.parking.behavior.MappingDisplayExplorationStrategy;
 import de.dfki.parking.behavior.MappingDisplaySelectionStrategy;
 import de.dfki.parking.behavior.ParkingPreferences;
@@ -59,7 +59,7 @@ import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
-import de.dfki.parking.model.ParkingGuidanceSystem;
+import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingRepository;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -128,11 +128,12 @@ public final class Simulator {
     // Initialize journey planner instance
     JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 
-    // Initialize ParkingDataRepository
+    // Load ParkingDataRepository
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
     
     // Initialize ParkingRepository
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, params.DataScalingFactor);
+    ParkingFactory parkingFactory = new ParkingFactory(params.DataScalingFactor, 0.0);
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, parkingFactory);
     
     // Initialize ParkingIndex
     ParkingIndex parkingIndex = ParkingIndex.build(world, parkingRepository);
@@ -352,9 +353,6 @@ public final class Simulator {
 
     // Create a ParkingMap instance which is shared by Users
     ParkingKnowledge globalKnowledge = new ParkingKnowledge(parkingMap);
-
-    // Create a GuidanceSystem instance assigning parking spots to Users
-    ParkingGuidanceSystem guidanceSystem = new ParkingGuidanceSystem(parkingMap, globalKnowledge);
     
     for (Entity entity : persons) {
       // Get person
@@ -376,7 +374,7 @@ public final class Simulator {
         // Person is a user; set property and assign shared parking map
         person.setUser();
         person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new GuidanceSystemSelectionStrategy(guidanceSystem));
+        person.setParkingSelectionStrategy(new GuidanceSystemSelectionStrategy());
         
         // Determine is person has a sensor car
         if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)

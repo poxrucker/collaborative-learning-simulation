@@ -5,16 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class GarageParkingFileParser implements IParkingDataFileParser {
 
   @Override
-  public Map<String, List<ParkingData>> parseFile(Path fqfn) throws IOException {
-    Map<String, List<ParkingData>> ret = new Object2ObjectOpenHashMap<>();
+  public List<ParkingData> parseFile(Path fqfn) throws IOException {
+    List<ParkingData> ret = new ObjectArrayList<>();
 
     try (BufferedReader reader = Files.newBufferedReader(fqfn)) {
       String line = null;
@@ -24,13 +22,7 @@ public final class GarageParkingFileParser implements IParkingDataFileParser {
         ParkingData parking = parseGarageParking(line);
         
         // Add to list
-        List<ParkingData> temp = ret.get(parking.getAddress());
-
-        if (temp == null) {
-          temp = new ObjectArrayList<>();
-          ret.put(parking.getAddress(), temp);
-        }
-        temp.add(parking);
+        ret.add(parking);
       }
     }
     return ret;

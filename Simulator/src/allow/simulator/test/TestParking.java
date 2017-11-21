@@ -12,6 +12,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import allow.simulator.world.StreetMap;
 import de.dfki.parking.data.ParkingDataRepository;
+import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
 import de.dfki.parking.model.ParkingRepository;
@@ -26,7 +27,7 @@ public final class TestParking {
     
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(streetParkingPath, garageParkingPath);
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, 1.0);
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, new ParkingFactory(1.0, 0.0));
     ParkingIndex index = ParkingIndex.build(streetMap, parkingRepository);
     
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("bounds.txt"))) {

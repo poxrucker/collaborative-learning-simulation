@@ -5,13 +5,11 @@ import java.util.Map;
 
 import de.dfki.parking.data.ParkingData;
 import de.dfki.parking.data.ParkingDataRepository;
-import de.dfki.parking.model.Parking.Type;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ParkingRepository {
 
-  private int ids;
   private final Map<String, List<Parking>> streetParkings;
   private final Map<String, List<Parking>> garageParkings;
   
@@ -20,30 +18,12 @@ public final class ParkingRepository {
     this.garageParkings = new Object2ObjectOpenHashMap<>();
   }
   
-  public Parking addStreetParking(String street, double pricePerHour, int nParkingSpots) {
-    Parking newParking = new FixedPriceParking(ids++, Type.STREET, street, street, pricePerHour, nParkingSpots);
-    
-    List<Parking> streetParking = streetParkings.get(street);
-    
-    if (streetParking == null) {
-      streetParking = new ObjectArrayList<>();
-      streetParkings.put(street, streetParking);
-    }
-    streetParking.add(newParking);
-    return newParking;
+  public void addStreetParking(Parking parking) {    
+    addParking(parking, streetParkings);
   }
   
-  public Parking addGarageParking(String street, double pricePerHour, int nParkingSpots) {
-    Parking newParking = new DynamicPriceParking(ids++, Type.GARAGE, street, street, pricePerHour, nParkingSpots);
-    
-    List<Parking> garageParking = garageParkings.get(street);
-    
-    if (garageParking == null) {
-      garageParking = new ObjectArrayList<>();
-      garageParkings.put(street, garageParking);
-    }
-    garageParking.add(newParking);
-    return newParking;
+  public void addGarageParking(Parking parking) {    
+    addParking(parking, garageParkings);
   }
   
   public List<Parking> getParking(String street) {
@@ -61,32 +41,55 @@ public final class ParkingRepository {
     return ret;
   }
   
-  public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, double scalingFactor) {
+  private static void addParking(Parking parking, Map<String, List<Parking>> parkings) {
+    List<Parking> temp = parkings.get(parking.getAddress());
+    
+    if (temp == null) {
+      temp = new ObjectArrayList<>();
+      parkings.put(parking.getAddress(), temp);
+    }
+    temp.add(parking);
+  }
+  
+  public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, ParkingFactory parkingFactory) {
     ParkingRepository ret = new ParkingRepository();
     
     // Create street parking
-    Map<String, List<ParkingData>> streetParkingData = parkingDataRepository.getStreetParkingData();
+    Map<String, List<ParkingData>> streetParkingData = groupByAddress(parkingDataRepository.getStreetParkingData());
     
     for (Map.Entry<String, List<ParkingData>> entry : streetParkingData.entrySet()) {
       
       for (ParkingData data : entry.getValue()) {
-        ret.addStreetParking(entry.getKey(), data.getPricePerHour(), scale(data.getNumberOfParkingSpots(), scalingFactor));
+        Parking parking = parkingFactory.createStreetParking(entry.getKey(), data.getPricePerHour(), data.getNumberOfParkingSpots());
+        ret.addStreetParking(parking);
       }
     }
     
     // Create garage parking
-    Map<String, List<ParkingData>> garageParkingData = parkingDataRepository.getGarageParkingData();
+    Map<String, List<ParkingData>> garageParkingData = groupByAddress(parkingDataRepository.getGarageParkingData());
     
     for (Map.Entry<String, List<ParkingData>> entry : garageParkingData.entrySet()) {
       
       for (ParkingData data : entry.getValue()) {
-        ret.addGarageParking(entry.getKey(), data.getPricePerHour(), scale(data.getNumberOfParkingSpots(), scalingFactor));
+        Parking parking = parkingFactory.createGarageParking(entry.getKey(), data.getPricePerHour(), data.getNumberOfParkingSpots());
+        ret.addGarageParking(parking);
       }
     }
     return ret;
   }
  
-  private static int scale(int input, double scalingFactor) {
-    return (input != 0) ? (int) Math.ceil(input * scalingFactor) : 0;    
+  private static Map<String, List<ParkingData>> groupByAddress(List<ParkingData> parkingData) {
+    Map<String, List<ParkingData>> ret = new Object2ObjectOpenHashMap<>();
+    
+    for (ParkingData data : parkingData) {
+      List<ParkingData> temp = ret.get(data.getAddress());
+      
+      if (temp == null) {
+        temp = new ObjectArrayList<>();
+        ret.put(data.getAddress(), temp);
+      }
+      temp.add(data);
+    }
+    return ret;
   }
 }

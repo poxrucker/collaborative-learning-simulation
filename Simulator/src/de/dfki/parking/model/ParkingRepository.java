@@ -3,6 +3,9 @@ package de.dfki.parking.model;
 import java.util.List;
 import java.util.Map;
 
+import allow.simulator.world.Street;
+import allow.simulator.world.StreetMap;
+import allow.simulator.world.StreetNode;
 import de.dfki.parking.data.ParkingData;
 import de.dfki.parking.data.ParkingDataRepository;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -51,44 +54,38 @@ public final class ParkingRepository {
     temp.add(parking);
   }
   
-  public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, ParkingFactory parkingFactory) {
+  public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, StreetMap streetMap, ParkingFactory parkingFactory) {
     ParkingRepository ret = new ParkingRepository();
     
     // Create street parking
-    Map<String, List<ParkingData>> streetParkingData = groupByAddress(parkingDataRepository.getStreetParkingData());
+    List<ParkingData> streetParkingData = parkingDataRepository.getStreetParkingData();
     
-    for (Map.Entry<String, List<ParkingData>> entry : streetParkingData.entrySet()) {
+    for (ParkingData data : streetParkingData) {
+      List<Street> streets = streetMap.getStreetByName(data.getAddress());
       
-      for (ParkingData data : entry.getValue()) {
-        Parking parking = parkingFactory.createStreetParking(entry.getKey(), data.getPricePerHour(), data.getNumberOfParkingSpots());
-        ret.addStreetParking(parking);
-      }
+      if (streets == null)
+        streets = new ObjectArrayList<>(0);
+      
+      Parking parking = parkingFactory.createStreetParking(data.getAddress(), data.getPricePerHour(), data.getNumberOfParkingSpots(), streets);
+      ret.addStreetParking(parking);
     }
     
     // Create garage parking
-    Map<String, List<ParkingData>> garageParkingData = groupByAddress(parkingDataRepository.getGarageParkingData());
+    List<ParkingData> garageParkingData = parkingDataRepository.getGarageParkingData();
     
-    for (Map.Entry<String, List<ParkingData>> entry : garageParkingData.entrySet()) {
+    for (ParkingData data : garageParkingData) {
+      List<StreetNode> accessNodes = new ObjectArrayList<>(data.getOSMNodes().size());
       
-      for (ParkingData data : entry.getValue()) {
-        Parking parking = parkingFactory.createGarageParking(entry.getKey(), data.getPricePerHour(), data.getNumberOfParkingSpots());
-        ret.addGarageParking(parking);
-      }
-    }
-    return ret;
-  }
- 
-  private static Map<String, List<ParkingData>> groupByAddress(List<ParkingData> parkingData) {
-    Map<String, List<ParkingData>> ret = new Object2ObjectOpenHashMap<>();
-    
-    for (ParkingData data : parkingData) {
-      List<ParkingData> temp = ret.get(data.getAddress());
-      
-      if (temp == null) {
-        temp = new ObjectArrayList<>();
-        ret.put(data.getAddress(), temp);
-      }
-      temp.add(data);
+      for (String accessNode : data.getOSMNodes()) {
+        StreetNode node = streetMap.getStreetNodeReduced(accessNode);
+        
+        if (node == null) {
+          continue;
+        }
+        accessNodes.add(node);
+      }    
+      Parking parking = parkingFactory.createGarageParking(data.getAddress(), data.getPricePerHour(), data.getNumberOfParkingSpots(), accessNodes);
+      ret.addGarageParking(parking);
     }
     return ret;
   }

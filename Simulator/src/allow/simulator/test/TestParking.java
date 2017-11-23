@@ -12,9 +12,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import allow.simulator.world.StreetMap;
 import de.dfki.parking.data.ParkingDataRepository;
+import de.dfki.parking.index.ParkingIndex;
+import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.model.ParkingFactory;
-import de.dfki.parking.model.ParkingIndex;
-import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
 import de.dfki.parking.model.ParkingRepository;
 
 public final class TestParking {
@@ -22,12 +22,12 @@ public final class TestParking {
   public static void main(String[] args) throws IOException {
     Path streetMapPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/data/world/trento_merged.world");
     Path streetParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/street_parking.csv");
-    Path garageParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/garage_parking.csv");
+    Path garageParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/garage_parking_with_nodes.csv");
     Path output = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/spatial");
     
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(streetParkingPath, garageParkingPath);
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, new ParkingFactory(1.0, 0.0));
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, streetMap, new ParkingFactory(1.0, 0.0));
     ParkingIndex index = ParkingIndex.build(streetMap, parkingRepository);
     
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("bounds.txt"))) {

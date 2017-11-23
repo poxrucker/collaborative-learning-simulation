@@ -1,5 +1,7 @@
 package de.dfki.parking.data;
 
+import java.util.List;
+
 public final class ParkingData {
   // Name of the parking (e.g. street name, garage...)
   private final String name;
@@ -13,11 +15,15 @@ public final class ParkingData {
   // Number of available parking spots
   private final int nParkingSpots;
   
-  public ParkingData(String name, String address, double pricePerHour, int nParkingSpots) {
+  // List of associated OSM nodes
+  private final List<String> osmNodes;
+  
+  public ParkingData(String name, String address, double pricePerHour, int nParkingSpots, List<String> osmNodes) {
     this.name = name;
     this.address = address;
     this.pricePerHour = pricePerHour;
     this.nParkingSpots = nParkingSpots;
+    this.osmNodes = osmNodes;
   }
   
   /**
@@ -54,5 +60,14 @@ public final class ParkingData {
    */
   public int getNumberOfParkingSpots() {
     return nParkingSpots;
+  }
+  
+  /**
+   * Returns the OSM node associated with the parking possibility.
+   * 
+   * @return OSM nodes associated with the parking possibility
+   */
+  public List<String> getOSMNodes() {
+    return osmNodes;
   }
 }

@@ -5,9 +5,9 @@ import java.util.List;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
+import de.dfki.parking.index.ParkingIndex;
+import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.model.Parking;
-import de.dfki.parking.model.ParkingIndex;
-import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

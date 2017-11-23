@@ -57,10 +57,10 @@ import de.dfki.parking.behavior.guidance.GuidanceSystemSelectionStrategy;
 import de.dfki.parking.behavior.mappingdisplay.MappingDisplayExplorationStrategy;
 import de.dfki.parking.behavior.mappingdisplay.MappingDisplaySelectionStrategy;
 import de.dfki.parking.data.ParkingDataRepository;
+import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingFactory;
-import de.dfki.parking.model.ParkingIndex;
 import de.dfki.parking.model.ParkingRepository;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -133,7 +133,7 @@ public final class Simulator {
     
     // Initialize ParkingRepository
     ParkingFactory parkingFactory = new ParkingFactory(params.DataScalingFactor, 0.0);
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, parkingFactory);
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, world, parkingFactory);
     
     // Initialize ParkingIndex
     ParkingIndex parkingIndex = ParkingIndex.build(world, parkingRepository);

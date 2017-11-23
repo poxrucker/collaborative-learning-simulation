@@ -36,6 +36,7 @@ public final class StreetParkingFileParser implements IParkingDataFileParser {
     name = name.substring(0, 1).toUpperCase() + name.substring(1);
     int numberOfParkingSpots = !tokens[1].equals("") ? Integer.parseInt(tokens[1]) : 0;
     double pricePerHour = !tokens[2].equals("") ? Double.parseDouble(tokens[2].replaceAll(",", ".")) : 0;
-    return new ParkingData(name, name, pricePerHour, numberOfParkingSpots);
+    List<String> osmNodes = new ObjectArrayList<>();
+    return new ParkingData(name, name, pricePerHour, numberOfParkingSpots, osmNodes);
   }
 }

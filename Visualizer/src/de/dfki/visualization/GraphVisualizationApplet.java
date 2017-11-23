@@ -90,7 +90,7 @@ public final class GraphVisualizationApplet extends PApplet {
     Location trento = new Location(baseEnv.centre().x, baseEnv.centre().y);
     map.zoomAndPanTo(13, trento);
     map.setZoomRange(13, 19);
-    map.setPanningRestriction(trento, 4);
+    map.setPanningRestriction(trento, 5);
     frameRate(45);
 
     MapUtils.createDefaultEventDispatcher(this, map);
@@ -150,6 +150,17 @@ public final class GraphVisualizationApplet extends PApplet {
     } else if (key == 't') {
       showTiles = !showTiles;
 
+    } else if (key == 'p') {
+      
+      if (selectedEdges != null && selectedEdges.size() > 0) {
+        StringBuilder bldr = new StringBuilder();
+        
+        for (Edge e : selectedEdges) {
+          bldr.append(e.start.label + ",");
+        }
+        bldr.append(selectedEdges.get(selectedEdges.size() - 1).end.label);
+        System.out.println(bldr.toString());
+      }
     }
   }
 

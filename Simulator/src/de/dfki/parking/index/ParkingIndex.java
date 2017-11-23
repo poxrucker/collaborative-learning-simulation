@@ -1,20 +1,19 @@
-package de.dfki.parking.model;
+package de.dfki.parking.index;
 
 import java.util.Collection;
 import java.util.List;
 
-import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
+import de.dfki.parking.model.Parking;
 import de.dfki.parking.model.Parking.Type;
+import de.dfki.parking.model.ParkingRepository;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -23,90 +22,13 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public final class ParkingIndex {
-
-  public static final class ParkingIndexEntry {
-    // Referenced Parking instance
-    private final Parking parking;
-
-    // List of positions through which Parking is accessible
-    private final List<Coordinate> accessPositions;
-
-    // Reference position of Parking instance
-    private final Coordinate referencePosition;
-
-    public ParkingIndexEntry(Parking parking, List<Coordinate> accessPositions, Coordinate referencePosition) {
-      this.parking = parking;
-      this.accessPositions = accessPositions;
-      this.referencePosition = referencePosition;
-    }
-
-    /**
-     * Returns the Parking instance the index entry points to.
-     * 
-     * @return Parking instance the index entry points to
-     */
-    public Parking getParking() {
-      return parking;
-    }
-
-    /**
-     * Returns all access positions associated with the Parking instance.
-     * 
-     * @return Access positions associated with the Parking instance
-     */
-    public List<Coordinate> getAllAccessPositions() {
-      return accessPositions;
-    }
-
-    /**
-     * Returns the reference position associated with the Parking instance.
-     * 
-     * @return Reference position associated with the Parking instance
-     */
-    public Coordinate getReferencePosition() {
-      return referencePosition;
-    }
-  }
-
-  public static final class DistanceFilter implements ItemVisitor {
-    // List of ParkingMapEntry instances filtered by distance
-    private final List<ParkingIndexEntry> results;
-
-    // Reference position
-    private final Coordinate referencePosition;
-
-    // Maximum allowed distance from reference position
-    private final double maxDistance;
-
-    public DistanceFilter(List<ParkingIndexEntry> results, Coordinate referencePosition, double maxDistance) {
-      this.results = results;
-      this.referencePosition = referencePosition;
-      this.maxDistance = maxDistance;
-    }
-
-    @Override
-    public void visitItem(Object item) {
-      ParkingIndexEntry entry = (ParkingIndexEntry) item;
-
-      // Filter by maxDistance
-      if (allow.simulator.util.Geometry.haversineDistance(referencePosition, entry.referencePosition) > maxDistance)
-        return;
-
-      results.add(entry);
-    }
-  }
-
-  // Used for construction of JTS data structures
-  private static final GeometryFactory geometryFactory = new GeometryFactory();
-
   // Parking ids to ParkingIndexEntry
   private final Int2ObjectMap<ParkingIndexEntry> parkingToParkingIndexEntry;
 
   // Street ids to ParkingIndexEntries
   private final Int2ObjectMap<List<ParkingIndexEntry>> streetToParkingIndexEntries;
-
-  // Spatial index mapping positions to ParkingMapEntry instances for bounding
-  // box lookups
+  
+  // Spatial index mapping positions to ParkingMapEntry instances for bounding box lookups
   private final STRtree spatialIndex;
 
   // Polygon containing all data points
@@ -137,7 +59,7 @@ public final class ParkingIndex {
 
   public List<ParkingIndexEntry> getParkingsWithMaxDistance(Coordinate position, double maxDistance) {
     // Create a query envelope centered around position
-    Envelope queryEnv = ParkingIndexUtil.createQueryEnvelope(position, maxDistance, geometryFactory);
+    Envelope queryEnv = JTSUtil.createQueryEnvelope(position, maxDistance);
 
     // Query spatial index and filter results by distance
     List<ParkingIndexEntry> results = new ObjectArrayList<>();
@@ -158,7 +80,7 @@ public final class ParkingIndex {
   }
 
   public boolean containedInSpatialIndex(Coordinate pos) {
-    return spatialIndexHull.contains(geometryFactory.createPoint(ParkingIndexUtil.convert(pos)));
+    return spatialIndexHull.contains(JTSUtil.createPoint(pos));
   }
 
   public Geometry getIndexHull() {
@@ -200,7 +122,7 @@ public final class ParkingIndex {
 
       if (entry.getParking().getType() != type)
         continue;
-      numberOfSpots += entry.parking.getNumberOfParkingSpots();
+      numberOfSpots += entry.getParking().getNumberOfParkingSpots();
     }
     return numberOfSpots;
   }
@@ -212,7 +134,7 @@ public final class ParkingIndex {
 
       if (entry.getParking().getType() != type)
         continue;
-      numberOfFreeSpots += entry.parking.getNumberOfFreeParkingSpots();
+      numberOfFreeSpots += entry.getParking().getNumberOfFreeParkingSpots();
     }
     return numberOfFreeSpots;
   }
@@ -221,25 +143,23 @@ public final class ParkingIndex {
     STRtree ret = new STRtree();
 
     for (ParkingIndexEntry parking : entries) {
-      ret.insert(geometryFactory.createPoint(ParkingIndexUtil.convert(parking.getReferencePosition())).getEnvelopeInternal(), parking);
+      ret.insert(JTSUtil.createPoint(parking.getReferencePosition()).getEnvelopeInternal(), parking);
     }
     ret.build();
     return ret;
   }
 
   private static Geometry convexHull(Collection<ParkingIndexEntry> entries) {
-    ObjectArrayList<com.vividsolutions.jts.geom.Coordinate> entryPositions = new ObjectArrayList<>();
+    ObjectArrayList<Coordinate> entryPositions = new ObjectArrayList<>();
 
     for (ParkingIndexEntry entry : entries) {
 
       if (entry.getParking().getNumberOfParkingSpots() == 0)
         continue;
 
-      entryPositions.add(ParkingIndexUtil.convert(entry.getReferencePosition()));
+      entryPositions.add(entry.getReferencePosition());
     }
-    com.vividsolutions.jts.geom.Coordinate[] temp = entryPositions.toArray(new com.vividsolutions.jts.geom.Coordinate[entryPositions.size()]);
-    ConvexHull hull = new ConvexHull(temp, geometryFactory);   
-    return hull.getConvexHull();
+    return JTSUtil.getConvexHull(entryPositions);
   }
   
   public static ParkingIndex build(StreetMap map, ParkingRepository parkingRepository) {
@@ -251,12 +171,6 @@ public final class ParkingIndex {
     for (Street street : map.getStreets()) {
       // Get all parking possibilities in street from repository
       List<Parking> parkings = parkingRepository.getParking(street.getName());
-
-      if (parkings.size() == 0 && ParkingIndexUtil.isRelevantStreet(street)) {
-        // If none exists, create Parking with zero parking spots
-        // parkings.add(parkingRepository.addStreetParking(street.getName(), 0,
-        // 0));
-      }
 
       for (Parking parking : parkings) {
         // Record parking id

@@ -1,6 +1,9 @@
 package de.dfki.parking.model;
 
-import de.dfki.parking.model.Parking.Type;
+import java.util.List;
+
+import allow.simulator.world.Street;
+import allow.simulator.world.StreetNode;
 
 public final class ParkingFactory {
   // Id counter providing locally unique ids to newly created Parking instances
@@ -17,16 +20,16 @@ public final class ParkingFactory {
     this.pricePerHourOffset = pricePerHourOffset;
   }
   
-  public Parking createStreetParking(String street, double pricePerHour, int nParkingSpots) {
+  public Parking createStreetParking(String street, double pricePerHour, int nParkingSpots, List<Street> streets) {
     double adjustedPricePerHour = adjust(pricePerHour, pricePerHourOffset);
     int scaledNParkingSpots = (int) Math.ceil(scale(nParkingSpots, parkingSpotScalingFactor));
-    return new FixedPriceParking(ids++, Type.STREET, street, street, adjustedPricePerHour, scaledNParkingSpots);
+    return new StreetParking(ids++, street, street, adjustedPricePerHour, scaledNParkingSpots, streets);
   }
   
-  public Parking createGarageParking(String street, double pricePerHour, int nParkingSpots) {
+  public Parking createGarageParking(String street, double pricePerHour, int nParkingSpots, List<StreetNode> accessNodes) {
     double adjustedPricePerHour = adjust(pricePerHour, pricePerHourOffset);
     int scaledNParkingSpots = (int) Math.ceil(scale(nParkingSpots, parkingSpotScalingFactor));
-    return new DynamicPriceParking(ids++, Type.GARAGE, street, street, adjustedPricePerHour, scaledNParkingSpots);
+    return new GarageParking(ids++, street, street, adjustedPricePerHour, scaledNParkingSpots, accessNodes);
   }
   
   private static double scale(double input, double factor) {

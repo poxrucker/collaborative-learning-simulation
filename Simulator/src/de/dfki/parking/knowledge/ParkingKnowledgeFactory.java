@@ -2,9 +2,9 @@ package de.dfki.parking.knowledge;
 
 import java.util.Collection;
 
+import de.dfki.parking.index.ParkingIndex;
+import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.model.Parking;
-import de.dfki.parking.model.ParkingIndex;
-import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
 
 public final class ParkingKnowledgeFactory {
 

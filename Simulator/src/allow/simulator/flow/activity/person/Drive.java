@@ -13,8 +13,8 @@ import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
-import de.dfki.parking.model.ParkingIndex;
-import de.dfki.parking.model.ParkingIndex.ParkingIndexEntry;
+import de.dfki.parking.index.ParkingIndex;
+import de.dfki.parking.index.ParkingIndexEntry;
 
 /**
  * Class representing driving Activity.

@@ -11,7 +11,7 @@ import allow.simulator.statistics.Statistics;
 import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 import allow.simulator.world.World;
-import de.dfki.parking.model.ParkingIndex;
+import de.dfki.parking.index.ParkingIndex;
 
 /**
  * Represents context (i.e. world, time, a.s.o. shared by all entities) of 

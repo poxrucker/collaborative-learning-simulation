@@ -1,5 +1,6 @@
 package de.dfki.parking.behavior.baseline;
 
+import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
@@ -51,7 +52,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    List<ParkingKnowledgeEntry> initial = knowledge.findParkingInStreet(current);
+    Collection<ParkingKnowledgeEntry> initial = knowledge.findParkingInStreet(current);
 
     // Filter those which are valid and which have free parking spots
     List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(initial.size());

@@ -4,7 +4,7 @@ import allow.simulator.util.Coordinate;
 
 public final class StreetNode {
 	// Id of the node
-	private final long id;
+	private final int id;
 	
 	// Label of this node
 	private final String label;
@@ -19,7 +19,7 @@ public final class StreetNode {
 	 * @param label Label of this node (for routing).
 	 * @param position Position of the node.
 	 */
-	public StreetNode(long id, String label, Coordinate position) {
+	public StreetNode(int id, String label, Coordinate position) {
 		this.id = id;
 		this.position = position;
 		this.label = label;
@@ -30,7 +30,7 @@ public final class StreetNode {
 	 * 
 	 * @return Id of the node.
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 	
@@ -72,6 +72,6 @@ public final class StreetNode {
 	
 	@Override
 	public int hashCode() {
-		return 79 + 31 * ((int) (id ^ (id >>> 32) + position.hashCode()));
+		return 79 + 31 * (id + position.hashCode());
 	}
 }

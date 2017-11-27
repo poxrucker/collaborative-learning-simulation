@@ -1,5 +1,6 @@
 package de.dfki.parking.behavior.mappingdisplay;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -49,8 +50,8 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
  @Override
  public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
    // Find all parking possibilities in range from knowledge
-   List<ParkingKnowledgeEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(destination, 500);
-   List<ParkingKnowledgeEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(destination, 500);
+   Collection<ParkingKnowledgeEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(destination, 500);
+   Collection<ParkingKnowledgeEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(destination, 500);
    List<ParkingKnowledgeEntry> fromKnowledge = mergeByTime(fromLocalKnowledge, fromGlobalKnowledge);
    
    // See if recent relevant entries in knowledge exist and return them ranked by utility
@@ -78,7 +79,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
   return null; 
  }
  
- private List<ParkingKnowledgeEntry> mergeByTime(List<ParkingKnowledgeEntry> local, List<ParkingKnowledgeEntry> global) {
+ private List<ParkingKnowledgeEntry> mergeByTime(Collection<ParkingKnowledgeEntry> local, Collection<ParkingKnowledgeEntry> global) {
    // Create a map to merge entries 
    List<ParkingKnowledgeEntry> merged = new ObjectArrayList<>(local.size() + global.size());
    merged.addAll(local);
@@ -140,7 +141,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
  
  private List<ParkingIndexEntry> getPossibleParkingFromIndex(List<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination, long currentTime) {
    // Filter those which are valid and which have free parking spots
-   List<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(destination, 500);
+   Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(destination, 500);
    //List<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
    IntSet knowledgeIds = new IntOpenHashSet();
    

@@ -107,24 +107,31 @@ public final class ParkingKnowledge {
     
     if (ret == null) {
       // Get ParkingMapEntry from ParkingMap
-      ParkingIndexEntry entry = parkingIndex.getForParking(parking);
+      ParkingIndexEntry entry = parkingIndex.getEntryForParking(parking);
       ret = new ParkingKnowledgeEntry(entry, nParkingSpots, nFreeParkingSpots, pricePerHour, -1);
       parkingKnowledge.put(parking.getId(), ret);
     }
     ret.update(nFreeParkingSpots, time);
   }
   
-  public List<ParkingKnowledgeEntry> findParkingInStreet(Street street) {
+  public Collection<ParkingKnowledgeEntry> findParkingInStreet(Street street) {
     // Get parking possibilities in street from ParkingMap
-    Collection<ParkingIndexEntry> indexEntries = parkingIndex.getParkingsInStreet(street);
+    ParkingIndexEntry entry = parkingIndex.getParkingInStreet(street);
     
-    if (indexEntries == null)
+    if (entry == null)
       return new ObjectArrayList<>(0);
     
-    return filterUnknownFromIndex(indexEntries);
+    ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
+    
+    if (knowledgeEntry == null)
+      return new ObjectArrayList<>(0);
+    
+    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(1);
+    res.add(knowledgeEntry);
+    return res;
   }
   
-  public List<ParkingKnowledgeEntry> findParkingNearby(Coordinate position, double maxDistance) {
+  public Collection<ParkingKnowledgeEntry> findParkingNearby(Coordinate position, double maxDistance) {
     // Get nearby parking possibilities from ParkingMap
     Collection<ParkingIndexEntry> indexEntries = parkingIndex.getParkingsWithMaxDistance(position, maxDistance);
     
@@ -134,7 +141,7 @@ public final class ParkingKnowledge {
     return filterUnknownFromIndex(indexEntries);
   } 
   
-  private List<ParkingKnowledgeEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
+  private Collection<ParkingKnowledgeEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
     List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>(indexEntries.size());
     
     for (ParkingIndexEntry entry : indexEntries) {

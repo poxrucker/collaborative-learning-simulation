@@ -10,7 +10,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public final class JTSUtil {
+final class JTSUtil {
   // Used for calculation of rectangular query envelope 
   private static final double EARTH_CIRCUMFERENCE_IN_M = 40074 * 1000;
   private static final double LAT_M_TO_DEG = 360.0 / EARTH_CIRCUMFERENCE_IN_M;
@@ -50,7 +50,7 @@ public final class JTSUtil {
    * @param coordinates Points to compute convex hull from
    * @return Convex hull geometry of given points
    */
-  public static Geometry getConvexHull(Collection<allow.simulator.util.Coordinate> coordinates) {
+   public static Geometry getConvexHull(Collection<allow.simulator.util.Coordinate> coordinates) {
     ObjectArrayList<Coordinate> conv = new ObjectArrayList<>();
 
     for (allow.simulator.util.Coordinate c : coordinates) {

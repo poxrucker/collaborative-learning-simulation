@@ -1,5 +1,6 @@
 package de.dfki.parking.behavior.mappingdisplay;
 
+import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
@@ -56,9 +57,9 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    List<ParkingKnowledgeEntry> local = localParkingMap.findParkingInStreet(current);
-    List<ParkingKnowledgeEntry> global = globalParkingMap.findParkingInStreet(current);
-    List<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
+    Collection<ParkingKnowledgeEntry> local = localParkingMap.findParkingInStreet(current);
+    Collection<ParkingKnowledgeEntry> global = globalParkingMap.findParkingInStreet(current);
+    Collection<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
 
     // Filter those which are valid and which have free parking spots
     List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(local.size());
@@ -77,7 +78,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     return possible;
   }
 
-  private List<ParkingKnowledgeEntry> mergeByTime(List<ParkingKnowledgeEntry> local, List<ParkingKnowledgeEntry> global) {
+  private Collection<ParkingKnowledgeEntry> mergeByTime(Collection<ParkingKnowledgeEntry> local, Collection<ParkingKnowledgeEntry> global) {
     // Create a map to merge entries
     List<ParkingKnowledgeEntry> merged = new ObjectArrayList<>(local.size() + global.size());
     merged.addAll(local);

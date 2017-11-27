@@ -7,9 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-
 import allow.simulator.world.StreetMap;
 import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.index.ParkingIndex;
@@ -28,7 +25,7 @@ public final class TestParking {
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(streetParkingPath, garageParkingPath);
     ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, streetMap, new ParkingFactory(1.0, 0.0));
-    ParkingIndex index = ParkingIndex.build(streetMap, parkingRepository);
+    ParkingIndex index = ParkingIndex.build(parkingRepository);
     
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("bounds.txt"))) {
       double[] dim = streetMap.getDimensions();
@@ -39,16 +36,8 @@ public final class TestParking {
       writer.write(dim[0] + "," + dim[2] + "\n");
     }
     
-    try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("hull.txt"))) {
-      Geometry hull = index.getIndexHull();
-      
-      for (Coordinate c : hull.getCoordinates()) {
-        writer.write(c.x + "," + c.y + "\n");
-      }
-    }
-    
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("parking_positions.txt"))) {
-      Collection<ParkingIndexEntry> all = index.getAllParkings();
+      Collection<ParkingIndexEntry> all = index.getAllEntries();
       
       for (ParkingIndexEntry entry : all) {
         writer.write(entry.getReferencePosition().x + "," + entry.getReferencePosition().y + "\n");
@@ -56,7 +45,7 @@ public final class TestParking {
     }
     
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("parking_names.txt"))) {
-      Collection<ParkingIndexEntry> all = index.getAllParkings();
+      Collection<ParkingIndexEntry> all = index.getAllEntries();
       
       for (ParkingIndexEntry entry : all) {
         writer.write(entry.getParking().getAddress() + "\n");

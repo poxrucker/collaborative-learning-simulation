@@ -136,7 +136,7 @@ public final class Simulator {
     ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, world, parkingFactory);
     
     // Initialize ParkingIndex
-    ParkingIndex parkingIndex = ParkingIndex.build(world, parkingRepository);
+    ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
     context = new Context(world, parkingIndex, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);

@@ -1,64 +1,50 @@
 package de.dfki.parking.model;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.data.ParkingData;
 import de.dfki.parking.data.ParkingDataRepository;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ParkingRepository {
-
-  private final Map<String, List<Parking>> streetParkings;
-  private final Map<String, List<Parking>> garageParkings;
+  // Parking in streets
+  private final List<Parking> streetParking;
   
-  private ParkingRepository() {
-    this.streetParkings = new Object2ObjectOpenHashMap<>();
-    this.garageParkings = new Object2ObjectOpenHashMap<>();
+  // Parking in garages
+  private final List<Parking> garageParking;
+  
+  private ParkingRepository(List<Parking> streetParking, List<Parking> garageParking) {
+    this.streetParking = streetParking;
+    this.garageParking = garageParking;
   }
   
-  public void addStreetParking(Parking parking) {    
-    addParking(parking, streetParkings);
+  /**
+   * Returns a read-only collection of all street parking possibilities.
+   * 
+   * @return Read-only collection of all street parking possibilities
+   */
+  public Collection<Parking> getStreetParking() {
+    return Collections.unmodifiableCollection(streetParking);
   }
-  
-  public void addGarageParking(Parking parking) {    
-    addParking(parking, garageParkings);
-  }
-  
-  public List<Parking> getParking(String street) {
-    List<Parking> garageParking = garageParkings.get(street);
-    List<Parking> streetParking = streetParkings.get(street);
-    
-    List<Parking> ret = new ObjectArrayList<>();
-    
-    if (garageParking != null)
-      ret.addAll(garageParking);
-    
-    if (streetParking != null)
-      ret.addAll(streetParking);
-    
-    return ret;
-  }
-  
-  private static void addParking(Parking parking, Map<String, List<Parking>> parkings) {
-    List<Parking> temp = parkings.get(parking.getAddress());
-    
-    if (temp == null) {
-      temp = new ObjectArrayList<>();
-      parkings.put(parking.getAddress(), temp);
-    }
-    temp.add(parking);
+ 
+  /**
+   * Returns a read-only collection of all garage parking possibilities.
+   * 
+   * @return Read-only collection of all garage parking possibilities
+   */
+  public Collection<Parking> getGarageParking() {
+    return garageParking;
   }
   
   public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, StreetMap streetMap, ParkingFactory parkingFactory) {
-    ParkingRepository ret = new ParkingRepository();
-    
     // Create street parking
     List<ParkingData> streetParkingData = parkingDataRepository.getStreetParkingData();
+    List<Parking> streetParking = new ObjectArrayList<>(streetParkingData.size());
     
     for (ParkingData data : streetParkingData) {
       List<Street> streets = streetMap.getStreetByName(data.getAddress());
@@ -67,26 +53,28 @@ public final class ParkingRepository {
         streets = new ObjectArrayList<>(0);
       
       Parking parking = parkingFactory.createStreetParking(data.getAddress(), data.getPricePerHour(), data.getNumberOfParkingSpots(), streets);
-      ret.addStreetParking(parking);
+      streetParking.add(parking);
     }
     
     // Create garage parking
     List<ParkingData> garageParkingData = parkingDataRepository.getGarageParkingData();
+    List<Parking> garageParking = new ObjectArrayList<>(garageParkingData.size());
     
     for (ParkingData data : garageParkingData) {
+      // Find all nodes in StreetMap by node id
       List<StreetNode> accessNodes = new ObjectArrayList<>(data.getOSMNodes().size());
       
       for (String accessNode : data.getOSMNodes()) {
         StreetNode node = streetMap.getStreetNodeReduced(accessNode);
         
-        if (node == null) {
+        if (node == null)
           continue;
-        }
+        
         accessNodes.add(node);
       }    
       Parking parking = parkingFactory.createGarageParking(data.getAddress(), data.getPricePerHour(), data.getNumberOfParkingSpots(), accessNodes);
-      ret.addGarageParking(parking);
+      garageParking.add(parking);
     }
-    return ret;
+    return new ParkingRepository(streetParking, garageParking);
   }
 }

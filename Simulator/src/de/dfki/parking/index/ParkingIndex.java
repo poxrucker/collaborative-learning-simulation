@@ -1,250 +1,260 @@
 package de.dfki.parking.index;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.index.strtree.STRtree;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
+import de.dfki.parking.model.GarageParking;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.model.Parking.Type;
 import de.dfki.parking.model.ParkingRepository;
+import de.dfki.parking.model.StreetParking;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public final class ParkingIndex {
-  // Parking ids to ParkingIndexEntry
-  private final Int2ObjectMap<ParkingIndexEntry> parkingToParkingIndexEntry;
+  // Parking id to ParkingIndexEntry
+  private final Int2ObjectMap<ParkingIndexEntry> parkingIndex;
 
-  // Street ids to ParkingIndexEntries
-  private final Int2ObjectMap<List<ParkingIndexEntry>> streetToParkingIndexEntries;
+  // Street id to ParkingIndexEntry mapping
+  private final Int2ObjectMap<ParkingIndexEntry> streetParkingIndex;
+    
+  // StreetNode id to ParkingIndexEntry mapping
+  private final Int2ObjectMap<ParkingIndexEntry> garageParkingIndex;
   
   // Spatial index mapping positions to ParkingMapEntry instances for bounding box lookups
-  private final STRtree spatialIndex;
+  private final SpatialIndex spatialIndex;
 
-  // Polygon containing all data points
-  private final Geometry spatialIndexHull;
-
-  // Total number of garage parking spots (calculated during initialization)
-  private final int totalNumberOfGarageParkingSpots;
-
-  // Total number of street parking spots (calculated during initialization)
-  private final int totalNumberOfStreetParkingSpots;
-
-  private ParkingIndex(Int2ObjectMap<ParkingIndexEntry> parkingToParkingMapEntry, Int2ObjectMap<List<ParkingIndexEntry>> streetToParkingMapEntries) {
-    this.parkingToParkingIndexEntry = parkingToParkingMapEntry;
-    this.streetToParkingIndexEntries = streetToParkingMapEntries;
-    this.spatialIndex = buildSpatialIndex(getAllParkings());
-    this.spatialIndexHull = convexHull(getAllParkings());
-    this.totalNumberOfGarageParkingSpots = countTotalNumberOfFreeParkingSpots(parkingToParkingMapEntry.values(), Type.GARAGE);
-    this.totalNumberOfStreetParkingSpots = countTotalNumberOfParkingSpots(parkingToParkingMapEntry.values(), Type.STREET);
+  private ParkingIndex(Int2ObjectMap<ParkingIndexEntry> parkingIndex, Int2ObjectMap<ParkingIndexEntry> streetParkingIndex,
+      Int2ObjectMap<ParkingIndexEntry> garageParkingIndex, SpatialIndex spatialIndex) {
+    this.parkingIndex = parkingIndex;
+    this.streetParkingIndex = streetParkingIndex;
+    this.garageParkingIndex = garageParkingIndex;
+    this.spatialIndex = spatialIndex;
   }
 
-  public ParkingIndexEntry getForParking(Parking parking) {
-    return parkingToParkingIndexEntry.get(parking.getId());
+  /**
+   * Returns a read-only collection of all entries contained in this instance.
+   * 
+   * @return Read-only collection of all entries contained in this instance
+   */
+  public Collection<ParkingIndexEntry> getAllEntries() {
+    return Collections.unmodifiableCollection(parkingIndex.values());
   }
 
-  public Collection<ParkingIndexEntry> getAllParkings() {
-    return parkingToParkingIndexEntry.values();
-  }
-
-  public List<ParkingIndexEntry> getParkingsWithMaxDistance(Coordinate position, double maxDistance) {
-    // Create a query envelope centered around position
-    Envelope queryEnv = JTSUtil.createQueryEnvelope(position, maxDistance);
-
-    // Query spatial index and filter results by distance
-    List<ParkingIndexEntry> results = new ObjectArrayList<>();
-    spatialIndex.query(queryEnv, new DistanceFilter(results, position, maxDistance));
-    return results;
-  }
-
-  public List<ParkingIndexEntry> getAllGarageParkingEntries() {
-    return findEntriesOfType(parkingToParkingIndexEntry.values(), Type.GARAGE);
-  }
-
-  public List<ParkingIndexEntry> getAllStreetParkingEntries() {
-    return findEntriesOfType(parkingToParkingIndexEntry.values(), Type.STREET);
-  }
-
-  public List<ParkingIndexEntry> getParkingsInStreet(Street street) {
-    return streetToParkingIndexEntries.get(street.getId());
-  }
-
-  public boolean containedInSpatialIndex(Coordinate pos) {
-    return spatialIndexHull.contains(JTSUtil.createPoint(pos));
-  }
-
-  public Geometry getIndexHull() {
-    return spatialIndexHull;
+  /**
+   * Returns a read-only collection of all street parking entries contained in this instance.
+   * 
+   * @return Read-only collection of all street parking entries contained in this instance
+   */
+  public Collection<ParkingIndexEntry> getAllStreetParkingEntries() {
+    return Collections.unmodifiableCollection(findEntriesOfType(parkingIndex.values(), Type.STREET));
   }
   
-  public int getTotalNumberOfFreeStreetParkingSpots() {
-    return countTotalNumberOfFreeParkingSpots(parkingToParkingIndexEntry.values(), Type.STREET);
+  /**
+   * Returns a read-only collection of all garage parking entries contained in this instance.
+   * 
+   * @return Read-only collection of all garage parking entries contained in this instance
+   */
+  public Collection<ParkingIndexEntry> getAllGarageParkingEntries() {
+    return Collections.unmodifiableCollection(findEntriesOfType(parkingIndex.values(), Type.GARAGE));
   }
 
-  public int getTotalNumberOfFreeGarageParkingSpots() {
-    return countTotalNumberOfFreeParkingSpots(parkingToParkingIndexEntry.values(), Type.GARAGE);
+  /**
+   * Returns the ParkingIndexEntry associated with the given Parking.
+   * 
+   * @param parking Parking to get ParkingIndexEntry for
+   * @return ParkingIndexEntry for given Parking
+   */
+  public ParkingIndexEntry getEntryForParking(Parking parking) {
+    return parkingIndex.get(parking.getId());
   }
 
+  /**
+   * Returns a collection of ParkingIndexEntry instances with given maximum distance from
+   * given reference position.
+   * 
+   * @param position Reference position
+   * @param maxDistance Maximum distance
+   * @return Collection of ParkingIndexEntry instances with given maximum distance
+   */
+  public Collection<ParkingIndexEntry> getParkingsWithMaxDistance(Coordinate position, double maxDistance) {
+    return spatialIndex.findEntriesWithMaxDistance(position, maxDistance);
+  }
+
+  /**
+   * Determines if given position lies within the boundaries of this instance.
+   * 
+   * @param pos Position to check
+   * @return True if position lies within the boundaries, false otherwise
+   */
+  public boolean containedInSpatialIndex(Coordinate pos) {
+    return spatialIndex.contains(pos);
+  }
+
+  /**
+   * Returns a ParkingIndexEntry associated with the given Street.
+   * 
+   * @param street Street to get ParkingIndexEntry for
+   * @return ParkingIndexEntry associated with the given Street
+   */
+  public ParkingIndexEntry getParkingInStreet(Street street) {
+    return streetParkingIndex.get(street.getId());
+  }
+
+  /**
+   * Returns a ParkingIndexEntry associated with the given StreetNode.
+   * 
+   * @param node StreetNode to get ParkingIndexEntry for
+   * @return ParkingIndexEntry associated with the given StreetNode
+   */
+  public ParkingIndexEntry getParkingAtNode(StreetNode node) {
+    return garageParkingIndex.get(node.getId());
+  }
+  
+  /**
+   * Returns the total number of garage parking spots.
+   * 
+   * @return Total number of garage parking spots
+   */
   public int getTotalNumberOfGarageParkingSpots() {
-    return totalNumberOfGarageParkingSpots;
+    return countTotalNumberOfParkingSpots(findEntriesOfType(parkingIndex.values(), Type.GARAGE));
   }
 
+  /**
+   * Returns the total number of street parking spots.
+   * 
+   * @return Total number of street parking spots
+   */
   public int getTotalNumberOfStreetParkingSpots() {
-    return totalNumberOfStreetParkingSpots;
+    return countTotalNumberOfParkingSpots(findEntriesOfType(parkingIndex.values(), Type.STREET));
+  }
+  
+  /**
+   * Returns the number of free garage parking spots.
+   * 
+   * @return Number of free garage parking spots
+   */
+  public int getTotalNumberOfFreeStreetParkingSpots() {
+    return countTotalNumberOfFreeParkingSpots(findEntriesOfType(parkingIndex.values(), Type.STREET));
   }
 
-  private static List<ParkingIndexEntry> findEntriesOfType(Collection<ParkingIndexEntry> entries, Type type) {
-    List<ParkingIndexEntry> ret = new ObjectArrayList<>();
+  /**
+   * Returns the number of free street parking spots.
+   * 
+   * @return Number of free street parking spots
+   */
+  public int getTotalNumberOfFreeGarageParkingSpots() {
+    return countTotalNumberOfFreeParkingSpots(findEntriesOfType(parkingIndex.values(), Type.GARAGE));
+  }
 
+  private static Collection<ParkingIndexEntry> findEntriesOfType(Collection<ParkingIndexEntry> entries, Type type) {
+    ObjectArrayList<ParkingIndexEntry> ret = new ObjectArrayList<>();
+    
     for (ParkingIndexEntry entry : entries) {
-
+      
       if (entry.getParking().getType() != type)
         continue;
       ret.add(entry);
     }
     return ret;
   }
-
-  private static int countTotalNumberOfParkingSpots(Collection<ParkingIndexEntry> entries, Type type) {
+  
+  private static int countTotalNumberOfParkingSpots(Collection<ParkingIndexEntry> entries) {
     int numberOfSpots = 0;
 
     for (ParkingIndexEntry entry : entries) {
-
-      if (entry.getParking().getType() != type)
-        continue;
       numberOfSpots += entry.getParking().getNumberOfParkingSpots();
     }
     return numberOfSpots;
   }
 
-  private static int countTotalNumberOfFreeParkingSpots(Collection<ParkingIndexEntry> entries, Type type) {
+  private static int countTotalNumberOfFreeParkingSpots(Collection<ParkingIndexEntry> entries) {
     int numberOfFreeSpots = 0;
 
     for (ParkingIndexEntry entry : entries) {
-
-      if (entry.getParking().getType() != type)
-        continue;
       numberOfFreeSpots += entry.getParking().getNumberOfFreeParkingSpots();
     }
     return numberOfFreeSpots;
   }
 
-  private static STRtree buildSpatialIndex(Collection<ParkingIndexEntry> entries) {
-    STRtree ret = new STRtree();
+  public static ParkingIndex build(ParkingRepository parkingRepository) {
+    // Build parking index (mapping id of parking to respective ParkingIndexEntry)
+    Int2ObjectMap<ParkingIndexEntry> parkingIndex = buildParkingIndex(parkingRepository);
+    
+    // Build street parking index (mapping id of streets to respective ParkingIndexEntry)
+    Int2ObjectMap<ParkingIndexEntry> streetParkingIndex = buildStreetParkingIndex(parkingRepository.getStreetParking(), parkingIndex);
+    
+    // Build garage parking index (mapping id of nodes to respective ParkingIndexEntry)
+    Int2ObjectMap<ParkingIndexEntry> garageParkingIndex = buildGarageParkingIndex(parkingRepository.getGarageParking(), parkingIndex);
 
-    for (ParkingIndexEntry parking : entries) {
-      ret.insert(JTSUtil.createPoint(parking.getReferencePosition()).getEnvelopeInternal(), parking);
-    }
-    ret.build();
-    return ret;
-  }
-
-  private static Geometry convexHull(Collection<ParkingIndexEntry> entries) {
-    ObjectArrayList<Coordinate> entryPositions = new ObjectArrayList<>();
-
-    for (ParkingIndexEntry entry : entries) {
-
-      if (entry.getParking().getNumberOfParkingSpots() == 0)
-        continue;
-
-      entryPositions.add(entry.getReferencePosition());
-    }
-    return JTSUtil.getConvexHull(entryPositions);
+    // Build spatial index (for spatial queries)
+    SpatialIndex spatialIndex = SpatialIndex.build(parkingIndex.values());
+    return new ParkingIndex(parkingIndex, streetParkingIndex, garageParkingIndex, spatialIndex);
   }
   
-  public static ParkingIndex build(StreetMap map, ParkingRepository parkingRepository) {
-    Int2ObjectMap<Parking> parkingIdToParking = new Int2ObjectOpenHashMap<>();
-    Int2ObjectMap<List<Coordinate>> parkingIdToPositions = new Int2ObjectOpenHashMap<>();
-    Int2ObjectMap<ObjectSet<StreetNode>> parkingIdToStreetNodes = new Int2ObjectOpenHashMap<>();
-    Int2ObjectMap<IntArrayList> parkingIdToStreetIds = new Int2ObjectOpenHashMap<>();
-
-    for (Street street : map.getStreets()) {
-      // Get all parking possibilities in street from repository
-      List<Parking> parkings = parkingRepository.getParking(street.getName());
-
-      for (Parking parking : parkings) {
-        // Record parking id
-        parkingIdToParking.put(parking.getId(), parking);
-
-        // Record Street to parking mapping
-        IntArrayList streetMapping = parkingIdToStreetIds.get(parking.getId());
-
-        if (streetMapping == null) {
-          streetMapping = new IntArrayList();
-          parkingIdToStreetIds.put(parking.getId(), streetMapping);
-        }
-        streetMapping.add(street.getId());
-
-        // Record Street to positions mapping
-        List<Coordinate> positions = parkingIdToPositions.get(parking.getId());
-
-        if (positions == null) {
-          positions = new ObjectArrayList<>();
-          parkingIdToPositions.put(parking.getId(), positions);
-        }
-
-        // Check if positions of starting and end nodes needs to be added to
-        // spatial index
-        ObjectSet<StreetNode> streetNodes = parkingIdToStreetNodes.get(parking.getId());
-
-        if (streetNodes == null) {
-          streetNodes = new ObjectOpenHashSet<>();
-          parkingIdToStreetNodes.put(parking.getId(), streetNodes);
-        }
-
-        // Check start node
-        StreetNode start = street.getStartingNode();
-
-        if (!streetNodes.contains(start)) {
-          streetNodes.add(start);
-          positions.add(start.getPosition());
-        }
-        // Check end node
-        StreetNode end = street.getEndNode();
-
-        if (!streetNodes.contains(end)) {
-          streetNodes.add(end);
-          positions.add(end.getPosition());
-        }
+  private static Int2ObjectMap<ParkingIndexEntry> buildParkingIndex(ParkingRepository parkingRepository) {
+    Int2ObjectMap<ParkingIndexEntry> parkingIndex = new Int2ObjectOpenHashMap<>();
+    
+    for (Parking parking : parkingRepository.getGarageParking()) {
+      GarageParking temp = (GarageParking)parking;
+      List<Coordinate> positions = new ObjectArrayList<>(temp.getAccessNodes().size());
+      
+      for (StreetNode node : temp.getAccessNodes()) {
+        positions.add(node.getPosition());
       }
+      parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, positions, getReferencePosition(positions)));
     }
-
-    // Mapping of ParkingId to respective ParkingMapEntry instance
-    Int2ObjectMap<ParkingIndexEntry> parkingIdToParkingIndexEntry = new Int2ObjectOpenHashMap<>();
-
-    // Mapping of StreetId to ParkingMapEntry instances
-    Int2ObjectMap<List<ParkingIndexEntry>> streetIdToParkingIndexEntries = new Int2ObjectOpenHashMap<>();
-
-    for (int parkingId : parkingIdToParking.keySet()) {
-      Parking parking = parkingIdToParking.get(parkingId);
-      List<Coordinate> positions = parkingIdToPositions.get(parkingId);
-      ParkingIndexEntry indexEntry = new ParkingIndexEntry(parking, positions, getReferencePosition(positions));
-      parkingIdToParkingIndexEntry.put(parkingId, indexEntry);
-
-      for (int streetId : parkingIdToStreetIds.get(parkingId)) {
-        List<ParkingIndexEntry> entries = streetIdToParkingIndexEntries.get(streetId);
-
-        if (entries == null) {
-          entries = new ObjectArrayList<>();
-          streetIdToParkingIndexEntries.put(streetId, entries);
-        }
-        entries.add(indexEntry);
-      }
+    
+    for (Parking parking : parkingRepository.getStreetParking()) {
+      StreetParking temp = (StreetParking)parking;
+      Collection<Coordinate> positions = new ObjectOpenHashSet<>();
+      
+      for (Street street : temp.getStreets()) {
+        positions.add(street.getStartingNode().getPosition());
+        positions.add(street.getEndNode().getPosition());
+      }    
+      parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, new ObjectArrayList<>(positions), getReferencePosition(positions)));
     }
-    return new ParkingIndex(parkingIdToParkingIndexEntry, streetIdToParkingIndexEntries);
+    return parkingIndex;
   }
   
-  private static Coordinate getReferencePosition(List<Coordinate> positions) {
+  private static Int2ObjectMap<ParkingIndexEntry> buildStreetParkingIndex(Collection<Parking> streetParking, 
+      Int2ObjectMap<ParkingIndexEntry> parkingIndex) {
+    Int2ObjectMap<ParkingIndexEntry> streetParkingIndex = new Int2ObjectOpenHashMap<>();
+    
+    for (Parking parking : streetParking) {
+      ParkingIndexEntry entry = parkingIndex.get(parking.getId());
+      StreetParking temp = (StreetParking)parking;
+      
+      for (Street street : temp.getStreets()) {
+        streetParkingIndex.put(street.getId(), entry);
+      }
+    } 
+    return streetParkingIndex;
+  }
+  
+  private static Int2ObjectMap<ParkingIndexEntry> buildGarageParkingIndex(Collection<Parking> garageParking, 
+      Int2ObjectMap<ParkingIndexEntry> parkingIndex) {
+    Int2ObjectMap<ParkingIndexEntry> garageParkingIndex = new Int2ObjectOpenHashMap<>();
+    
+    for (Parking parking : garageParking) {
+      ParkingIndexEntry entry = parkingIndex.get(parking.getId());
+      GarageParking temp = (GarageParking)parking;
+      
+      for (StreetNode node : temp.getAccessNodes()) {
+        garageParkingIndex.put(node.getId(), entry);
+      }
+    } 
+    return garageParkingIndex;
+  }
+  
+  private static Coordinate getReferencePosition(Collection<Coordinate> positions) {
     Coordinate mean = new Coordinate();
 
     for (Coordinate pos : positions) {

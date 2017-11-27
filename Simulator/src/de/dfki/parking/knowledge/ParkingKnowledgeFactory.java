@@ -26,7 +26,7 @@ public final class ParkingKnowledgeFactory {
   
   public ParkingKnowledge createFull() {
     ParkingKnowledge ret = new ParkingKnowledge(parkingIndex);
-    Collection<ParkingIndexEntry> entries = parkingIndex.getAllParkings();
+    Collection<ParkingIndexEntry> entries = parkingIndex.getAllEntries();
     return initialize(ret, entries);
   }
   

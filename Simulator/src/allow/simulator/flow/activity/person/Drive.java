@@ -169,23 +169,21 @@ public final class Drive extends MovementActivity<Person> {
 	private void updateParkingMap(Street street) {
 	  // Count number of free parking spots
 	  ParkingIndex parkingMap = entity.getContext().getParkingMap();
-	  List<ParkingIndexEntry> parkings = parkingMap.getParkingsInStreet(street);
+	  ParkingIndexEntry parking = parkingMap.getParkingInStreet(street);
 	  
-	  if (parkings == null)
+	  if (parking == null)
 	    return;
 	  
 	  long time = entity.getContext().getTime().getTimestamp();
+	  int nSpots = parking.getParking().getNumberOfParkingSpots();
+    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
+    double price = parking.getParking().getCurrentPricePerHour();
+    
+    entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
 
-	  for (ParkingIndexEntry parking : parkings) {
-	    int nSpots = parking.getParking().getNumberOfParkingSpots();
-	    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
-	    double price = parking.getParking().getCurrentPricePerHour();
-	    
-	    entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
+    if (entity.hasSensorCar())
+      entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
 
-	    if (entity.hasSensorCar())
-	      entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
-	  }  
 	}
 	
 	private boolean checkForBlockedStreets() {

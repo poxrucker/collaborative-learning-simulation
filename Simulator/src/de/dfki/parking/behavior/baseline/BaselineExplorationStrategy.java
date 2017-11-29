@@ -19,7 +19,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class BaselineExplorationStrategy implements IExplorationStrategy {
-
   // Queried first to find possible parking possibilities from observations
   private ParkingKnowledge knowledge;
 

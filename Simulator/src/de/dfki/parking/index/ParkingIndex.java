@@ -12,6 +12,7 @@ import de.dfki.parking.model.Parking;
 import de.dfki.parking.model.Parking.Type;
 import de.dfki.parking.model.ParkingRepository;
 import de.dfki.parking.model.StreetParking;
+import de.dfki.parking.spatial.UnmodifiableSpatialIndex;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -28,10 +29,10 @@ public final class ParkingIndex {
   private final Int2ObjectMap<ParkingIndexEntry> garageParkingIndex;
   
   // Spatial index mapping positions to ParkingMapEntry instances for bounding box lookups
-  private final SpatialIndex spatialIndex;
+  private final UnmodifiableSpatialIndex<ParkingIndexEntry> spatialIndex;
 
   private ParkingIndex(Int2ObjectMap<ParkingIndexEntry> parkingIndex, Int2ObjectMap<ParkingIndexEntry> streetParkingIndex,
-      Int2ObjectMap<ParkingIndexEntry> garageParkingIndex, SpatialIndex spatialIndex) {
+      Int2ObjectMap<ParkingIndexEntry> garageParkingIndex, UnmodifiableSpatialIndex<ParkingIndexEntry> spatialIndex) {
     this.parkingIndex = parkingIndex;
     this.streetParkingIndex = streetParkingIndex;
     this.garageParkingIndex = garageParkingIndex;
@@ -84,7 +85,7 @@ public final class ParkingIndex {
    * @return Collection of ParkingIndexEntry instances with given maximum distance
    */
   public Collection<ParkingIndexEntry> getParkingsWithMaxDistance(Coordinate position, double maxDistance) {
-    return spatialIndex.findEntriesWithMaxDistance(position, maxDistance);
+    return spatialIndex.queryInRange(position, maxDistance);
   }
 
   /**
@@ -194,7 +195,7 @@ public final class ParkingIndex {
     Int2ObjectMap<ParkingIndexEntry> garageParkingIndex = buildGarageParkingIndex(parkingRepository.getGarageParking(), parkingIndex);
 
     // Build spatial index (for spatial queries)
-    SpatialIndex spatialIndex = SpatialIndex.build(parkingIndex.values());
+    UnmodifiableSpatialIndex<ParkingIndexEntry> spatialIndex = new UnmodifiableSpatialIndex<>(parkingIndex.values());
     return new ParkingIndex(parkingIndex, streetParkingIndex, garageParkingIndex, spatialIndex);
   }
   

@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ParkingKnowledge {
-
+  
   private final ParkingIndex parkingIndex;
   private final Int2ObjectMap<ParkingKnowledgeEntry> parkingKnowledge;
 

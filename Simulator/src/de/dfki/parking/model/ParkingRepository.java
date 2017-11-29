@@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ParkingRepository {
-
   // Parking in streets
   private final List<Parking> streetParking;
 
@@ -43,7 +42,7 @@ public final class ParkingRepository {
    * @return Read-only collection of all garage parking possibilities
    */
   public Collection<Parking> getGarageParking() {
-    return garageParking;
+    return Collections.unmodifiableCollection(garageParking);
   }
 
   public static ParkingRepository initialize(ParkingDataRepository parkingDataRepository, StreetMap streetMap, ParkingFactory parkingFactory) {

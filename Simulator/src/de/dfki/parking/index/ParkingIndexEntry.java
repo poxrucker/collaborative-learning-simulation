@@ -4,8 +4,9 @@ import java.util.List;
 
 import allow.simulator.util.Coordinate;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.spatial.ILocatable;
 
-public final class ParkingIndexEntry {
+public final class ParkingIndexEntry implements ILocatable {
   // Referenced Parking instance
   private final Parking parking;
 

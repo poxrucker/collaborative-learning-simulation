@@ -15,21 +15,50 @@ public final class ParkingFactory {
   // Offset added to the price of newly created Parking instances
   private final double pricePerHourOffset;
   
+  /**
+   * Creates a new ParkingFactory instance scaling a given number of parking spots
+   * by the given scaling factor and adapting the price per hour by the given offset.
+   * 
+   * @param parkingSpotScalingFactor Factor to scale the number of parking spots
+   * @param pricePerHourOffset Offset to add to default price per hour
+   */
   public ParkingFactory(double parkingSpotScalingFactor, double pricePerHourOffset) {
     this.parkingSpotScalingFactor = parkingSpotScalingFactor;
     this.pricePerHourOffset = pricePerHourOffset;
   }
   
-  public Parking createStreetParking(String street, double pricePerHour, int nParkingSpots, List<Street> streets) {
+  /**
+   * Creates a new Parking associated with a given list of Street instances.
+   * nParkingSpots is scaled by the scaling factor specified during construction.
+   * pricePerHour is adjusted by the offset specified during construction.
+   * 
+   * @param name Name of the parking
+   * @param pricePerHour Price per hour
+   * @param nParkingSpots Number of parking spots
+   * @param streets List of Street instances
+   * @return Parking instance
+   */
+  public Parking createStreetParking(String name, double pricePerHour, int nParkingSpots, List<Street> streets) {
     double adjustedPricePerHour = adjust(pricePerHour, pricePerHourOffset);
     int scaledNParkingSpots = (int) Math.ceil(scale(nParkingSpots, parkingSpotScalingFactor));
-    return new StreetParking(ids++, street, street, adjustedPricePerHour, scaledNParkingSpots, streets);
+    return new StreetParking(ids++, name, name, adjustedPricePerHour, scaledNParkingSpots, streets);
   }
   
-  public Parking createGarageParking(String street, double pricePerHour, int nParkingSpots, List<StreetNode> accessNodes) {
+  /**
+   * Creates a new Parking associated with a given list of StreetNode instances.
+   * nParkingSpots is scaled by the scaling factor specified during construction.
+   * pricePerHour is adjusted by the offset specified during construction.
+   * 
+   * @param name Name of the parking
+   * @param pricePerHour Price per hour
+   * @param nParkingSpots Number of parking spots
+   * @param nodes List of StreetNode instances
+   * @return Parking instance
+   */
+  public Parking createGarageParking(String name, double pricePerHour, int nParkingSpots, List<StreetNode> nodes) {
     double adjustedPricePerHour = adjust(pricePerHour, pricePerHourOffset);
     int scaledNParkingSpots = (int) Math.ceil(scale(nParkingSpots, parkingSpotScalingFactor));
-    return new GarageParking(ids++, street, street, adjustedPricePerHour, scaledNParkingSpots, accessNodes);
+    return new GarageParking(ids++, name, name, adjustedPricePerHour, scaledNParkingSpots, nodes);
   }
   
   private static double scale(double input, double factor) {

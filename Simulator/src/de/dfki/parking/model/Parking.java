@@ -1,14 +1,13 @@
 package de.dfki.parking.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 
 import allow.simulator.entity.Person;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public abstract class Parking {
   
-  public enum Type {
-    
+  public enum Type {    
     /**
      * Street parking
      */
@@ -17,8 +16,7 @@ public abstract class Parking {
     /**
      * Garage parking
      */
-    GARAGE
-    
+    GARAGE 
   }
   // Unique id of parking
   protected final int id;
@@ -39,7 +37,7 @@ public abstract class Parking {
   protected final int numberOfParkingSpots;
   
   // Currently parking cars
-  protected final Set<Person> parkingCars;
+  protected final Collection<Person> parkingCars;
   
   public Parking(int id, Type type, String name, String address, double defaultPricePerHour, int numberOfParkingSpots) {
     this.id = id;
@@ -48,7 +46,7 @@ public abstract class Parking {
     this.address = address;
     this.defaultPricePerHour = defaultPricePerHour;
     this.numberOfParkingSpots = numberOfParkingSpots;
-    parkingCars = new HashSet<>(numberOfParkingSpots);
+    parkingCars = new ObjectOpenHashSet<>(numberOfParkingSpots);
   }
   
   /**

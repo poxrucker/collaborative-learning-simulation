@@ -1,4 +1,4 @@
-package de.dfki.parking.index;
+package de.dfki.parking.spatial;
 
 import java.util.Collection;
 

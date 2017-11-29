@@ -25,6 +25,6 @@ public final class StreetParking extends Parking {
 
   @Override
   public String toString() {
-    return "[FixedPriceParking " + name + "]";
+    return "[StreetParking " + name + "]";
   }
 }

@@ -2,14 +2,12 @@ package de.dfki.parking.index;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
 import allow.simulator.util.Coordinate;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 final class SpatialIndex {
@@ -44,19 +42,10 @@ final class SpatialIndex {
     
     // List of reference positions for convex hull computation
     ObjectArrayList<Coordinate> refPositions = new ObjectArrayList<>();
-    Map<Coordinate, ParkingIndexEntry> temp = new Object2ObjectOpenHashMap<>();
     
     for (ParkingIndexEntry entry : entries) {
-      
-      if (temp.containsKey(entry.getReferencePosition())) {
-        ParkingIndexEntry other = temp.get(entry.getReferencePosition());
-        System.out.println(other.getParking());
-        System.out.println(entry.getParking());
-
-      }
       index.insert(JTSUtil.createPoint(entry.getReferencePosition()).getEnvelopeInternal(), entry);
       refPositions.add(entry.getReferencePosition());
-      temp.put(entry.getReferencePosition(), entry);
     }
     index.build(); 
     return new SpatialIndex(index, JTSUtil.getConvexHull(refPositions));

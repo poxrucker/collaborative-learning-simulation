@@ -218,7 +218,7 @@ public final class ParkingIndex {
       for (Street street : temp.getStreets()) {
         positions.add(street.getStartingNode().getPosition());
         positions.add(street.getEndNode().getPosition());
-      }    
+      }   
       parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, new ObjectArrayList<>(positions), getReferencePosition(positions)));
     }
     return parkingIndex;

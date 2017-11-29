@@ -18,7 +18,7 @@ public final class TestParking {
 
   public static void main(String[] args) throws IOException {
     Path streetMapPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/data/world/trento_merged.world");
-    Path streetParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/street_parking.csv");
+    Path streetParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/street_parking_with_nodes.csv");
     Path garageParkingPath = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/garage_parking_with_nodes.csv");
     Path output = Paths.get("/Users/Andi/Documents/DFKI/VW simulation/models/parking_spot/spatial");
     

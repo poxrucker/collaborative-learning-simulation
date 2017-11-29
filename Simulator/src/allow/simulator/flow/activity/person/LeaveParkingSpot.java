@@ -37,7 +37,7 @@ public final class LeaveParkingSpot extends Activity<Person> {
     
     entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
 
-    if (entity.hasSensorCar())
+    if (entity.isUser())
         entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);  
   }
 }

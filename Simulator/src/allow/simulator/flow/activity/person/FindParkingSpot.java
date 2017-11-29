@@ -162,7 +162,7 @@ public final class FindParkingSpot extends Activity<Person> {
         return 0;
       } 
       // Otherwise, update knowledge and reset parking spot selected
-      updateParkingMaps(parkingSpotCandidate, false);
+      updateParkingMaps(parkingSpotCandidate, entity.hasSensorCar());
       parkingSpotSelected = false;
       return 0;
       
@@ -197,7 +197,7 @@ public final class FindParkingSpot extends Activity<Person> {
     return parkingTime <= 0.0;
   }
 
-  private void updateParkingMaps(Parking parking, boolean userReport) {
+  private void updateParkingMaps(Parking parking, boolean updateGlobal) {
     long time = entity.getContext().getTime().getTimestamp();
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
@@ -205,7 +205,7 @@ public final class FindParkingSpot extends Activity<Person> {
     
     entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
 
-    if (userReport || entity.hasSensorCar())
+    if (updateGlobal)
         entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);  
   }
 

@@ -57,8 +57,12 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    Collection<ParkingKnowledgeEntry> local = localParkingMap.findParkingInStreet(current);
-    Collection<ParkingKnowledgeEntry> global = globalParkingMap.findParkingInStreet(current);
+    Collection<ParkingKnowledgeEntry> local = localParkingMap.findStreetParking(current);
+    local.addAll(localParkingMap.findGarageParking(current.getEndNode()));
+
+    Collection<ParkingKnowledgeEntry> global = globalParkingMap.findStreetParking(current);
+    global.addAll(globalParkingMap.findGarageParking(current.getEndNode()));
+
     Collection<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
 
     // Filter those which are valid and which have free parking spots

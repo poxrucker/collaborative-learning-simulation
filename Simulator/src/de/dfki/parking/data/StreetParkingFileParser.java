@@ -20,9 +20,7 @@ public final class StreetParkingFileParser implements IParkingDataFileParser {
       while ((line = reader.readLine()) != null) {
         // Parse line
         ParkingData parking = parseLine(line);
-        
-        if (parking.getNumberOfParkingSpots() > 0)
-          System.out.println(parking.getName() + ": " + parking.getNumberOfParkingSpots());
+
         // Add to list
         ret.add(parking);
         }
@@ -36,7 +34,10 @@ public final class StreetParkingFileParser implements IParkingDataFileParser {
     name = name.substring(0, 1).toUpperCase() + name.substring(1);
     int numberOfParkingSpots = !tokens[1].equals("") ? Integer.parseInt(tokens[1]) : 0;
     double pricePerHour = !tokens[2].equals("") ? Double.parseDouble(tokens[2].replaceAll(",", ".")) : 0;
-    List<String> osmNodes = new ObjectArrayList<>();
+    
+    if (tokens.length != 4)
+      System.out.println(name);
+    List<String> osmNodes = new ObjectArrayList<>((tokens.length > 3) ? tokens[3].split(",") : new String[0]);
     return new ParkingData(name, name, pricePerHour, numberOfParkingSpots, osmNodes);
   }
 }

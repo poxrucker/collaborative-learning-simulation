@@ -12,6 +12,7 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
+import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
@@ -167,15 +168,20 @@ public final class Drive extends MovementActivity<Person> {
 	}
 	
 	private void updateParkingMap(Street street) {
-	  // Count number of free parking spots
-	  ParkingIndex parkingMap = entity.getContext().getParkingMap();
-	  ParkingIndexEntry parking = parkingMap.getParkingInStreet(street);
-	  
-	  if (parking == null)
-	    return;
-	  
-	  long time = entity.getContext().getTime().getTimestamp();
-	  int nSpots = parking.getParking().getNumberOfParkingSpots();
+	  updateStreetParking(street);
+	  updateGarageParking(street.getEndNode());
+	}
+	
+	private void updateStreetParking(Street street) {
+    // Count number of free parking spots
+    ParkingIndex parkingMap = entity.getContext().getParkingMap();   
+    ParkingIndexEntry parking = parkingMap.getParkingInStreet(street);
+    
+    if (parking == null)
+      return;
+    
+    long time = entity.getContext().getTime().getTimestamp();
+    int nSpots = parking.getParking().getNumberOfParkingSpots();
     int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
     double price = parking.getParking().getCurrentPricePerHour();
     
@@ -183,7 +189,25 @@ public final class Drive extends MovementActivity<Person> {
 
     if (entity.hasSensorCar())
       entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
+  }
+	
+	private void updateGarageParking(StreetNode node) {
+	  // Count number of free parking spots
+    ParkingIndex parkingMap = entity.getContext().getParkingMap();   
+    ParkingIndexEntry parking = parkingMap.getParkingAtNode(node);
+    
+    if (parking == null)
+      return;
+    
+    long time = entity.getContext().getTime().getTimestamp();
+    int nSpots = parking.getParking().getNumberOfParkingSpots();
+    int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
+    double price = parking.getParking().getCurrentPricePerHour();
+    
+    entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
 
+    if (entity.hasSensorCar())
+      entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
 	}
 	
 	private boolean checkForBlockedStreets() {

@@ -27,11 +27,15 @@ public final class GarageParkingFileParser implements IParkingDataFileParser {
 
   private static ParkingData parseGarageParking(String str) {
     String[] tokens = str.split(";");
-    String name = tokens[0];
+    String name = tokens[0].trim();
     name = name.substring(0, 1).toUpperCase() + name.substring(1);
-    String address = tokens[1].substring(0, 1).toUpperCase() + tokens[1].substring(1);
+    String address = tokens[1].substring(0, 1).toUpperCase() + tokens[1].substring(1).trim();
     int numberOfParkingSpots = !tokens[2].equals("") ? Integer.parseInt(tokens[2]) : 0;
     double pricePerHour = !tokens[3].equals("") ? Double.parseDouble(tokens[3].replaceAll(",", ".")) : 0;
+    
+    if (tokens.length != 5)
+      System.out.println(name);
+    
     List<String> osmNodes = new ObjectArrayList<>((tokens.length > 4) ? tokens[4].split(",") : new String[0]);
     return new ParkingData(name, address, pricePerHour, numberOfParkingSpots, osmNodes);
   }

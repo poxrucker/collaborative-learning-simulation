@@ -144,6 +144,7 @@ public final class StreetMap extends World implements Observer {
 				streets.put(source.getLabel() + ";;" + dest.getLabel(), s);
 				map.addEdge(s, segments.get(0).getStartingNode(), segments.get(segments.size() - 1).getEndingNode());
 			//}
+				
 			List<Street> byName = streetsByName.get(name);
 			
 			if (byName == null) {

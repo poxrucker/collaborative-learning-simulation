@@ -121,9 +121,9 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    
    for (ParkingKnowledgeEntry parking : parkings) {
      double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-     Coordinate pos = parking.getParkingIndexEntry().getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(parking.getParkingIndexEntry().getAllAccessPositions().size()));
+     Coordinate pos = parking.getParkingIndexEntry().getReferencePosition();
      double wd = Geometry.haversineDistance(pos, destination);
-     double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
+     double st = (Geometry.haversineDistance(pos, currentPosition) / 3.0);
      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
    }
    temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
@@ -176,7 +176,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      double c = 0.0;
      Coordinate pos = parking.getReferencePosition();
      double wd = Geometry.haversineDistance(pos, destination);
-     double st = (Geometry.haversineDistance(pos, currentPosition) / 4.1);
+     double st = (Geometry.haversineDistance(pos, currentPosition) / 3.0);
      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
    }
    temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));

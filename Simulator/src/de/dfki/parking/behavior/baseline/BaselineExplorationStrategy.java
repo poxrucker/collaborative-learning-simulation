@@ -96,7 +96,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     for (ParkingKnowledgeEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
       double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
-      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 4.1);
+      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
       temp.add(new Triple<>(parking, parking.getParkingIndexEntry().getReferencePosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));
@@ -150,7 +150,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     for (ParkingIndexEntry parking : parkings) {
       double c = 0.0;
       double wd = Geometry.haversineDistance(parking.getReferencePosition(), destination);
-      double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 4.1);
+      double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 3.0);
       temp.add(new Triple<>(parking, parking.getReferencePosition(), utility.computeUtility(new Triple<>(c, wd, st), preferences)));
     }
     temp.sort((t1, t2) -> Double.compare(t2.third, t1.third));

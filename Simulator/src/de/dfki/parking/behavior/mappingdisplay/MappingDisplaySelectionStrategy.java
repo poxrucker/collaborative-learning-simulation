@@ -12,7 +12,7 @@ import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.behavior.ParkingPreferences;
 import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

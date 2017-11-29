@@ -203,22 +203,28 @@ public final class ParkingIndex {
     
     for (Parking parking : parkingRepository.getGarageParking()) {
       GarageParking temp = (GarageParking)parking;
+      
+      // Get list of access node positions to compute reference position
       List<Coordinate> positions = new ObjectArrayList<>(temp.getAccessNodes().size());
       
       for (StreetNode node : temp.getAccessNodes()) {
         positions.add(node.getPosition());
       }
+      // Add a new index entry for current Parking instance
       parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, positions, getReferencePosition(positions)));
     }
     
     for (Parking parking : parkingRepository.getStreetParking()) {
       StreetParking temp = (StreetParking)parking;
+      
+      // Collect all unique street node positions to compute reference position
       Collection<Coordinate> positions = new ObjectOpenHashSet<>();
       
       for (Street street : temp.getStreets()) {
         positions.add(street.getStartingNode().getPosition());
         positions.add(street.getEndNode().getPosition());
-      }   
+      }  
+      // Add a new index entry for current Parking instance
       parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, new ObjectArrayList<>(positions), getReferencePosition(positions)));
     }
     return parkingIndex;
@@ -229,6 +235,7 @@ public final class ParkingIndex {
     Int2ObjectMap<ParkingIndexEntry> streetParkingIndex = new Int2ObjectOpenHashMap<>();
     
     for (Parking parking : streetParking) {
+      // Get ParkingIndexEntry of StreetParking instance and link it to street ids
       ParkingIndexEntry entry = parkingIndex.get(parking.getId());
       StreetParking temp = (StreetParking)parking;
       
@@ -244,6 +251,7 @@ public final class ParkingIndex {
     Int2ObjectMap<ParkingIndexEntry> garageParkingIndex = new Int2ObjectOpenHashMap<>();
     
     for (Parking parking : garageParking) {
+      // Get ParkingIndexEntry of GargageParking instance and link it to node ids
       ParkingIndexEntry entry = parkingIndex.get(parking.getId());
       GarageParking temp = (GarageParking)parking;
       

@@ -40,25 +40,30 @@ public final class FindParkingSpot extends Activity<Person> {
   // Counts down the time necessary to park
   private double parkingTime;
 
-  public FindParkingSpot(Person entity, Street current) {
+  private List<Coordinate> formerCandidates;
+  
+  public FindParkingSpot(Person entity, Street current, List<Coordinate> formerCandidates) {
     super(ActivityType.FIND_PARKING_SPOT, entity);
     this.current = current;
+    this.formerCandidates = formerCandidates;
   }
 
-  public FindParkingSpot(Person entity, Street current, Parking parkingCandidate) {
+  public FindParkingSpot(Person entity, Street current, Parking parkingCandidate, List<Coordinate> formerCandidates) {
     super(ActivityType.FIND_PARKING_SPOT, entity);
     this.current = current;
     this.parkingSpotCandidate = parkingCandidate;
     parkingSpotSelected = true;
     parkingSpotFound = false;
+    this.formerCandidates = formerCandidates;
   }
 
   @Override
   public double execute(double deltaT) {
     // Check if it is the first attempt to find a parking spot
-    if (entity.getSearchStartTime() == 0)
+    if (entity.getSearchStartTime() == 0) {
       entity.setSearchStartTime(entity.getContext().getTime().getTimestamp());
-
+      formerCandidates.add(current.getEndNode().getPosition());
+    }
     // Check if entity has already selected a parking spot
     if (!parkingSpotSelected) {
 
@@ -93,7 +98,7 @@ public final class FindParkingSpot extends Activity<Person> {
 
         // Set parking spot candidate
         parkingSpotCandidate = p.getParking();
-
+        
         // Calculate path to parking spot
         if (!p.getPosition().equals(entity.getPosition())) {
           List<Street> path = getPathToParking(p.getPosition());
@@ -102,7 +107,7 @@ public final class FindParkingSpot extends Activity<Person> {
           if (path != null && path.size() > 0) {
             Activity<Person> drive = new Drive(entity, path);
             entity.getFlow().addAfter(this, drive);
-            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate);
+            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate, formerCandidates);
             entity.getFlow().addAfter(drive, park);
             setFinished();
             
@@ -116,6 +121,8 @@ public final class FindParkingSpot extends Activity<Person> {
       Coordinate next = entity.getExplorationStrategy().findNextPossibleParking(entity.getPosition(), dest, currentTime);
       
       if (next != null) {
+        formerCandidates.add(next);
+
         // Calculate path to parking spot
         List<Street> path = getPathToParking(next);
 
@@ -123,7 +130,7 @@ public final class FindParkingSpot extends Activity<Person> {
         if (path != null && path.size() > 0) {
           Activity<Person> drive = new Drive(entity, path);
           entity.getFlow().addAfter(this, drive);
-          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1));
+          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), formerCandidates);
           entity.getFlow().addAfter(drive, park);
 
         } else if (path == null){
@@ -222,13 +229,25 @@ public final class FindParkingSpot extends Activity<Person> {
 
     double c = parkingSpotCandidate.getCurrentPricePerHour();
     double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
-    double st = (double)(searchTime);
+    double st = (double)searchTime;
     double u = entity.getParkingUtility().computeUtility(new Triple<>(c, wd, st), entity.getParkingPreferences());
     stats.reportSearchUtility(u);
     stats.reportParkingCosts(c);
     stats.reportParkingWalkingDistance(wd);
+    
+    if (st > 15 * 60) {
+      // printPath(formerCandidates);
+    }
   }
 
+  private void printPath(List<Coordinate> coords) {
+    System.out.println("lon,lat");
+    
+    for (Coordinate c : coords) {
+      System.out.println(c.x + "," + c.y);
+    }
+  }
+  
   private List<Street> getPathToParking(Coordinate to) {
     
     if (to.equals(entity.getPosition()))

@@ -123,7 +123,7 @@ public final class PrepareJourney extends Activity<Person> {
 				entity.getFlow().addActivity(new Drive(entity, l.streets));
 				
 				// Find a new parking spot
-				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1)));
+				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1), new ArrayList<>()));
 				break;
 				
 			case TAXI:

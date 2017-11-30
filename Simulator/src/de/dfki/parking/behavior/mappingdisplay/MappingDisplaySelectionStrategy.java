@@ -2,6 +2,7 @@ package de.dfki.parking.behavior.mappingdisplay;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -117,7 +118,13 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {
-      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), p.second));
+      // Remove current position from list of possible positions
+      List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
+      
+      // Remove current position from list of possible positions
+      positions.remove(currentPosition);
+      
+      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), positions.get(ThreadLocalRandom.current().nextInt(positions.size()))));
     }
     return ret;
   }

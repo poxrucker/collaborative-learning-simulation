@@ -61,8 +61,11 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      // If there is an entry, return position
      ParkingIndexEntry entry = relevant.get(0);
      
+     // Remove current position from list of possible positions
+     List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
+     
      // Sample random position to reach
-     Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
+     Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
      return ret;
    }
    
@@ -72,8 +75,11 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      // If there is an entry, return position
      ParkingIndexEntry entry = fromMap.get(0);
      
+     // Remove current position from list of possible positions
+     List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
+     
      // Sample random position to reach
-     Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
+     Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
      return ret;
    }
   return null; 
@@ -147,7 +153,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    
    for (ParkingKnowledgeEntry entry : fromKnowledge) {
      
-     if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0) {
+     if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime)) {
        knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
        continue;
      }

@@ -55,8 +55,12 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       // If there is an entry, return position
       ParkingIndexEntry entry = relevant.get(0);
 
+      // Remove current position from list of possible positions
+      List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
+      temp.remove(position);
+     
       // Sample random position to reach
-      Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
+      Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
       return ret;
     }
 
@@ -66,8 +70,11 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       // If there is an entry, return position
       ParkingIndexEntry entry = fromMap.get(0);
 
-      // Sample random position to reach
-      Coordinate ret = entry.getAllAccessPositions().get(ThreadLocalRandom.current().nextInt(entry.getAllAccessPositions().size()));
+      // Remove current position from list of possible positions
+      List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
+      
+      // Sample random position
+      Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
       return ret;
     }
     return null;
@@ -82,7 +89,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
       if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0)
         continue;
       
-      if (entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots() == 0)
+      if (entry.getNParkingSpots() == 0)
         continue;
  
       filtered.add(entry);
@@ -122,12 +129,12 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
     for (ParkingKnowledgeEntry entry : fromKnowledge) {
 
-      if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0) {
+      if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime)) {
         knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
         continue;
       }
       
-      if (entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots() == 0) {
+      if (entry.getNParkingSpots() == 0) {
         knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
         continue;
       }

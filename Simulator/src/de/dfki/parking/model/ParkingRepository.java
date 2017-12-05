@@ -51,6 +51,8 @@ public final class ParkingRepository {
     List<Parking> streetParking = new ObjectArrayList<>(streetParkingData.size());
 
     for (ParkingData data : streetParkingData) {
+      if (data.getNumberOfParkingSpots() == 0)
+        continue;
       // Get all streets from StreetMap using OSM nodes
       List<Street> streets = getStreetsFromNodes(data.getOSMNodes(), streetMap);
 
@@ -74,6 +76,9 @@ public final class ParkingRepository {
     List<Parking> garageParking = new ObjectArrayList<>(garageParkingData.size());
 
     for (ParkingData data : garageParkingData) {
+      if (data.getNumberOfParkingSpots() == 0)
+        continue;
+      
       // Find all nodes in StreetMap by node id
       List<StreetNode> accessNodes = new ObjectArrayList<>(data.getOSMNodes().size());
 

@@ -1,8 +1,5 @@
 package allow.simulator.world.overlay;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +12,8 @@ import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents a layer on top of a StreetMap, i.e. a partitioning of the points

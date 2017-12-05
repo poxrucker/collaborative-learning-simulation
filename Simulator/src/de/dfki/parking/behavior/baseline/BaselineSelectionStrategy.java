@@ -39,7 +39,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(Street current, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(Street current, Coordinate position, Coordinate destination, long currentTime) {
     // Filter those which are completely occupied
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
 
@@ -48,7 +48,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
 
     // If there is free parking possibilities, select a random one. Otherwise
     // return null
-    return rank(freeParkings, current.getEndNode().getPosition(), destination);
+    return rank(freeParkings, position, destination);
   }
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
@@ -95,9 +95,9 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
       List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
       
       // Remove current position from list of possible positions
-      positions.remove(currentPosition);
-      
-      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), positions.get(ThreadLocalRandom.current().nextInt(positions.size()))));
+      while (positions.remove(currentPosition)) {}
+      Coordinate t = positions.get(ThreadLocalRandom.current().nextInt(positions.size()));
+      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), t));
     }
     return ret;
   }

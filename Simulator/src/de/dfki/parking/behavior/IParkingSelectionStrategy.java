@@ -7,6 +7,6 @@ import allow.simulator.world.Street;
 
 public interface IParkingSelectionStrategy {
 
-  List<ParkingPossibility> selectParking(Street current, Coordinate destination, long currentTime);
+  List<ParkingPossibility> selectParking(Street current, Coordinate position, Coordinate destination, long currentTime);
   
 }

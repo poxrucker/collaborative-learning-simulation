@@ -205,11 +205,11 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 		
 		// These are intermediate nodes which can be determined by their position.
 		// Planner returns "streetname_lat,lon".
-		StreetNode n = map.getStreetNodeFromPosition(tokens[1]);
+		List<StreetNode> n = map.getStreetNodeFromPosition(tokens[1]);
 
 		if (n == null)
 			return "";
 		
-		return n.getLabel();
+		return n.get(0).getLabel();
 	}
 }

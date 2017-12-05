@@ -63,7 +63,7 @@ public final class Coordinate {
 			return false;
 			
 		Coordinate otherC = (Coordinate) other;
-		return (otherC.x == x) && (otherC.y == y);
+		return Double.compare(otherC.x, x) == 0 && Double.compare(otherC.y, y) == 0;
 	}
 	
 	@Override

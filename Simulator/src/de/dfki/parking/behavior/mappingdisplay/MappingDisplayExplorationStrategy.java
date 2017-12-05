@@ -63,12 +63,12 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      
      // Remove current position from list of possible positions
      List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
-     
+     while (temp.remove(position)) {}
+
      // Sample random position to reach
      Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
      return ret;
-   }
-   
+   }   
    List<ParkingIndexEntry> fromMap = getPossibleParkingFromIndex(fromKnowledge, position, destination, currentTime);
    
    if (fromMap.size() != 0) {
@@ -77,12 +77,13 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
      
      // Remove current position from list of possible positions
      List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
-     
+     while (temp.remove(position)) {}
+
      // Sample random position to reach
      Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
      return ret;
    }
-  return null; 
+  return null;
  }
  
  private List<ParkingKnowledgeEntry> mergeByTime(Collection<ParkingKnowledgeEntry> local, Collection<ParkingKnowledgeEntry> global) {
@@ -147,8 +148,8 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
  
  private List<ParkingIndexEntry> getPossibleParkingFromIndex(List<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination, long currentTime) {
    // Filter those which are valid and which have free parking spots
-   Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(destination, 500);
-   //List<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
+   Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(position, 200);
+   // Collection<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
    IntSet knowledgeIds = new IntOpenHashSet();
    
    for (ParkingKnowledgeEntry entry : fromKnowledge) {
@@ -162,8 +163,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
        knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());
        continue;
      }
-   }
-   
+   }   
    List<ParkingIndexEntry> ret = new ObjectArrayList<>();
    
    for (ParkingIndexEntry entry : fromIndex) {

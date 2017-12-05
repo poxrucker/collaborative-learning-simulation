@@ -86,12 +86,13 @@ public final class FindParkingSpot extends Activity<Person> {
 
       // Otherwise, select parking spot using selection strategy
       Coordinate dest = entity.getCurrentItinerary().to;
-      long currentTime = entity.getContext().getTime().getTimestamp();
-      List<ParkingPossibility> possibleParking = entity.getParkingSelectionStrategy().selectParking(current, dest, currentTime);     
+      long currentTime = entity.getContext().getTime().getTimestamp();  
+      List<ParkingPossibility> possibleParking = entity.getParkingSelectionStrategy().selectParking(current, entity.getPosition(), dest, currentTime);     
       
       // If parking spot candidate was found, calculate path, add Drive and FindParkingSpot activities
       if (possibleParking.size() > 0) {
         ParkingPossibility p = possibleParking.get(0);
+        formerCandidates.add(p.getPosition());
         
         // Set parking spot selected
         parkingSpotSelected = true;
@@ -100,21 +101,22 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingSpotCandidate = p.getParking();
         
         // Calculate path to parking spot
-        if (!p.getPosition().equals(entity.getPosition())) {
-          List<Street> path = getPathToParking(p.getPosition());
+        if (p.getPosition().equals(entity.getPosition())) {
+          System.out.println();
+        }
+        List<Street> path = getPathToParking(p.getPosition(), false);
 
-          // Add Drive and FindParkingSpot activities
-          if (path != null && path.size() > 0) {
-            Activity<Person> drive = new Drive(entity, path);
-            entity.getFlow().addAfter(this, drive);
-            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate, formerCandidates);
-            entity.getFlow().addAfter(drive, park);
-            setFinished();
-            
-          } else if (path == null){
-            // System.out.println("No path to parking found initial");
-          }
-        }        
+        // Add Drive and FindParkingSpot activities
+        if (path != null && path.size() > 0) {
+          Activity<Person> drive = new Drive(entity, path);
+          entity.getFlow().addAfter(this, drive);
+          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate, formerCandidates);
+          entity.getFlow().addAfter(drive, park);
+          setFinished();
+
+        } else if (path == null) {
+          // System.out.println("No path to parking found initial");
+        }
         return 0;
       }
       // Select next destination to look for parking possibility
@@ -124,7 +126,7 @@ public final class FindParkingSpot extends Activity<Person> {
         formerCandidates.add(next);
 
         // Calculate path to parking spot
-        List<Street> path = getPathToParking(next);
+        List<Street> path = getPathToParking(next, true);
 
         // Add Drive and FindParkingSpot activities
         if (path != null && path.size() > 0) {
@@ -235,8 +237,8 @@ public final class FindParkingSpot extends Activity<Person> {
     stats.reportParkingCosts(c);
     stats.reportParkingWalkingDistance(wd);
     
-    if (st > 15 * 60) {
-      // printPath(formerCandidates);
+    if (st > 20 * 60) {
+      printPath(formerCandidates);
     }
   }
 
@@ -248,7 +250,7 @@ public final class FindParkingSpot extends Activity<Person> {
     }
   }
   
-  private List<Street> getPathToParking(Coordinate to) {
+  private List<Street> getPathToParking(Coordinate to, boolean fallback) {
     
     if (to.equals(entity.getPosition()))
         return new ObjectArrayList<>(0);
@@ -262,7 +264,10 @@ public final class FindParkingSpot extends Activity<Person> {
       List<Itinerary> it = entity.getContext().getJourneyPlanner().requestSingleJourney(temp, new ArrayList<Itinerary>(1)).get();
 
       if (it.size() == 0) {
-        //System.out.println("No journey from " + from + " to " + to);
+//        StreetMap map = (StreetMap)entity.getContext().getWorld();
+//        List<StreetNode> first = map.getStreetNodeFromPosition(from.y + "," + from.x);
+//        List<StreetNode> second = map.getStreetNodeFromPosition(to.y + "," + to.x);
+//        System.out.println("No " + (fallback ? "fallback " : " ") + "journey from " + first + " ("  + from + ") to " + second + "(" + to + ")");
         return null;
       }
 

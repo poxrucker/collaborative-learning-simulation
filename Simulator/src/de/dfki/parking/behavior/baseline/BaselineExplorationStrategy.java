@@ -57,13 +57,13 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
       // Remove current position from list of possible positions
       List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
-      temp.remove(position);
      
+      while (temp.remove(position)) {}
+
       // Sample random position to reach
       Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
       return ret;
     }
-
     List<ParkingIndexEntry> fromMap = getPossibleParkingFromIndex(fromKnowledge, position, destination, currentTime);
 
     if (fromMap.size() != 0) {
@@ -72,6 +72,8 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
       // Remove current position from list of possible positions
       List<Coordinate> temp = new ObjectArrayList<>(entry.getAllAccessPositions());
+      
+      while (temp.remove(position)) {}
       
       // Sample random position
       Coordinate ret = temp.get(ThreadLocalRandom.current().nextInt(temp.size()));
@@ -122,8 +124,8 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
   private List<ParkingIndexEntry> getPossibleParkingFromIndex(Collection<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination,
       long currentTime) {
     // Filter those which are valid and which have free parking spots
-    Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(destination, 500);
-    // List<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
+    Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(position, 200);
+    // Collection<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
 
     IntSet knowledgeIds = new IntOpenHashSet();
 

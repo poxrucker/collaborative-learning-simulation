@@ -28,7 +28,7 @@ public final class ParkingPreferencesFactory {
     double stweight = 15.0;
     double cmax = 2.8;
     double wdmax = 500;
-    double stmax = 5 * 60; 
+    double stmax = 10 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }
   
@@ -38,7 +38,7 @@ public final class ParkingPreferencesFactory {
     double stweight = 35.0;
     double cmax = 2.8;
     double wdmax = 500;
-    double stmax = 5 * 60; 
+    double stmax = 10 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }
   
@@ -48,7 +48,7 @@ public final class ParkingPreferencesFactory {
     double stweight = 50.0;
     double cmax = 2.8;
     double wdmax = 500;
-    double stmax = 5 * 60; 
+    double stmax = 10 * 60; 
     return new ParkingPreferences(cweight, wdweight, stweight, cmax, wdmax, stmax);
   }
 }

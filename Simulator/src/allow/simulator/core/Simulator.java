@@ -133,7 +133,7 @@ public final class Simulator {
     
     // Initialize ParkingRepository
     ParkingFactory parkingFactory = new ParkingFactory(params.DataScalingFactor, 0.0);
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, world, parkingFactory);
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, world, parkingFactory, true);
     
     // Initialize ParkingIndex
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);

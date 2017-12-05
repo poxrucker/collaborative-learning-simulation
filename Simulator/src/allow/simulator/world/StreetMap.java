@@ -21,6 +21,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 
@@ -49,9 +50,8 @@ public final class StreetMap extends World implements Observer {
 	private Object2ObjectOpenHashMap<String, StreetNode> nodesReduced;	
 	private Object2ObjectOpenHashMap<String, Street> streets;
 	private Object2ObjectOpenHashMap<String, StreetNode> nodes;
-	private Object2ObjectOpenHashMap<String, StreetNode> posNodes;
+	private Object2ObjectOpenHashMap<String, List<StreetNode>> posNodes;
 	private Object2ObjectOpenHashMap<String, List<Street>> streetsByName;
-	
 	// Set of street segments to update after each time step.
 	private ObjectOpenHashSet<Street> streetsToUpdate;
 	private Queue<Street> busiestStreets;
@@ -63,7 +63,7 @@ public final class StreetMap extends World implements Observer {
 		streets = new Object2ObjectOpenHashMap<String, Street>();
 		streetsByName = new Object2ObjectOpenHashMap<>();
 		nodesReduced = new Object2ObjectOpenHashMap<String, StreetNode>();
-		posNodes = new Object2ObjectOpenHashMap<String, StreetNode>();
+		posNodes = new Object2ObjectOpenHashMap<String, List<StreetNode>>();
 		busiestStreets = new LinkedList<Street>();
 		blockedStreets = new Long2ObjectOpenHashMap<Street>();
 		loadStreetNetwork(path);
@@ -95,7 +95,14 @@ public final class StreetMap extends World implements Observer {
 			if (c.y > dimensions[3]) dimensions[3] = c.y;
 			StreetNode n = new StreetNode(nodeIds++, tokens[0], c);
 			nodes.put(tokens[0], n);
-			posNodes.put(c.y + "," + c.x, n);
+			
+			List<StreetNode> nodes = posNodes.get(c.y + "," + c.x);
+			
+			if (nodes == null) {
+			  nodes = new ObjectArrayList<>();
+		    posNodes.put(c.y + "," + c.x, nodes);
+			}
+      nodes.add(n);
 		}
 		offset++;
 
@@ -137,13 +144,9 @@ public final class StreetMap extends World implements Observer {
 			}
 			segments.trimToSize();
 			Street s = new Street(edgeIds++, name, segments);
-			
-			//if (!streets.containsKey(source.getLabel() + ";;" + dest.getLabel())) {
-				s.addObserver(this);
-				
-				streets.put(source.getLabel() + ";;" + dest.getLabel(), s);
-				map.addEdge(s, segments.get(0).getStartingNode(), segments.get(segments.size() - 1).getEndingNode());
-			//}
+			s.addObserver(this);	
+			streets.put(source.getLabel() + ";;" + dest.getLabel(), s);
+			map.addEdge(s, s.getStartingNode(), s.getEndNode());
 				
 			List<Street> byName = streetsByName.get(name);
 			
@@ -163,8 +166,6 @@ public final class StreetMap extends World implements Observer {
 			//}
 		}
 		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 4);
-		// System.out.println("|V|: " + map.getVertexCount() + ", |E|: " + map.getEdgeCount() + " " 
-		// + dimensions[0] + " " + dimensions[1] + " " + dimensions[2] + " " + dimensions[3]);
 	}
 	
 	public void setStreetBlocked(Street street, boolean blocked) {		
@@ -294,7 +295,7 @@ public final class StreetMap extends World implements Observer {
 		return nodesReduced.get(label);
 	}
 	
-	public StreetNode getStreetNodeFromPosition(String posString) {
+	public List<StreetNode> getStreetNodeFromPosition(String posString) {
 		return posNodes.get(posString);
 	}
 	

@@ -95,6 +95,10 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 		if (path.size() == 0) {
 			return null;
 		}
+		
+		if (isFinished()) {
+		  return path.get(path.size() - 1).getEndNode().getPosition();
+		}
 		// Get current segment.
 		StreetSegment currentSeg = getCurrentSegment();
 		

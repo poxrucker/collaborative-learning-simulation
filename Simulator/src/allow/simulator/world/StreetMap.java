@@ -139,8 +139,6 @@ public final class StreetMap extends World implements Observer {
 				// Add reversed segment for walking.
 				StreetSegment segRev = new StreetSegment(edgeIds++, end, start, speedLimit, seg.getLength());
 				segmentsRev.add(segRev);
-				//if (end.getLabel().startsWith("split"))
-				//map.addEdge(segRev, end, start, EdgeType.DIRECTED); 
 			}
 			segments.trimToSize();
 			Street s = new Street(edgeIds++, name, segments);
@@ -155,15 +153,6 @@ public final class StreetMap extends World implements Observer {
 		    streetsByName.put(name, byName);
 			}
 			byName.add(s);
-			
-			//Collections.reverse(segmentsRev);
-			//Street sRev = new Street(linkIds++, name, segmentsRev);
-			
-			//if (!streets.containsKey(dest.getLabel() + ";;" + source.getLabel())) {
-			//	sRev.addObserver(this);
-			//	streets.put(dest.getLabel() + ";;" + source.getLabel(), sRev);
-			//	map.addEdge(sRev, segmentsRev.get(0).getStartingNode(), segmentsRev.get(segmentsRev.size() - 1).getEndingNode());
-			//}
 		}
 		streetsToUpdate = new ObjectOpenHashSet<Street>(streets.size() / 4);
 	}

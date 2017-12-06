@@ -1,4 +1,4 @@
-package de.dfki.netlogo.commands.constructionsite;
+package de.dfki.constructionsite.netlogo;
 
 import org.nlogo.agent.Agent;
 import org.nlogo.agent.AgentSet;

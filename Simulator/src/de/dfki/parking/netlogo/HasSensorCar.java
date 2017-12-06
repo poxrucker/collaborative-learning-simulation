@@ -1,4 +1,4 @@
-package de.dfki.netlogo.commands.constructionsite;
+package de.dfki.parking.netlogo;
 
 import org.nlogo.agent.Agent;
 import org.nlogo.api.Argument;
@@ -12,7 +12,7 @@ import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
 import allow.simulator.netlogo.agent.IAgentAdapter;
 
-public class IsInformed extends DefaultReporter {
+public class HasSensorCar extends DefaultReporter {
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
@@ -28,7 +28,7 @@ public class IsInformed extends DefaultReporter {
 			throw new ExtensionException("Error: Calling agent must be a Person agent.");
 		
 		Person p = (Person)entity;
-		return p.isInformed();
+		return p.hasSensorCar();
 	}
 	
 	public Syntax getSyntax() {

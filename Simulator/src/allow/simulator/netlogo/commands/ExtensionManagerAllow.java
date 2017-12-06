@@ -4,10 +4,10 @@ import org.nlogo.api.DefaultClassManager;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.PrimitiveManager;
 
-import de.dfki.netlogo.commands.constructionsite.IsInformed;
-import de.dfki.netlogo.commands.constructionsite.IsReceiving;
-import de.dfki.netlogo.commands.constructionsite.IsSharing;
-import de.dfki.netlogo.commands.constructionsite.UpdateGrid;
+import de.dfki.constructionsite.netlogo.IsInformed;
+import de.dfki.constructionsite.netlogo.IsReceiving;
+import de.dfki.constructionsite.netlogo.IsSharing;
+import de.dfki.constructionsite.netlogo.UpdateGrid;
 
 
 public class ExtensionManagerAllow extends DefaultClassManager {

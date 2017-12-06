@@ -1,4 +1,4 @@
-package de.dfki.netlogo.commands.constructionsite;
+package de.dfki.constructionsite.netlogo;
 
 import java.io.IOException;
 import java.nio.file.Path;

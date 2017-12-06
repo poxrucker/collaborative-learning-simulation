@@ -1,4 +1,4 @@
-package de.dfki.netlogo.commands.parking;
+package de.dfki.parking.netlogo;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,4 +1,4 @@
-package de.dfki.netlogo.commands.parking;
+package de.dfki.parking.netlogo;
 
 import org.nlogo.agent.Agent;
 import org.nlogo.api.Argument;

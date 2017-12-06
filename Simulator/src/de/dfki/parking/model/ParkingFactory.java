@@ -2,7 +2,6 @@ package de.dfki.parking.model;
 
 import java.util.List;
 
-import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
 
 public final class ParkingFactory {
@@ -35,13 +34,13 @@ public final class ParkingFactory {
    * @param name Name of the parking
    * @param pricePerHour Price per hour
    * @param nParkingSpots Number of parking spots
-   * @param streets List of Street instances
+   * @param nodes List of StreetNode instances
    * @return Parking instance
    */
-  public Parking createStreetParking(String name, double pricePerHour, int nParkingSpots, List<Street> streets) {
+  public Parking createStreetParking(String name, double pricePerHour, int nParkingSpots, List<StreetNode> nodes) {
     double adjustedPricePerHour = adjust(pricePerHour, pricePerHourOffset);
     int scaledNParkingSpots = (int) Math.ceil(scale(nParkingSpots, parkingSpotScalingFactor));
-    return new StreetParking(ids++, name, name, adjustedPricePerHour, scaledNParkingSpots, streets);
+    return new StreetParking(ids++, name, name, adjustedPricePerHour, scaledNParkingSpots, nodes);
   }
   
   /**

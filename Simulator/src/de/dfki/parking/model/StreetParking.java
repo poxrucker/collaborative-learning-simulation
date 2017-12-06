@@ -2,20 +2,20 @@ package de.dfki.parking.model;
 
 import java.util.List;
 
-import allow.simulator.world.Street;
+import allow.simulator.world.StreetNode;
 
 public final class StreetParking extends Parking {
 
-  private final List<Street> streets;
+  private final List<StreetNode> nodes;
   
   public StreetParking(int id, String name, String address, double defaultPricePerHour, 
-      int numberOfParkingSpots, List<Street> streets) {
+      int numberOfParkingSpots, List<StreetNode> nodes) {
     super(id, Type.STREET, name, address, defaultPricePerHour, numberOfParkingSpots);
-    this.streets = streets;
+    this.nodes = nodes;
   }
 
-  public List<Street> getStreets() {
-    return streets;
+  public List<StreetNode> getNodes() {
+    return nodes;
   }
   
   @Override

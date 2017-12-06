@@ -24,7 +24,7 @@ public final class TestParking {
     
     StreetMap streetMap = new StreetMap(streetMapPath);
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(streetParkingPath, garageParkingPath);
-    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, streetMap, new ParkingFactory(1.0, 0.0));
+    ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, streetMap, new ParkingFactory(1.0, 0.0), false);
     ParkingIndex index = ParkingIndex.build(parkingRepository);
     
     try (BufferedWriter writer = Files.newBufferedWriter(output.resolve("bounds.txt"))) {

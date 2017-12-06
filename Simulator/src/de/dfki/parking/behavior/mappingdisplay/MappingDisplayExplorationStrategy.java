@@ -50,8 +50,8 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
  @Override
  public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
    // Find all parking possibilities in range from knowledge
-   Collection<ParkingKnowledgeEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(destination, 500);
-   Collection<ParkingKnowledgeEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(destination, 500);
+   Collection<ParkingKnowledgeEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(position, 500);
+   Collection<ParkingKnowledgeEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(position, 500);
    List<ParkingKnowledgeEntry> fromKnowledge = mergeByTime(fromLocalKnowledge, fromGlobalKnowledge);
    
    // See if recent relevant entries in knowledge exist and return them ranked by utility

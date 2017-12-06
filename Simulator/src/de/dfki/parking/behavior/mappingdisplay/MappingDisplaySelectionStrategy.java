@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.util.Triple;
-import allow.simulator.world.Street;
+import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.behavior.ParkingPreferences;
@@ -44,7 +44,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(Street current, Coordinate position, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate position, Coordinate destination, long currentTime) {
     // Filter those which are completely occupied
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
 
@@ -56,13 +56,13 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     return rank(freeParkings, position, destination);
   }
 
-  private List<ParkingKnowledgeEntry> findPossibleParkings(Street current, Coordinate destination, long currentTime) {
+  private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
     Collection<ParkingKnowledgeEntry> local = localParkingMap.findStreetParking(current);
-    local.addAll(localParkingMap.findGarageParking(current.getEndNode()));
+    local.addAll(localParkingMap.findGarageParking(current));
 
     Collection<ParkingKnowledgeEntry> global = globalParkingMap.findStreetParking(current);
-    global.addAll(globalParkingMap.findGarageParking(current.getEndNode()));
+    global.addAll(globalParkingMap.findGarageParking(current));
 
     Collection<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
 
@@ -119,12 +119,13 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
 
     for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {
       // Remove current position from list of possible positions
-      List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
+      //List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
       
       // Remove current position from list of possible positions
-      while (positions.remove(currentPosition)) {}
+      //while (positions.remove(currentPosition)) {}
       
-      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), positions.get(ThreadLocalRandom.current().nextInt(positions.size()))));
+      // ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), positions.get(ThreadLocalRandom.current().nextInt(positions.size()))));
+      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), new Coordinate(currentPosition.x, currentPosition.y)));
     }
     return ret;
   }

@@ -65,8 +65,9 @@ public final class ParkingRepository {
       
       for (String key : streetPairs.keySet()) {
         List<Street> streetPair = streetPairs.get(key);
+        List<StreetNode> nodes = new ObjectArrayList<>(new StreetNode[] { streetPair.get(0).getStartingNode(), streetPair.get(0).getEndNode() });
         int nSpots = parkingSpotsPerPair.get(key);
-        Parking parking = parkingFactory.createStreetParking(data.getAddress(), data.getPricePerHour(), nSpots, streetPair);
+        Parking parking = parkingFactory.createStreetParking(data.getAddress(), data.getPricePerHour(), nSpots, nodes);
         streetParking.add(parking);
       }     
     }

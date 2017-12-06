@@ -46,7 +46,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
   @Override
   public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
     // Find all parking possibilities in range from knowledge
-    Collection<ParkingKnowledgeEntry> fromKnowledge = knowledge.findParkingNearby(destination, 500);
+    Collection<ParkingKnowledgeEntry> fromKnowledge = knowledge.findParkingNearby(position, 500);
 
     // See if recent relevant entries in knowledge exist and return them ranked by utility
     List<ParkingIndexEntry> relevant = getRelevantEntriesFromKnowlede(fromKnowledge, position, destination, currentTime);

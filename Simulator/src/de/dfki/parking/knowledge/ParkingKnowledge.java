@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
@@ -36,20 +35,23 @@ public final class ParkingKnowledge {
     ret.update(nFreeParkingSpots, time);
   }
 
-  public Collection<ParkingKnowledgeEntry> findStreetParking(Street street) {
+  public Collection<ParkingKnowledgeEntry> findStreetParking(StreetNode node) {
     // Get parking possibilities in street from ParkingMap
-    ParkingIndexEntry entry = parkingIndex.getParkingInStreet(street);
+    Collection<ParkingIndexEntry> entries = parkingIndex.getParkingInStreet(node);
 
-    if (entry == null)
+    if (entries == null)
       return new ObjectArrayList<>(0);
 
-    ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
+    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(entries.size());
+    
+    for (ParkingIndexEntry entry : entries) {
+      ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
 
-    if (knowledgeEntry == null)
-      return new ObjectArrayList<>(0);
+      if (knowledgeEntry == null)
+        continue;
 
-    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(1);
-    res.add(knowledgeEntry);
+      res.add(knowledgeEntry);
+    } 
     return res;
   }
 

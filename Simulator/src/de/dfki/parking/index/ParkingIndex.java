@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.model.GarageParking;
 import de.dfki.parking.model.Parking;
@@ -23,7 +22,7 @@ public final class ParkingIndex {
   private final Int2ObjectMap<ParkingIndexEntry> parkingIndex;
 
   // Street id to ParkingIndexEntry mapping
-  private final Int2ObjectMap<ParkingIndexEntry> streetParkingIndex;
+  private final Int2ObjectMap<List<ParkingIndexEntry>> streetParkingIndex;
     
   // StreetNode id to ParkingIndexEntry mapping
   private final Int2ObjectMap<ParkingIndexEntry> garageParkingIndex;
@@ -31,7 +30,7 @@ public final class ParkingIndex {
   // Spatial index mapping positions to ParkingMapEntry instances for bounding box lookups
   private final UnmodifiableSpatialIndex<ParkingIndexEntry> spatialIndex;
 
-  private ParkingIndex(Int2ObjectMap<ParkingIndexEntry> parkingIndex, Int2ObjectMap<ParkingIndexEntry> streetParkingIndex,
+  private ParkingIndex(Int2ObjectMap<ParkingIndexEntry> parkingIndex, Int2ObjectMap<List<ParkingIndexEntry>> streetParkingIndex,
       Int2ObjectMap<ParkingIndexEntry> garageParkingIndex, UnmodifiableSpatialIndex<ParkingIndexEntry> spatialIndex) {
     this.parkingIndex = parkingIndex;
     this.streetParkingIndex = streetParkingIndex;
@@ -104,8 +103,8 @@ public final class ParkingIndex {
    * @param street Street to get ParkingIndexEntry for
    * @return ParkingIndexEntry associated with the given Street
    */
-  public ParkingIndexEntry getParkingInStreet(Street street) {
-    return streetParkingIndex.get(street.getId());
+  public Collection<ParkingIndexEntry> getParkingInStreet(StreetNode node) {
+    return streetParkingIndex.get(node.getId());
   }
 
   /**
@@ -189,7 +188,7 @@ public final class ParkingIndex {
     Int2ObjectMap<ParkingIndexEntry> parkingIndex = buildParkingIndex(parkingRepository);
     
     // Build street parking index (mapping id of streets to respective ParkingIndexEntry)
-    Int2ObjectMap<ParkingIndexEntry> streetParkingIndex = buildStreetParkingIndex(parkingRepository.getStreetParking(), parkingIndex);
+    Int2ObjectMap<List<ParkingIndexEntry>> streetParkingIndex = buildStreetParkingIndex(parkingRepository.getStreetParking(), parkingIndex);
     
     // Build garage parking index (mapping id of nodes to respective ParkingIndexEntry)
     Int2ObjectMap<ParkingIndexEntry> garageParkingIndex = buildGarageParkingIndex(parkingRepository.getGarageParking(), parkingIndex);
@@ -221,9 +220,8 @@ public final class ParkingIndex {
       // Collect all unique street node positions to compute reference position
       Collection<Coordinate> positions = new ObjectOpenHashSet<>();
       
-      for (Street street : temp.getStreets()) {
-        positions.add(street.getStartingNode().getPosition());
-        positions.add(street.getEndNode().getPosition());
+      for (StreetNode node : temp.getNodes()) {
+        positions.add(node.getPosition());
       }  
       // Add a new index entry for current Parking instance
       parkingIndex.put(parking.getId(), new ParkingIndexEntry(parking, new ObjectArrayList<>(positions), getReferencePosition(positions)));
@@ -231,17 +229,23 @@ public final class ParkingIndex {
     return parkingIndex;
   }
   
-  private static Int2ObjectMap<ParkingIndexEntry> buildStreetParkingIndex(Collection<Parking> streetParking, 
+  private static Int2ObjectMap<List<ParkingIndexEntry>> buildStreetParkingIndex(Collection<Parking> streetParking, 
       Int2ObjectMap<ParkingIndexEntry> parkingIndex) {
-    Int2ObjectMap<ParkingIndexEntry> streetParkingIndex = new Int2ObjectOpenHashMap<>();
+    Int2ObjectMap<List<ParkingIndexEntry>> streetParkingIndex = new Int2ObjectOpenHashMap<>();
     
     for (Parking parking : streetParking) {
       // Get ParkingIndexEntry of StreetParking instance and link it to street ids
       ParkingIndexEntry entry = parkingIndex.get(parking.getId());
       StreetParking temp = (StreetParking)parking;
       
-      for (Street street : temp.getStreets()) {
-        streetParkingIndex.put(street.getId(), entry);
+      for (StreetNode node : temp.getNodes()) {
+        List<ParkingIndexEntry> t = streetParkingIndex.get(node.getId());
+        
+        if (t == null) {
+          t = new ObjectArrayList<>(2);
+          streetParkingIndex.put(node.getId(), t);
+        }
+        t.add(entry);
       }
     } 
     return streetParkingIndex;

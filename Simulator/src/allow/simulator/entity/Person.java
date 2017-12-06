@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import allow.simulator.core.Context;
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
@@ -238,7 +238,7 @@ public final class Person extends Entity {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		DistrictOverlay districts = (DistrictOverlay) context.getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay districts = (DistrictOverlay) context.getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		List<Area> areas = districts.getAreasContainingPoint(home);
 		Area temp = null;
 		

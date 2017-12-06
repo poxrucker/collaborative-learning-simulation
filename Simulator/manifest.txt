@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Extension-Name: parking
-Class-Manager: de.dfki.netlogo.commands.parking.ExtensionManagerParkingSpot
+Class-Manager: de.dfki.netlogo.commands.parking.ExtensionManagerParking
 NetLogo-Extension-API-Version: 5.0

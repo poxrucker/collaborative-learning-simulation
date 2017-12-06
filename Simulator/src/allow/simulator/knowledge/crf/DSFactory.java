@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.core.EvoKnowledgeConfig;
 
 public class DSFactory {
 
-	private static EvoKnowledgeConfiguration config = null;
+	private static EvoKnowledgeConfig config = null;
 	
-	public static void init(EvoKnowledgeConfiguration config) {
+	public static void init(EvoKnowledgeConfig config) {
 		DSFactory.config = config;
 	}
 	

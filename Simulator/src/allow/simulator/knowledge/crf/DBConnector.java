@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.core.EvoKnowledgeConfig;
 import allow.simulator.entity.Entity;
 import allow.simulator.knowledge.Experience;
 
@@ -23,7 +23,7 @@ public class DBConnector {
 	
 	// Dictionary holding tables which have been 
 	private static String prefix = null;
-	private static EvoKnowledgeConfiguration config;
+	private static EvoKnowledgeConfig config;
 	private static CRFKnowledgeModel model;
 	private static DBType dbType;
 	
@@ -177,7 +177,7 @@ public class DBConnector {
 		System.out.println("EvoKnowledge database connector initialized.");
 	}
 	
-	public static void init(EvoKnowledgeConfiguration config, String knowledgeModel, String prefix) {
+	public static void init(EvoKnowledgeConfig config, String knowledgeModel, String prefix) {
 		DBConnector.prefix = prefix;
 		DBConnector.config = config;
 		DSFactory.init(config);

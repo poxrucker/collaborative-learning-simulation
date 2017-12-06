@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.person.PlanJourney;
 import allow.simulator.util.Coordinate;
@@ -71,7 +71,7 @@ public final class PlanGenerator {
 	private static int PROP_DEST_STUDENT[] = { 25, 5, 70, 0, 0, 0 };
 
 	private static void generateStudentDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
@@ -144,7 +144,7 @@ public final class PlanGenerator {
 	private static int PROP_DEST_WORKER[] = { 15, 10, 75, 0, 0, 0 };
 
 	private static void generateWorkerDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
@@ -202,7 +202,7 @@ public final class PlanGenerator {
 	private static int PROP_DEST_HOMEMAKER[] = { 25, 20, 25, 5, 0, 15 };
 
 	private static void generateHomemakerDayPlan(Person person) {
-		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(Simulator.OVERLAY_DISTRICTS);
+		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
 		// Journey in the morning?

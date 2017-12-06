@@ -488,7 +488,9 @@ public class Statistics {
 		Collection<Entity> persons = simulationContext.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 		updateMeanTransportPreferences(persons);
 		updateJourneyChoices();
-		coverageStats.updateStatistics(simulationContext.getTime().getTimestamp());
+		
+		if (coverageStats != null)
+		  coverageStats.updateStatistics(simulationContext.getTime().getTimestamp());
 	}
 	
 	private void updateMeanTransportPreferences(Collection<Entity> persons) {

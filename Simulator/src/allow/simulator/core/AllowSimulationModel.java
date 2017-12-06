@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -62,6 +63,7 @@ import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
+import de.dfki.simulation.AbstractSimulationModel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
@@ -71,7 +73,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Simulator {
+public final class AllowSimulationModel extends AbstractSimulationModel {
   // Simulation context
   private Context context;
 
@@ -86,9 +88,12 @@ public final class Simulator {
    * 
    * @throws IOException
    */
-  public void setup(Configuration config, SimulationParameter params) throws IOException {
+  public void setup(Map<String, Object> parameters) throws Exception {
     threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
+    Configuration config = (Configuration)parameters.get("config");
+    SimulationParameter params = (SimulationParameter)parameters.get("params");
+    
     // Setup world
     StreetMap world = initializeStreetMap(config, params);
 
@@ -109,10 +114,10 @@ public final class Simulator {
 
     // Create planner services.
     List<OTPPlanner> plannerServices = new ArrayList<OTPPlanner>();
-    List<Service> plannerConfigs = config.getPlannerServiceConfiguration();
+    List<ServiceConfig> plannerConfigs = config.getPlannerServiceConfiguration();
 
     for (int i = 0; i < plannerConfigs.size(); i++) {
-      Service plannerConfig = plannerConfigs.get(i);
+      ServiceConfig plannerConfig = plannerConfigs.get(i);
       plannerServices.add(new OTPPlanner(plannerConfig.getURL(), plannerConfig.getPort(), world, dataServices.get(0), time));
     }
 
@@ -201,9 +206,9 @@ public final class Simulator {
 
   private List<IDataService> initializeDataServices(Configuration config, StreetMap map) throws IOException {
     List<IDataService> dataServices = new ObjectArrayList<IDataService>();
-    List<Service> dataConfigs = config.getDataServiceConfiguration();
+    List<ServiceConfig> dataConfigs = config.getDataServiceConfiguration();
 
-    for (Service dataConfig : dataConfigs) {
+    for (ServiceConfig dataConfig : dataConfigs) {
 
       if (dataConfig.isOnline()) {
         // For online queries create online data services.
@@ -434,7 +439,7 @@ public final class Simulator {
    * 
    * @throws IOException
    */
-  public void tick() throws IOException {
+  public void tick() {
     // Save current day to trigger routine scheduling
     int days = context.getTime().getDays();
 
@@ -485,7 +490,7 @@ public final class Simulator {
     return context;
   }
 
-  public void finish() throws IOException {
+  public void finish() {
     threadpool.shutdown();
 
     try {

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class WorldConfiguration {
+public class WorldConfig {
 	// Path to world map. 
 	private String map;
 	
@@ -31,7 +31,7 @@ public class WorldConfiguration {
 	 * @param weatherPath Weather model to simulate.
 	 */
 	@JsonCreator
-	public WorldConfiguration(@JsonProperty("map") String mapPath,
+	public WorldConfig(@JsonProperty("map") String mapPath,
 			@JsonProperty("layer") Map<String, String> layerPaths,
 			@JsonProperty("weather") String weatherPath) {
 		map = mapPath;

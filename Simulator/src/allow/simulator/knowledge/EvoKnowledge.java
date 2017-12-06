@@ -9,7 +9,7 @@ import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import allow.simulator.core.EvoKnowledgeConfiguration;
+import allow.simulator.core.EvoKnowledgeConfig;
 import allow.simulator.entity.Bus;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.Person;
@@ -36,7 +36,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 	private static WorkerPool workerPool;
 	private static ExecutorService service;
 	
-	public static void initialize(EvoKnowledgeConfiguration config, String knowledgeModel, String prefix, ExecutorService service) {
+	public static void initialize(EvoKnowledgeConfig config, String knowledgeModel, String prefix, ExecutorService service) {
 		DBConnector.init(config, knowledgeModel, prefix);
 		predictBuffer = new LinkedList<Pair<Entity, List<Itinerary>>>();
 		tasks = new ArrayList<Worker>();

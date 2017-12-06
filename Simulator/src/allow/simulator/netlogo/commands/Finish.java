@@ -1,7 +1,5 @@
 package allow.simulator.netlogo.commands;
 
-import java.io.IOException;
-
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
 import org.nlogo.api.DefaultCommand;
@@ -11,7 +9,7 @@ import org.nlogo.api.Syntax;
 
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 
-public class ShutDownSimulator extends DefaultCommand {
+public class Finish extends DefaultCommand {
 		
 	@Override
 	public void perform(Argument[] args, Context context) throws ExtensionException, LogoException {
@@ -19,7 +17,7 @@ public class ShutDownSimulator extends DefaultCommand {
 		
 		try {
 			NetLogoWrapper.delete(runId);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -19,34 +19,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public class Configuration {
+public final class Configuration {
 	// Starting date of the simulation.
 	private final LocalDateTime startingDate;
 	
 	// Configuration of planner service.
-	private final List<Service> plannerServiceConfiguration;
-	private final boolean allowParallelClientRequests;
+	private final List<ServiceConfig> plannerServiceConfiguration;
 	
 	// Configuration of data service.
-	private final List<Service> dataServiceConfiguration;
+	private final List<ServiceConfig> dataServiceConfiguration;
 	
 	// Path to world file.
-	private final WorldConfiguration worldConfiguration;
+	private final WorldConfig worldConfiguration;
 		
 	// Path to agent configuration file.
-	private final AgentConfiguration agentConfiguration;
+	private final AgentConfig agentConfiguration;
 	
 	// EvoKnowledge configuration information.
-	private final EvoKnowledgeConfiguration evoConfiguration;
-	
-	// Path to logging output.
-	private final String loggingPath;
+	private final EvoKnowledgeConfig evoConfiguration;
 	
 	// Path to input data sources.
 	private final String dataPath;
 	
 	/**
-	 * Constructor.
 	 * Creates a new configuration for the Allow Ensembles simulator.
 	 * 
 	 * @param dataPath Path to input data sources of simulation.
@@ -60,22 +55,18 @@ public class Configuration {
 	@JsonCreator
 	public Configuration(@JsonProperty("datapath") String dataPath,
 			@JsonProperty("startingdate") String startingDate, 
-			@JsonProperty("plannerservice") List<Service> plannerServices,
-			@JsonProperty("allowParallelClientRequests") boolean allowParallelClientRequests,
-			@JsonProperty("dataservice") List<Service> dataServices,
-			@JsonProperty("world") WorldConfiguration worldConfig,
-			@JsonProperty("agents") AgentConfiguration agentConfig,
-			@JsonProperty("evoknowledge") EvoKnowledgeConfiguration evoConfig,
-			@JsonProperty("loggingpath") String loggingPath) throws ParseException {
+			@JsonProperty("plannerservice") List<ServiceConfig> plannerServices,
+			@JsonProperty("dataservice") List<ServiceConfig> dataServices,
+			@JsonProperty("world") WorldConfig worldConfig,
+			@JsonProperty("agents") AgentConfig agentConfig,
+			@JsonProperty("evoknowledge") EvoKnowledgeConfig evoConfig) throws ParseException {
 		this.dataPath = dataPath;
 		this.startingDate = LocalDateTime.parse(startingDate, DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm:ss", Locale.ITALY));
 		this.plannerServiceConfiguration = plannerServices;
-		this.allowParallelClientRequests = allowParallelClientRequests;
 		this.dataServiceConfiguration = dataServices;
 		this.worldConfiguration = worldConfig;
 		this.agentConfiguration = agentConfig;
 		this.evoConfiguration = evoConfig;
-		this.loggingPath = loggingPath;
 	}
 	
 	/**
@@ -100,12 +91,8 @@ public class Configuration {
 		return Paths.get(dataPath, agentConfiguration.getAgentConfigurationFile());
 	}
 	
-	public EvoKnowledgeConfiguration getEvoKnowledgeConfiguration() {
+	public EvoKnowledgeConfig getEvoKnowledgeConfiguration() {
 		return evoConfiguration;
-	}
-	
-	public Path getTracesOutputPath() {
-		return Paths.get(loggingPath, "traces");
 	}
 	
 	/**
@@ -122,20 +109,8 @@ public class Configuration {
 	 * 
 	 * @return Planner service configuration.
 	 */
-	public List<Service> getPlannerServiceConfiguration() {
+	public List<ServiceConfig> getPlannerServiceConfiguration() {
 		return plannerServiceConfiguration;
-	}
-	
-	/**
-	 * Returns whether parallel client requests to the planner instances are
-	 * possible or not. This flag is used for backwards compatibility of old
-	 * OTP versions (< 0.11) which allow only one client to query a planner
-	 * instance at a time.
-	 * 
-	 * @return True, if parallel client requests are possible, false otherwise.
-	 */
-	public boolean allowParallelClientRequests() {
-		return allowParallelClientRequests;
 	}
 	
 	/**
@@ -143,17 +118,8 @@ public class Configuration {
 	 * 
 	 * @return Data service configuration.
 	 */
-	public List<Service> getDataServiceConfiguration() {
+	public List<ServiceConfig> getDataServiceConfiguration() {
 		return dataServiceConfiguration;
-	}
-	
-	/**
-	 * Returns path to file to store logging output.
-	 * 
-	 * @return Path to file to store logging output.
-	 */
-	public Path getLoggingOutputPath() {
-		return Paths.get(loggingPath);
 	}
 	
 	/**

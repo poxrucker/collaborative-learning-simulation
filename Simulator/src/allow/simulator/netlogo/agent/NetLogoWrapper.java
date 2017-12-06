@@ -1,9 +1,5 @@
 package allow.simulator.netlogo.agent;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +13,6 @@ import org.nlogo.api.AgentException;
 
 import allow.simulator.core.Context;
 import allow.simulator.core.EntityManager;
-import allow.simulator.core.Simulator;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
@@ -26,6 +21,9 @@ import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
 import allow.simulator.world.StreetSegment;
 import allow.simulator.world.Transformation;
+import de.dfki.simulation.AbstractSimulationModel;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public final class NetLogoWrapper implements IContextWrapper {
 	
@@ -46,9 +44,9 @@ public final class NetLogoWrapper implements IContextWrapper {
 	private Transformation transformation;
 
 	// Simulator instance
-	private final Simulator simulator;
+	private final AbstractSimulationModel simulator;
 	
-	public NetLogoWrapper(Simulator simulator, World netLogoWorld) {
+	public NetLogoWrapper(AbstractSimulationModel simulator, World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
 		this.simulator = simulator;
 		linkMapping = new Object2ObjectOpenHashMap<String, Link>();
@@ -62,7 +60,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 		return netLogoWorld;
 	}
 	
-	public Simulator getSimulator() {
+	public AbstractSimulationModel getSimulator() {
 		return simulator;
 	}
 	
@@ -177,14 +175,14 @@ public final class NetLogoWrapper implements IContextWrapper {
 		}
 	}
 	
-	public static NetLogoWrapper initialize(int runId, Simulator simulator, World world) {
+	public static NetLogoWrapper initialize(int runId, AbstractSimulationModel simulator, World world) {
 		NetLogoWrapper instance = new NetLogoWrapper(simulator, world);
 		instance.wrap(simulator.getContext());
 		instances.put(runId, instance);
 		return instance;
 	}
 	
-	public static void delete(int runId) throws IOException {
+	public static void delete(int runId) throws Exception {
 		NetLogoWrapper wrapper = instances.remove(runId);
 		wrapper.getSimulator().finish();
 	}

@@ -10,7 +10,7 @@ import de.dfki.netlogo.commands.constructionsite.IsSharing;
 import de.dfki.netlogo.commands.constructionsite.UpdateGrid;
 
 
-public class ExtensionManager extends DefaultClassManager {
+public class ExtensionManagerAllow extends DefaultClassManager {
 
 	public static final String EXTENSION_NAME = "mobility";
 	
@@ -22,8 +22,8 @@ public class ExtensionManager extends DefaultClassManager {
 		primitiveManager.addPrimitive("show-activity", new ShowActivity());
 		primitiveManager.addPrimitive("showNotAtHome", new ShowNotAtHome());
 		primitiveManager.addPrimitive("execute-transport-agency", new ExecuteTransportAgencies());
-		primitiveManager.addPrimitive("setup-simulator", new SetupSimulator());
-		primitiveManager.addPrimitive("shutdown-simulator", new ShutDownSimulator());
+		primitiveManager.addPrimitive("setup-simulator", new Setup());
+		primitiveManager.addPrimitive("shutdown-simulator", new Finish());
 		primitiveManager.addPrimitive("tick", new Tick());
 		primitiveManager.addPrimitive("get-regions", new GetRegions());
 		primitiveManager.addPrimitive("get-region", new GetRegion());

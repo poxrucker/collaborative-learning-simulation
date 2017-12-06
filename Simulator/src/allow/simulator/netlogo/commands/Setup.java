@@ -3,6 +3,7 @@ package allow.simulator.netlogo.commands;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.nlogo.agent.World;
 import org.nlogo.api.Argument;
@@ -14,13 +15,14 @@ import org.nlogo.api.LogoList;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.core.Configuration;
 import allow.simulator.core.SimulationParameter;
-import allow.simulator.core.Simulator;
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-public class SetupSimulator extends DefaultReporter {
+public class Setup extends DefaultReporter {
 		
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
@@ -54,17 +56,20 @@ public class SetupSimulator extends DefaultReporter {
 		params.ValidTime = (int) (double) settings.get(6);
 		
 		// Create simulator and NetLogo binding
-		Simulator simulator = null;
+		AllowSimulationModel simulator = null;
+		Map<String, Object> parameters = new Object2ObjectOpenHashMap<>();
+		parameters.put("config", config);
+		parameters.put("params", parameters);
 		
 		try {
-			simulator = new Simulator();
-			simulator.setup(config, params);
+			simulator = new AllowSimulationModel();
+			simulator.setup(parameters);
 			NetLogoWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
 			
-		} catch (IOException e) {
-			throw new ExtensionException(e.getMessage());
-		}
-
+		} catch (Exception e) {
+			throw new ExtensionException(e.getMessage());		
+		} 
+		
 		// List buffer
 		LogoListBuilder listBuilder = new LogoListBuilder();
 		allow.simulator.core.Context ctx = simulator.getContext();

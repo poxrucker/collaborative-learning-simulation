@@ -3,7 +3,7 @@ package allow.simulator.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EvoKnowledgeConfiguration {
+public class EvoKnowledgeConfig {
 
 	private String modelPath;
 	private String modelName;
@@ -11,7 +11,7 @@ public class EvoKnowledgeConfiguration {
 	private String password;
 	
 	@JsonCreator
-	public EvoKnowledgeConfiguration(@JsonProperty("modelPath") String modelPath,
+	public EvoKnowledgeConfig(@JsonProperty("modelPath") String modelPath,
 			@JsonProperty("modelName") String modelName,
 			@JsonProperty("user") String user,
 			@JsonProperty("password") String password) {

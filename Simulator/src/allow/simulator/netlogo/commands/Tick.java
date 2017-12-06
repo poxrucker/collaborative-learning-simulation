@@ -1,7 +1,5 @@
 package allow.simulator.netlogo.commands;
 
-import java.io.IOException;
-
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
 import org.nlogo.api.DefaultReporter;
@@ -10,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.core.Simulator;
+import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.statistics.Statistics;
 
@@ -23,11 +21,11 @@ public class Tick extends DefaultReporter {
 		
 		// NetLogoWrapper
 		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
-		Simulator simulator = wrapper.getSimulator();
+		AllowSimulationModel simulator = (AllowSimulationModel)wrapper.getSimulator();
 		
 		try {
 			simulator.tick();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -37,8 +35,6 @@ public class Tick extends DefaultReporter {
 		ctx.getStatistics().updateGlobalStatistics(ctx);
 		
 		listBuilder.add(ctx.getTime().toString());
-		// listBuilder.add(ctx.getWeather().getCurrentState().getDescription());
-		
 		Statistics s = ctx.getStatistics();
 		listBuilder.add((double)s.getSuccessfulParking());
 		listBuilder.add((double)s.getFailedParking());
@@ -55,8 +51,6 @@ public class Tick extends DefaultReporter {
     listBuilder.add((double) s.getWalkJourneyRatio());
     listBuilder.add((double)s.getMeanParkingCosts());
     listBuilder.add((double)s.getMeanParkingWalkingDistance());
-    // listBuilder.add((double)s.getTotalStreetNetworkLength());
-    // listBuilder.add((double)s.getVisitedStreetNetworkLength());
     return listBuilder.toLogoList();
 	}
 

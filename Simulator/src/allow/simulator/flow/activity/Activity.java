@@ -3,38 +3,31 @@ package allow.simulator.flow.activity;
 import allow.simulator.entity.Entity;
 
 /**
- * Abstract class representing an Activity to be executed by an entity in a
- * flow.
+ * Abstract class representing an Activity to be executed by an Entity.
  * 
  * @author Andreas Poxrucker (DFKI)
  *
  */
 public abstract class Activity<V extends Entity> {
-	// Indicates if Activity has finished
+	// Indicates, if activity execution has finished
 	private boolean finished;
 	
-	// Type of the Activity
+	// Type of the activity
 	protected final ActivityType type;
 	
 	// Entity executing the activity
 	protected final V entity;
 	
-	// Starting and ending timestamps
-	protected long tStart;
-	protected long tEnd;
-	
 	/**
-	 * Constructor.
+	 * Creates a new Activity instance of given type executed by the given Entity.
 	 * 
-	 * @param type Type of the Activity.
-	 * @param entitiy Entity supposed to execute the Activity.
+	 * @param type Type of the Activity
+	 * @param entitiy Entity executing the Activity
 	 */
 	protected Activity(ActivityType type, V entity) {
 		this.type = type;
 		this.entity = entity;
 		finished = false;
-		tStart = -1;
-		tEnd = -1;
 	}
 	
 	/**
@@ -48,9 +41,9 @@ public abstract class Activity<V extends Entity> {
 	public abstract double execute(double deltaT);
 	
 	/**
-	 * Check, if current Activity is finished.
+	 * Check, if activity execution has finished.
 	 * 
-	 * @return True, if Activity is finished, false otherwise.
+	 * @return True, if activity execution has finished, false otherwise.
 	 */
 	public boolean isFinished() {
 		return finished;

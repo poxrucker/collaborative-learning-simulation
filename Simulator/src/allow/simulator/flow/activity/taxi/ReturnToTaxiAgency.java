@@ -14,10 +14,6 @@ public final class ReturnToTaxiAgency extends Activity<Taxi> {
 
 	@Override
 	public double execute(double deltaT) {
-		// Note tStart.
-		if (tStart == -1) {
-			tStart = entity.getContext().getTime().getTimestamp();
-		}
 
 		if (entity.getPassengers().size() > 0) {
 			System.out.println("Warning: Passengers still on taxi "

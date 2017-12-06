@@ -53,7 +53,6 @@ public final class PickUpAndWait extends Activity<Bus> {
 		// If stop has not been approached yet (first time execute is called)
 		// set transport to stop and return
 		if (!approached) {
-			tStart = entity.getContext().getTime().getTimestamp();
 			entity.setCurrentStop(stop);
 			entity.setPosition(stop.getPosition());
 			stop.addTransportationEntity(entity);

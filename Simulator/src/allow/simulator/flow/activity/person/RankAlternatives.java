@@ -12,7 +12,10 @@ import allow.simulator.utility.Preferences;
 public class RankAlternatives extends Activity<Person> {
 	// Itineraries to rank
 	private List<Itinerary> toRank;
-		
+	
+	// Indicates, if preferences and itinerary parameters have already been updated
+	private boolean updated;
+	
 	public RankAlternatives(Person entity, List<Itinerary> it) {
 		super(ActivityType.RANK_ALTERNATIVES, entity);
 		toRank = it;
@@ -21,10 +24,10 @@ public class RankAlternatives extends Activity<Person> {
 	@Override
 	public double execute(double deltaT) {
 
-		if (tStart == -1) {
-			tStart = 1;
+		if (!updated) {
 			updatePreferences();
 			updateItineraryParameters();
+			updated = true;
 			return deltaT;
 		}
 		toRank = entity.getRankingFunction().reason(toRank);
@@ -34,8 +37,7 @@ public class RankAlternatives extends Activity<Person> {
 	}
 	
 	private void updateItineraryParameters() {
-		// Correct journey parameters before calling utility function.
-		EvoKnowledge evo = entity.getKnowledge();
+		EvoKnowledge evo = entity.getKnowledge(); // Correct journey parameters before calling utility function
 		evo.predict(toRank);
 	}
 	

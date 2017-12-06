@@ -32,7 +32,11 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 	// Utility variables to log travel statistics per segment.
 	protected double streetTravelTime;
 	protected List<Experience> experiences;
-
+	
+  // Starting and ending timestamps
+  protected long tStart;
+  protected long tEnd;
+  
 	/**
 	 * Creates a new Activity to move an entity.
 	 * 

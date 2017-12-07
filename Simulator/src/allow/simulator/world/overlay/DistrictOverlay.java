@@ -8,7 +8,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import allow.simulator.core.Context;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetNode;
@@ -115,7 +114,7 @@ public class DistrictOverlay extends AbstractGraphOverlay implements IOverlay {
 	}
 
 	@Override
-	public boolean update(Context context) {
+	public boolean update() {
 		return false;
 	}
 	

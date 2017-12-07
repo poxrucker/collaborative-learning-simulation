@@ -4,12 +4,12 @@ import java.util.Collection;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
-import allow.simulator.core.Context;
+import allow.simulator.core.EntityManager;
+import allow.simulator.core.Time;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
 import allow.simulator.util.Coordinate;
-import allow.simulator.world.Street;
 
 public final class CoverageLayer implements IOverlay {
 
@@ -19,11 +19,16 @@ public final class CoverageLayer implements IOverlay {
   private final int nRows;
   private final int nCols;
   private final CoverageStats[] raster;
-
-  public CoverageLayer(double[] areaBounds, int nRows, int nCols, Collection<Street> streets) {
+  private final EntityManager entityManager;
+  private final Time time;
+  
+  public CoverageLayer(double[] areaBounds, int nRows, int nCols, EntityManager entityManager, Time time) {
     this.areaBounds = areaBounds;
     this.nRows = nRows;
     this.nCols = nCols;
+    this.entityManager = entityManager;
+    this.time = time;
+    
     spacingX = (areaBounds[1] - areaBounds[0]) / (nCols - 1);
     spacingY = (areaBounds[3] - areaBounds[2]) / (nRows - 1);
 
@@ -36,12 +41,12 @@ public final class CoverageLayer implements IOverlay {
   }
 
   @Override
-  public boolean update(Context context) {
+  public boolean update() {
     // Get all person entities from context
-    Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
+    Collection<Entity> persons = entityManager.getEntitiesOfType(EntityTypes.PERSON);
     
     // Update 
-    updateGrid(persons, context.getTime().getTimestamp());
+    updateGrid(persons, time.getTimestamp());
     return true;
   }
 

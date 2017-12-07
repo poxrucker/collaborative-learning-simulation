@@ -93,8 +93,10 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     Configuration config = (Configuration)parameters.get("config");
     SimulationParameter params = (SimulationParameter)parameters.get("params");
     
+    EntityManager entityManager = new EntityManager();
+    
     // Setup world
-    StreetMap world = initializeStreetMap(config, params);
+    StreetMap world = initializeStreetMap(config, params, entityManager);
 
     // Set scenario to normal
     params.Scenario = "";
@@ -139,7 +141,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
-    context = new Context(world, parkingIndex, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, new ObjectArrayList<>());
+    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, new ObjectArrayList<>());
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
@@ -153,7 +155,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), "without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 
     // Update world
-    world.update(context);
+    world.update();
     System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
   }
  
@@ -166,7 +168,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     context.getTime().tick();
 
     // Update world
-    context.getWorld().update(context);
+    context.getWorld().update();
 
     // Trigger routine scheduling.
     if (days != context.getTime().getDays()) {
@@ -198,7 +200,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     }
   }
   
-  private StreetMap initializeStreetMap(Configuration config, SimulationParameter params) throws IOException {
+  private StreetMap initializeStreetMap(Configuration config, SimulationParameter params, EntityManager entityManager) throws IOException {
     StreetMap world = new StreetMap(config.getMapPath());
 
     Path l = config.getLayerPath(OVERLAY_DISTRICTS);
@@ -207,7 +209,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
 
     IOverlay districtOverlay = DistrictOverlay.parse(l, world);
-    IOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY);
+    IOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY, entityManager);
     world.addOverlay(rasterOverlay, OVERLAY_RASTER);
     world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
     return world;

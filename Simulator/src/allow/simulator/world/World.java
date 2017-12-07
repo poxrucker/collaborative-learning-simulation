@@ -1,13 +1,11 @@
 package allow.simulator.world;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-
 import java.util.Arrays;
 
-import allow.simulator.core.Context;
 import allow.simulator.util.Pair;
 import allow.simulator.world.overlay.IOverlay;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * Abstract class representing a simulated world.
@@ -60,11 +58,11 @@ public abstract class World {
 		return (index != -1) ? (overlays.remove(index) != null) : false;
 	}
 	
-	public boolean update(Context context) {
+	public boolean update() {
 		boolean changed = false;
 		
 		for (Pair<String, IOverlay> overlay : overlays) {
-			changed |= overlay.second.update(context);
+			changed |= overlay.second.update();
 		}
 		return changed;
 	}

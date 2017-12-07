@@ -1,16 +1,15 @@
 package allow.simulator.world.overlay;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-
 import java.util.Collection;
 import java.util.Collections;
 
-import allow.simulator.core.Context;
+import allow.simulator.core.EntityManager;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 public class RasterOverlay implements IOverlay {
 
@@ -22,12 +21,15 @@ public class RasterOverlay implements IOverlay {
 	private final int nRows;
 	private final int nCols;
 	private final ReferenceOpenHashSet<Entity>[] raster;
+	private final EntityManager entityManager;
 	
  	@SuppressWarnings("unchecked")
-	public RasterOverlay(double[] areaBounds, int nRows, int nCols) {
+	public RasterOverlay(double[] areaBounds, int nRows, int nCols, EntityManager entityManager) {
 		this.areaBounds = areaBounds;
 		this.nRows = nRows;
 		this.nCols = nCols;
+		this.entityManager = entityManager;
+		
 		spacingX = (areaBounds[1] - areaBounds[0]) / (nCols - 1);
 		spacingY = (areaBounds[3] - areaBounds[2]) / (nRows - 1);
 		final Coordinate bottomLeft = new Coordinate(areaBounds[0], areaBounds[2]);
@@ -42,9 +44,9 @@ public class RasterOverlay implements IOverlay {
 	}
 	
 	@Override
-	public boolean update(Context context) {
+	public boolean update() {
 		resetRaster();
-		Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
+		Collection<Entity> persons = entityManager.getEntitiesOfType(EntityTypes.PERSON);
 		mapToGrid(persons);
 		return true;
 	}

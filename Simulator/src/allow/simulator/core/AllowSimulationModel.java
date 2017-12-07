@@ -94,8 +94,14 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     Configuration config = (Configuration)parameters.get("config");
     SimulationParameter params = (SimulationParameter)parameters.get("params");
     
+    // Create EntityManager
+    EntityManager entityManager = new EntityManager();
+    
+    // Create time
+    Time time = new Time(config.getStartingDate(), 10);
+    
     // Setup world
-    StreetMap world = initializeStreetMap(config, params);
+    StreetMap world = initializeStreetMap(config, params, entityManager);
 
     // Set scenario to normal
     params.Scenario = "";
@@ -105,9 +111,6 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
 
     // Create data services
     List<IDataService> dataServices = initializeDataServices(config, world);
-
-    // Create time
-    Time time = new Time(config.getStartingDate(), 10);
 
     // Create weather model
     Weather weather = new Weather(config.getWeatherPath(), time);
@@ -143,11 +146,10 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
-    context = new Context(world, parkingIndex, new EntityManager(), time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
+    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
-    configureParkingSpotModel(context, params);
 
     // Create public transportation repository
     TransportationRepository repos = new TransportationRepository(context);
@@ -157,7 +159,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), "without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 
     // Update world
-    world.update(context);
+    world.update();
 
     // Initialize length of street network
     double length = 0.0;
@@ -170,7 +172,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
   }
 
-  private StreetMap initializeStreetMap(Configuration config, SimulationParameter params) throws IOException {
+  private StreetMap initializeStreetMap(Configuration config, SimulationParameter params, EntityManager entityManager) throws IOException {
     StreetMap world = new StreetMap(config.getMapPath());
 
     Path l = config.getLayerPath(OVERLAY_DISTRICTS);
@@ -179,7 +181,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
       throw new IllegalStateException("Error: Missing layer with key \"" + OVERLAY_DISTRICTS + "\".");
 
     IOverlay districtOverlay = DistrictOverlay.parse(l, world);
-    IOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY);
+    IOverlay rasterOverlay = new RasterOverlay(world.getDimensions(), params.GridResX, params.GridResY, entityManager);
     world.addOverlay(rasterOverlay, OVERLAY_RASTER);
     world.addOverlay(districtOverlay, OVERLAY_DISTRICTS);
     return world;
@@ -242,196 +244,6 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
       person.setContext(context);
       PlanGenerator.generateDayPlan(person);
     }
-
-    /*for (int i = 0; i < 5000; i++) {
-      int id = context.getEntityManager().getNextId();
-      Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
-      NormalizedLinearUtility utility = new NormalizedLinearUtility();
-      Preferences prefs = new Preferences();
-      prefs.setCarPreference(1);
-      Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
-
-      Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs, home, true, false, false, new DailyRoutine());
-      context.getEntityManager().addEntity(newHomemaker);
-      newHomemaker.setContext(context);
-      PlanGenerator.generateDayPlan(newHomemaker);
-    }*/
-  }
-
-  private void configureParkingSpotModel(Context context, SimulationParameter param) {
-    // Get all persons
-    Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
-    
-    // Get ParkingMap
-    ParkingIndex parkingMap = context.getParkingMap();
-   
-    switch (param.Model) {
-
-    case "Baseline":
-      initializeBaselineModel(persons, parkingMap, param.ValidTime * 60);
-      break;
-
-    case "Mapping Display":
-      initializeMappingDisplayModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
-      break;
-
-    case "Central Guidance":
-      initializeGuidanceSystemModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
-      break;
-
-    default:
-      throw new IllegalArgumentException();
-
-    }
-  }
-
-  private void initializeBaselineModel(Collection<Entity> persons, ParkingIndex parkingMap, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
-    
-    for (Entity entity : persons) {
-      // Get person
-      Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Otherwise, create a new ParkingMap instance and preferences and assign them to person
-      ParkingKnowledge knowledge = knowledgeFactory.createWithGarages();
-      person.setLocalParkingKnowledge(knowledge);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, utility, validTime));
-      person.setExplorationStrategy(new BaselineExplorationStrategy(knowledge, prefs, utility, parkingMap, validTime));
-    }
-  }
-
-  private void initializeMappingDisplayModel(Collection<Entity> persons, ParkingIndex parkingMap,
-      int percentUsers, int percentSensorCars, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
-
-    // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
-
-    for (Entity entity : persons) {
-      // Get person
-      Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = knowledgeFactory.createWithGarages();
-      person.setLocalParkingKnowledge(localKnowledge);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      
-      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
-        // Person is a user; set property and assign shared parking map
-        person.setUser();
-        person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new MappingDisplaySelectionStrategy(localKnowledge, globalKnowledge, prefs, utility, validTime));
-        person.setExplorationStrategy(new MappingDisplayExplorationStrategy(localKnowledge, globalKnowledge, prefs, utility, parkingMap, validTime));
-
-        // Determine is person has a sensor car
-        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
-          person.setHasSensorCar(); 
-        
-      } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
-        person.setExplorationStrategy(new BaselineExplorationStrategy(localKnowledge, prefs, utility, parkingMap, validTime));
-      }
-    }
-  }
-
-  private void initializeGuidanceSystemModel(Collection<Entity> persons, ParkingIndex parkingMap, 
-      int percentUsers, int percentSensorCars, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-
-    // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = new ParkingKnowledge(parkingMap);
-    
-    for (Entity entity : persons) {
-      // Get person
-      Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = new ParkingKnowledge(parkingMap);   
-      person.setLocalParkingKnowledge(localKnowledge);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      
-      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
-        // Person is a user; set property and assign shared parking map
-        person.setUser();
-        person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new GuidanceSystemSelectionStrategy());
-        
-        // Determine is person has a sensor car
-        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
-          person.setHasSensorCar();
-        
-      } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
-      }
-    }
-  }
-
-  private void initializeCoverageEntities(Path config, SimulationParameter param) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
-    List<String> lines = Files.readAllLines(config, Charset.defaultCharset());
-    List<Coordinate> homeLocations = new ArrayList<Coordinate>();
-
-    for (String line : lines) {
-      Person person = mapper.readValue(line, Person.class);
-
-      if (person.hasCar())
-        homeLocations.add(person.getHome());
-
-      initializeCoveragePerson(person, context, param);
-      context.getEntityManager().addEntity(person);
-    }
-
-    for (int i = 0; i < 5000; i++) {
-      int id = context.getEntityManager().getNextId();
-      Gender gender = (ThreadLocalRandom.current().nextInt(100) < 50) ? Gender.MALE : Gender.FEMALE;
-      NormalizedLinearUtility utility = new NormalizedLinearUtility();
-      Preferences prefs = new Preferences();
-      prefs.setCarPreference(1);
-      Coordinate home = homeLocations.get(ThreadLocalRandom.current().nextInt(homeLocations.size()));
-
-      Person newHomemaker = new Person(id, gender, Profile.HOMEMAKER, utility, prefs, home, true, false, false, new DailyRoutine());
-      initializeCoveragePerson(newHomemaker, context, param);
-      context.getEntityManager().addEntity(newHomemaker);
-    }
-  }
-
-  private void initializeCoveragePerson(Person person, Context context, SimulationParameter param) {
-    person.setContext(context);
-    PlanGenerator.generateDayPlan(person);
-
-    if (person.hasCar()) {
-
-      if (ThreadLocalRandom.current().nextInt(100) < param.PercentParticipating) {
-        person.setParticipating();
-      }
-    }
   }
 
   /**
@@ -447,7 +259,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     context.getTime().tick();
 
     // Update world
-    context.getWorld().update(context);
+    context.getWorld().update();
 
     // Trigger routine scheduling.
     if (days != context.getTime().getDays()) {

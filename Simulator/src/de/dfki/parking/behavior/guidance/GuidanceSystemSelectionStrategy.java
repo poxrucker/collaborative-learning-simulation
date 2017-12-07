@@ -14,7 +14,7 @@ public final class GuidanceSystemSelectionStrategy implements IParkingSelectionS
   }
   
   @Override
-  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate position, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime) {
     // TODO Auto-generated method stub
     return null;
   }

@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior;
+package de.dfki.parking.utility;
 
 import allow.simulator.entity.Profile;
 

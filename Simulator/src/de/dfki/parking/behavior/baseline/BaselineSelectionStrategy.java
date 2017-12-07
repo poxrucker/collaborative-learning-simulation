@@ -5,14 +5,15 @@ import java.util.List;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
-import allow.simulator.util.Triple;
+import allow.simulator.util.Pair;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
-import de.dfki.parking.behavior.ParkingPreferences;
-import de.dfki.parking.behavior.ParkingUtility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.utility.ParkingParameters;
+import de.dfki.parking.utility.ParkingPreferences;
+import de.dfki.parking.utility.ParkingUtility;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class BaselineSelectionStrategy implements IParkingSelectionStrategy {
@@ -72,23 +73,22 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   }
 
   private List<ParkingPossibility> rank(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
-    List<Triple<ParkingKnowledgeEntry, Coordinate, Double>> temp = new ObjectArrayList<>();
+    List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
 
     for (ParkingKnowledgeEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
-      Coordinate pos = parking.getParkingIndexEntry().getReferencePosition();
-      double wd = Geometry.haversineDistance(pos, destination);
-      double st = (Geometry.haversineDistance(pos, currentPosition) / 3.0);
-      temp.add(new Triple<>(parking, pos, utility.computeUtility(new Triple<>(c, wd, st), preferences)));
+      double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
+      temp.add(new Pair<>(parking, utility.computeUtility(new ParkingParameters(c, wd, st), preferences)));
     }
-    temp.sort((t1, t2) -> (int) (t2.third - t1.third));
+    temp.sort((t1, t2) -> (int) (t2.second - t1.second));
 
-    if (temp.size() > 0 && temp.get(0).third == 0.0)
+    if (temp.size() > 0 && temp.get(0).second == 0.0)
       return new ObjectArrayList<>();
     
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
-    for (Triple<ParkingKnowledgeEntry, Coordinate, Double> p : temp) {
+    for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
       // Remove current position from list of possible positions
       // List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
       

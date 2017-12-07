@@ -1,7 +1,7 @@
 package de.dfki.parking.behavior.guidance;
 
 import allow.simulator.util.Coordinate;
-import de.dfki.parking.behavior.ParkingUtility;
+import de.dfki.parking.utility.ParkingUtility;
 
 public final class ParkingRequest {
   // Expected arrival time of person

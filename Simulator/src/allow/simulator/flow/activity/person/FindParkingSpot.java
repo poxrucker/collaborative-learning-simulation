@@ -15,10 +15,10 @@ import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
-import allow.simulator.util.Triple;
 import allow.simulator.world.Street;
 import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.utility.ParkingParameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class FindParkingSpot extends Activity<Person> {
@@ -223,7 +223,7 @@ public final class FindParkingSpot extends Activity<Person> {
     double c = parkingSpotCandidate.getCurrentPricePerHour();
     double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
     double st = (double)searchTime;
-    double u = entity.getParkingUtility().computeUtility(new Triple<>(c, wd, st), entity.getParkingPreferences());
+    double u = entity.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), entity.getParkingPreferences());
     stats.reportSearchUtility(u);
     stats.reportParkingCosts(c);
     stats.reportParkingWalkingDistance(wd);

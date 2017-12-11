@@ -38,7 +38,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime) {
+  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Find possible parking possibilities in knowledge
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
     

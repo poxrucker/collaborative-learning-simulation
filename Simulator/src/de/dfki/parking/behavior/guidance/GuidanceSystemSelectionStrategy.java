@@ -8,6 +8,7 @@ import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class GuidanceSystemSelectionStrategy implements IParkingSelectionStrategy {
   // Parking preferences
@@ -27,10 +28,13 @@ public final class GuidanceSystemSelectionStrategy implements IParkingSelectionS
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime) {
-    ParkingRequest request = new ParkingRequest(0, currentTime, destination, utility, preferences);
+  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
+    // Create new ParkngRequest and submit it to the guidance system
+    ParkingRequest request = new ParkingRequest(currentTime, arrivalTime, destination, utility, preferences);
+    int requestId = guidanceSystem.addRequest(request);
     
-    guidanceSystem.addRequest(request);
-    return null;
+    // Get response from guidance system
+    ParkingResponse response = guidanceSystem.getParkingPossibility(requestId);
+    return new ObjectArrayList<>(new ParkingPossibility[] { new ParkingPossibility(response.getParking(), response.getPosition()) });
   }
 }

@@ -5,8 +5,8 @@ import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
 
 public final class ParkingRequest {
-  // Identifier
-  private final int requestorId;
+  // Request time
+  private final long requestTime;
   
   // Expected arrival time of person
   private final long expectedArrivalTime;
@@ -20,9 +20,9 @@ public final class ParkingRequest {
   // Parking preferences of person
   private final ParkingPreferences preferences;
   
-  public ParkingRequest(int requestorId, long expectedArrivalTime, Coordinate destination, 
+  public ParkingRequest(long expectedArrivalTime, long requestTime, Coordinate destination,
       ParkingUtility utility, ParkingPreferences preferences) {
-    this.requestorId = requestorId;
+    this.requestTime = requestTime;
     this.expectedArrivalTime = expectedArrivalTime;
     this.destination = destination;
     this.utility = utility;
@@ -30,12 +30,12 @@ public final class ParkingRequest {
   }
   
   /**
-   * Returns the identifier of the requesting person.
+   * Returns the time a person created a parking spot request.
    * 
-   * @return Person identifier
+   * @return Time parking spot request was created
    */
-  public int getRequestorId() {
-    return requestorId;
+  public long getRequestTime() {
+    return requestTime;
   }
   
   /**

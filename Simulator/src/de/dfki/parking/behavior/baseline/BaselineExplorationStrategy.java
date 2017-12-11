@@ -112,7 +112,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     temp.sort((t1, t2) -> Double.compare(t2.second, t1.second));
 
     if (temp.size() > 0 && temp.get(0).second == 0.0)
-      return new ObjectArrayList<>();
+      return new ObjectArrayList<>(0);
     
     List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 
@@ -166,7 +166,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     temp.sort((t1, t2) -> Double.compare(t2.second, t1.second));
 
     if (temp.size() > 0 && temp.get(0).second == 0.0)
-      return new ObjectArrayList<>();
+      return new ObjectArrayList<>(0);
     
     List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 

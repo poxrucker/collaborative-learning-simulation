@@ -45,15 +45,11 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
 
   @Override
   public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime) {
-    // Filter those which are completely occupied
+    // Find possible parking possibilities in knowledge
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
 
-    if (freeParkings.size() == 0)
-      return new ObjectArrayList<>(0);
-
-    // If there is free parking possibilities, select a random one. Otherwise
-    // return null
-    return rank(freeParkings, current.getPosition(), destination);
+    // Rank possibilities or return empty list
+    return (freeParkings.size() > 0) ? rank(freeParkings, current.getPosition(), destination) : new ObjectArrayList<>();
   }
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
@@ -114,6 +110,9 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     }
     temp.sort((t1, t2) -> (int) (t1.second - t2.second));
 
+    if (temp.size() > 0 && temp.get(0).second == 0.0)
+      return new ObjectArrayList<>(0);
+    
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Pair<ParkingKnowledgeEntry, Double> p : temp) {

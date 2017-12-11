@@ -58,7 +58,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    // See if recent relevant entries in knowledge exist and return them ranked by utility
    List<ParkingIndexEntry> relevant = getRelevantEntriesFromKnowlede(fromKnowledge, position, destination, currentTime);
    
-   if (relevant.size() != 0) {
+   if (relevant.size() > 0) {
      // If there is an entry, return position
      ParkingIndexEntry entry = relevant.get(0);
      
@@ -72,7 +72,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    }   
    List<ParkingIndexEntry> fromMap = getPossibleParkingFromIndex(fromKnowledge, position, destination, currentTime);
    
-   if (fromMap.size() != 0) {
+   if (fromMap.size() > 0) {
      // If there is an entry, return position
      ParkingIndexEntry entry = fromMap.get(0);
      
@@ -136,7 +136,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    temp.sort((t1, t2) -> Double.compare(t2.second, t1.second));
    
    if (temp.size() > 0 && temp.get(0).second == 0.0)
-     return new ObjectArrayList<>();
+     return new ObjectArrayList<>(0);
    
    List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
    
@@ -187,7 +187,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    temp.sort((t1, t2) -> Double.compare(t2.second, t1.second));
 
    if (temp.size() > 0 && temp.get(0).second == 0.0)
-     return new ObjectArrayList<>();
+     return new ObjectArrayList<>(0);
    
    List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 

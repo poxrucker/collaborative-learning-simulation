@@ -17,7 +17,6 @@ import de.dfki.parking.utility.ParkingUtility;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class BaselineSelectionStrategy implements IParkingSelectionStrategy {
-
   // Local ParkingMap instance
   private final ParkingKnowledge knowledge;
 
@@ -40,14 +39,11 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
 
   @Override
   public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime) {
-    // Filter those which are completely occupied
+    // Find possible parking possibilities in knowledge
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
-
-    if (freeParkings.size() == 0)
-      return new ObjectArrayList<>(0);
-
-    // If there is free parking possibilities, select a random one. Otherwise return null
-    return rank(freeParkings, current.getPosition(), destination);
+    
+    // Rank possibilities or return empty list
+    return (freeParkings.size() > 0) ? rank(freeParkings, current.getPosition(), destination) : new ObjectArrayList<>(0);
   }
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
@@ -84,7 +80,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     temp.sort((t1, t2) -> (int) (t2.second - t1.second));
 
     if (temp.size() > 0 && temp.get(0).second == 0.0)
-      return new ObjectArrayList<>();
+      return new ObjectArrayList<>(0);
     
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 

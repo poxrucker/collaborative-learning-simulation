@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -48,20 +47,14 @@ import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
-import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
-import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
-import de.dfki.parking.behavior.guidance.GuidanceSystemSelectionStrategy;
-import de.dfki.parking.behavior.mappingdisplay.MappingDisplayExplorationStrategy;
-import de.dfki.parking.behavior.mappingdisplay.MappingDisplaySelectionStrategy;
+import de.dfki.parking.behavior.guidance.GuidanceSystem;
 import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
-import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingPreferencesFactory;
-import de.dfki.parking.utility.ParkingUtility;
 import de.dfki.simulation.AbstractSimulationModel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -145,7 +138,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
-    configureParkingSpotModel(context, params);
+    initializeParkingSpotModel(context, params);
 
     // Create public transportation repository
     TransportationRepository repos = new TransportationRepository(context);
@@ -255,135 +248,50 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     }
   }
 
-  private void configureParkingSpotModel(Context context, SimulationParameter param) {
+  private void initializeParkingSpotModel(Context context, SimulationParameter param) {
     // Get all persons
     Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
     
-    // Get ParkingMap
-    ParkingIndex parkingMap = context.getParkingMap();
+    // Get ParkingIndex
+    ParkingIndex parkingIndex = context.getParkingMap();
    
-    switch (param.Model) {
-
-    case "Baseline":
-      initializeBaselineModel(persons, parkingMap, param.ValidTime * 60);
-      break;
-
-    case "Mapping Display":
-      initializeMappingDisplayModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
-      break;
-
-    case "Central Guidance":
-      initializeGuidanceSystemModel(persons, parkingMap, param.PercentUsers, param.PercentSensorCars, param.ValidTime * 60);
-      break;
-
-    default:
+    // Create initializer
+    IParkingModelInitializer modelInitializer;
+    
+    if (param.Model.equals("Baseline")) {
+      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
+      long validTime = param.ValidTime * 60;
+      modelInitializer = new BaselineParkingModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, validTime);
+    
+    } else if (param.Model.equals("Mapping Display")) {
+      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
+      ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
+      long validTime = param.ValidTime * 60;
+      double percentUsers = (double) param.PercentUsers / 100.0;
+      double percentSensorCars = (double) param.PercentSensorCars / 100.0;
+      modelInitializer = new MappingDisplayModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, 
+          globalKnowledge, validTime, percentUsers, percentSensorCars);
+      
+    } else if (param.Model.equals("Central Guidance")) {
+      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
+      ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
+      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge);
+      long validTime = param.ValidTime * 60;
+      double percentUsers = (double) param.PercentUsers / 100.0;
+      double percentSensorCars = (double) param.PercentSensorCars / 100.0;
+      modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, 
+          guidanceSystem, validTime, percentUsers, percentSensorCars);
+    
+    } else {
       throw new IllegalArgumentException();
-
     }
-  }
-
-  private void initializeBaselineModel(Collection<Entity> persons, ParkingIndex parkingMap, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
     
     for (Entity entity : persons) {
-      // Get person
       Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Otherwise, create a new ParkingMap instance and preferences and assign them to person
-      ParkingKnowledge knowledge = knowledgeFactory.createWithGarages();
-      person.setLocalParkingKnowledge(knowledge);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(knowledge, prefs, utility, validTime));
-      person.setExplorationStrategy(new BaselineExplorationStrategy(knowledge, prefs, utility, parkingMap, validTime));
-    }
-  }
-
-  private void initializeMappingDisplayModel(Collection<Entity> persons, ParkingIndex parkingMap,
-      int percentUsers, int percentSensorCars, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-    ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingMap);
-
-    // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
-
-    for (Entity entity : persons) {
-      // Get person
-      Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = knowledgeFactory.createWithGarages();
-      person.setLocalParkingKnowledge(localKnowledge);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      
-      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
-        // Person is a user; set property and assign shared parking map
-        person.setUser();
-        person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new MappingDisplaySelectionStrategy(localKnowledge, globalKnowledge, prefs, utility, validTime));
-        person.setExplorationStrategy(new MappingDisplayExplorationStrategy(localKnowledge, globalKnowledge, prefs, utility, parkingMap, validTime));
-
-        // Determine is person has a sensor car
-        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
-          person.setHasSensorCar(); 
-        
-      } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
-        person.setExplorationStrategy(new BaselineExplorationStrategy(localKnowledge, prefs, utility, parkingMap, validTime));
-      }
-    }
-  }
-
-  private void initializeGuidanceSystemModel(Collection<Entity> persons, ParkingIndex parkingMap, 
-      int percentUsers, int percentSensorCars, long validTime) {
-    ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-
-    // Create a ParkingMap instance which is shared by Users
-    ParkingKnowledge globalKnowledge = new ParkingKnowledge(parkingMap);
-    
-    for (Entity entity : persons) {
-      // Get person
-      Person person = (Person) entity;
-
-      // If person does not have a car, there is nothing to do
-      if (!person.hasCar())
-        continue;
-
-      // Create and assign local parking map instance
-      ParkingKnowledge localKnowledge = new ParkingKnowledge(parkingMap);   
-      person.setLocalParkingKnowledge(localKnowledge);
-      ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-      person.setParkingPreferences(prefs);
-      ParkingUtility utility = new ParkingUtility();
-      person.setParkingUtility(utility);
-      
-      if (ThreadLocalRandom.current().nextInt(100) < percentUsers) {
-        // Person is a user; set property and assign shared parking map
-        person.setUser();
-        person.setGlobalParkingKnowledge(globalKnowledge);
-        person.setParkingSelectionStrategy(new GuidanceSystemSelectionStrategy());
-        
-        // Determine is person has a sensor car
-        if (ThreadLocalRandom.current().nextInt(100) < percentSensorCars)
-          person.setHasSensorCar();
-        
-      } else {
-        person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localKnowledge, prefs, utility, validTime));
-      }
+      modelInitializer.initializePerson(person);
     }
   }
 }

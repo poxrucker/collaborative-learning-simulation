@@ -38,12 +38,16 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
+  public ParkingPossibility selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Find possible parking possibilities in knowledge
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
     
+    if (freeParkings.size() == 0)
+      return null;
+    
     // Rank possibilities or return empty list
-    return (freeParkings.size() > 0) ? rank(freeParkings, current.getPosition(), destination) : new ObjectArrayList<>(0);
+    List<ParkingPossibility> rankedParkings = rank(freeParkings, current.getPosition(), destination);
+    return (rankedParkings.size() > 0) ? rankedParkings.get(0) : null;
   }
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {

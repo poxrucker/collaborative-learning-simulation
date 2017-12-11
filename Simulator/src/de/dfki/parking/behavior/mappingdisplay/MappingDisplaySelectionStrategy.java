@@ -44,12 +44,17 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
   }
 
   @Override
-  public List<ParkingPossibility> selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
+  public ParkingPossibility selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Find possible parking possibilities in knowledge
     List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
 
+    if (freeParkings == null)
+      return null;
+    
+    List<ParkingPossibility> rankedParkings = rank(freeParkings, current.getPosition(), destination);
+    
     // Rank possibilities or return empty list
-    return (freeParkings.size() > 0) ? rank(freeParkings, current.getPosition(), destination) : new ObjectArrayList<>();
+    return (rankedParkings.size() > 0) ? rankedParkings.get(0) : null;
   }
 
   private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {

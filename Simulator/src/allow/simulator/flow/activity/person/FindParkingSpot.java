@@ -83,21 +83,19 @@ public final class FindParkingSpot extends Activity<Person> {
       Coordinate dest = entity.getCurrentItinerary().to;
       long currentTime = entity.getContext().getTime().getTimestamp(); 
       long arrivalTime = entity.getCurrentItinerary().endTime;
-      List<ParkingPossibility> possibleParking = entity.getParkingSelectionStrategy().selectParking(current.getEndNode(), dest, currentTime, arrivalTime);     
+      ParkingPossibility possibleParking = entity.getParkingSelectionStrategy().selectParking(current.getEndNode(), dest, currentTime, arrivalTime);     
       
       // If parking spot candidate was found, calculate path, add Drive and FindParkingSpot activities
-      if (possibleParking.size() > 0) {
-        ParkingPossibility p = possibleParking.get(0);
-        
+      if (possibleParking != null) {        
         // Set parking spot selected
         parkingSpotSelected = true;
 
         // Set parking spot candidate
-        parkingSpotCandidate = p.getParking();
+        parkingSpotCandidate = possibleParking.getParking();
         
         // Calculate path to parking spot
-        if (!p.getPosition().equals(entity.getPosition())) {
-          List<Street> path = getPathToParking(p.getPosition(), false);
+        if (!possibleParking.getPosition().equals(entity.getPosition())) {
+          List<Street> path = getPathToParking(possibleParking.getPosition(), false);
 
           // Add Drive and FindParkingSpot activities
           if (path != null && path.size() > 0) {

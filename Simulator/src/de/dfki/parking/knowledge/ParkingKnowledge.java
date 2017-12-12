@@ -28,7 +28,7 @@ public final class ParkingKnowledge {
 
     if (ret == null) {
       // Get ParkingMapEntry from ParkingMap
-      ParkingIndexEntry entry = parkingIndex.getEntryForParking(parking);
+      ParkingIndexEntry entry = parkingIndex.getEntryForParkingId(parking.getId());
       ret = new ParkingKnowledgeEntry(entry, nParkingSpots, nFreeParkingSpots, pricePerHour, -1);
       parkingKnowledge.put(parking.getId(), ret);
     }

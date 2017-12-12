@@ -71,8 +71,8 @@ public final class ParkingIndex {
    * @param parking Parking to get ParkingIndexEntry for
    * @return ParkingIndexEntry for given Parking
    */
-  public ParkingIndexEntry getEntryForParking(Parking parking) {
-    return parkingIndex.get(parking.getId());
+  public ParkingIndexEntry getEntryForParkingId(int parkingId) {
+    return parkingIndex.get(parkingId);
   }
 
   /**

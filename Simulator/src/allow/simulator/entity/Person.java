@@ -59,9 +59,6 @@ public final class Person extends Entity {
 	// True, if person has a bike, false otherwise.
 	private final boolean hasBike;
 	
-	// True, if person will send requests to the FlexiBus planner, false otherwise.
-	private final boolean useFlexiBus;
-	
 	// Daily routine of this person, i.e. set of travelling events which are
 	// executed regularly on specific days, e.g. going to work on back from 
 	// Mo to Fri.
@@ -175,7 +172,6 @@ public final class Person extends Entity {
 		this.profile = profile;
 		this.hasCar = hasCar;
 		this.hasBike = hasBike;
-		this.useFlexiBus = useFlexiBus;
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);
@@ -221,7 +217,6 @@ public final class Person extends Entity {
 		this.profile = role;
 		this.hasCar = hasCar;
 		this.hasBike = hasBike;
-		this.useFlexiBus = useFlexiBus;
 		this.dailyRoutine = dailyRoutine;
 		home = homeLocation;
 		setPosition(homeLocation);

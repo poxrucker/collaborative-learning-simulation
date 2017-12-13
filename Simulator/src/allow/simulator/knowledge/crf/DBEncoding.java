@@ -69,17 +69,14 @@ public class DBEncoding {
 		case TRANSIT:
 			return 6;
 		
-		case FLEXIBUS:
-			return 7;
-		
 		case TAXI:
-			return 8;
+			return 7;
 			
 		case SHARED_TAXI:
-			return 9;
+			return 8;
 			
 		case SHARED_BICYCLE:
-			return 10;
+			return 9;
 			
 		default:
 			throw new IllegalArgumentException("Error: Unknown transporation type " + type);

@@ -30,7 +30,6 @@ import allow.simulator.mobility.data.RoutingData;
 import allow.simulator.mobility.data.TransportationRepository;
 import allow.simulator.mobility.data.gtfs.GTFSData;
 import allow.simulator.mobility.planner.BikeRentalPlanner;
-import allow.simulator.mobility.planner.FlexiBusPlanner;
 import allow.simulator.mobility.planner.JourneyPlanner;
 import allow.simulator.mobility.planner.OTPPlanner;
 import allow.simulator.mobility.planner.TaxiPlanner;
@@ -120,7 +119,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     BikeRentalPlanner bikeRentalPlanner = new BikeRentalPlanner(plannerServices, bikeRentalStation);
 
     // Initialize journey planner instance
-    JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
+    JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, threadpool);
 
     // Load ParkingDataRepository
     ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));

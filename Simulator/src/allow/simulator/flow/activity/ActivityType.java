@@ -36,10 +36,6 @@ public enum ActivityType {
 	
 	CORRECT_POSITION,
 	
-	REGISTER_TO_FLEXIBUS,
-	
-	USE_FLEXIBUS,
-	
 	REPLAN,
 	
 	REPLAN_CAR_JOURNEY,
@@ -65,8 +61,6 @@ public enum ActivityType {
 	 * Transportation agency activities.
 	 */
 	SCHEDULE_NEXT_TRIPS,
-
-	SCHEDULE_NEXT_FLEXIBUS_TRIPS,
 	
 	SCHEDULE_NEXT_TAXI_TRIPS,
 	

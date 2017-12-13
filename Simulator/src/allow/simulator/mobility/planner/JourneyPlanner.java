@@ -17,19 +17,14 @@ public final class JourneyPlanner {
 	// Taxi planner service instance
 	private final TaxiPlanner taxiPlanner;
 	
-	// FlexiBus planner service instance
-	private final FlexiBusPlanner flexiBusPlanner;
-	
 	// Bike rental planner service instance
 	private final BikeRentalPlanner bikeRentalPlanner;
 	
 	public JourneyPlanner(List<OTPPlanner> otpPlanner, TaxiPlanner taxiPlanner, 
-			BikeRentalPlanner bikeRentalPlanner, FlexiBusPlanner flexiBusPlanner,
-			ExecutorService service) {
+			BikeRentalPlanner bikeRentalPlanner, ExecutorService service) {
 		this.otpPlanner = otpPlanner;
 		this.taxiPlanner = taxiPlanner;
 		this.bikeRentalPlanner = bikeRentalPlanner;
-		this.flexiBusPlanner = flexiBusPlanner;
 		this.service = service;
 	}
 	
@@ -42,10 +37,7 @@ public final class JourneyPlanner {
 				
 				for (JourneyRequest req : requests) {
 					
-					if (req.TransportTypes[0] == TType.FLEXIBUS) {
-						flexiBusPlanner.requestSingleJourney(req, buffer);
-					
-					} else if (req.TransportTypes[0] == TType.SHARED_BICYCLE) {
+					if (req.TransportTypes[0] == TType.SHARED_BICYCLE) {
 						bikeRentalPlanner.requestSingleJourney(req, buffer);
 						
 					} else if ((req.TransportTypes[0] == TType.TAXI) || (req.TransportTypes[0] == TType.SHARED_TAXI)) {
@@ -77,12 +69,7 @@ public final class JourneyPlanner {
 		return taxiPlanner;
 	}
 	
-	public FlexiBusPlanner getFlexiBusPlannerService() {
-		return flexiBusPlanner;
-	}
-	
 	public BikeRentalPlanner getBikeRentalPlannerService() {
 		return bikeRentalPlanner;
-	}
-	
+	}	
 }

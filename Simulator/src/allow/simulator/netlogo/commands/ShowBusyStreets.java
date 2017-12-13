@@ -15,7 +15,6 @@ import org.nlogo.api.Syntax;
 
 import allow.simulator.netlogo.agent.NetLogoWrapper;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 
 public class ShowBusyStreets extends DefaultCommand {
@@ -26,7 +25,6 @@ public class ShowBusyStreets extends DefaultCommand {
 		int maxNumber = args[1].getIntValue();
 		
 		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
-		StreetMap map = (StreetMap) wrapper.getSimulator().getContext().getWorld();
 		PriorityQueue<Street> sorted = new PriorityQueue<Street>(new Comparator<Street>() {
 
 			@Override

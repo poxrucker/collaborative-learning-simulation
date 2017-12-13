@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -19,13 +18,10 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import allow.simulator.entity.DailyRoutine;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
-import allow.simulator.entity.Gender;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.PlanGenerator;
-import allow.simulator.entity.Profile;
+import allow.simulator.flow.activity.PlanGenerator;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -41,28 +37,16 @@ import allow.simulator.mobility.planner.TaxiPlanner;
 import allow.simulator.statistics.CoverageStatistics;
 import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
-import allow.simulator.utility.NormalizedLinearUtility;
-import allow.simulator.utility.Preferences;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Weather;
 import allow.simulator.world.overlay.DistrictOverlay;
 import allow.simulator.world.overlay.IOverlay;
 import allow.simulator.world.overlay.RasterOverlay;
-import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
-import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
-import de.dfki.parking.behavior.guidance.GuidanceSystemSelectionStrategy;
-import de.dfki.parking.behavior.mappingdisplay.MappingDisplayExplorationStrategy;
-import de.dfki.parking.behavior.mappingdisplay.MappingDisplaySelectionStrategy;
 import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.index.ParkingIndex;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
-import de.dfki.parking.utility.ParkingPreferences;
-import de.dfki.parking.utility.ParkingPreferencesFactory;
-import de.dfki.parking.utility.ParkingUtility;
 import de.dfki.simulation.AbstractSimulationModel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -80,6 +64,9 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
   // Threadpool for executing multiple tasks in parallel
   private ExecutorService threadpool;
 
+  // Plan generator initializing flow of daily activities 
+  private PlanGenerator planGenerator;
+  
   public static final String OVERLAY_DISTRICTS = "partitioning";
   public static final String OVERLAY_RASTER = "raster";
 
@@ -227,6 +214,9 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
   }
 
   private void initializeEntities(Path config, SimulationParameter param) throws IOException {
+    // Create plan generator
+    planGenerator = new PlanGenerator();
+    
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -242,7 +232,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
 
       context.getEntityManager().addEntity(person);
       person.setContext(context);
-      PlanGenerator.generateDayPlan(person);
+      planGenerator.generateDayPlan(person);
     }
   }
 
@@ -266,7 +256,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
       Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
       for (Entity p : persons) {
-        PlanGenerator.generateDayPlan((Person) p);
+        planGenerator.generateDayPlan((Person) p);
         p.getRelations().resetBlackList();
       }
     }

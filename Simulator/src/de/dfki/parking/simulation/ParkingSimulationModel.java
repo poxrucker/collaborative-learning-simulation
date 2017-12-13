@@ -27,7 +27,7 @@ import allow.simulator.core.Time;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
 import allow.simulator.entity.Person;
-import allow.simulator.entity.PlanGenerator;
+import allow.simulator.flow.activity.PlanGenerator;
 import allow.simulator.knowledge.EvoKnowledge;
 import allow.simulator.mobility.data.IDataService;
 import allow.simulator.mobility.data.OfflineDataService;
@@ -66,11 +66,15 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *
  */
 public final class ParkingSimulationModel extends AbstractSimulationModel {
+
   // Simulation context
   private Context context;
 
   // Threadpool for executing multiple tasks in parallel
   private ExecutorService threadpool;
+
+  // Plan generator initializing flow of daily activities
+  private PlanGenerator planGenerator;
 
   public static final String OVERLAY_DISTRICTS = "partitioning";
   public static final String OVERLAY_RASTER = "raster";
@@ -83,11 +87,11 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
   public void setup(Map<String, Object> parameters) throws Exception {
     threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
-    Configuration config = (Configuration)parameters.get("config");
-    SimulationParameter params = (SimulationParameter)parameters.get("params");
-    
+    Configuration config = (Configuration) parameters.get("config");
+    SimulationParameter params = (SimulationParameter) parameters.get("params");
+
     EntityManager entityManager = new EntityManager();
-    
+
     // Setup world
     StreetMap world = initializeStreetMap(config, params, entityManager);
 
@@ -124,18 +128,21 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     JourneyPlanner planner = new JourneyPlanner(plannerServices, taxiPlannerService, bikeRentalPlanner, new FlexiBusPlanner(), threadpool);
 
     // Load ParkingDataRepository
-    ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(Paths.get(params.StreetParkingPath), Paths.get(params.GarageParkingPath));
-    
+    ParkingDataRepository parkingDataRepository = ParkingDataRepository.load(Paths.get(params.StreetParkingPath),
+        Paths.get(params.GarageParkingPath));
+
     // Initialize ParkingRepository
     ParkingFactory parkingFactory = new ParkingFactory(params.DataScalingFactor, 0.0);
     ParkingRepository parkingRepository = ParkingRepository.initialize(parkingDataRepository, world, parkingFactory, true);
-    
+
     // Initialize ParkingIndex
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
-    
-    // Create global context from world, time, planner and data services, and weather
+
+    // Create global context from world, time, planner and data services, and
+    // weather
     GuidanceSystem guidanceSystem = new GuidanceSystem(new ParkingKnowledgeFactory(parkingIndex).createFull(), parkingIndex);
-    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, new ObjectArrayList<>(), guidanceSystem);
+    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params,
+        new ObjectArrayList<>(), guidanceSystem);
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
@@ -152,7 +159,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     world.update();
     System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
   }
- 
+
   @Override
   public void tick() {
     // Save current day to trigger routine scheduling
@@ -169,7 +176,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
       for (Entity p : persons) {
-        PlanGenerator.generateDayPlan((Person) p);
+        planGenerator.generateDayPlan((Person) p);
         p.getRelations().resetBlackList();
       }
     }
@@ -193,7 +200,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       e.printStackTrace();
     }
   }
-  
+
   private StreetMap initializeStreetMap(Configuration config, SimulationParameter params, EntityManager entityManager) throws IOException {
     StreetMap world = new StreetMap(config.getMapPath());
 
@@ -230,6 +237,9 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
   }
 
   private void initializeEntities(Path config, SimulationParameter param) throws IOException {
+    // Create plan generator
+    planGenerator = new PlanGenerator();
+
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -245,26 +255,26 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
 
       context.getEntityManager().addEntity(person);
       person.setContext(context);
-      PlanGenerator.generateDayPlan(person);
+      planGenerator.generateDayPlan(person);
     }
   }
 
   private void initializeParkingSpotModel(Context context, SimulationParameter param) {
     // Get all persons
     Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
-    
+
     // Get ParkingIndex
     ParkingIndex parkingIndex = context.getParkingMap();
-   
+
     // Create initializer
     IParkingModelInitializer modelInitializer;
-    
+
     if (param.Model.equals("Baseline")) {
       ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
       long validTime = param.ValidTime * 60;
       modelInitializer = new BaselineParkingModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, validTime);
-    
+
     } else if (param.Model.equals("Mapping Display")) {
       ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
@@ -272,9 +282,9 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;
       double percentSensorCars = (double) param.PercentSensorCars / 100.0;
-      modelInitializer = new MappingDisplayModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, 
-          globalKnowledge, validTime, percentUsers, percentSensorCars);
-      
+      modelInitializer = new MappingDisplayModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, globalKnowledge, validTime, percentUsers,
+          percentSensorCars);
+
     } else if (param.Model.equals("Central Guidance")) {
       ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
@@ -283,13 +293,13 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;
       double percentSensorCars = (double) param.PercentSensorCars / 100.0;
-      modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, 
-          guidanceSystem, validTime, percentUsers, percentSensorCars);
-    
+      modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, guidanceSystem, validTime, percentUsers,
+          percentSensorCars);
+
     } else {
       throw new IllegalArgumentException();
     }
-    
+
     for (Entity entity : persons) {
       Person person = (Person) entity;
       modelInitializer.initializePerson(person);

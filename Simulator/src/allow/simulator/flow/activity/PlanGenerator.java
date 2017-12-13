@@ -1,4 +1,4 @@
-package allow.simulator.entity;
+package allow.simulator.flow.activity;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -6,7 +6,8 @@ import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.core.AllowSimulationModel;
-import allow.simulator.flow.activity.Activity;
+import allow.simulator.entity.Person;
+import allow.simulator.entity.TravelEvent;
 import allow.simulator.flow.activity.person.PlanJourney;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -18,7 +19,7 @@ import allow.simulator.world.overlay.DistrictType;
 
 public final class PlanGenerator {
 
-	public static void generateDayPlan(Person person) {
+	public void generateDayPlan(Person person) {
 
 		switch (person.getProfile()) {
 		
@@ -51,8 +52,7 @@ public final class PlanGenerator {
 	}
 	
 	private static void generateChildDayPlan(Person person) {
-		int day = person.getContext().getTime().getCurrentDateTime()
-				.getDayOfWeek().getValue();
+		// int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue(); // TODO: Use actual day
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 
@@ -72,7 +72,7 @@ public final class PlanGenerator {
 
 	private static void generateStudentDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
-		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
+		// int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue(); // TODO: Use actual day
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 		
@@ -145,7 +145,7 @@ public final class PlanGenerator {
 
 	private static void generateWorkerDayPlan(Person person) {
 		DistrictOverlay partitioning = (DistrictOverlay) person.getContext().getWorld().getOverlay(AllowSimulationModel.OVERLAY_DISTRICTS);
-		int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue();
+		// int day = person.getContext().getTime().getCurrentDateTime().getDayOfWeek().getValue(); // TODO: Use actual day
 		List<TravelEvent> routine = person.getDailyRoutine().getDailyRoutine(1);
 		Queue<Pair<LocalTime, Activity<Person>>> schedule = person.getScheduleQueue();
 

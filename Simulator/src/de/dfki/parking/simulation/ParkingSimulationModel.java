@@ -134,7 +134,8 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
-    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, new ObjectArrayList<>());
+    GuidanceSystem guidanceSystem = new GuidanceSystem(new ParkingKnowledgeFactory(parkingIndex).createFull(), parkingIndex);
+    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, new ObjectArrayList<>(), guidanceSystem);
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
@@ -278,7 +279,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
       ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
       ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
-      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge);
+      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex);
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;
       double percentSensorCars = (double) param.PercentSensorCars / 100.0;

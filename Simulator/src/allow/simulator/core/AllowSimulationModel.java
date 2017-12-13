@@ -146,7 +146,7 @@ public final class AllowSimulationModel extends AbstractSimulationModel {
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
     
     // Create global context from world, time, planner and data services, and weather
-    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI);
+    context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params, streetsInROI, null);
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);

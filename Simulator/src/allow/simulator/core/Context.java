@@ -11,6 +11,7 @@ import allow.simulator.statistics.Statistics;
 import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 import allow.simulator.world.World;
+import de.dfki.parking.behavior.guidance.GuidanceSystem;
 import de.dfki.parking.index.ParkingIndex;
 
 /**
@@ -26,6 +27,9 @@ public final class Context {
 	
 	// Mapping of streets to parking possibilities
 	private final ParkingIndex parkingMap;
+	
+	
+	private final GuidanceSystem guidanceSystem;
 	
 	// EntityManager instance holding all entities
 	private final EntityManager entityManager;
@@ -75,7 +79,8 @@ public final class Context {
 			Weather weather,
 			Statistics stats,
 			SimulationParameter params,
-			Collection<Street> roiStreets) {
+			Collection<Street> roiStreets, 
+			GuidanceSystem guidanceSystem) {
 		this.world = world;
 		this.parkingMap = parkingMap;
 		this.entityManager = entityManager;
@@ -86,6 +91,11 @@ public final class Context {
 		this.stats = stats;
 		this.params = params;
 		this.roiStreets = new HashSet<>(roiStreets);
+		this.guidanceSystem = guidanceSystem;
+	}
+	
+	public GuidanceSystem getGuidanceSystem() {
+	  return guidanceSystem;
 	}
 	
 	public Collection<Street> getRoiStreets() {

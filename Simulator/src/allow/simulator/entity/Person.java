@@ -137,6 +137,9 @@ public final class Person extends Entity {
 	private ParkingUtility parkingUtility;
 	@JsonIgnore
 	private ParkingPreferences parkingPreferences;
+	@JsonIgnore
+	public int parkingRequestId;
+	
 	/**
 	 * Creates new instance of a person.
 	 * 

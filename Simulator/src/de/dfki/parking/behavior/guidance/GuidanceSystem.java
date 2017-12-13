@@ -52,8 +52,9 @@ public final class GuidanceSystem {
   
   private final Comparator<ParkingRequest> comp;
   
-  public GuidanceSystem(ParkingKnowledge knowledge) {
+  public GuidanceSystem(ParkingKnowledge knowledge, ParkingIndex parkingIndex) {
     this.knowledge = knowledge;
+    this.parkingIndex = parkingIndex;
     requests = new Int2ObjectOpenHashMap<>();
     requestAssignment = new Int2ObjectOpenHashMap<>();
     parkingSpotAssignment = new Int2ObjectOpenHashMap<>();
@@ -99,7 +100,11 @@ public final class GuidanceSystem {
     for (int parkingId : possibleParking) {
       SortedSet<ParkingRequest> assignments = parkingSpotAssignment.get(parkingId);
       priorities.add(indexOf(assignments, request));
+      assignments.remove(request);
     }
+    
+    if (priorities.size() == 0)
+      return null;
     
     // Find 
     System.out.println(priorities);

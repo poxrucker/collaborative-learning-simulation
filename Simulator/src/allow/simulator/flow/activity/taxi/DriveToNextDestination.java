@@ -31,7 +31,7 @@ public final class DriveToNextDestination extends MovementActivity<Taxi> {
 			return 0;
 		}
 		// Note tStart
-		if (tStart == -1)
+		if (tStart == 0)
 			tStart = entity.getContext().getTime().getTimestamp();
 		
 		// Move taxi and passengers

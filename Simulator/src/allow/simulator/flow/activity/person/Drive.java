@@ -38,23 +38,27 @@ public final class Drive extends MovementActivity<Person> {
    */
   public Drive(Person entity, List<Street> path) {
     super(ActivityType.DRIVE, entity, path);
-
-    if (!path.isEmpty())
-      currentSegment.addVehicle(entity);
   }
 
   @Override
   public double execute(double deltaT) {
+    // Note tStart
+    if (tStart == 0) {
+      tStart = entity.getContext().getTime().getTimestamp();
+      
+      // Prepare entity state
+      entity.setPosition(getStartPoint());
+
+      if (!path.isEmpty())
+        currentSegment.addVehicle(entity);
+    }
+    
     if (currentSegment != null)
       currentSegment.removeVehicle();
 
     if (isFinished())
       return 0.0;
 
-    // Note tStart
-    if (tStart == -1) {
-      tStart = entity.getContext().getTime().getTimestamp();
-    }
     entity.getRelations().addToUpdate(Relation.Type.DISTANCE);
     double rem = travel(deltaT);
     entity.setPosition(getCurrentPosition());

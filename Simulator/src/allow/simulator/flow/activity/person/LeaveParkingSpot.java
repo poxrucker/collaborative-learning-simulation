@@ -24,11 +24,11 @@ public final class LeaveParkingSpot extends Activity<Person> {
     }
 
     // Create parking request
-    if (parkingSpotRequired()) {
+    /*if (parkingSpotRequired()) {
       ParkingRequest request = new ParkingRequest(entity.getCurrentItinerary().endTime, entity.getContext().getTime().getTimestamp(),
           entity.getCurrentItinerary().to, entity.getParkingUtility(), entity.getParkingPreferences());
       entity.parkingRequestId = entity.getContext().getGuidanceSystem().addRequest(request);
-    }
+    }*/
     setFinished();
     return 0;
   }

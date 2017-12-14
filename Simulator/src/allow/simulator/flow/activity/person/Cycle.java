@@ -37,8 +37,11 @@ public final class Cycle extends MovementActivity<Person> {
 			return 0.0;
 	
 		// Note tStart.
-		if (tStart == -1) {
+		if (tStart == 0) {
 			tStart = entity.getContext().getTime().getTimestamp();
+		
+      // Prepare entity state.
+      entity.setPosition(getStartPoint());
 		}
 
 		// Register for knowledge exchange.

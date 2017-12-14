@@ -42,7 +42,7 @@ public class DriveToNextStop extends MovementActivity<Bus> {
 			return 0;
 		}
 		// Note tStart.
-		if (tStart == -1) {
+		if (tStart == 0) {
 			tStart = entity.getContext().getTime().getTimestamp();
 			fillingLevel = ((double) entity.getPassengers().size()) / entity.getCapacity();
 		}

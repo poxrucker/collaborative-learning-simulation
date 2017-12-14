@@ -70,10 +70,7 @@ public abstract class MovementActivity<V extends Entity> extends Activity<V> {
 		
 			// Prepare logging.
 			experiences = new ArrayList<Experience>(path.size());
-
-			// Prepare entity state.
-			entity.setPosition(getStartPoint());
-
+			
 		} else {
 			// Otherwise set finished.
 			setFinished();

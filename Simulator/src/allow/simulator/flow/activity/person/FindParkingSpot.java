@@ -59,8 +59,8 @@ public final class FindParkingSpot extends Activity<Person> {
     if (entity.getSearchStartTime() == 0) {
       entity.setSearchStartTime(entity.getContext().getTime().getTimestamp());
       
-      if (parkingSpotRequired())
-        entity.getContext().getGuidanceSystem().getParkingPossibility(entity.parkingRequestId);
+      /*if (parkingSpotRequired())
+        entity.getContext().getGuidanceSystem().getParkingPossibility(entity.parkingRequestId);*/
     }
     // Check if entity has already selected a parking spot
     if (!parkingSpotSelected) {

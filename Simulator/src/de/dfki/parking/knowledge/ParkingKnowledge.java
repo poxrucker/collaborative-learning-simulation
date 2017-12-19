@@ -57,18 +57,21 @@ public final class ParkingKnowledge {
 
   public Collection<ParkingKnowledgeEntry> findGarageParking(StreetNode node) {
     // Get parking possibilities in street from ParkingMap
-    ParkingIndexEntry entry = parkingIndex.getParkingAtNode(node);
+    Collection<ParkingIndexEntry> entries = parkingIndex.getParkingAtNode(node);
 
-    if (entry == null)
+    if (entries == null)
       return new ObjectArrayList<>(0);
 
-    ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
+    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(entries.size());
+    
+    for (ParkingIndexEntry entry : entries) {
+      ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
 
-    if (knowledgeEntry == null)
-      return new ObjectArrayList<>(0);
+      if (knowledgeEntry == null)
+        continue;
 
-    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(1);
-    res.add(knowledgeEntry);
+      res.add(knowledgeEntry);
+    } 
     return res;
   }
 

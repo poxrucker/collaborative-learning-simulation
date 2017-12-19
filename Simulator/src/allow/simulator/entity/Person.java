@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import allow.simulator.core.Context;
 import allow.simulator.core.AllowSimulationModel;
+import allow.simulator.core.Context;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.Itinerary;
@@ -27,6 +27,7 @@ import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.behavior.IExplorationStrategy;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
+import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.knowledge.ParkingKnowledge;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.utility.ParkingPreferences;
@@ -136,6 +137,8 @@ public final class Person extends Entity {
 	private ParkingPreferences parkingPreferences;
 	@JsonIgnore
 	public int parkingRequestId;
+	@JsonIgnore
+	public ParkingPossibility parkingCandidate;
 	
 	/**
 	 * Creates new instance of a person.

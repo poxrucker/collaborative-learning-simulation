@@ -113,8 +113,15 @@ public final class ParkingIndex {
    * @param node StreetNode to get ParkingIndexEntry for
    * @return ParkingIndexEntry associated with the given StreetNode
    */
-  public ParkingIndexEntry getParkingAtNode(StreetNode node) {
-    return garageParkingIndex.get(node.getId());
+  public Collection<ParkingIndexEntry> getParkingAtNode(StreetNode node) {
+    ParkingIndexEntry entry = garageParkingIndex.get(node.getId());
+    
+    if (entry == null)
+      return null;
+    
+    Collection<ParkingIndexEntry> ret = new ObjectArrayList<>(1);
+    ret.add(entry);
+    return ret;
   }
   
   /**

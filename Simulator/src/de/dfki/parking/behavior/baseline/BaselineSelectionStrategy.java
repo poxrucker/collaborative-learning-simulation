@@ -95,7 +95,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
       // Remove current position from list of possible positions
       // while (positions.remove(currentPosition)) {}
       // Coordinate t = positions.get(ThreadLocalRandom.current().nextInt(positions.size()));
-      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), new Coordinate(currentPosition.x, currentPosition.y)));
+      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), new Coordinate(currentPosition.x, currentPosition.y), p.second));
     }
     return ret;
   }

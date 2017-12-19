@@ -20,6 +20,7 @@ import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
+import de.dfki.parking.behavior.activity.InitializeParkingSearch;
 
 /**
  * Class representing an activity to prepare a journey, i.e. given an itinerary
@@ -109,7 +110,7 @@ public final class PrepareJourney extends Activity<Person> {
         entity.setUsedCar(true);
         
 			  // Leave current parking spot
-        entity.getFlow().addActivity(new LeaveParkingSpot(entity));
+        entity.getFlow().addActivity(new InitializeParkingSearch(entity));
 
         // If there are no segments, continue
 				if (l.streets.size() == 0)
@@ -121,7 +122,7 @@ public final class PrepareJourney extends Activity<Person> {
 				// Find a new parking spot
 		    entity.setSearchStartTime(0);
 		    entity.setSearchEndTime(0);   
-				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1)));
+				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1).getEndNode()));
 				break;
 				
 			case TAXI:

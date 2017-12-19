@@ -16,6 +16,7 @@ import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
+import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.utility.ParkingParameters;
@@ -26,7 +27,7 @@ public final class FindParkingSpot extends Activity<Person> {
   private static final int DEFAULT_PARKING_DELAY = 0 * 60;
 
   // Current street to look for parking spot
-  private final Street current;
+  private final StreetNode currentNode;
 
   // Indicates if user has selected a parking spot it wants to park in
   private boolean parkingSpotSelected;
@@ -40,14 +41,14 @@ public final class FindParkingSpot extends Activity<Person> {
   // Counts down the time necessary to park
   private double parkingTime;
   
-  public FindParkingSpot(Person entity, Street current) {
+  public FindParkingSpot(Person entity, StreetNode currentNode) {
     super(ActivityType.FIND_PARKING_SPOT, entity);
-    this.current = current;
+    this.currentNode = currentNode;
   }
 
-  public FindParkingSpot(Person entity, Street current, Parking parkingCandidate) {
+  public FindParkingSpot(Person entity, StreetNode currentNode, Parking parkingCandidate) {
     super(ActivityType.FIND_PARKING_SPOT, entity);
-    this.current = current;
+    this.currentNode = currentNode;
     this.parkingSpotCandidate = parkingCandidate;
     parkingSpotSelected = true;
     parkingSpotFound = false;
@@ -86,7 +87,7 @@ public final class FindParkingSpot extends Activity<Person> {
       Coordinate dest = entity.getCurrentItinerary().to;
       long currentTime = entity.getContext().getTime().getTimestamp(); 
       long arrivalTime = entity.getCurrentItinerary().endTime;
-      ParkingPossibility possibleParking = entity.getParkingSelectionStrategy().selectParking(current.getEndNode(), dest, currentTime, arrivalTime);     
+      ParkingPossibility possibleParking = entity.getParkingSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
       
       // If parking spot candidate was found, calculate path, add Drive and FindParkingSpot activities
       if (possibleParking != null) {        
@@ -104,7 +105,7 @@ public final class FindParkingSpot extends Activity<Person> {
           if (path != null && path.size() > 0) {
             Activity<Person> drive = new Drive(entity, path);
             entity.getFlow().addAfter(this, drive);
-            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1), parkingSpotCandidate);
+            Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1).getEndNode(), parkingSpotCandidate);
             entity.getFlow().addAfter(drive, park);
             setFinished();
 
@@ -125,7 +126,7 @@ public final class FindParkingSpot extends Activity<Person> {
         if (path != null && path.size() > 0) {
           Activity<Person> drive = new Drive(entity, path);
           entity.getFlow().addAfter(this, drive);
-          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1));
+          Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1).getEndNode());
           entity.getFlow().addAfter(drive, park);
 
         } else if (path == null){

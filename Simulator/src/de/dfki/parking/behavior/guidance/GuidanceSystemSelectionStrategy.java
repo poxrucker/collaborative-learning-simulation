@@ -32,6 +32,6 @@ public final class GuidanceSystemSelectionStrategy implements IParkingSelectionS
     
     // Get response from guidance system
     ParkingResponse response = guidanceSystem.getParkingPossibility(requestId);
-    return (response != null) ? new ParkingPossibility(response.getParking(), response.getPosition()) : null;
+    return (response != null) ? new ParkingPossibility(response.getParking(), response.getPosition(), 0) : null;
   }
 }

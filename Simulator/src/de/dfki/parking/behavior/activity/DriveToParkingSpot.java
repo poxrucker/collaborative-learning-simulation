@@ -1,4 +1,4 @@
-package allow.simulator.flow.activity.person;
+package de.dfki.parking.behavior.activity;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,12 +12,13 @@ import allow.simulator.knowledge.Experience;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
+import allow.simulator.util.Pair;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
+import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
-import de.dfki.parking.model.Parking;
+import de.dfki.parking.utility.ParkingParameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
@@ -26,19 +27,15 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Drive extends MovementActivity<Person> {
-
-  private boolean checkedForBlockedStreets;
+public final class DriveToParkingSpot extends MovementActivity<Person> {
 
   /**
    * Creates new instance of the driving Activity.
    * 
-   * @param person
-   *          The person moving.
-   * @param path
-   *          The path to drive.
+   * @param person The person moving.
+   * @param path The path to drive.
    */
-  public Drive(Person entity, List<Street> path) {
+  public DriveToParkingSpot(Person entity, List<Street> path, ParkingPossibility parking) {
     super(ActivityType.DRIVE, entity, path);
   }
 
@@ -70,6 +67,8 @@ public final class Drive extends MovementActivity<Person> {
       for (Experience entry : experiences) {
         entity.getExperienceBuffer().add(entry);
       }
+      entity.getFlow().addAfter(this, new Park(entity, getCurrentStreet().getEndNode()));
+      
     } else {
       currentSegment = getCurrentSegment();
       currentSegment.addVehicle(entity);
@@ -77,35 +76,13 @@ public final class Drive extends MovementActivity<Person> {
     return rem;
   }
 
-  /**
-   * 
-   * 
-   * @param travelTime
-   *          Time interval for travelling.
-   * @return Time used to travel which may be less than travelTime, if journey
-   *         finishes before travelTime is over.
-   */
   private double travel(double travelTime) {
     double deltaT = 0.0;
-
-    Person person = (Person) entity;
 
     while (deltaT < travelTime && !isFinished()) {
       // Get current state.
       StreetSegment s = getCurrentSegment();
-      s.registerVehicle(person);
-
-      if (person.getContext().getRoiStreets().contains(getCurrentStreet()) && person.isParticipating()) {
-        long time = person.getContext().getTime().getTimestamp();
-        person.getContext().getStatistics().reportVisitedLink(time, s);
-
-        StreetSegment rev = getReverseSegment(getCurrentStreet(), s);
-
-        if (rev != null)
-          person.getContext().getStatistics().reportVisitedLink(time, rev);
-      }
-      double v = s.getDrivingSpeed(); // *
-                                      // entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
+      double v = s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
       Coordinate p = getCurrentPosition();
 
       // Compute distance to next segment (i.e. end of current segment).
@@ -115,8 +92,7 @@ public final class Drive extends MovementActivity<Person> {
       double distToTravel = (travelTime - deltaT) * v;
 
       if (distToTravel >= distToNextSeg) {
-        // If distance to travel is bigger than distance to next segment,
-        // a new log entry needs to be created.
+        // If distance to travel is bigger than distance to next segment, a new log entry needs to be created.
         double tNextSegment = distToNextSeg / v;
         streetTravelTime += tNextSegment;
 
@@ -139,16 +115,8 @@ public final class Drive extends MovementActivity<Person> {
           tStart = tEnd;
 
           // Parking spot model: If the end of a street is reached update parking map(s)
-          updateParkingPossibilities(street);
-
-          // Construction site checks
-          if (experiences.size() < path.size()) {
-
-            if (checkForBlockedStreets())
-              return deltaT;
-
-          }
-
+          if (updateParkingPossibilities(street))
+            setFinished();
         }
         deltaT += tNextSegment;
 
@@ -170,102 +138,102 @@ public final class Drive extends MovementActivity<Person> {
     return "Drive " + entity;
   }
 
-  private void updateParkingPossibilities(Street street) {
+  private boolean updateParkingPossibilities(Street street) {
     // Find all parking possibilities
-    Collection<Parking> parkingPossibilities = findParkingPossibilities(street);
+    Collection<ParkingIndexEntry> parkingPossibilities = findParkingPossibilities(street);
     
     // Update knowledge for parking possibilities
     updateParkingKnowledge(parkingPossibilities);
+    
+    // Check if one of the parking possibilities has higher utility than currently selected parking possibility
+    return false; // updateCurrentParkingPossibility(parkingPossibilities, street);
   }
 
-  private Collection<Parking> findParkingPossibilities(Street street) {
-    List<Parking> parkingPossibilities = new ObjectArrayList<Parking>();
+  private Collection<ParkingIndexEntry> findParkingPossibilities(Street street) {
+    List<ParkingIndexEntry> parkingPossibilities = new ObjectArrayList<ParkingIndexEntry>();
     parkingPossibilities.addAll(findStreetParkingPossibilities(street));
     parkingPossibilities.addAll(findGarageParkingPossibilities(street));
     return parkingPossibilities;
   }
   
-  private void updateParkingKnowledge(Collection<Parking> parkingPossibilities) {
+  private void updateParkingKnowledge(Collection<ParkingIndexEntry> parkingPossibilities) {
     long time = entity.getContext().getTime().getTimestamp();
     
-    for (Parking parking : parkingPossibilities) {
-      int nSpots = parking.getNumberOfParkingSpots();
-      int nFreeSpots = parking.getNumberOfFreeParkingSpots();
-      double price = parking.getCurrentPricePerHour();
+    for (ParkingIndexEntry parking : parkingPossibilities) {
+      int nSpots = parking.getParking().getNumberOfParkingSpots();
+      int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
+      double price = parking.getParking().getCurrentPricePerHour();
 
-      entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
+      entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
 
       if (entity.hasSensorCar())
-        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
+        entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
     }
   }
   
-  private Collection<Parking> findStreetParkingPossibilities(Street street) {
+  private boolean updateCurrentParkingPossibility(Collection<ParkingIndexEntry> parkingPossibilities, Street street) {
+    List<ParkingPossibility> temp = rank(parkingPossibilities, entity.getPosition(), entity.getCurrentItinerary().to);
+    
+    if (temp.size() == 0)
+      return false; // If no possibility is available, return
+    
+    if (temp.get(0).getEstimatedUtility() < entity.parkingCandidate.getEstimatedUtility())
+      return false; // If utility of first ranked possibility is worse than current candidate, return
+    
+    if (temp.get(0).getParking().getId() == entity.parkingCandidate.getParking().getId())
+      return false;
+    
+    // Otherwise, update parking candidate and add Park activity
+    entity.parkingCandidate = temp.get(0);
+    setFinished();
+    return true;
+  }
+  
+  private Collection<ParkingIndexEntry> findStreetParkingPossibilities(Street street) {
     ParkingIndex parkingMap = entity.getContext().getParkingMap();
     Collection<ParkingIndexEntry> entries = parkingMap.getParkingInStreet(street.getEndNode());
 
     if (entries == null)
       return Collections.emptyList();
 
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
-    
-    for (ParkingIndexEntry entry : entries) {
-      ret.add(entry.getParking());
-    }
-    return ret;
+    return entries;
   }
 
-  private Collection<Parking> findGarageParkingPossibilities(Street street) {
+  private Collection<ParkingIndexEntry> findGarageParkingPossibilities(Street street) {
     ParkingIndex parkingMap = entity.getContext().getParkingMap();
     Collection<ParkingIndexEntry> entries = parkingMap.getParkingAtNode(street.getEndNode());
     
     if (entries == null)
       return Collections.emptyList();
 
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
+    return entries;
+  }
+  
+  private List<ParkingPossibility> rank(Collection<ParkingIndexEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+    List<Pair<ParkingIndexEntry, Double>> temp = new ObjectArrayList<>();
+
+    for (ParkingIndexEntry parking : parkings) {
+      double c = parking.getParking().getCurrentPricePerHour();
+      double wd = Geometry.haversineDistance(parking.getReferencePosition(), destination);
+      double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 3.0);
+      temp.add(new Pair<>(parking, entity.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), entity.getParkingPreferences())));
+    }
+    temp.sort((t1, t2) -> (int) (t2.second - t1.second));
+
+    if (temp.size() > 0 && temp.get(0).second == 0.0)
+      return new ObjectArrayList<>(0);
     
-    for (ParkingIndexEntry entry : entries) {
-      ret.add(entry.getParking());
+    List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
+
+    for (Pair<ParkingIndexEntry, Double> p : temp) {
+      // Remove current position from list of possible positions
+      // List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
+      
+      // Remove current position from list of possible positions
+      // while (positions.remove(currentPosition)) {}
+      // Coordinate t = positions.get(ThreadLocalRandom.current().nextInt(positions.size()));
+      ret.add(new ParkingPossibility(p.first.getParking(), new Coordinate(currentPosition.x, currentPosition.y), p.second));
     }
     return ret;
-  }
-
-  private boolean checkForBlockedStreets() {
-    boolean intermediateReplaning = false;
-
-    if (entity.isInformed() && !checkedForBlockedStreets) {
-      StreetMap map = (StreetMap) entity.getContext().getWorld();
-      intermediateReplaning = map.containsBlockedStreet(path);
-      checkedForBlockedStreets = true;
-    }
-
-    Street nextStreet = getCurrentStreet();
-
-    if (nextStreet.isBlocked())
-      entity.setInformed(true);
-
-    if (intermediateReplaning || nextStreet.isBlocked()) {
-      entity.getFlow().clear();
-      entity.getFlow().addActivity(
-          new ReplanCarJourney(entity, nextStreet.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !nextStreet.isBlocked()));
-      setFinished();
-      return true;
-    }
-    return false;
-  }
-
-  private StreetSegment getReverseSegment(Street street, StreetSegment seg) {
-    StreetMap map = (StreetMap) entity.getContext().getWorld();
-    Street rev = map.getStreetReduced(street.getEndNode(), street.getStartingNode());
-
-    if (rev == null)
-      return null;
-
-    for (StreetSegment temp : rev.getSubSegments()) {
-
-      if (temp.getStartingNode().equals(seg.getEndingNode()) && temp.getEndingNode().equals(seg.getStartingNode()))
-        return temp;
-    }
-    return null;
   }
 }

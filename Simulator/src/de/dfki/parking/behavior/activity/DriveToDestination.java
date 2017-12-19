@@ -1,4 +1,4 @@
-package allow.simulator.flow.activity.person;
+package de.dfki.parking.behavior.activity;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
-import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
@@ -26,19 +25,25 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class Drive extends MovementActivity<Person> {
-
-  private boolean checkedForBlockedStreets;
+public final class DriveToDestination extends MovementActivity<Person> {
 
   /**
    * Creates new instance of the driving Activity.
    * 
-   * @param person
-   *          The person moving.
-   * @param path
-   *          The path to drive.
+   * @param person The person moving.
+   * @param path The path to drive.
    */
-  public Drive(Person entity, List<Street> path) {
+  public DriveToDestination(Person entity, List<Street> path) {
+    super(ActivityType.DRIVE, entity, path);
+  }
+  
+  /**
+   * Creates new instance of the driving Activity.
+   * 
+   * @param person The person moving.
+   * @param path The path to drive.
+   */
+  public DriveToDestination(Person entity, List<Street> path, double distanceToStop) {
     super(ActivityType.DRIVE, entity, path);
   }
 
@@ -77,35 +82,13 @@ public final class Drive extends MovementActivity<Person> {
     return rem;
   }
 
-  /**
-   * 
-   * 
-   * @param travelTime
-   *          Time interval for travelling.
-   * @return Time used to travel which may be less than travelTime, if journey
-   *         finishes before travelTime is over.
-   */
   private double travel(double travelTime) {
     double deltaT = 0.0;
-
-    Person person = (Person) entity;
 
     while (deltaT < travelTime && !isFinished()) {
       // Get current state.
       StreetSegment s = getCurrentSegment();
-      s.registerVehicle(person);
-
-      if (person.getContext().getRoiStreets().contains(getCurrentStreet()) && person.isParticipating()) {
-        long time = person.getContext().getTime().getTimestamp();
-        person.getContext().getStatistics().reportVisitedLink(time, s);
-
-        StreetSegment rev = getReverseSegment(getCurrentStreet(), s);
-
-        if (rev != null)
-          person.getContext().getStatistics().reportVisitedLink(time, rev);
-      }
-      double v = s.getDrivingSpeed(); // *
-                                      // entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
+      double v = s.getDrivingSpeed(); // * entity.getContext().getWeather().getCurrentState().getSpeedReductionFactor();
       Coordinate p = getCurrentPosition();
 
       // Compute distance to next segment (i.e. end of current segment).
@@ -115,8 +98,7 @@ public final class Drive extends MovementActivity<Person> {
       double distToTravel = (travelTime - deltaT) * v;
 
       if (distToTravel >= distToNextSeg) {
-        // If distance to travel is bigger than distance to next segment,
-        // a new log entry needs to be created.
+        // If distance to travel is bigger than distance to next segment, a new log entry needs to be created.
         double tNextSegment = distToNextSeg / v;
         streetTravelTime += tNextSegment;
 
@@ -140,15 +122,6 @@ public final class Drive extends MovementActivity<Person> {
 
           // Parking spot model: If the end of a street is reached update parking map(s)
           updateParkingPossibilities(street);
-
-          // Construction site checks
-          if (experiences.size() < path.size()) {
-
-            if (checkForBlockedStreets())
-              return deltaT;
-
-          }
-
         }
         deltaT += tNextSegment;
 
@@ -167,7 +140,7 @@ public final class Drive extends MovementActivity<Person> {
   }
 
   public String toString() {
-    return "Drive " + entity;
+    return "DriveToDestination " + entity;
   }
 
   private void updateParkingPossibilities(Street street) {
@@ -203,69 +176,21 @@ public final class Drive extends MovementActivity<Person> {
   private Collection<Parking> findStreetParkingPossibilities(Street street) {
     ParkingIndex parkingMap = entity.getContext().getParkingMap();
     Collection<ParkingIndexEntry> entries = parkingMap.getParkingInStreet(street.getEndNode());
-
-    if (entries == null)
-      return Collections.emptyList();
-
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
-    
-    for (ParkingIndexEntry entry : entries) {
-      ret.add(entry.getParking());
-    }
-    return ret;
+    return (entries != null) ? toParkingCollection(entries) : Collections.emptyList();
   }
 
   private Collection<Parking> findGarageParkingPossibilities(Street street) {
     ParkingIndex parkingMap = entity.getContext().getParkingMap();
-    Collection<ParkingIndexEntry> entries = parkingMap.getParkingAtNode(street.getEndNode());
+    Collection<ParkingIndexEntry> entries = parkingMap.getParkingAtNode(street.getEndNode());   
+    return (entries != null) ? toParkingCollection(entries): Collections.emptyList();
+  }
+  
+  private static Collection<Parking> toParkingCollection(Collection<ParkingIndexEntry> entryCollection) {
+    Collection<Parking> ret = new ObjectArrayList<>(entryCollection.size());
     
-    if (entries == null)
-      return Collections.emptyList();
-
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
-    
-    for (ParkingIndexEntry entry : entries) {
+    for (ParkingIndexEntry entry : entryCollection) {
       ret.add(entry.getParking());
     }
     return ret;
-  }
-
-  private boolean checkForBlockedStreets() {
-    boolean intermediateReplaning = false;
-
-    if (entity.isInformed() && !checkedForBlockedStreets) {
-      StreetMap map = (StreetMap) entity.getContext().getWorld();
-      intermediateReplaning = map.containsBlockedStreet(path);
-      checkedForBlockedStreets = true;
-    }
-
-    Street nextStreet = getCurrentStreet();
-
-    if (nextStreet.isBlocked())
-      entity.setInformed(true);
-
-    if (intermediateReplaning || nextStreet.isBlocked()) {
-      entity.getFlow().clear();
-      entity.getFlow().addActivity(
-          new ReplanCarJourney(entity, nextStreet.getStartingNode().getPosition(), entity.getCurrentItinerary().to, !nextStreet.isBlocked()));
-      setFinished();
-      return true;
-    }
-    return false;
-  }
-
-  private StreetSegment getReverseSegment(Street street, StreetSegment seg) {
-    StreetMap map = (StreetMap) entity.getContext().getWorld();
-    Street rev = map.getStreetReduced(street.getEndNode(), street.getStartingNode());
-
-    if (rev == null)
-      return null;
-
-    for (StreetSegment temp : rev.getSubSegments()) {
-
-      if (temp.getStartingNode().equals(seg.getEndingNode()) && temp.getEndingNode().equals(seg.getStartingNode()))
-        return temp;
-    }
-    return null;
   }
 }

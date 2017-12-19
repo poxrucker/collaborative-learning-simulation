@@ -1,14 +1,13 @@
-package allow.simulator.flow.activity.person;
+package de.dfki.parking.behavior.activity;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
-import de.dfki.parking.behavior.guidance.ParkingRequest;
 import de.dfki.parking.model.Parking;
 
-public final class LeaveParkingSpot extends Activity<Person> {
+public final class InitializeParkingSearch extends Activity<Person> {
 
-  public LeaveParkingSpot(Person entity) {
+  public InitializeParkingSearch(Person entity) {
     super(ActivityType.LEAVE_PARKING_SPOT, entity);
   }
 
@@ -22,24 +21,17 @@ public final class LeaveParkingSpot extends Activity<Person> {
       entity.setCurrentParking(null);
       updateParkingMaps(parking);
     }
-
-    // Create parking request
-    /*if (parkingSpotRequired()) {
-      ParkingRequest request = new ParkingRequest(entity.getCurrentItinerary().endTime, entity.getContext().getTime().getTimestamp(),
-          entity.getCurrentItinerary().to, entity.getParkingUtility(), entity.getParkingPreferences());
-      entity.parkingRequestId = entity.getContext().getGuidanceSystem().addRequest(request);
-    }*/
+    // Initialize parking properties
+    entity.setSearchStartTime(0);
+    entity.setSearchEndTime(0);
+    entity.parkingRequestId = -1;
+    entity.parkingCandidate = null;
     setFinished();
     return 0;
   }
 
   public String toString() {
     return "LeaveParkingSpot " + entity;
-  }
-
-  private boolean parkingSpotRequired() {
-    return !entity.getCurrentItinerary().to.equals(entity.getHome())
-        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to);
   }
 
   private void updateParkingMaps(Parking parking) {

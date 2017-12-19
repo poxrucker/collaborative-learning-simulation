@@ -27,7 +27,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  * @author Andreas Poxrucker (DFKI)
  *
  */
-public final class DriveToParkingSpot extends MovementActivity<Person> {
+public final class DriveToParkingPossibility extends MovementActivity<Person> {
 
   /**
    * Creates new instance of the driving Activity.
@@ -35,7 +35,7 @@ public final class DriveToParkingSpot extends MovementActivity<Person> {
    * @param person The person moving.
    * @param path The path to drive.
    */
-  public DriveToParkingSpot(Person entity, List<Street> path, ParkingPossibility parking) {
+  public DriveToParkingPossibility(Person entity, List<Street> path) {
     super(ActivityType.DRIVE, entity, path);
   }
 
@@ -115,8 +115,10 @@ public final class DriveToParkingSpot extends MovementActivity<Person> {
           tStart = tEnd;
 
           // Parking spot model: If the end of a street is reached update parking map(s)
-          if (updateParkingPossibilities(street))
+          if (updateParkingPossibilities(street)) {
+            entity.getFlow().addAfter(this, new Park(entity, street.getEndNode()));
             setFinished();
+          }
         }
         deltaT += tNextSegment;
 
@@ -135,7 +137,7 @@ public final class DriveToParkingSpot extends MovementActivity<Person> {
   }
 
   public String toString() {
-    return "Drive " + entity;
+    return "DriveToParkingPossibility " + entity;
   }
 
   private boolean updateParkingPossibilities(Street street) {
@@ -146,7 +148,7 @@ public final class DriveToParkingSpot extends MovementActivity<Person> {
     updateParkingKnowledge(parkingPossibilities);
     
     // Check if one of the parking possibilities has higher utility than currently selected parking possibility
-    return false; // updateCurrentParkingPossibility(parkingPossibilities, street);
+    return updateCurrentParkingPossibility(parkingPossibilities, street);
   }
 
   private Collection<ParkingIndexEntry> findParkingPossibilities(Street street) {
@@ -177,15 +179,14 @@ public final class DriveToParkingSpot extends MovementActivity<Person> {
     if (temp.size() == 0)
       return false; // If no possibility is available, return
     
-    if (temp.get(0).getEstimatedUtility() < entity.parkingCandidate.getEstimatedUtility())
-      return false; // If utility of first ranked possibility is worse than current candidate, return
-    
-    if (temp.get(0).getParking().getId() == entity.parkingCandidate.getParking().getId())
+    if ((entity.parkingCandidate != null) && temp.get(0).getParking().getId() == entity.parkingCandidate.getParking().getId())
       return false;
+    
+    if ((entity.parkingCandidate != null) && temp.get(0).getEstimatedUtility() < entity.parkingCandidate.getEstimatedUtility())
+      return false; // If utility of first ranked possibility is worse than current candidate, return
     
     // Otherwise, update parking candidate and add Park activity
     entity.parkingCandidate = temp.get(0);
-    setFinished();
     return true;
   }
   

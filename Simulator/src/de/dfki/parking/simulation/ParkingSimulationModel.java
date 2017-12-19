@@ -277,7 +277,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     } else if (param.Model.equals("Mapping Display")) {
       ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-      ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
+      ParkingKnowledge globalKnowledge = knowledgeFactory.createFull();
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;
       double percentSensorCars = (double) param.PercentSensorCars / 100.0;

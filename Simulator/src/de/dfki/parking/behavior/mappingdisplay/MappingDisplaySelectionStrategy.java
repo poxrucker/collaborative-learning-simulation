@@ -2,6 +2,7 @@ package de.dfki.parking.behavior.mappingdisplay;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.util.Coordinate;
 import allow.simulator.util.Geometry;
@@ -113,7 +114,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
       double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
       temp.add(new Pair<>(parking, utility.computeUtility(new ParkingParameters(c, wd, st), preferences)));
     }
-    temp.sort((t1, t2) -> (int) (t1.second - t2.second));
+    temp.sort((t1, t2) -> Double.compare(t2.second, t1.second));
 
     if (temp.size() > 0 && temp.get(0).second == 0.0)
       return new ObjectArrayList<>(0);
@@ -121,14 +122,16 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
-      // Remove current position from list of possible positions
-      //List<Coordinate> positions = new ObjectArrayList<>(p.first.getParkingIndexEntry().getAllAccessPositions());
+      List<Coordinate> positions = p.first.getParkingIndexEntry().getAllAccessPositions();
+      Coordinate t = null;
       
-      // Remove current position from list of possible positions
-      //while (positions.remove(currentPosition)) {}
-      
-      // ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), positions.get(ThreadLocalRandom.current().nextInt(positions.size()))));
-      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), new Coordinate(currentPosition.x, currentPosition.y), p.second));
+      if (positions.contains(currentPosition)) {
+        t = currentPosition;  
+        
+      } else {
+        t = positions.get(ThreadLocalRandom.current().nextInt(positions.size()));
+      }
+      ret.add(new ParkingPossibility(p.first.getParkingIndexEntry().getParking(), new Coordinate(t.x, t.y), p.second));
     }
     return ret;
   }

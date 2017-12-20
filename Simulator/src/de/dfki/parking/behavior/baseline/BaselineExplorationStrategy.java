@@ -158,7 +158,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     List<Pair<ParkingIndexEntry, Double>> temp = new ObjectArrayList<>();
 
     for (ParkingIndexEntry parking : parkings) {
-      double c = 0.0;
+      double c = preferences.getCMax();
       double wd = Geometry.haversineDistance(parking.getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 3.0);
       temp.add(new Pair<>(parking, utility.computeUtility(new ParkingParameters(c, wd, st), preferences)));

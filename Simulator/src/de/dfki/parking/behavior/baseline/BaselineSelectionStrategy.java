@@ -77,7 +77,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
 
     for (ParkingKnowledgeEntry parking : parkings) {
-      double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
+      double c = parking.getParkingIndexEntry().getParking().getDefaultPricePerHour();
       double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
       temp.add(new Pair<>(parking, utility.computeUtility(new ParkingParameters(c, wd, st), preferences)));

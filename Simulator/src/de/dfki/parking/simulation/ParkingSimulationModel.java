@@ -49,8 +49,8 @@ import allow.simulator.world.overlay.RasterOverlay;
 import de.dfki.parking.behavior.guidance.GuidanceSystem;
 import de.dfki.parking.data.ParkingDataRepository;
 import de.dfki.parking.index.ParkingIndex;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeFactory;
+import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.knowledge.ParkingMapFactory;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
 import de.dfki.parking.utility.ParkingPreferencesFactory;
@@ -139,7 +139,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
 
     // Create global context from world, time, planner and data services, and
     // weather
-    GuidanceSystem guidanceSystem = new GuidanceSystem(new ParkingKnowledgeFactory(parkingIndex).createFull(), parkingIndex);
+    GuidanceSystem guidanceSystem = new GuidanceSystem(new ParkingMapFactory(parkingIndex).createFull(), parkingIndex);
     context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params,
         new ObjectArrayList<>(), guidanceSystem);
 
@@ -269,15 +269,15 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     IParkingModelInitializer modelInitializer;
 
     if (param.Model.equals("Baseline")) {
-      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
       long validTime = param.ValidTime * 60;
       modelInitializer = new BaselineParkingModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, validTime);
 
     } else if (param.Model.equals("Mapping Display")) {
-      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-      ParkingKnowledge globalKnowledge = knowledgeFactory.createFull();
+      ParkingMap globalKnowledge = knowledgeFactory.createFull();
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;
       double percentSensorCars = (double) param.PercentSensorCars / 100.0;
@@ -285,9 +285,9 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
           percentSensorCars);
 
     } else if (param.Model.equals("Central Guidance")) {
-      ParkingKnowledgeFactory knowledgeFactory = new ParkingKnowledgeFactory(parkingIndex);
+      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
       ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-      ParkingKnowledge globalKnowledge = knowledgeFactory.createWithGarages();
+      ParkingMap globalKnowledge = knowledgeFactory.createWithGarages();
       GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex);
       long validTime = param.ValidTime * 60;
       double percentUsers = (double) param.PercentUsers / 100.0;

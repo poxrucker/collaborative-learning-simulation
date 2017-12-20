@@ -147,7 +147,10 @@ public final class FindParkingSpot extends Activity<Person> {
       if (parkingSpotCandidate.getNumberOfFreeParkingSpots() > 0) {
         // Set parkingFound flag
         parkingSpotFound = true;
-
+        
+        // Save end time of parking spot search
+        entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+        
         // Set parking time
         parkingTime = DEFAULT_PARKING_DELAY;
 
@@ -158,14 +161,11 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingSpotCandidate.park(entity);
         
         // Update parking maps
-        updateParkingMaps(parkingSpotCandidate, entity.isUser());
-        
-        // Save end time of parking spot search
-        entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+        updateParkingState(parkingSpotCandidate, true);
         return 0;
       } 
-      // Otherwise, update knowledge and reset parking spot selected
-      updateParkingMaps(parkingSpotCandidate, entity.hasSensorCar());
+      // Otherwise, update knowledge and reset parking spot selected     
+      updateParkingState(parkingSpotCandidate, false);
       parkingSpotSelected = false;
       return 0;
       
@@ -200,16 +200,12 @@ public final class FindParkingSpot extends Activity<Person> {
     return parkingTime <= 0.0;
   }
 
-  private void updateParkingMaps(Parking parking, boolean updateGlobal) {
+  private void updateParkingState(Parking parking, boolean parked) {
     long time = entity.getContext().getTime().getTimestamp();
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-    
-    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
-
-    if (updateGlobal)
-        entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);  
+    entity.getUpdateStrategy().updateParkingState(parking, nSpots, nFreeSpots, price, time, parked);
   }
 
   private void reportFailure(int reason) {

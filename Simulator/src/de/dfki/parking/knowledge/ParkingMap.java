@@ -12,40 +12,40 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public final class ParkingKnowledge {
+public final class ParkingMap {
   
   private final ParkingIndex parkingIndex;
-  private final Int2ObjectMap<ParkingKnowledgeEntry> parkingKnowledge;
+  private final Int2ObjectMap<ParkingMapEntry> parkingKnowledge;
 
-  public ParkingKnowledge(ParkingIndex parkingMap) {
+  public ParkingMap(ParkingIndex parkingMap) {
     this.parkingIndex = parkingMap;
     this.parkingKnowledge = new Int2ObjectOpenHashMap<>();
   }
 
   public void update(Parking parking, int nParkingSpots, int nFreeParkingSpots, double pricePerHour, long time) {
     // Check if entry is known
-    ParkingKnowledgeEntry ret = parkingKnowledge.get(parking.getId());
+    ParkingMapEntry ret = parkingKnowledge.get(parking.getId());
 
     if (ret == null) {
       // Get ParkingMapEntry from ParkingMap
       ParkingIndexEntry entry = parkingIndex.getEntryForParkingId(parking.getId());
-      ret = new ParkingKnowledgeEntry(entry, nParkingSpots, nFreeParkingSpots, pricePerHour, -1);
+      ret = new ParkingMapEntry(entry, nParkingSpots, nFreeParkingSpots, pricePerHour, -1);
       parkingKnowledge.put(parking.getId(), ret);
     }
     ret.update(nFreeParkingSpots, time);
   }
 
-  public Collection<ParkingKnowledgeEntry> findStreetParking(StreetNode node) {
+  public Collection<ParkingMapEntry> findStreetParking(StreetNode node) {
     // Get parking possibilities in street from ParkingMap
     Collection<ParkingIndexEntry> entries = parkingIndex.getParkingInStreet(node);
 
     if (entries == null)
       return new ObjectArrayList<>(0);
 
-    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(entries.size());
+    Collection<ParkingMapEntry> res = new ObjectArrayList<>(entries.size());
     
     for (ParkingIndexEntry entry : entries) {
-      ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
+      ParkingMapEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
 
       if (knowledgeEntry == null)
         continue;
@@ -55,17 +55,17 @@ public final class ParkingKnowledge {
     return res;
   }
 
-  public Collection<ParkingKnowledgeEntry> findGarageParking(StreetNode node) {
+  public Collection<ParkingMapEntry> findGarageParking(StreetNode node) {
     // Get parking possibilities in street from ParkingMap
     Collection<ParkingIndexEntry> entries = parkingIndex.getParkingAtNode(node);
 
     if (entries == null)
       return new ObjectArrayList<>(0);
 
-    Collection<ParkingKnowledgeEntry> res = new ObjectArrayList<>(entries.size());
+    Collection<ParkingMapEntry> res = new ObjectArrayList<>(entries.size());
     
     for (ParkingIndexEntry entry : entries) {
-      ParkingKnowledgeEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
+      ParkingMapEntry knowledgeEntry = parkingKnowledge.get(entry.getParking().getId());
 
       if (knowledgeEntry == null)
         continue;
@@ -75,7 +75,7 @@ public final class ParkingKnowledge {
     return res;
   }
 
-  public Collection<ParkingKnowledgeEntry> findParkingNearby(Coordinate position, double maxDistance) {
+  public Collection<ParkingMapEntry> findParkingNearby(Coordinate position, double maxDistance) {
     // Get nearby parking possibilities from ParkingMap
     Collection<ParkingIndexEntry> indexEntries = parkingIndex.getParkingsWithMaxDistance(position, maxDistance);
 
@@ -85,11 +85,11 @@ public final class ParkingKnowledge {
     return filterUnknownFromIndex(indexEntries);
   }
 
-  private Collection<ParkingKnowledgeEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
-    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>(indexEntries.size());
+  private Collection<ParkingMapEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
+    List<ParkingMapEntry> ret = new ObjectArrayList<>(indexEntries.size());
 
     for (ParkingIndexEntry entry : indexEntries) {
-      ParkingKnowledgeEntry temp = parkingKnowledge.get(entry.getParking().getId());
+      ParkingMapEntry temp = parkingKnowledge.get(entry.getParking().getId());
 
       if (temp == null)
         continue;

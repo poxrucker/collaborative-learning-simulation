@@ -10,8 +10,8 @@ import allow.simulator.util.Pair;
 import de.dfki.parking.behavior.IExplorationStrategy;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.knowledge.ParkingMapEntry;
 import de.dfki.parking.utility.ParkingParameters;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class BaselineExplorationStrategy implements IExplorationStrategy {
   // Queried first to find possible parking possibilities from observations
-  private ParkingKnowledge knowledge;
+  private ParkingMap knowledge;
 
   // ParkingIndex in case no parking possibility was found in knowledge
   private ParkingIndex parkingIndex;
@@ -35,7 +35,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
   // Timespan during which information from knowledge is considered relevant
   private long validTime;
 
-  public BaselineExplorationStrategy(ParkingKnowledge knowledge, ParkingPreferences prefs, 
+  public BaselineExplorationStrategy(ParkingMap knowledge, ParkingPreferences prefs, 
       ParkingUtility utility, ParkingIndex parkingMap, long validTime) {
     this.knowledge = knowledge;
     this.preferences = prefs;
@@ -47,7 +47,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
   @Override
   public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
     // Find all parking possibilities in range from knowledge
-    Collection<ParkingKnowledgeEntry> fromKnowledge = knowledge.findParkingNearby(position, 500);
+    Collection<ParkingMapEntry> fromKnowledge = knowledge.findParkingNearby(position, 500);
 
     // See if recent relevant entries in knowledge exist and return them ranked by utility
     List<ParkingIndexEntry> relevant = getRelevantEntriesFromKnowlede(fromKnowledge, position, destination, currentTime);
@@ -83,11 +83,11 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     return null;
   }
 
-  private List<ParkingIndexEntry> getRelevantEntriesFromKnowlede(Collection<ParkingKnowledgeEntry> fromKnowledge, Coordinate position,
+  private List<ParkingIndexEntry> getRelevantEntriesFromKnowlede(Collection<ParkingMapEntry> fromKnowledge, Coordinate position,
       Coordinate destination, long currentTime) {
-    List<ParkingKnowledgeEntry> filtered = new ObjectArrayList<>(fromKnowledge.size());
+    List<ParkingMapEntry> filtered = new ObjectArrayList<>(fromKnowledge.size());
 
-    for (ParkingKnowledgeEntry entry : fromKnowledge) {
+    for (ParkingMapEntry entry : fromKnowledge) {
       // Filter by time and free parking spots
       if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0)
         continue;
@@ -100,10 +100,10 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     return rankFromKnowledge(filtered, position, destination);
   }
 
-  private List<ParkingIndexEntry> rankFromKnowledge(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
-    List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
+  private List<ParkingIndexEntry> rankFromKnowledge(List<ParkingMapEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+    List<Pair<ParkingMapEntry, Double>> temp = new ObjectArrayList<>();
 
-    for (ParkingKnowledgeEntry parking : parkings) {
+    for (ParkingMapEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
       double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
@@ -116,13 +116,13 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
     
     List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
 
-    for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
+    for (Pair<ParkingMapEntry, Double> p : temp) {
       ret.add(p.first.getParkingIndexEntry());
     }
     return ret;
   }
 
-  private List<ParkingIndexEntry> getPossibleParkingFromIndex(Collection<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination,
+  private List<ParkingIndexEntry> getPossibleParkingFromIndex(Collection<ParkingMapEntry> fromKnowledge, Coordinate position, Coordinate destination,
       long currentTime) {
     // Filter those which are valid and which have free parking spots
     Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(position, 200);
@@ -130,7 +130,7 @@ public final class BaselineExplorationStrategy implements IExplorationStrategy {
 
     IntSet knowledgeIds = new IntOpenHashSet();
 
-    for (ParkingKnowledgeEntry entry : fromKnowledge) {
+    for (ParkingMapEntry entry : fromKnowledge) {
 
       if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime)) {
         knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());

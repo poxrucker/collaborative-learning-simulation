@@ -2,7 +2,7 @@ package de.dfki.parking.knowledge;
 
 import de.dfki.parking.index.ParkingIndexEntry;
 
-public final class ParkingKnowledgeEntry {
+public final class ParkingMapEntry {
   // Referenced parking index entry
   private ParkingIndexEntry parkingIndexEntry;
 
@@ -18,7 +18,7 @@ public final class ParkingKnowledgeEntry {
   // Last time this entry was updated
   private long lastUpdate;
 
-  public ParkingKnowledgeEntry(ParkingIndexEntry parkingMapEntry, int nParkingSpots, int nFreeParkingSpots, double pricePerHour, long lastUpdate) {
+  public ParkingMapEntry(ParkingIndexEntry parkingMapEntry, int nParkingSpots, int nFreeParkingSpots, double pricePerHour, long lastUpdate) {
     this.parkingIndexEntry = parkingMapEntry;
     this.nParkingSpots = nFreeParkingSpots;
     this.nFreeParkingSpots = nFreeParkingSpots;

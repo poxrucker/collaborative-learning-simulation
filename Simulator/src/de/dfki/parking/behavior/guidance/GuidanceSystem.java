@@ -7,7 +7,7 @@ import java.util.SortedSet;
 import allow.simulator.util.Coordinate;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
-import de.dfki.parking.knowledge.ParkingKnowledge;
+import de.dfki.parking.knowledge.ParkingMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -35,7 +35,7 @@ public final class GuidanceSystem {
   private int requestIds;
   
   // Parking knowledge instance providing global view of all parking possibilities
-  private final ParkingKnowledge knowledge;
+  private final ParkingMap knowledge;
   
   // Parking index providing a spatial index to query parking possibilities 
   private ParkingIndex parkingIndex;
@@ -51,7 +51,7 @@ public final class GuidanceSystem {
   
   private final Comparator<ParkingRequest> comp;
   
-  public GuidanceSystem(ParkingKnowledge knowledge, ParkingIndex parkingIndex) {
+  public GuidanceSystem(ParkingMap knowledge, ParkingIndex parkingIndex) {
     this.knowledge = knowledge;
     this.parkingIndex = parkingIndex;
     requestIndex = new Int2ObjectOpenHashMap<>();

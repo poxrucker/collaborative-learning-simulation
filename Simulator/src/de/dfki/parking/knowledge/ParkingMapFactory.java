@@ -6,31 +6,31 @@ import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.model.Parking;
 
-public final class ParkingKnowledgeFactory {
+public final class ParkingMapFactory {
 
   private final ParkingIndex parkingIndex;
   
-  public ParkingKnowledgeFactory(ParkingIndex parkingIndex) {
+  public ParkingMapFactory(ParkingIndex parkingIndex) {
     this.parkingIndex = parkingIndex;
   }
   
-  public ParkingKnowledge createEmpty() {
-    return new ParkingKnowledge(parkingIndex);
+  public ParkingMap createEmpty() {
+    return new ParkingMap(parkingIndex);
   }
   
-  public ParkingKnowledge createWithGarages() {
-    ParkingKnowledge ret = new ParkingKnowledge(parkingIndex);
+  public ParkingMap createWithGarages() {
+    ParkingMap ret = new ParkingMap(parkingIndex);
     Collection<ParkingIndexEntry> entries = parkingIndex.getAllGarageParkingEntries();
     return initialize(ret, entries);
   }
   
-  public ParkingKnowledge createFull() {
-    ParkingKnowledge ret = new ParkingKnowledge(parkingIndex);
+  public ParkingMap createFull() {
+    ParkingMap ret = new ParkingMap(parkingIndex);
     Collection<ParkingIndexEntry> entries = parkingIndex.getAllEntries();
     return initialize(ret, entries);
   }
   
-  private static ParkingKnowledge initialize(ParkingKnowledge knowledge, Collection<ParkingIndexEntry> entries) {
+  private static ParkingMap initialize(ParkingMap knowledge, Collection<ParkingIndexEntry> entries) {
     
     for (ParkingIndexEntry entry : entries) {
       Parking p = entry.getParking();

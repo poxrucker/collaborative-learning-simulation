@@ -10,8 +10,8 @@ import allow.simulator.util.Pair;
 import de.dfki.parking.behavior.IExplorationStrategy;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.knowledge.ParkingMapEntry;
 import de.dfki.parking.utility.ParkingParameters;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
@@ -21,10 +21,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
   // Local knowledge of the entity
-  private final ParkingKnowledge localKnowledge;
+  private final ParkingMap localKnowledge;
   
   // Global knowledge of the system
-  private final ParkingKnowledge globalKnowledge;
+  private final ParkingMap globalKnowledge;
   
   // ParkingIndex in case no 
   private final ParkingIndex parkingIndex;
@@ -38,7 +38,7 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
   // Timespan during which information from knowledge is considered relevant
   private long validTime;
 
- public MappingDisplayExplorationStrategy(ParkingKnowledge localKnowledge, ParkingKnowledge globalKnowledge, 
+ public MappingDisplayExplorationStrategy(ParkingMap localKnowledge, ParkingMap globalKnowledge, 
      ParkingPreferences prefs, ParkingUtility utility, ParkingIndex parkingIndex, long validTime) {
    this.localKnowledge = localKnowledge;
    this.globalKnowledge = globalKnowledge;
@@ -51,9 +51,9 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
  @Override
  public Coordinate findNextPossibleParking(Coordinate position, Coordinate destination, long currentTime) {
    // Find all parking possibilities in range from knowledge
-   Collection<ParkingKnowledgeEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(position, 500);
-   Collection<ParkingKnowledgeEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(position, 500);
-   List<ParkingKnowledgeEntry> fromKnowledge = mergeByTime(fromLocalKnowledge, fromGlobalKnowledge);
+   Collection<ParkingMapEntry> fromLocalKnowledge = localKnowledge.findParkingNearby(position, 500);
+   Collection<ParkingMapEntry> fromGlobalKnowledge = globalKnowledge.findParkingNearby(position, 500);
+   List<ParkingMapEntry> fromKnowledge = mergeByTime(fromLocalKnowledge, fromGlobalKnowledge);
    
    // See if recent relevant entries in knowledge exist and return them ranked by utility
    List<ParkingIndexEntry> relevant = getRelevantEntriesFromKnowlede(fromKnowledge, position, destination, currentTime);
@@ -87,17 +87,17 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
   return null;
  }
  
- private List<ParkingKnowledgeEntry> mergeByTime(Collection<ParkingKnowledgeEntry> local, Collection<ParkingKnowledgeEntry> global) {
+ private List<ParkingMapEntry> mergeByTime(Collection<ParkingMapEntry> local, Collection<ParkingMapEntry> global) {
    // Create a map to merge entries 
-   List<ParkingKnowledgeEntry> merged = new ObjectArrayList<>(local.size() + global.size());
+   List<ParkingMapEntry> merged = new ObjectArrayList<>(local.size() + global.size());
    merged.addAll(local);
    merged.addAll(global);
    merged.sort((e1, e2) -> Long.compare(e2.getLastUpdate(), e1.getLastUpdate()));
    
-   List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+   List<ParkingMapEntry> ret = new ObjectArrayList<>();
    IntSet added = new IntOpenHashSet();
    
-   for (ParkingKnowledgeEntry entry : merged) {
+   for (ParkingMapEntry entry : merged) {
      
      if (added.contains(entry.getParkingIndexEntry().getParking().getId()))
        continue;
@@ -107,11 +107,11 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    return ret;
  }
  
- private List<ParkingIndexEntry> getRelevantEntriesFromKnowlede(List<ParkingKnowledgeEntry> fromKnowledge, 
+ private List<ParkingIndexEntry> getRelevantEntriesFromKnowlede(List<ParkingMapEntry> fromKnowledge, 
      Coordinate position, Coordinate destination, long currentTime) {
-   List<ParkingKnowledgeEntry> filtered = new ObjectArrayList<>(fromKnowledge.size());
+   List<ParkingMapEntry> filtered = new ObjectArrayList<>(fromKnowledge.size());
    
-   for (ParkingKnowledgeEntry entry : fromKnowledge) {
+   for (ParkingMapEntry entry : fromKnowledge) {
      // Filter by free parking spots
      if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime) && entry.getNFreeParkingSpots() == 0)
        continue;
@@ -124,10 +124,10 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    return rankFromKnowledge(filtered, position, destination);
  }
  
- private List<ParkingIndexEntry> rankFromKnowledge(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
-   List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
+ private List<ParkingIndexEntry> rankFromKnowledge(List<ParkingMapEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+   List<Pair<ParkingMapEntry, Double>> temp = new ObjectArrayList<>();
    
-   for (ParkingKnowledgeEntry parking : parkings) {
+   for (ParkingMapEntry parking : parkings) {
      double c = parking.getParkingIndexEntry().getParking().getCurrentPricePerHour();
      double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
      double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
@@ -140,19 +140,19 @@ public class MappingDisplayExplorationStrategy implements IExplorationStrategy {
    
    List<ParkingIndexEntry> ret = new ObjectArrayList<>(temp.size());
    
-   for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
+   for (Pair<ParkingMapEntry, Double> p : temp) {
      ret.add(p.first.getParkingIndexEntry());
    }
    return ret;
  }
  
- private List<ParkingIndexEntry> getPossibleParkingFromIndex(List<ParkingKnowledgeEntry> fromKnowledge, Coordinate position, Coordinate destination, long currentTime) {
+ private List<ParkingIndexEntry> getPossibleParkingFromIndex(List<ParkingMapEntry> fromKnowledge, Coordinate position, Coordinate destination, long currentTime) {
    // Filter those which are valid and which have free parking spots
    Collection<ParkingIndexEntry> fromIndex = parkingIndex.getParkingsWithMaxDistance(position, 200);
    // Collection<ParkingIndexEntry> fromIndex = parkingIndex.getAllGarageParkingEntries();
    IntSet knowledgeIds = new IntOpenHashSet();
    
-   for (ParkingKnowledgeEntry entry : fromKnowledge) {
+   for (ParkingMapEntry entry : fromKnowledge) {
      
      if (((currentTime - entry.getLastUpdate()) / 1000.0 <= validTime)) {
        knowledgeIds.add(entry.getParkingIndexEntry().getParking().getId());

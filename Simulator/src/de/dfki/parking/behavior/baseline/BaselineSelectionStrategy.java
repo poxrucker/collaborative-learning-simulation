@@ -10,8 +10,8 @@ import allow.simulator.util.Pair;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.knowledge.ParkingMapEntry;
 import de.dfki.parking.utility.ParkingParameters;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class BaselineSelectionStrategy implements IParkingSelectionStrategy {
   // Local ParkingMap instance
-  private final ParkingKnowledge knowledge;
+  private final ParkingMap knowledge;
 
   // Parking preferences
   private final ParkingPreferences preferences;
@@ -30,7 +30,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   // Time during which information from parking maps is considered valid
   private final long validTime;
 
-  public BaselineSelectionStrategy(ParkingKnowledge knowledge, ParkingPreferences preferences,
+  public BaselineSelectionStrategy(ParkingMap knowledge, ParkingPreferences preferences,
       ParkingUtility utility, long validTime) {
     this.knowledge = knowledge;
     this.preferences = preferences;
@@ -41,7 +41,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
   @Override
   public ParkingPossibility selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Find possible parking possibilities in knowledge
-    List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
+    List<ParkingMapEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
     
     if (freeParkings.size() == 0)
       return null;
@@ -51,15 +51,15 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     return (rankedParkings.size() > 0) ? rankedParkings.get(0) : null;
   }
 
-  private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
+  private List<ParkingMapEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    Collection<ParkingKnowledgeEntry> initial = knowledge.findStreetParking(current);
+    Collection<ParkingMapEntry> initial = knowledge.findStreetParking(current);
     initial.addAll(knowledge.findGarageParking(current));
     
     // Filter those which are valid and which have free parking spots
-    List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(initial.size());
+    List<ParkingMapEntry> possible = new ObjectArrayList<>(initial.size());
 
-    for (ParkingKnowledgeEntry entry : initial) {
+    for (ParkingMapEntry entry : initial) {
       // Filter by time
       if ((currentTime - entry.getLastUpdate()) / 1000.0 > validTime)
         continue;
@@ -73,10 +73,10 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     return possible;
   }
 
-  private List<ParkingPossibility> rank(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
-    List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
+  private List<ParkingPossibility> rank(List<ParkingMapEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+    List<Pair<ParkingMapEntry, Double>> temp = new ObjectArrayList<>();
 
-    for (ParkingKnowledgeEntry parking : parkings) {
+    for (ParkingMapEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getDefaultPricePerHour();
       double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
@@ -89,7 +89,7 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
-    for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
+    for (Pair<ParkingMapEntry, Double> p : temp) {
       List<Coordinate> positions = p.first.getParkingIndexEntry().getAllAccessPositions();
       Coordinate t = null;
       

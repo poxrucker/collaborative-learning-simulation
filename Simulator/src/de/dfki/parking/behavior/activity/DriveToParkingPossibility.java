@@ -165,11 +165,7 @@ public final class DriveToParkingPossibility extends MovementActivity<Person> {
       int nSpots = parking.getParking().getNumberOfParkingSpots();
       int nFreeSpots = parking.getParking().getNumberOfFreeParkingSpots();
       double price = parking.getParking().getCurrentPricePerHour();
-
-      entity.getLocalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
-
-      if (entity.hasSensorCar())
-        entity.getGlobalParkingKnowledge().update(parking.getParking(), nSpots, nFreeSpots, price, time);
+      entity.getUpdateStrategy().updateParkingState(parking.getParking(), nSpots, nFreeSpots, price, time, false);
     }
   }
   

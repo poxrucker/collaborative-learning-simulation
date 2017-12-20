@@ -39,10 +39,6 @@ public final class InitializeParkingSearch extends Activity<Person> {
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-
-    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
-
-    if (entity.isUser())
-      entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
+    entity.getUpdateStrategy().updateParkingState(parking, nSpots, nFreeSpots, price, time, true);
   }
 }

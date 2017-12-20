@@ -27,8 +27,9 @@ import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.behavior.IExplorationStrategy;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
+import de.dfki.parking.behavior.IUpdateStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
-import de.dfki.parking.knowledge.ParkingKnowledge;
+import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
@@ -124,13 +125,15 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private long searchEndTime;
 	@JsonIgnore
-	private ParkingKnowledge localParkingKnowledge;
+	private ParkingMap localParkingKnowledge;
 	@JsonIgnore
-	private ParkingKnowledge globalParkingKnowledge;
+	private ParkingMap globalParkingKnowledge;
 	@JsonIgnore
 	private IParkingSelectionStrategy selectionStrategy;
 	@JsonIgnore
 	private IExplorationStrategy explorationStrategy;
+	@JsonIgnore
+	private IUpdateStrategy updateStrategy;
 	@JsonIgnore
 	private ParkingUtility parkingUtility;
 	@JsonIgnore
@@ -421,24 +424,6 @@ public final class Person extends Entity {
 	  this.currentParking = parking;
 	}
 	
-	@JsonIgnore
-	public ParkingKnowledge getLocalParkingKnowledge() {
-	  return localParkingKnowledge;
-	}
-	
-	public void setLocalParkingKnowledge(ParkingKnowledge knowledge) {
-	  this.localParkingKnowledge = knowledge;
-	}
-	
-	@JsonIgnore
-	public ParkingKnowledge getGlobalParkingKnowledge() {
-    return globalParkingKnowledge;
-  }
-  
-  public void setGlobalParkingKnowledge(ParkingKnowledge knowledge) {
-    this.globalParkingKnowledge = knowledge;
-  }
-	
   @JsonIgnore
   public IParkingSelectionStrategy getParkingSelectionStrategy() {
     return selectionStrategy;
@@ -455,6 +440,15 @@ public final class Person extends Entity {
   
   public void setExplorationStrategy(IExplorationStrategy strategy) {
     this.explorationStrategy = strategy;
+  }
+  
+  @JsonIgnore
+  public IUpdateStrategy getUpdateStrategy() {
+    return updateStrategy;
+  }
+  
+  public void setUpdateStrategy(IUpdateStrategy strategy) {
+    this.updateStrategy = strategy;
   }
   
   @JsonIgnore

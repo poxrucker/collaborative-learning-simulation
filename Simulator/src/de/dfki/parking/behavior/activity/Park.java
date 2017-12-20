@@ -46,16 +46,12 @@ public class Park extends Activity<Person> {
     return deltaT;
   }
 
-  private void updateParkingMaps(Parking parking, boolean updateGlobal) {
+  private void updateParkingMaps(Parking parking, boolean parked) {
     long time = entity.getContext().getTime().getTimestamp();
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-
-    entity.getLocalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
-
-    if (updateGlobal)
-      entity.getGlobalParkingKnowledge().update(parking, nSpots, nFreeSpots, price, time);
+    entity.getUpdateStrategy().updateParkingState(parking, nSpots, nFreeSpots, price, time, parked);
   }
   
   private void reportStatistics() {

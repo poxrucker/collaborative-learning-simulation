@@ -10,8 +10,8 @@ import allow.simulator.util.Pair;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
-import de.dfki.parking.knowledge.ParkingKnowledge;
-import de.dfki.parking.knowledge.ParkingKnowledgeEntry;
+import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.knowledge.ParkingMapEntry;
 import de.dfki.parking.utility.ParkingParameters;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
@@ -21,10 +21,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class MappingDisplaySelectionStrategy implements IParkingSelectionStrategy {
   // Local ParkingMap instance
-  private final ParkingKnowledge localParkingMap;
+  private final ParkingMap localParkingMap;
 
   // Global ParkingMap instance
-  private final ParkingKnowledge globalParkingMap;
+  private final ParkingMap globalParkingMap;
 
   // Parking preferences
   private final ParkingPreferences preferences;
@@ -35,7 +35,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
   // Time during which information from parking maps is considered valid
   private final long validTime;
 
-  public MappingDisplaySelectionStrategy(ParkingKnowledge localParkingMap, ParkingKnowledge globalParkingMap, 
+  public MappingDisplaySelectionStrategy(ParkingMap localParkingMap, ParkingMap globalParkingMap, 
       ParkingPreferences preferences, ParkingUtility utility, long validTime) {
     this.localParkingMap = localParkingMap;
     this.globalParkingMap = globalParkingMap;
@@ -47,7 +47,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
   @Override
   public ParkingPossibility selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Find possible parking possibilities in knowledge
-    List<ParkingKnowledgeEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
+    List<ParkingMapEntry> freeParkings = findPossibleParkings(current, destination, currentTime);
 
     if (freeParkings == null)
       return null;
@@ -58,20 +58,20 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     return (rankedParkings.size() > 0) ? rankedParkings.get(0) : null;
   }
 
-  private List<ParkingKnowledgeEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
+  private List<ParkingMapEntry> findPossibleParkings(StreetNode current, Coordinate destination, long currentTime) {
     // Get possibilities from parking maps
-    Collection<ParkingKnowledgeEntry> local = localParkingMap.findStreetParking(current);
+    Collection<ParkingMapEntry> local = localParkingMap.findStreetParking(current);
     local.addAll(localParkingMap.findGarageParking(current));
 
-    Collection<ParkingKnowledgeEntry> global = globalParkingMap.findStreetParking(current);
+    Collection<ParkingMapEntry> global = globalParkingMap.findStreetParking(current);
     global.addAll(globalParkingMap.findGarageParking(current));
 
-    Collection<ParkingKnowledgeEntry> merged = mergeByTime(local, global);
+    Collection<ParkingMapEntry> merged = mergeByTime(local, global);
 
     // Filter those which are valid and which have free parking spots
-    List<ParkingKnowledgeEntry> possible = new ObjectArrayList<>(local.size());
+    List<ParkingMapEntry> possible = new ObjectArrayList<>(local.size());
 
-    for (ParkingKnowledgeEntry entry : merged) {
+    for (ParkingMapEntry entry : merged) {
       // Filter by time
       if ((entry.getLastUpdate() < 0) || (currentTime - entry.getLastUpdate()) / 1000.0 > validTime)
         continue;
@@ -85,17 +85,17 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     return possible;
   }
 
-  private Collection<ParkingKnowledgeEntry> mergeByTime(Collection<ParkingKnowledgeEntry> local, Collection<ParkingKnowledgeEntry> global) {
+  private Collection<ParkingMapEntry> mergeByTime(Collection<ParkingMapEntry> local, Collection<ParkingMapEntry> global) {
     // Create a map to merge entries
-    List<ParkingKnowledgeEntry> merged = new ObjectArrayList<>(local.size() + global.size());
+    List<ParkingMapEntry> merged = new ObjectArrayList<>(local.size() + global.size());
     merged.addAll(local);
     merged.addAll(global);
     merged.sort((e1, e2) -> Long.compare(e2.getLastUpdate(), e1.getLastUpdate()));
 
-    List<ParkingKnowledgeEntry> ret = new ObjectArrayList<>();
+    List<ParkingMapEntry> ret = new ObjectArrayList<>();
     IntSet addedParking = new IntOpenHashSet();
     
-    for (ParkingKnowledgeEntry entry : merged) {
+    for (ParkingMapEntry entry : merged) {
 
       if (addedParking.contains(entry.getParkingIndexEntry().getParking().getId()))
         continue;
@@ -105,10 +105,10 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     return ret;
   }
 
-  private List<ParkingPossibility> rank(List<ParkingKnowledgeEntry> parkings, Coordinate currentPosition, Coordinate destination) {
-    List<Pair<ParkingKnowledgeEntry, Double>> temp = new ObjectArrayList<>();
+  private List<ParkingPossibility> rank(List<ParkingMapEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+    List<Pair<ParkingMapEntry, Double>> temp = new ObjectArrayList<>();
 
-    for (ParkingKnowledgeEntry parking : parkings) {
+    for (ParkingMapEntry parking : parkings) {
       double c = parking.getParkingIndexEntry().getParking().getDefaultPricePerHour();
       double wd = Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getParkingIndexEntry().getReferencePosition(), currentPosition) / 3.0);
@@ -121,7 +121,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
-    for (Pair<ParkingKnowledgeEntry, Double> p : temp) {
+    for (Pair<ParkingMapEntry, Double> p : temp) {
       List<Coordinate> positions = p.first.getParkingIndexEntry().getAllAccessPositions();
       Coordinate t = null;
       

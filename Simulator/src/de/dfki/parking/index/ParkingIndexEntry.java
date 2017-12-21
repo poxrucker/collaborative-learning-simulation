@@ -36,7 +36,7 @@ public final class ParkingIndexEntry implements ILocatable {
    * 
    * @return Access positions associated with the Parking instance
    */
-  public List<Coordinate> getAllAccessPositions() {
+  public List<Coordinate> getPositions() {
     return accessPositions;
   }
 

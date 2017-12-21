@@ -62,9 +62,11 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     // Get possibilities from parking maps
     Collection<ParkingMapEntry> local = localParkingMap.findStreetParking(current);
     local.addAll(localParkingMap.findGarageParking(current));
-
+    // Collection<ParkingMapEntry> local = localParkingMap.findParkingNearby(destination, 250);
+ 
     Collection<ParkingMapEntry> global = globalParkingMap.findStreetParking(current);
     global.addAll(globalParkingMap.findGarageParking(current));
+    // Collection<ParkingMapEntry> global = globalParkingMap.findParkingNearby(destination, 250);
 
     Collection<ParkingMapEntry> merged = mergeByTime(local, global);
 
@@ -122,7 +124,7 @@ public final class MappingDisplaySelectionStrategy implements IParkingSelectionS
     List<ParkingPossibility> ret = new ObjectArrayList<>(temp.size());
 
     for (Pair<ParkingMapEntry, Double> p : temp) {
-      List<Coordinate> positions = p.first.getParkingIndexEntry().getAllAccessPositions();
+      List<Coordinate> positions = p.first.getParkingIndexEntry().getPositions();
       Coordinate t = null;
       
       if (positions.contains(currentPosition)) {

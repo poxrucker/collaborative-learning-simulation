@@ -28,15 +28,15 @@ final class JTSUtil {
    */
   public static Envelope createQueryEnvelope(allow.simulator.util.Coordinate center, double edgeLength) {
     // Half edge length in every direction
-    double halfDistance = 0.5 * edgeLength;
+    // double halfDistance = 0.5 * edgeLength;
 
     // Sample four points from circle around center with radius maxDistance to obtain query envelope
-    Coordinate north = new Coordinate(center.x, center.y + LAT_M_TO_DEG * halfDistance);
-    Coordinate south = new Coordinate(center.x, center.y - LAT_M_TO_DEG * halfDistance);
+    Coordinate north = new Coordinate(center.x, center.y + LAT_M_TO_DEG * edgeLength);
+    Coordinate south = new Coordinate(center.x, center.y - LAT_M_TO_DEG * edgeLength);
     double circumferenceCenter = Math.cos(Math.toRadians(center.y)) * EARTH_CIRCUMFERENCE_IN_M;
     double lonMToDegCenter = 360.0 / circumferenceCenter;
-    Coordinate east = new Coordinate(center.x - lonMToDegCenter * halfDistance, center.y);
-    Coordinate west = new Coordinate(center.x + lonMToDegCenter * halfDistance, center.y);
+    Coordinate east = new Coordinate(center.x - lonMToDegCenter * edgeLength, center.y);
+    Coordinate west = new Coordinate(center.x + lonMToDegCenter * edgeLength, center.y);
 
     // Create point sequence to build geometry and create Envelope instance
     Coordinate[] points = new Coordinate[] { new Coordinate(north.x, north.y), new Coordinate(east.x, east.y),
@@ -69,6 +69,22 @@ final class JTSUtil {
    */
   public static Geometry createPoint(allow.simulator.util.Coordinate c) {
     return GEOMETRY_FACTORY.createPoint(convert(c));
+  }
+  
+  /**
+   * Creates a multi-point geometry from the given coordinate.
+   * 
+   * @param c
+   * @return Point geometry
+   */
+  public static Geometry createMultiPoint(Collection<allow.simulator.util.Coordinate> coordinates) {
+    ObjectArrayList<Coordinate> conv = new ObjectArrayList<>();
+
+    for (allow.simulator.util.Coordinate c : coordinates) {
+      conv.add(JTSUtil.convert(c));
+    }
+    Coordinate[] temp = conv.toArray(new Coordinate[conv.size()]);
+    return GEOMETRY_FACTORY.createMultiPoint(temp);
   }
   
   private static Coordinate convert(allow.simulator.util.Coordinate c) {

@@ -1,10 +1,12 @@
-package de.dfki.parking.behavior.guidance;
+package de.dfki.parking.model;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.SortedSet;
 
 import allow.simulator.util.Coordinate;
+import de.dfki.parking.behavior.guidance.ParkingRequest;
+import de.dfki.parking.behavior.guidance.ParkingResponse;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.knowledge.ParkingMap;

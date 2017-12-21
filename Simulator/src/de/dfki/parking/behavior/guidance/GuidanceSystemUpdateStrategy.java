@@ -2,6 +2,7 @@ package de.dfki.parking.behavior.guidance;
 
 import de.dfki.parking.behavior.IUpdateStrategy;
 import de.dfki.parking.knowledge.ParkingMap;
+import de.dfki.parking.model.GuidanceSystem;
 import de.dfki.parking.model.Parking;
 
 public final class GuidanceSystemUpdateStrategy implements IUpdateStrategy {

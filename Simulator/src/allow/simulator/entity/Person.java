@@ -25,10 +25,7 @@ import allow.simulator.utility.NormalizedLinearUtility;
 import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
-import de.dfki.parking.behavior.IExplorationStrategy;
-import de.dfki.parking.behavior.IInitializationStrategy;
-import de.dfki.parking.behavior.IParkingSelectionStrategy;
-import de.dfki.parking.behavior.IUpdateStrategy;
+import de.dfki.parking.behavior.ParkingBehavior;
 import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.model.ParkingPossibility;
@@ -130,13 +127,7 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private ParkingMap globalParkingKnowledge;
 	@JsonIgnore
-	private IParkingSelectionStrategy selectionStrategy;
-	@JsonIgnore
-	private IExplorationStrategy explorationStrategy;
-	@JsonIgnore
-	private IUpdateStrategy updateStrategy;
-	@JsonIgnore
-	private IInitializationStrategy initializationStrategy;
+	private ParkingBehavior parkingBehavior;
 	@JsonIgnore
 	private ParkingUtility parkingUtility;
 	@JsonIgnore
@@ -426,41 +417,14 @@ public final class Person extends Entity {
 	public void setCurrentParking(Parking parking) {
 	  this.currentParking = parking;
 	}
-	
-  @JsonIgnore
-  public IParkingSelectionStrategy getParkingSelectionStrategy() {
-    return selectionStrategy;
+  
+	@JsonIgnore
+  public ParkingBehavior getParkingBehavior() {
+    return parkingBehavior;
   }
   
-  public void setParkingSelectionStrategy(IParkingSelectionStrategy strategy) {
-    this.selectionStrategy = strategy;
-  }
-  
-  @JsonIgnore
-  public IExplorationStrategy getExplorationStrategy() {
-    return explorationStrategy;
-  }
-  
-  public void setExplorationStrategy(IExplorationStrategy strategy) {
-    this.explorationStrategy = strategy;
-  }
-  
-  @JsonIgnore
-  public IUpdateStrategy getUpdateStrategy() {
-    return updateStrategy;
-  }
-  
-  public void setUpdateStrategy(IUpdateStrategy strategy) {
-    this.updateStrategy = strategy;
-  }
-  
-  @JsonIgnore
-  public IInitializationStrategy getInitializationStrategy() {
-    return initializationStrategy;
-  }
-  
-  public void setInitilizationStrategy(IInitializationStrategy strategy) {
-    this.initializationStrategy = strategy;
+  public void setParkingBehavior(ParkingBehavior parkingBehavior) {
+    this.parkingBehavior = parkingBehavior;
   }
   
   @JsonIgnore

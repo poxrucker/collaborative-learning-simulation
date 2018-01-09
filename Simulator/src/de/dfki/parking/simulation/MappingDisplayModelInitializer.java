@@ -3,10 +3,13 @@ package de.dfki.parking.simulation;
 import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.entity.Person;
+import de.dfki.parking.behavior.ParkingBehavior;
 import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
+import de.dfki.parking.behavior.baseline.BaselineInitializationStrategy;
 import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.baseline.BaselineUpdateStrategy;
 import de.dfki.parking.behavior.mappingdisplay.MappingDisplayExplorationStrategy;
+import de.dfki.parking.behavior.mappingdisplay.MappingDisplayInitializationStrategy;
 import de.dfki.parking.behavior.mappingdisplay.MappingDisplaySelectionStrategy;
 import de.dfki.parking.behavior.mappingdisplay.MappingDisplayUpdateStrategy;
 import de.dfki.parking.index.ParkingIndex;
@@ -69,15 +72,19 @@ public final class MappingDisplayModelInitializer implements IParkingModelInitia
       
       if (ThreadLocalRandom.current().nextDouble() < percentSensorCars)
         person.setHasSensorCar();
-
-      person.setParkingSelectionStrategy(new MappingDisplaySelectionStrategy(localMap, globalMap, prefs, utility, validTime));
-      person.setExplorationStrategy(new MappingDisplayExplorationStrategy(localMap, globalMap, prefs, utility, parkingIndex, validTime));
-      person.setUpdateStrategy(new MappingDisplayUpdateStrategy(localMap, globalMap, person.hasSensorCar()));
       
+      ParkingBehavior parkingBehavior = new ParkingBehavior(new MappingDisplayInitializationStrategy(),
+          new MappingDisplaySelectionStrategy(localMap, globalMap, prefs, utility, validTime),
+          new MappingDisplayExplorationStrategy(localMap, globalMap, prefs, utility, parkingIndex, validTime),
+          new MappingDisplayUpdateStrategy(localMap, globalMap, person.hasSensorCar()));
+      person.setParkingBehavior(parkingBehavior);      
     } else {
-      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localMap, prefs, utility, validTime));
-      person.setExplorationStrategy(new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime));
-      person.setUpdateStrategy(new BaselineUpdateStrategy(localMap));
+      
+      ParkingBehavior parkingBehavior = new ParkingBehavior(new BaselineInitializationStrategy(), 
+          new BaselineSelectionStrategy(localMap, prefs, utility, validTime),
+          new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime),
+          new BaselineUpdateStrategy(localMap));
+      person.setParkingBehavior(parkingBehavior);
     }
   }
 }

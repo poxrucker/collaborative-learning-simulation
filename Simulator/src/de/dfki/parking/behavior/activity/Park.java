@@ -51,7 +51,7 @@ public class Park extends Activity<Person> {
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-    entity.getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, parked);
+    entity.getParkingBehavior().getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, parked);
   }
   
   private void reportStatistics() {

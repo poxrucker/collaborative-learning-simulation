@@ -1,7 +1,5 @@
 package allow.simulator.flow.activity.person;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import allow.simulator.entity.Person;
@@ -15,10 +13,6 @@ import allow.simulator.util.Geometry;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.StreetSegment;
-import de.dfki.parking.index.ParkingIndex;
-import de.dfki.parking.index.ParkingIndexEntry;
-import de.dfki.parking.model.Parking;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Class representing driving Activity.
@@ -138,9 +132,6 @@ public final class Drive extends MovementActivity<Person> {
           segmentIndex = 0;
           tStart = tEnd;
 
-          // Parking spot model: If the end of a street is reached update parking map(s)
-          updateParkingPossibilities(street);
-
           // Construction site checks
           if (experiences.size() < path.size()) {
 
@@ -168,62 +159,6 @@ public final class Drive extends MovementActivity<Person> {
 
   public String toString() {
     return "Drive " + entity;
-  }
-
-  private void updateParkingPossibilities(Street street) {
-    // Find all parking possibilities
-    Collection<Parking> parkingPossibilities = findParkingPossibilities(street);
-    
-    // Update knowledge for parking possibilities
-    updateParkingKnowledge(parkingPossibilities);
-  }
-
-  private Collection<Parking> findParkingPossibilities(Street street) {
-    List<Parking> parkingPossibilities = new ObjectArrayList<Parking>();
-    parkingPossibilities.addAll(findStreetParkingPossibilities(street));
-    parkingPossibilities.addAll(findGarageParkingPossibilities(street));
-    return parkingPossibilities;
-  }
-  
-  private void updateParkingKnowledge(Collection<Parking> parkingPossibilities) {
-    long time = entity.getContext().getTime().getTimestamp();
-    
-    for (Parking parking : parkingPossibilities) {
-      int nSpots = parking.getNumberOfParkingSpots();
-      int nFreeSpots = parking.getNumberOfFreeParkingSpots();
-      double price = parking.getCurrentPricePerHour();
-      entity.getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, false);
-    }
-  }
-  
-  private Collection<Parking> findStreetParkingPossibilities(Street street) {
-    ParkingIndex parkingMap = entity.getContext().getParkingMap();
-    Collection<ParkingIndexEntry> entries = parkingMap.getParkingInStreet(street.getEndNode());
-
-    if (entries == null)
-      return Collections.emptyList();
-
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
-    
-    for (ParkingIndexEntry entry : entries) {
-      ret.add(entry.getParking());
-    }
-    return ret;
-  }
-
-  private Collection<Parking> findGarageParkingPossibilities(Street street) {
-    ParkingIndex parkingMap = entity.getContext().getParkingMap();
-    Collection<ParkingIndexEntry> entries = parkingMap.getParkingAtNode(street.getEndNode());
-    
-    if (entries == null)
-      return Collections.emptyList();
-
-    Collection<Parking> ret = new ObjectArrayList<>(entries.size());
-    
-    for (ParkingIndexEntry entry : entries) {
-      ret.add(entry.getParking());
-    }
-    return ret;
   }
 
   private boolean checkForBlockedStreets() {

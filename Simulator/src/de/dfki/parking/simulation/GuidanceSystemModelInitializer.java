@@ -3,9 +3,12 @@ package de.dfki.parking.simulation;
 import java.util.concurrent.ThreadLocalRandom;
 
 import allow.simulator.entity.Person;
+import de.dfki.parking.behavior.ParkingBehavior;
 import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
+import de.dfki.parking.behavior.baseline.BaselineInitializationStrategy;
 import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.baseline.BaselineUpdateStrategy;
+import de.dfki.parking.behavior.guidance.GuidanceSystemInitializationStrategy;
 import de.dfki.parking.behavior.guidance.GuidanceSystemSelectionStrategy;
 import de.dfki.parking.behavior.guidance.GuidanceSystemUpdateStrategy;
 import de.dfki.parking.index.ParkingIndex;
@@ -68,14 +71,19 @@ public final class GuidanceSystemModelInitializer implements IParkingModelInitia
       if (ThreadLocalRandom.current().nextDouble() < percentSensorCars)
         person.setHasSensorCar();
       
-      person.setParkingSelectionStrategy(new GuidanceSystemSelectionStrategy(prefs, utility, guidanceSystem));
-      person.setExplorationStrategy(new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime));
-      person.setUpdateStrategy(new GuidanceSystemUpdateStrategy(localMap, guidanceSystem, person.hasSensorCar()));
-      
+      ParkingBehavior parkingBehavior = new ParkingBehavior(new GuidanceSystemInitializationStrategy(guidanceSystem, utility, prefs), 
+          new GuidanceSystemSelectionStrategy(prefs, utility, guidanceSystem),
+          new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime),
+          new GuidanceSystemUpdateStrategy(localMap, guidanceSystem, person.hasSensorCar()));
+      person.setParkingBehavior(parkingBehavior);
+     
     } else {
-      person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localMap, prefs, utility, validTime));
-      person.setExplorationStrategy(new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime));
-      person.setUpdateStrategy(new BaselineUpdateStrategy(localMap));
+      
+      ParkingBehavior parkingBehavior = new ParkingBehavior(new BaselineInitializationStrategy(), 
+          new BaselineSelectionStrategy(localMap, prefs, utility, validTime),
+          new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime),
+          new BaselineUpdateStrategy(localMap));
+      person.setParkingBehavior(parkingBehavior);
     }
   }
 }

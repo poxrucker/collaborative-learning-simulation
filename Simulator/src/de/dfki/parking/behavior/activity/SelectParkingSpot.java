@@ -44,7 +44,7 @@ public final class SelectParkingSpot extends Activity<Person> {
     Coordinate dest = entity.getCurrentItinerary().to;
     long currentTime = entity.getContext().getTime().getTimestamp();
     long arrivalTime = entity.getCurrentItinerary().endTime;
-    ParkingPossibility possibleParking = entity.getParkingSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
+    ParkingPossibility possibleParking = entity.getParkingBehavior().getSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
 
     if (possibleParking != null) {
       entity.parkingCandidate = possibleParking;

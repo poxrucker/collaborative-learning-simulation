@@ -1,4 +1,4 @@
-package allow.simulator.flow.activity.person;
+package de.dfki.parking.behavior.activity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public final class FindParkingSpot extends Activity<Person> {
       Coordinate dest = entity.getCurrentItinerary().to;
       long currentTime = entity.getContext().getTime().getTimestamp(); 
       long arrivalTime = entity.getCurrentItinerary().endTime;
-      ParkingPossibility possibleParking = entity.getParkingSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
+      ParkingPossibility possibleParking = entity.getParkingBehavior().getSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
       
       // If parking spot candidate was found, calculate path, add Drive and FindParkingSpot activities
       if (possibleParking != null) {        
@@ -103,7 +103,7 @@ public final class FindParkingSpot extends Activity<Person> {
 
           // Add Drive and FindParkingSpot activities
           if (path != null && path.size() > 0) {
-            Activity<Person> drive = new Drive(entity, path);
+            Activity<Person> drive = new DriveToDestination(entity, path);
             entity.getFlow().addAfter(this, drive);
             Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1).getEndNode(), parkingSpotCandidate);
             entity.getFlow().addAfter(drive, park);
@@ -116,7 +116,7 @@ public final class FindParkingSpot extends Activity<Person> {
         return 0;
       }
       // Select next destination to look for parking possibility
-      Coordinate next = entity.getExplorationStrategy().findNextPossibleParking(entity.getPosition(), dest, currentTime);
+      Coordinate next = entity.getParkingBehavior().getExplorationStrategy().findNextPossibleParking(entity.getPosition(), dest, currentTime);
       
       if (next != null) {
         // Calculate path to parking spot
@@ -124,7 +124,7 @@ public final class FindParkingSpot extends Activity<Person> {
 
         // Add Drive and FindParkingSpot activities
         if (path != null && path.size() > 0) {
-          Activity<Person> drive = new Drive(entity, path);
+          Activity<Person> drive = new DriveToDestination(entity, path);
           entity.getFlow().addAfter(this, drive);
           Activity<Person> park = new FindParkingSpot(entity, path.get(path.size() - 1).getEndNode());
           entity.getFlow().addAfter(drive, park);
@@ -205,7 +205,7 @@ public final class FindParkingSpot extends Activity<Person> {
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-    entity.getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, parked);
+    entity.getParkingBehavior().getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, parked);
   }
 
   private void reportFailure(int reason) {

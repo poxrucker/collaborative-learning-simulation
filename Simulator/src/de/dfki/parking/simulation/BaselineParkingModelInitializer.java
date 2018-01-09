@@ -1,7 +1,9 @@
 package de.dfki.parking.simulation;
 
 import allow.simulator.entity.Person;
+import de.dfki.parking.behavior.ParkingBehavior;
 import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
+import de.dfki.parking.behavior.baseline.BaselineInitializationStrategy;
 import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.baseline.BaselineUpdateStrategy;
 import de.dfki.parking.index.ParkingIndex;
@@ -48,9 +50,11 @@ public final class BaselineParkingModelInitializer implements IParkingModelIniti
     // Initialize local map
     ParkingMap localMap = parkingMapFactory.createWithGarages();
     
-    // Initialize parking strategies
-    person.setParkingSelectionStrategy(new BaselineSelectionStrategy(localMap, prefs, utility, validTime));
-    person.setExplorationStrategy(new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime));
-    person.setUpdateStrategy(new BaselineUpdateStrategy(localMap));
+    // Initialize and set parking behavior
+    ParkingBehavior parkingBehavior = new ParkingBehavior(new BaselineInitializationStrategy(), 
+        new BaselineSelectionStrategy(localMap, prefs, utility, validTime),
+        new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime),
+        new BaselineUpdateStrategy(localMap));
+    person.setParkingBehavior(parkingBehavior);
   }
 }

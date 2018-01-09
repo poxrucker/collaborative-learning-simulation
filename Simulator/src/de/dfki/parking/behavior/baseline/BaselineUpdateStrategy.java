@@ -13,7 +13,7 @@ public final class BaselineUpdateStrategy implements IUpdateStrategy {
   }
 
   @Override
-  public void updateParkingState(Parking parking, int nSpots, int nFreeSpots, double price, long time, boolean parked) {
+  public void update(Parking parking, int nSpots, int nFreeSpots, double price, long time, boolean parked) {
     localMap.update(parking, nSpots, nFreeSpots, price, time);
   }
 

@@ -192,7 +192,7 @@ public final class Drive extends MovementActivity<Person> {
       int nSpots = parking.getNumberOfParkingSpots();
       int nFreeSpots = parking.getNumberOfFreeParkingSpots();
       double price = parking.getCurrentPricePerHour();
-      entity.getUpdateStrategy().updateParkingState(parking, nSpots, nFreeSpots, price, time, false);
+      entity.getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, false);
     }
   }
   

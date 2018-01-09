@@ -205,7 +205,7 @@ public final class FindParkingSpot extends Activity<Person> {
     int nSpots = parking.getNumberOfParkingSpots();
     int nFreeSpots = parking.getNumberOfFreeParkingSpots();
     double price = parking.getCurrentPricePerHour();
-    entity.getUpdateStrategy().updateParkingState(parking, nSpots, nFreeSpots, price, time, parked);
+    entity.getUpdateStrategy().update(parking, nSpots, nFreeSpots, price, time, parked);
   }
 
   private void reportFailure(int reason) {

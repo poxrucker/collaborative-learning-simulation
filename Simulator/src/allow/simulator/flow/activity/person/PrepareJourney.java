@@ -20,6 +20,7 @@ import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
+import de.dfki.parking.behavior.activity.DriveToDestination;
 import de.dfki.parking.behavior.activity.InitializeParkingSearch;
 
 /**
@@ -117,7 +118,7 @@ public final class PrepareJourney extends Activity<Person> {
 					continue;
 					
 				// Drive to destination
-				entity.getFlow().addActivity(new Drive(entity, l.streets));
+				entity.getFlow().addActivity(new DriveToDestination(entity, l.streets));
 				
 				// Find a new parking spot
 		    entity.setSearchStartTime(0);

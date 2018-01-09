@@ -5,6 +5,8 @@ import allow.simulator.world.StreetNode;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.model.GuidanceSystem;
+import de.dfki.parking.model.ParkingRequest;
+import de.dfki.parking.model.ParkingResponse;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
 

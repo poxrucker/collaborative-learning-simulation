@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.SortedSet;
 
 import allow.simulator.util.Coordinate;
-import de.dfki.parking.behavior.guidance.ParkingRequest;
-import de.dfki.parking.behavior.guidance.ParkingResponse;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.knowledge.ParkingMap;
@@ -37,7 +35,7 @@ public final class GuidanceSystem {
   private int requestIds;
   
   // Parking knowledge instance providing global view of all parking possibilities
-  private final ParkingMap knowledge;
+  private final ParkingMap parkingMap;
   
   // Parking index providing a spatial index to query parking possibilities 
   private ParkingIndex parkingIndex;
@@ -53,8 +51,8 @@ public final class GuidanceSystem {
   
   private final Comparator<ParkingRequest> comp;
   
-  public GuidanceSystem(ParkingMap knowledge, ParkingIndex parkingIndex) {
-    this.knowledge = knowledge;
+  public GuidanceSystem(ParkingMap parkingMap, ParkingIndex parkingIndex) {
+    this.parkingMap = parkingMap;
     this.parkingIndex = parkingIndex;
     requestIndex = new Int2ObjectOpenHashMap<>();
     requestAssignment = new Int2ObjectOpenHashMap<>();
@@ -135,6 +133,10 @@ public final class GuidanceSystem {
     // System.out.println(bldr);
 
     return null;
+  }
+  
+  public void update(Parking parking, int nSpots, int nFreeSpots, double price, long time) {
+    parkingMap.update(parking, nSpots, nFreeSpots, price, time);
   }
   
   private int getNextRequestId() {

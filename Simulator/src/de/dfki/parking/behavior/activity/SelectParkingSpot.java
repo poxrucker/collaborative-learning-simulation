@@ -15,7 +15,7 @@ import allow.simulator.mobility.planner.RequestId;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
-import de.dfki.parking.behavior.ParkingPossibility;
+import de.dfki.parking.model.ParkingPossibility;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class SelectParkingSpot extends Activity<Person> {

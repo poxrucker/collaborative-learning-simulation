@@ -26,11 +26,12 @@ import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.behavior.IExplorationStrategy;
+import de.dfki.parking.behavior.IInitializationStrategy;
 import de.dfki.parking.behavior.IParkingSelectionStrategy;
 import de.dfki.parking.behavior.IUpdateStrategy;
-import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.model.ParkingPossibility;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
 
@@ -134,6 +135,8 @@ public final class Person extends Entity {
 	private IExplorationStrategy explorationStrategy;
 	@JsonIgnore
 	private IUpdateStrategy updateStrategy;
+	@JsonIgnore
+	private IInitializationStrategy initializationStrategy;
 	@JsonIgnore
 	private ParkingUtility parkingUtility;
 	@JsonIgnore
@@ -449,6 +452,15 @@ public final class Person extends Entity {
   
   public void setUpdateStrategy(IUpdateStrategy strategy) {
     this.updateStrategy = strategy;
+  }
+  
+  @JsonIgnore
+  public IInitializationStrategy getInitializationStrategy() {
+    return initializationStrategy;
+  }
+  
+  public void setInitilizationStrategy(IInitializationStrategy strategy) {
+    this.initializationStrategy = strategy;
   }
   
   @JsonIgnore

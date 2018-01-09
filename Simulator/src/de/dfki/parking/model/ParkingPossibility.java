@@ -1,7 +1,6 @@
-package de.dfki.parking.behavior;
+package de.dfki.parking.model;
 
 import allow.simulator.util.Coordinate;
-import de.dfki.parking.model.Parking;
 
 public final class ParkingPossibility {
   // Parking instance

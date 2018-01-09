@@ -120,9 +120,7 @@ public final class PrepareJourney extends Activity<Person> {
 				// Drive to destination
 				entity.getFlow().addActivity(new DriveToDestination(entity, l.streets));
 				
-				// Find a new parking spot
-		    entity.setSearchStartTime(0);
-		    entity.setSearchEndTime(0);   
+				// Find a new parking spot 
 				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1).getEndNode()));
 				break;
 				

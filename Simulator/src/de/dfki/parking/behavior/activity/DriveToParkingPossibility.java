@@ -15,9 +15,9 @@ import allow.simulator.util.Geometry;
 import allow.simulator.util.Pair;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
-import de.dfki.parking.behavior.ParkingPossibility;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
+import de.dfki.parking.model.ParkingPossibility;
 import de.dfki.parking.utility.ParkingParameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 

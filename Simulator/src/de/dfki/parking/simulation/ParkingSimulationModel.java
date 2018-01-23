@@ -53,7 +53,8 @@ import de.dfki.parking.knowledge.ParkingMapFactory;
 import de.dfki.parking.model.GuidanceSystem;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
-import de.dfki.parking.utility.ParkingPreferencesFactory;
+import de.dfki.parking.utility.ParkingPreferencesModel;
+import de.dfki.parking.utility.ProfileBasedParkingPreferencesFactory;
 import de.dfki.simulation.AbstractSimulationModel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -262,36 +263,35 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     // Get all persons
     Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
 
-    // Get ParkingIndex
+    // Initialize dependencies
     ParkingIndex parkingIndex = context.getParkingMap();
-
-    // Create initializer
+    ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
+    ParkingPreferencesModel workerModel = new ParkingPreferencesModel(param.CWeightWorker, 
+        param.WdWeightWorker, param.StWeightWorker, param.CMax, param.WdMax, param.StMax);
+    ParkingPreferencesModel studentModel = new ParkingPreferencesModel(param.CWeightStudent,
+        param.WdWeightStudent, param.StWeightStudent, param.CMax, param.WdMax, param.StMax);
+    ParkingPreferencesModel homemakerModel = new ParkingPreferencesModel(param.CWeightHomemaker, 
+        param.WdWeightHomemaker, param.StWeightHomemaker, param.CMax, param.WdMax, param.StMax);
+    ProfileBasedParkingPreferencesFactory prefsFactory = new ProfileBasedParkingPreferencesFactory(workerModel, studentModel, homemakerModel);
+    long validTime = param.ValidTime * 60;
+    double percentUsers = (double) param.PercentUsers / 100.0;
+    double percentSensorCars = (double) param.PercentSensorCars / 100.0;
+    
+    // Create model initializer
     IParkingModelInitializer modelInitializer;
 
     if (param.Model.equals("Baseline")) {
-      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
-      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
-      long validTime = param.ValidTime * 60;
-      modelInitializer = new BaselineParkingModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, validTime);
+      modelInitializer = new BaselineParkingModelInitializer(knowledgeFactory, prefsFactory, 
+          parkingIndex, validTime);
 
     } else if (param.Model.equals("Mapping Display")) {
-      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
-      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
       ParkingMap globalKnowledge = knowledgeFactory.createFull();
-      long validTime = param.ValidTime * 60;
-      double percentUsers = (double) param.PercentUsers / 100.0;
-      double percentSensorCars = (double) param.PercentSensorCars / 100.0;
-      modelInitializer = new MappingDisplayModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, globalKnowledge, validTime, percentUsers,
-          percentSensorCars);
+      modelInitializer = new MappingDisplayModelInitializer(knowledgeFactory, prefsFactory, 
+          parkingIndex, globalKnowledge, validTime, percentUsers, percentSensorCars);
 
     } else if (param.Model.equals("Central Guidance")) {
-      ParkingMapFactory knowledgeFactory = new ParkingMapFactory(parkingIndex);
-      ParkingPreferencesFactory prefsFactory = new ParkingPreferencesFactory();
       ParkingMap globalKnowledge = knowledgeFactory.createWithGarages();
       GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex);
-      long validTime = param.ValidTime * 60;
-      double percentUsers = (double) param.PercentUsers / 100.0;
-      double percentSensorCars = (double) param.PercentSensorCars / 100.0;
       modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, guidanceSystem, validTime, percentUsers,
           percentSensorCars);
 

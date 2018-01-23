@@ -16,7 +16,7 @@ import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.knowledge.ParkingMapFactory;
 import de.dfki.parking.model.GuidanceSystem;
 import de.dfki.parking.model.ParkingState;
-import de.dfki.parking.utility.ParkingPreferencesFactory;
+import de.dfki.parking.utility.ProfileBasedParkingPreferencesFactory;
 import de.dfki.parking.utility.ParkingUtility;
 
 public final class GuidanceSystemModelInitializer implements IParkingModelInitializer {
@@ -24,7 +24,7 @@ public final class GuidanceSystemModelInitializer implements IParkingModelInitia
   private final ParkingMapFactory parkingMapFactory;
 
   // Creates ParkingPreference instances for different profiles
-  private final ParkingPreferencesFactory prefsFactory;
+  private final ProfileBasedParkingPreferencesFactory prefsFactory;
 
   // ParkingIndex index instance
   private final ParkingIndex parkingIndex;
@@ -37,7 +37,7 @@ public final class GuidanceSystemModelInitializer implements IParkingModelInitia
   private final double percentUsers;
   private final double percentSensorCars;
 
-  public GuidanceSystemModelInitializer(ParkingMapFactory knowledgeFactory, ParkingPreferencesFactory prefsFactory, ParkingIndex parkingIndex,
+  public GuidanceSystemModelInitializer(ParkingMapFactory knowledgeFactory, ProfileBasedParkingPreferencesFactory prefsFactory, ParkingIndex parkingIndex,
       GuidanceSystem guidanceSystem, long validTime, double percentUsers, double percentSensorCars) {
     this.parkingMapFactory = knowledgeFactory;
     this.prefsFactory = prefsFactory;
@@ -55,7 +55,7 @@ public final class GuidanceSystemModelInitializer implements IParkingModelInitia
 
     // Initialize parking state
     ParkingState parkingState = new ParkingState();
-    parkingState.setParkingPreferences(prefsFactory.createFromProfile(person.getProfile()));
+    parkingState.setParkingPreferences(prefsFactory.create(person.getProfile()));
     parkingState.setParkingUtility(new ParkingUtility());
 
     // Initialize local map

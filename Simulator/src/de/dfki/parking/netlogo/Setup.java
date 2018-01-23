@@ -23,7 +23,21 @@ import de.dfki.parking.simulation.ParkingSimulationModel;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class Setup extends DefaultReporter {
-		
+	// Constant maximum values and weights for preferences
+  // (could be read from file or obtained from Netlogo)
+  private static final double C_WEIGHT_HOMEMAKER = 35.0;
+  private static final double WD_WEIGHT_HOMEMAKER = 50.0;
+  private static final double ST_WEIGHT_HOMEMAKER = 15.0;
+  private static final double C_WEIGHT_STUDENT = 50.0;
+  private static final double WD_WEIGHT_STUDENT = 15.0;
+  private static final double ST_WEIGHT_STUDENT = 35.0;
+  private static final double C_WEIGHT_WORKER = 15.0;
+  private static final double WD_WEIGHT_WORKER = 35.0;
+  private static final double ST_WEIGHT_WORKER = 50.0;
+  private static final double C_MAX = 2.8;
+  private static final double WD_MAX = 500;
+  private static final double ST_MAX = 10 * 60;
+  
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		// Get String containing path to configuration file
@@ -40,10 +54,10 @@ public class Setup extends DefaultReporter {
 		}
 		
 		// Parse simulation model parameters
+    LogoList settings = args[4].getList();
+
 		SimulationParameter params = new SimulationParameter();
 		params.BehaviourSpaceRunNumber = args[1].getIntValue();
-	
-		LogoList settings = args[4].getList();
 		params.Model = (String) settings.get(0);
 		params.PercentUsers = (int) (double) settings.get(1);
 		params.PercentSensorCars = (int) (double) (settings.get(2));
@@ -54,6 +68,18 @@ public class Setup extends DefaultReporter {
 		params.GarageParkingPath = (String) settings.get(4);
 		params.DataScalingFactor = (double) settings.get(5);
 		params.ValidTime = (int) (double) settings.get(6);
+		params.CMax = C_MAX;
+		params.WdMax = WD_MAX;
+		params.StMax = ST_MAX;
+		params.CWeightHomemaker = C_WEIGHT_HOMEMAKER;
+		params.WdWeightHomemaker = WD_WEIGHT_HOMEMAKER;
+		params.StWeightHomemaker = ST_WEIGHT_HOMEMAKER;
+		params.CWeightStudent = C_WEIGHT_STUDENT;
+    params.WdWeightStudent = WD_WEIGHT_STUDENT;
+    params.StWeightStudent = ST_WEIGHT_STUDENT;
+    params.CWeightWorker = C_WEIGHT_WORKER;
+    params.WdWeightWorker = WD_WEIGHT_WORKER;
+    params.StWeightWorker = ST_WEIGHT_WORKER;
 		
 		// Create simulator and NetLogo binding
 		ParkingSimulationModel simulator = null;

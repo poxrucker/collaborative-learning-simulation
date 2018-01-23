@@ -9,7 +9,7 @@ import de.dfki.parking.behavior.baseline.BaselineUpdateStrategy;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.knowledge.ParkingMapFactory;
-import de.dfki.parking.utility.ParkingPreferences;
+import de.dfki.parking.model.ParkingState;
 import de.dfki.parking.utility.ParkingPreferencesFactory;
 import de.dfki.parking.utility.ParkingUtility;
 
@@ -39,22 +39,22 @@ public final class BaselineParkingModelInitializer implements IParkingModelIniti
     if (!person.hasCar())
       return; // If person does not have a car, there is nothing to do
 
-    // Initialize parking preferences
-    ParkingPreferences prefs = prefsFactory.createFromProfile(person.getProfile());
-    person.setParkingPreferences(prefs);
+    // Initialize parking state
+    ParkingState parkingState = new ParkingState();
+    parkingState.setParkingPreferences(prefsFactory.createFromProfile(person.getProfile()));
+    parkingState.setParkingUtility(new ParkingUtility());
     
-    // Initialize parking utility
-    ParkingUtility utility = new ParkingUtility();
-    person.setParkingUtility(utility);
-   
     // Initialize local map
     ParkingMap localMap = parkingMapFactory.createWithGarages();
     
-    // Initialize and set parking behavior
+    // Initialize parking behavior
     ParkingBehavior parkingBehavior = new ParkingBehavior(new BaselineInitializationStrategy(), 
-        new BaselineSelectionStrategy(localMap, prefs, utility, validTime),
-        new BaselineExplorationStrategy(localMap, prefs, utility, parkingIndex, validTime),
+        new BaselineSelectionStrategy(localMap, parkingState.getParkingPreferences(), parkingState.getParkingUtility(), validTime),
+        new BaselineExplorationStrategy(localMap, parkingState.getParkingPreferences(), parkingState.getParkingUtility(), parkingIndex, validTime),
         new BaselineUpdateStrategy(localMap));
+    
+    // Set state and behavior
     person.setParkingBehavior(parkingBehavior);
+    person.setParkingState(parkingState);
   }
 }

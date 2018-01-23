@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import java.util.Collection;
 import java.util.Collections;

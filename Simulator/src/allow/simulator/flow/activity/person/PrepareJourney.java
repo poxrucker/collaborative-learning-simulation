@@ -20,9 +20,9 @@ import allow.simulator.mobility.planner.Leg;
 import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
-import de.dfki.parking.behavior.activity.DriveToDestination;
-import de.dfki.parking.behavior.activity.FindParkingSpot;
-import de.dfki.parking.behavior.activity.InitializeParkingSearch;
+import de.dfki.parking.activity.DriveToDestination;
+import de.dfki.parking.activity.FindParkingSpot;
+import de.dfki.parking.activity.InitializeParkingSearch;
 
 /**
  * Class representing an activity to prepare a journey, i.e. given an itinerary

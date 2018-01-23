@@ -28,7 +28,7 @@ public class IsUser extends DefaultReporter {
 			throw new ExtensionException("Error: Calling agent must be a Person agent.");
 		
 		Person p = (Person)entity;
-		return p.isUser();
+		return p.getParkingState().isUser();
 	}
 	
 	public Syntax getSyntax() {

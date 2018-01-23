@@ -28,7 +28,7 @@ public class HasSensorCar extends DefaultReporter {
 			throw new ExtensionException("Error: Calling agent must be a Person agent.");
 		
 		Person p = (Person)entity;
-		return p.hasSensorCar();
+		return p.getParkingState().hasSensorCar();
 	}
 	
 	public Syntax getSyntax() {

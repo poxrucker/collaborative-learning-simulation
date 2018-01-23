@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
@@ -7,6 +7,7 @@ import allow.simulator.statistics.Statistics;
 import allow.simulator.util.Geometry;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.model.ParkingState;
 import de.dfki.parking.utility.ParkingParameters;
 
 public class Park extends Activity<Person> {
@@ -20,10 +21,13 @@ public class Park extends Activity<Person> {
 
   @Override
   public double execute(double deltaT) {
+    ParkingState parkingState = entity.getParkingState();
+    Parking parking = parkingState.getParkingCandidate().getParking();
+
     // Check if there are free parking spots
-    if (!entity.parkingCandidate.getParking().hasFreeParkingSpot()) {
+    if (!parkingState.getParkingCandidate().getParking().hasFreeParkingSpot()) {
       // Update parking knowledge
-      updateParkingMaps(entity.parkingCandidate.getParking(), entity.hasSensorCar());
+      updateParkingMaps(parking, false);
       
       // Add SelectParkingSpot activity to find new alternative parking spot
       entity.getFlow().addAfter(this, new SelectParkingSpot(entity, currentNode));
@@ -31,17 +35,17 @@ public class Park extends Activity<Person> {
       return 0;
     }
     // Save end time of parking spot search
-    entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+    parkingState.setSearchEndTime(entity.getContext().getTime().getTimestamp());
 
     // Assign parking spot to entity
-    entity.setCurrentParking(entity.parkingCandidate.getParking());
-    entity.parkingCandidate.getParking().park(entity);
+    parkingState.setCurrentParking(parking);
+    parking.park(entity);
 
     // Report parking spot search statistics
     reportStatistics();
 
     // Update parking maps
-    updateParkingMaps(entity.parkingCandidate.getParking(), entity.isUser());
+    updateParkingMaps(parking, true);
     setFinished();
     return deltaT;
   }
@@ -55,21 +59,22 @@ public class Park extends Activity<Person> {
   }
   
   private void reportStatistics() {
+    ParkingState parkingState = entity.getParkingState();
     Statistics stats = entity.getContext().getStatistics();
     
     // Report success
     stats.reportSuccessfulParking();
     
     // Compute and report parking utility parameters
-    double c = entity.parkingCandidate.getParking().getCurrentPricePerHour();
+    double c = parkingState.getCurrentParking().getCurrentPricePerHour();
     double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
-    double st = (entity.getSearchEndTime() - entity.getSearchStartTime()) / 1000.0;
+    double st = (parkingState.getSearchEndTime() - parkingState.getSearchStartTime()) / 1000.0;
     stats.reportSearchTimeParking((long) st);
     stats.reportParkingCosts(c);
     stats.reportParkingWalkingDistance(wd);
     
     // Compute and report parking utility
-    double u = entity.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), entity.getParkingPreferences());
+    double u = parkingState.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), parkingState.getParkingPreferences());
     stats.reportSearchUtility(u);
   }
 }

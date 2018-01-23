@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.model.ParkingPossibility;
+import de.dfki.parking.model.ParkingState;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class SelectParkingSpot extends Activity<Person> {
@@ -29,9 +30,11 @@ public final class SelectParkingSpot extends Activity<Person> {
 
   @Override
   public double execute(double deltaT) {
+    ParkingState parkingState = entity.getParkingState();
+    
     // Check if it is the first attempt to find a parking spot
-    if (entity.getSearchStartTime() == 0) {
-      entity.setSearchStartTime(entity.getContext().getTime().getTimestamp());
+    if (parkingState.getSearchStartTime() == 0) {
+      parkingState.setSearchStartTime(entity.getContext().getTime().getTimestamp());
     }
     
     // Check if parking spot needs to be found at all (e.g. entity parks at home)
@@ -47,14 +50,14 @@ public final class SelectParkingSpot extends Activity<Person> {
     ParkingPossibility possibleParking = entity.getParkingBehavior().getSelectionStrategy().selectParking(currentNode, dest, currentTime, arrivalTime);     
 
     if (possibleParking != null) {
-      entity.parkingCandidate = possibleParking;
+      parkingState.setParkingCandidate(possibleParking);
 
       // Calculate path to parking spot
       if (!possibleParking.getPosition().equals(entity.getPosition())) {
         List<Street> path = getPathToParking(possibleParking.getPosition(), false);
 
         if (path != null && path.size() > 0) {
-          Activity<Person> drive = new DriveToParkingPossibility(entity, path);
+          Activity<Person> drive = new DriveToDestination(entity, path);
           entity.getFlow().addAfter(this, drive);
           Activity<Person> park = new Park(entity, path.get(path.size() - 1).getEndNode());
           entity.getFlow().addAfter(drive, park);

@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import allow.simulator.world.Street;
 import allow.simulator.world.StreetNode;
 import de.dfki.parking.model.Parking;
 import de.dfki.parking.model.ParkingPossibility;
+import de.dfki.parking.model.ParkingState;
 import de.dfki.parking.utility.ParkingParameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -56,9 +57,11 @@ public final class FindParkingSpot extends Activity<Person> {
 
   @Override
   public double execute(double deltaT) {
+    ParkingState parkingState = entity.getParkingState();
+    
     // Check if it is the first attempt to find a parking spot
-    if (entity.getSearchStartTime() == 0) {
-      entity.setSearchStartTime(entity.getContext().getTime().getTimestamp());
+    if (parkingState.getSearchStartTime() == 0) {
+      parkingState.setSearchStartTime(entity.getContext().getTime().getTimestamp());
       
       /*if (parkingSpotRequired())
         entity.getContext().getGuidanceSystem().getParkingPossibility(entity.parkingRequestId);*/
@@ -78,7 +81,7 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingTime = DEFAULT_PARKING_DELAY / 2.0;
         
         // Save end time of parking spot search
-        entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+        parkingState.setSearchEndTime(entity.getContext().getTime().getTimestamp());
         setFinished();
         return 0;
       }
@@ -149,13 +152,13 @@ public final class FindParkingSpot extends Activity<Person> {
         parkingSpotFound = true;
         
         // Save end time of parking spot search
-        entity.setSearchEndTime(entity.getContext().getTime().getTimestamp());
+        parkingState.setSearchEndTime(entity.getContext().getTime().getTimestamp());
         
         // Set parking time
         parkingTime = DEFAULT_PARKING_DELAY;
 
         // Assign parking spot to entity
-        entity.setCurrentParking(parkingSpotCandidate);
+        parkingState.setCurrentParking(parkingSpotCandidate);
 
         // Assign entity to parking spot
         parkingSpotCandidate.park(entity);
@@ -214,15 +217,16 @@ public final class FindParkingSpot extends Activity<Person> {
   }
 
   private void reportSuccess() {
+    ParkingState parkingState = entity.getParkingState();
     Statistics stats = entity.getContext().getStatistics();
     stats.reportSuccessfulParking();
-    long searchTime = (long)((entity.getSearchEndTime() - entity.getSearchStartTime()) / 1000.0);
+    long searchTime = (long)((parkingState.getSearchEndTime() - parkingState.getSearchStartTime()) / 1000.0);
     stats.reportSearchTimeParking(searchTime);
 
     double c = parkingSpotCandidate.getCurrentPricePerHour();
     double wd = Geometry.haversineDistance(entity.getPosition(), entity.getCurrentItinerary().to);
     double st = (double)searchTime;
-    double u = entity.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), entity.getParkingPreferences());
+    double u = parkingState.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), parkingState.getParkingPreferences());
     stats.reportSearchUtility(u);
     stats.reportParkingCosts(c);
     stats.reportParkingWalkingDistance(wd);

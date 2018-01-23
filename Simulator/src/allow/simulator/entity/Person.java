@@ -26,11 +26,7 @@ import allow.simulator.utility.Preferences;
 import allow.simulator.world.overlay.Area;
 import allow.simulator.world.overlay.DistrictOverlay;
 import de.dfki.parking.behavior.ParkingBehavior;
-import de.dfki.parking.knowledge.ParkingMap;
-import de.dfki.parking.model.Parking;
-import de.dfki.parking.model.ParkingPossibility;
-import de.dfki.parking.utility.ParkingPreferences;
-import de.dfki.parking.utility.ParkingUtility;
+import de.dfki.parking.model.ParkingState;
 
 /**
  * Represents a person entity performing journeys within the simulated world
@@ -113,29 +109,9 @@ public final class Person extends Entity {
 	
 	// Properties for parking spot search simulations
 	@JsonIgnore
-  private boolean isUser;
-	@JsonIgnore
-	private boolean hasSensorCar;
-	@JsonIgnore
-	private Parking currentParking;
-	@JsonIgnore
-	private long searchStartTime;
-	@JsonIgnore
-	private long searchEndTime;
-	@JsonIgnore
-	private ParkingMap localParkingKnowledge;
-	@JsonIgnore
-	private ParkingMap globalParkingKnowledge;
+	private ParkingState parkingState;
 	@JsonIgnore
 	private ParkingBehavior parkingBehavior;
-	@JsonIgnore
-	private ParkingUtility parkingUtility;
-	@JsonIgnore
-	private ParkingPreferences parkingPreferences;
-	@JsonIgnore
-	public int parkingRequestId;
-	@JsonIgnore
-	public ParkingPossibility parkingCandidate;
 	
 	/**
 	 * Creates new instance of a person.
@@ -391,33 +367,6 @@ public final class Person extends Entity {
 		this.isReplanning = isReplanning;
 	}
 	
-	public void setUser() {
-	  isUser = true;
-	}
-	
-	@JsonIgnore
-	public boolean isUser() {
-	  return isUser;
-	}
-	
-	public void setHasSensorCar() {
-	  hasSensorCar = true;
-	}
-	
-	@JsonIgnore
-	public boolean hasSensorCar() {
-	  return hasSensorCar;
-	}
-	
-	@JsonIgnore
-	public Parking getCurrentParking() {
-	  return currentParking;
-	}
-	
-	public void setCurrentParking(Parking parking) {
-	  this.currentParking = parking;
-	}
-  
 	@JsonIgnore
   public ParkingBehavior getParkingBehavior() {
     return parkingBehavior;
@@ -428,41 +377,14 @@ public final class Person extends Entity {
   }
   
   @JsonIgnore
-  public ParkingUtility getParkingUtility() {
-    return parkingUtility;
+  public ParkingState getParkingState() {
+    return parkingState;
   }
   
-  public void setParkingUtility(ParkingUtility utility) {
-    this.parkingUtility = utility;
+  public void setParkingState(ParkingState parkingState) {
+    this.parkingState = parkingState;
   }
-  
-  @JsonIgnore
-  public ParkingPreferences getParkingPreferences() {
-    return parkingPreferences;
-  }
-  
-  public void setParkingPreferences(ParkingPreferences preferences) {
-    this.parkingPreferences = preferences;
-  }
-  
-  @JsonIgnore
-  public long getSearchStartTime() {
-    return searchStartTime;
-  }
-  
-  public void setSearchStartTime(long searchStartTime) {
-    this.searchStartTime = searchStartTime;
-  }
-  
-  @JsonIgnore
-  public long getSearchEndTime() {
-    return searchEndTime;
-  }
-  
-  public void setSearchEndTime(long searchEndTime) {
-    this.searchEndTime = searchEndTime;
-  }
-  
+ 
 	/**
 	 * Returns the daily routine of this person, i.e. set of travelling events
 	 * which are executed regularly on specific days, e.g. going to work on back

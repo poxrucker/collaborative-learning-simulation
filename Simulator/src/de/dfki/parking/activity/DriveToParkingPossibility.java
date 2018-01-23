@@ -1,4 +1,4 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +18,7 @@ import allow.simulator.world.StreetSegment;
 import de.dfki.parking.index.ParkingIndex;
 import de.dfki.parking.index.ParkingIndexEntry;
 import de.dfki.parking.model.ParkingPossibility;
+import de.dfki.parking.model.ParkingState;
 import de.dfki.parking.utility.ParkingParameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -170,19 +171,20 @@ public final class DriveToParkingPossibility extends MovementActivity<Person> {
   }
   
   private boolean updateCurrentParkingPossibility(Collection<ParkingIndexEntry> parkingPossibilities, Street street) {
+    ParkingState parkingState = entity.getParkingState();
     List<ParkingPossibility> temp = rank(parkingPossibilities, entity.getPosition(), entity.getCurrentItinerary().to);
     
     if (temp.size() == 0)
       return false; // If no possibility is available, return
     
-    if ((entity.parkingCandidate != null) && temp.get(0).getParking().getId() == entity.parkingCandidate.getParking().getId())
+    if ((parkingState.getParkingCandidate() != null) && temp.get(0).getParking().getId() == parkingState.getParkingCandidate().getParking().getId())
       return false;
     
-    if ((entity.parkingCandidate != null) && temp.get(0).getEstimatedUtility() < entity.parkingCandidate.getEstimatedUtility())
+    if ((parkingState.getParkingCandidate() != null) && temp.get(0).getEstimatedUtility() < parkingState.getParkingCandidate().getEstimatedUtility())
       return false; // If utility of first ranked possibility is worse than current candidate, return
     
     // Otherwise, update parking candidate and add Park activity
-    entity.parkingCandidate = temp.get(0);
+    parkingState.setParkingCandidate(temp.get(0));
     return true;
   }
   
@@ -207,13 +209,14 @@ public final class DriveToParkingPossibility extends MovementActivity<Person> {
   }
   
   private List<ParkingPossibility> rank(Collection<ParkingIndexEntry> parkings, Coordinate currentPosition, Coordinate destination) {
+    ParkingState parkingState = entity.getParkingState();
     List<Pair<ParkingIndexEntry, Double>> temp = new ObjectArrayList<>();
 
     for (ParkingIndexEntry parking : parkings) {
       double c = parking.getParking().getCurrentPricePerHour();
       double wd = Geometry.haversineDistance(parking.getReferencePosition(), destination);
       double st = (Geometry.haversineDistance(parking.getReferencePosition(), currentPosition) / 3.0);
-      temp.add(new Pair<>(parking, entity.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), entity.getParkingPreferences())));
+      temp.add(new Pair<>(parking, parkingState.getParkingUtility().computeUtility(new ParkingParameters(c, wd, st), parkingState.getParkingPreferences())));
     }
     temp.sort((t1, t2) -> (int) (t2.second - t1.second));
 

@@ -1,9 +1,11 @@
-package de.dfki.parking.behavior.activity;
+package de.dfki.parking.activity;
 
 import allow.simulator.entity.Person;
 import allow.simulator.flow.activity.Activity;
 import allow.simulator.flow.activity.ActivityType;
+import allow.simulator.util.Coordinate;
 import de.dfki.parking.model.Parking;
+import de.dfki.parking.model.ParkingState;
 
 public final class InitializeParkingSearch extends Activity<Person> {
 
@@ -13,19 +15,28 @@ public final class InitializeParkingSearch extends Activity<Person> {
 
   @Override
   public double execute(double deltaT) {
-    // Remove person from current parking spot and finish
-    Parking parking = entity.getCurrentParking();
+    // Initialize parking state
+    ParkingState parkingState = entity.getParkingState();
+    parkingState.setSearchStartTime(0);
+    parkingState.setSearchEndTime(0);
+    parkingState.setParkingRequestId(-1);
+    parkingState.setParkingCandidate(null);
+
+    Parking parking = entity.getParkingState().getCurrentParking();
 
     if (parking != null) {
       parking.leave(entity);
-      entity.setCurrentParking(null);
+      parkingState.setCurrentParking(null);
       updateParkingMaps(parking);
+    }    
+    
+    // Initialize parking search
+    if (entity.getCurrentItinerary() != null) {
+      long arrivalTime = entity.getCurrentItinerary().endTime;
+      Coordinate destination = entity.getCurrentItinerary().to;
+      long requestTime = entity.getContext().getTime().getTimestamp();
+      entity.getParkingBehavior().getInitializationStrategy().initialize(arrivalTime, requestTime, destination);
     }
-    // Initialize parking properties
-    entity.setSearchStartTime(0);
-    entity.setSearchEndTime(0);
-    entity.parkingRequestId = -1;
-    entity.parkingCandidate = null;
     setFinished();
     return 0;
   }

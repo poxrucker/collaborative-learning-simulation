@@ -8,7 +8,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.netlogo.agent.NetLogoWrapper;
+import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
 import allow.simulator.statistics.Statistics;
 import de.dfki.parking.simulation.ParkingSimulationModel;
 
@@ -20,7 +20,7 @@ public class Tick extends DefaultReporter {
 		int runId = args[0].getIntValue();
 		
 		// NetLogoWrapper
-		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
+		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
 		ParkingSimulationModel simulator = (ParkingSimulationModel)wrapper.getSimulator();
 		
 		try {

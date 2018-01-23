@@ -148,7 +148,7 @@ public final class NetLogoAgent<V extends Entity> extends Turtle implements IAge
 		}	
 	}
 	
-	public static <V extends Entity> NetLogoAgent<V> createNetLogoAgent(NetLogoWrapper wrapper, V entity) throws AgentException {
+	public static <V extends Entity> NetLogoAgent<V> createNetLogoAgent(NetLogoSimulationModelWrapper wrapper, V entity) throws AgentException {
 		AgentSet breed = null;
 		double color = 0.0;
 		boolean canBeVisible = true;

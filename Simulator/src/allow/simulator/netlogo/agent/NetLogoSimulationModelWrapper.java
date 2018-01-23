@@ -11,7 +11,6 @@ import org.nlogo.agent.Turtle;
 import org.nlogo.agent.World;
 import org.nlogo.api.AgentException;
 
-import allow.simulator.core.Context;
 import allow.simulator.core.EntityManager;
 import allow.simulator.entity.Entity;
 import allow.simulator.entity.EntityTypes;
@@ -25,14 +24,14 @@ import de.dfki.simulation.AbstractSimulationModel;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-public final class NetLogoWrapper implements IContextWrapper {
+public final class NetLogoSimulationModelWrapper implements ISimulationModelWrapper {
 	
 	public static final double LINK_COLOR_DEFAULT = 5.0;
 	public static final double LINK_COLOR_BLOCKED = 15.0;
 	public static final double LINK_COLOR_BUSY = 15.0;
 
 	// Static instance
-	private static Map<Integer, NetLogoWrapper> instances = new ConcurrentHashMap<Integer, NetLogoWrapper>();
+	private static Map<Integer, NetLogoSimulationModelWrapper> instances = new ConcurrentHashMap<Integer, NetLogoSimulationModelWrapper>();
 	
 	// NetLogo world instance
 	private final World netLogoWorld;
@@ -42,13 +41,12 @@ public final class NetLogoWrapper implements IContextWrapper {
 	
 	// Transformation to convert coordinates
 	private Transformation transformation;
-
-	// Simulator instance
-	private final AbstractSimulationModel simulator;
 	
-	public NetLogoWrapper(AbstractSimulationModel simulator, World netLogoWorld) {
+	// SimulationModel instance
+	private AbstractSimulationModel simulationModel;
+	
+	public NetLogoSimulationModelWrapper(World netLogoWorld) {
 		this.netLogoWorld = netLogoWorld;
-		this.simulator = simulator;
 		linkMapping = new Object2ObjectOpenHashMap<String, Link>();
 	}
 
@@ -61,7 +59,7 @@ public final class NetLogoWrapper implements IContextWrapper {
 	}
 	
 	public AbstractSimulationModel getSimulator() {
-		return simulator;
+		return simulationModel;
 	}
 	
 	public Map<String, Link> getLinkMapping() {
@@ -69,13 +67,16 @@ public final class NetLogoWrapper implements IContextWrapper {
 	}
 	
 	@Override
-	public void wrap(Context context) {
+	public void wrap(AbstractSimulationModel simulationModel) {
+	  // Assign model
+	  this.simulationModel = simulationModel;
+	  
 		// Wrap world
-		wrapWorld((StreetMap) context.getWorld());
+		wrapWorld((StreetMap) simulationModel.getContext().getWorld());
 
 		// Wrap entities
 		try {
-			wrapEntities(context.getEntityManager());
+			wrapEntities(simulationModel.getContext().getEntityManager());
 			
 		} catch (AgentException e) {
 			e.printStackTrace();
@@ -175,20 +176,20 @@ public final class NetLogoWrapper implements IContextWrapper {
 		}
 	}
 	
-	public static NetLogoWrapper initialize(int runId, AbstractSimulationModel simulator, World world) {
-		NetLogoWrapper instance = new NetLogoWrapper(simulator, world);
-		instance.wrap(simulator.getContext());
+	public static NetLogoSimulationModelWrapper initialize(int runId, AbstractSimulationModel simulationModel, World world) {
+		NetLogoSimulationModelWrapper instance = new NetLogoSimulationModelWrapper(world);
+		instance.wrap(simulationModel);
 		instances.put(runId, instance);
 		return instance;
 	}
 	
 	public static void delete(int runId) throws Exception {
-		NetLogoWrapper wrapper = instances.remove(runId);
+		NetLogoSimulationModelWrapper wrapper = instances.remove(runId);
 		wrapper.getSimulator().finish();
 	}
 
-	public static NetLogoWrapper Instance(int runId) {
-		NetLogoWrapper instance = instances.get(runId);
+	public static NetLogoSimulationModelWrapper Instance(int runId) {
+		NetLogoSimulationModelWrapper instance = instances.get(runId);
 		
 		if (instance == null)
 			throw new UnsupportedOperationException();

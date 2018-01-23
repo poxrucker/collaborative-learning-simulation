@@ -18,7 +18,7 @@ import org.nlogo.api.Syntax;
 import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.core.Configuration;
 import allow.simulator.core.SimulationParameter;
-import allow.simulator.netlogo.agent.NetLogoWrapper;
+import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
 import allow.simulator.statistics.Statistics;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
@@ -64,7 +64,7 @@ public class Setup extends DefaultReporter {
 		try {
 			simulator = new AllowSimulationModel();
 			simulator.setup(parameters);
-			NetLogoWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
+			NetLogoSimulationModelWrapper.initialize(params.BehaviourSpaceRunNumber, simulator, (World) context.getAgent().world());
 			
 		} catch (Exception e) {
 			throw new ExtensionException(e.getMessage());		

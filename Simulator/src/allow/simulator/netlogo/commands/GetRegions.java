@@ -15,7 +15,7 @@ import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.AllowSimulationModel;
-import allow.simulator.netlogo.agent.NetLogoWrapper;
+import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Transformation;
@@ -31,7 +31,7 @@ public class GetRegions extends DefaultReporter
 		int runId = args[0].getIntValue();
 		
 		// NetLogoWrapper
-		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
+		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
 		LogoListBuilder bldr = new LogoListBuilder();
 		StreetMap map = (StreetMap) wrapper.getSimulator().getContext().getWorld();
 		

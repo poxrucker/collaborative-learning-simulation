@@ -13,7 +13,7 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.netlogo.agent.NetLogoWrapper;
+import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 
@@ -24,7 +24,7 @@ public class ShowBusyStreets extends DefaultCommand {
 		int runId = args[0].getIntValue();
 		int maxNumber = args[1].getIntValue();
 		
-		NetLogoWrapper wrapper = NetLogoWrapper.Instance(runId);
+		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
 		PriorityQueue<Street> sorted = new PriorityQueue<Street>(new Comparator<Street>() {
 
 			@Override
@@ -53,7 +53,7 @@ public class ShowBusyStreets extends DefaultCommand {
 	private void resetLinks(Map<String, Link> linkMapping) {
 		
 		for (Link l : linkMapping.values()) {
-			l.colorDouble(NetLogoWrapper.LINK_COLOR_DEFAULT);
+			l.colorDouble(NetLogoSimulationModelWrapper.LINK_COLOR_DEFAULT);
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class ShowBusyStreets extends DefaultCommand {
 			for (StreetSegment seg : segs) {
 				// Get corresponding link
 				Link l = linkMapping.get(seg.getStartingNode().getId() + "," + seg.getEndingNode().getId());
-				l.colorDouble(NetLogoWrapper.LINK_COLOR_BUSY);
+				l.colorDouble(NetLogoSimulationModelWrapper.LINK_COLOR_BUSY);
 				
 				// Link l2 = linkMapping.get(seg.getEndingNode().getId() + "," + seg.getStartingNode().getId());
 				//l2.colorDouble(NetLogoWrapper.LINK_COLOR_BUSY);

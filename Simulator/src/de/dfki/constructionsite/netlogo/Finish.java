@@ -7,7 +7,7 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 
 public class Finish extends DefaultCommand {
 		
@@ -16,7 +16,7 @@ public class Finish extends DefaultCommand {
 		int runId = args[0].getIntValue();
 		
 		try {
-		  NetLogoSimulationModelWrapper.delete(runId);
+		  WrapperManager.getInstance().delete(runId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

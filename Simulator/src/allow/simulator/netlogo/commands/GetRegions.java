@@ -15,7 +15,8 @@ import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.core.AllowSimulationModel;
-import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.ISimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.StreetMap;
 import allow.simulator.world.Transformation;
@@ -31,9 +32,9 @@ public class GetRegions extends DefaultReporter
 		int runId = args[0].getIntValue();
 		
 		// NetLogoWrapper
-		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
+		ISimulationModelWrapper wrapper = WrapperManager.getInstance().get(runId);
 		LogoListBuilder bldr = new LogoListBuilder();
-		StreetMap map = (StreetMap) wrapper.getSimulator().getContext().getWorld();
+		StreetMap map = (StreetMap) wrapper.getSimulationModel().getContext().getWorld();
 		
 		if (map == null) 
 			throw new ExtensionException("Error: Simulator is not initialized.");

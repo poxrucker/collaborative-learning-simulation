@@ -10,6 +10,7 @@ import org.nlogo.api.Syntax;
 
 import allow.simulator.core.AllowSimulationModel;
 import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 import allow.simulator.statistics.Statistics;
 
 public class Tick extends DefaultReporter {
@@ -18,10 +19,8 @@ public class Tick extends DefaultReporter {
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {		
 		// Get runId
 		int runId = args[0].getIntValue();
-		
-		// NetLogoWrapper
-		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
-		AllowSimulationModel simulator = (AllowSimulationModel)wrapper.getSimulator();
+		NetLogoSimulationModelWrapper wrapper = (NetLogoSimulationModelWrapper) WrapperManager.getInstance().get(runId);
+		AllowSimulationModel simulator = (AllowSimulationModel)wrapper.getSimulationModel();
 		
 		try {
 			simulator.tick();

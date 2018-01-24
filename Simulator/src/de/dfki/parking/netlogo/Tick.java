@@ -8,9 +8,10 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Syntax;
 
-import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.ISimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 import allow.simulator.statistics.Statistics;
-import de.dfki.parking.simulation.ParkingSimulationModel;
+import de.dfki.simulation.AbstractSimulationModel;
 
 public class Tick extends DefaultReporter {
 
@@ -18,13 +19,11 @@ public class Tick extends DefaultReporter {
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {		
 		// Get runId
 		int runId = args[0].getIntValue();
-		
-		// NetLogoWrapper
-		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
-		ParkingSimulationModel simulator = (ParkingSimulationModel)wrapper.getSimulator();
+		ISimulationModelWrapper wrapper = WrapperManager.getInstance().get(runId);
+		AbstractSimulationModel simulator = wrapper.getSimulationModel();
 		
 		try {
-			simulator.tick();
+			wrapper.getSimulationModel().tick();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

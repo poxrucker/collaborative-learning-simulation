@@ -17,7 +17,8 @@ import org.nlogo.api.Syntax;
 
 import allow.simulator.entity.Person;
 import allow.simulator.netlogo.agent.IAgentAdapter;
-import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.ISimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 
 public class UpdateGrid extends DefaultCommand {
 
@@ -31,7 +32,7 @@ public class UpdateGrid extends DefaultCommand {
 		int minAgents = args[4].getIntValue();
 		
 		// Get world
-		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
+		ISimulationModelWrapper wrapper = WrapperManager.getInstance().get(runId);
 		World world = wrapper.getWorld();
 		
 		int gridWidth = (world.worldWidth() % cellSizeX == 0) ? (world.worldWidth() / cellSizeX) : (world.worldWidth() / cellSizeX + 1);

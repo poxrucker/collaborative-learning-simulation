@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.nlogo.agent.Link;
 import org.nlogo.agent.Turtle;
@@ -30,9 +29,6 @@ public final class NetLogoSimulationModelWrapper implements ISimulationModelWrap
 	public static final double LINK_COLOR_BLOCKED = 15.0;
 	public static final double LINK_COLOR_BUSY = 15.0;
 
-	// Static instance
-	private static Map<Integer, NetLogoSimulationModelWrapper> instances = new ConcurrentHashMap<Integer, NetLogoSimulationModelWrapper>();
-	
 	// NetLogo world instance
 	private final World netLogoWorld;
 	
@@ -58,7 +54,7 @@ public final class NetLogoSimulationModelWrapper implements ISimulationModelWrap
 		return netLogoWorld;
 	}
 	
-	public AbstractSimulationModel getSimulator() {
+	public AbstractSimulationModel getSimulationModel() {
 		return simulationModel;
 	}
 	
@@ -133,16 +129,6 @@ public final class NetLogoSimulationModelWrapper implements ISimulationModelWrap
 				newLink.hidden(false);
 			}
 		}
-		/*Collection<Street> inROI = simulator.getStreetsInROI();
-		
-		for (Street street : inROI) {
-			
-			for (StreetSegment seg : street.getSubSegments()) {
-				Link link = linkMapping.get(seg.getStartingNode().getId() + "," + seg.getEndingNode().getId());
-				link.colorDouble(68.0);
-			}
-		}*/
-		
 	}
 
 	private void wrapEntities(EntityManager entityManager) throws AgentException {
@@ -174,26 +160,5 @@ public final class NetLogoSimulationModelWrapper implements ISimulationModelWrap
 				}
 			}
 		}
-	}
-	
-	public static NetLogoSimulationModelWrapper initialize(int runId, AbstractSimulationModel simulationModel, World world) {
-		NetLogoSimulationModelWrapper instance = new NetLogoSimulationModelWrapper(world);
-		instance.wrap(simulationModel);
-		instances.put(runId, instance);
-		return instance;
-	}
-	
-	public static void delete(int runId) throws Exception {
-		NetLogoSimulationModelWrapper wrapper = instances.remove(runId);
-		wrapper.getSimulator().finish();
-	}
-
-	public static NetLogoSimulationModelWrapper Instance(int runId) {
-		NetLogoSimulationModelWrapper instance = instances.get(runId);
-		
-		if (instance == null)
-			throw new UnsupportedOperationException();
-		
-		return instance;
 	}
 }

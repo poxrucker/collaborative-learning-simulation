@@ -14,6 +14,7 @@ import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
 import allow.simulator.netlogo.agent.NetLogoSimulationModelWrapper;
+import allow.simulator.netlogo.agent.WrapperManager;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 
@@ -24,7 +25,7 @@ public class ShowBusyStreets extends DefaultCommand {
 		int runId = args[0].getIntValue();
 		int maxNumber = args[1].getIntValue();
 		
-		NetLogoSimulationModelWrapper wrapper = NetLogoSimulationModelWrapper.Instance(runId);
+		NetLogoSimulationModelWrapper wrapper = (NetLogoSimulationModelWrapper) WrapperManager.getInstance().get(runId);
 		PriorityQueue<Street> sorted = new PriorityQueue<Street>(new Comparator<Street>() {
 
 			@Override
@@ -33,7 +34,7 @@ public class ShowBusyStreets extends DefaultCommand {
 			}
 		});
 		//sorted.addAll(wrapper.getSimulator().getStreetsInROI());
-		sorted.addAll(wrapper.getSimulator().getContext().getRoiStreets());
+		sorted.addAll(wrapper.getSimulationModel().getContext().getRoiStreets());
 		
 		// Reset NetLogo link
 		resetLinks(wrapper.getLinkMapping());

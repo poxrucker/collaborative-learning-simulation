@@ -12,7 +12,6 @@ import allow.simulator.world.Street;
 import allow.simulator.world.Weather;
 import allow.simulator.world.World;
 import de.dfki.parking.index.ParkingIndex;
-import de.dfki.parking.model.GuidanceSystem;
 
 /**
  * Represents context (i.e. world, time, a.s.o. shared by all entities) of 
@@ -27,9 +26,6 @@ public final class Context {
 	
 	// Mapping of streets to parking possibilities
 	private final ParkingIndex parkingMap;
-	
-	
-	private final GuidanceSystem guidanceSystem;
 	
 	// EntityManager instance holding all entities
 	private final EntityManager entityManager;
@@ -79,8 +75,7 @@ public final class Context {
 			Weather weather,
 			Statistics stats,
 			SimulationParameter params,
-			Collection<Street> roiStreets, 
-			GuidanceSystem guidanceSystem) {
+			Collection<Street> roiStreets) {
 		this.world = world;
 		this.parkingMap = parkingMap;
 		this.entityManager = entityManager;
@@ -91,13 +86,8 @@ public final class Context {
 		this.stats = stats;
 		this.params = params;
 		this.roiStreets = new HashSet<>(roiStreets);
-		this.guidanceSystem = guidanceSystem;
 	}
-	
-	public GuidanceSystem getGuidanceSystem() {
-	  return guidanceSystem;
-	}
-	
+
 	public Collection<Street> getRoiStreets() {
 	  return roiStreets;
 	}

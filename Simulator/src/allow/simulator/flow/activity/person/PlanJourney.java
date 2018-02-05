@@ -18,7 +18,7 @@ import allow.simulator.mobility.planner.TType;
 import allow.simulator.util.Coordinate;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetMap;
-import de.dfki.parking.activity.InitializeParkingSearch;
+import de.dfki.parking.activity.ResetParkingState;
 
 /**
  * Class representing an Activity to request a journey.
@@ -88,7 +88,7 @@ public final class PlanJourney extends Activity<Person> {
 			
 			if ((it == null) || (it.size() == 0))  {
 				// In case no trips were found, finish and set entity to destination
-				entity.getFlow().addActivity(new InitializeParkingSearch(entity));
+				entity.getFlow().addActivity(new ResetParkingState(entity));
 				entity.getFlow().addActivity(new CorrectPosition(entity, destination));
         setFinished();
 				return 0.0;

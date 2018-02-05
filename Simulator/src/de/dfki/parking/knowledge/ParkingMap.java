@@ -85,6 +85,10 @@ public final class ParkingMap {
     return filterUnknownFromIndex(indexEntries);
   }
 
+  public ParkingMapEntry findById(int parkingId) {
+    return parkingKnowledge.get(parkingId);
+  }
+  
   private Collection<ParkingMapEntry> filterUnknownFromIndex(Collection<ParkingIndexEntry> indexEntries) {
     List<ParkingMapEntry> ret = new ObjectArrayList<>(indexEntries.size());
 

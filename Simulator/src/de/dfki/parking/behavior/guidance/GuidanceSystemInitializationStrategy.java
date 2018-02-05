@@ -3,25 +3,25 @@ package de.dfki.parking.behavior.guidance;
 import allow.simulator.util.Coordinate;
 import de.dfki.parking.behavior.IInitializationStrategy;
 import de.dfki.parking.model.GuidanceSystem;
-import de.dfki.parking.model.ParkingRequest;
-import de.dfki.parking.utility.ParkingPreferences;
-import de.dfki.parking.utility.ParkingUtility;
+import de.dfki.parking.model.ParkingState;
 
 public final class GuidanceSystemInitializationStrategy implements IInitializationStrategy {
-
+  // GuidanceSystem instance assigning parking spots to users
   private final GuidanceSystem guidanceSystem;
-  private final ParkingUtility utility;
-  private final ParkingPreferences preferences;
+  
+  // ParkingState management
+  private final ParkingState parkingState;
   
   public GuidanceSystemInitializationStrategy(GuidanceSystem guidanceSystem,
-      ParkingUtility utility, ParkingPreferences preferences) {
+      ParkingState parkingState) {
     this.guidanceSystem = guidanceSystem;
-    this.utility = utility;
-    this.preferences = preferences;
+    this.parkingState = parkingState;
   }
   
   @Override
   public void initialize(long arrivalTime, long requestTime, Coordinate destination) {
-    
+    int requestId = guidanceSystem.request(requestTime, arrivalTime, destination, 
+        parkingState.getParkingUtility(), parkingState.getParkingPreferences());
+    parkingState.setParkingReservationId(requestId);
   }
 }

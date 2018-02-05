@@ -12,7 +12,7 @@ public final class ParkingState {
   private long searchEndTime;
   private ParkingUtility parkingUtility;
   private ParkingPreferences parkingPreferences;
-  private int parkingRequestId;
+  private int parkingReservationId;
   private ParkingPossibility parkingCandidate;
   
   public boolean isUser() {
@@ -71,12 +71,12 @@ public final class ParkingState {
     this.searchEndTime = searchEndTime;
   }
   
-  public int getParkingRequestId() {
-    return parkingRequestId;
+  public int getParkingReservationId() {
+    return parkingReservationId;
   }
   
-  public void setParkingRequestId(int parkingRequestId) {
-    this.parkingRequestId = parkingRequestId;
+  public void setParkingReservationId(int parkingReservationId) {
+    this.parkingReservationId = parkingReservationId;
   }
   
   public ParkingPossibility getParkingCandidate() {

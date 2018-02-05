@@ -62,9 +62,6 @@ public final class FindParkingSpot extends Activity<Person> {
     // Check if it is the first attempt to find a parking spot
     if (parkingState.getSearchStartTime() == 0) {
       parkingState.setSearchStartTime(entity.getContext().getTime().getTimestamp());
-      
-      /*if (parkingSpotRequired())
-        entity.getContext().getGuidanceSystem().getParkingPossibility(entity.parkingRequestId);*/
     }
     // Check if entity has already selected a parking spot
     if (!parkingSpotSelected) {
@@ -213,7 +210,7 @@ public final class FindParkingSpot extends Activity<Person> {
 
   private void reportFailure(int reason) {
     Statistics stats = entity.getContext().getStatistics();
-    stats.reportFailedParking(reason);
+    stats.reportFailedParking();
   }
 
   private void reportSuccess() {

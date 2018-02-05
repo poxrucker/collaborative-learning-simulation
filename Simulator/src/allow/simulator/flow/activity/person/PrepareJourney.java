@@ -21,8 +21,9 @@ import allow.simulator.mobility.planner.TType;
 import allow.simulator.world.Street;
 import allow.simulator.world.StreetSegment;
 import de.dfki.parking.activity.DriveToDestination;
-import de.dfki.parking.activity.FindParkingSpot;
 import de.dfki.parking.activity.InitializeParkingSearch;
+import de.dfki.parking.activity.ResetParkingState;
+import de.dfki.parking.activity.SelectParkingSpot;
 
 /**
  * Class representing an activity to prepare a journey, i.e. given an itinerary
@@ -111,18 +112,21 @@ public final class PrepareJourney extends Activity<Person> {
 			case CAR:
         entity.setUsedCar(true);
         
-			  // Leave current parking spot
-        entity.getFlow().addActivity(new InitializeParkingSearch(entity));
+			  // Reset parking state
+        entity.getFlow().addActivity(new ResetParkingState(entity));
 
         // If there are no segments, continue
 				if (l.streets.size() == 0)
 					continue;
 					
+				// Initialize parking search
+				entity.getFlow().addActivity(new InitializeParkingSearch(entity));
+				
 				// Drive to destination
 				entity.getFlow().addActivity(new DriveToDestination(entity, l.streets));
 				
 				// Find a new parking spot 
-				entity.getFlow().addActivity(new FindParkingSpot(entity, l.streets.get(l.streets.size() - 1).getEndNode()));
+				entity.getFlow().addActivity(new SelectParkingSpot(entity, l.streets.get(l.streets.size() - 1).getEndNode()));
 				break;
 				
 			case TAXI:

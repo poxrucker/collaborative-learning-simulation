@@ -8,6 +8,7 @@ import de.dfki.parking.behavior.baseline.BaselineExplorationStrategy;
 import de.dfki.parking.behavior.baseline.BaselineInitializationStrategy;
 import de.dfki.parking.behavior.baseline.BaselineSelectionStrategy;
 import de.dfki.parking.behavior.baseline.BaselineUpdateStrategy;
+import de.dfki.parking.behavior.guidance.GuidanceSystemExplorationStrategy;
 import de.dfki.parking.behavior.guidance.GuidanceSystemInitializationStrategy;
 import de.dfki.parking.behavior.guidance.GuidanceSystemSelectionStrategy;
 import de.dfki.parking.behavior.guidance.GuidanceSystemUpdateStrategy;
@@ -16,8 +17,8 @@ import de.dfki.parking.knowledge.ParkingMap;
 import de.dfki.parking.knowledge.ParkingMapFactory;
 import de.dfki.parking.model.GuidanceSystem;
 import de.dfki.parking.model.ParkingState;
-import de.dfki.parking.utility.ProfileBasedParkingPreferencesFactory;
 import de.dfki.parking.utility.ParkingUtility;
+import de.dfki.parking.utility.ProfileBasedParkingPreferencesFactory;
 
 public final class GuidanceSystemModelInitializer implements IParkingModelInitializer {
   // Creates ParkingMap instances
@@ -70,18 +71,16 @@ public final class GuidanceSystemModelInitializer implements IParkingModelInitia
       if (ThreadLocalRandom.current().nextDouble() < percentSensorCars)
         parkingState.setHasSensorCar(true);
       
-      parkingBehavior = new ParkingBehavior(new GuidanceSystemInitializationStrategy(guidanceSystem, parkingState.getParkingUtility(), parkingState.getParkingPreferences()), 
-          new GuidanceSystemSelectionStrategy(parkingState.getParkingPreferences(), parkingState.getParkingUtility(), guidanceSystem),
-          new BaselineExplorationStrategy(localMap, parkingState.getParkingPreferences(), parkingState.getParkingUtility(), parkingIndex, validTime),
-          new GuidanceSystemUpdateStrategy(localMap, guidanceSystem, parkingState.hasSensorCar()));
-      person.setParkingBehavior(parkingBehavior);
+      parkingBehavior = new ParkingBehavior(new GuidanceSystemInitializationStrategy(guidanceSystem, parkingState), 
+          new GuidanceSystemSelectionStrategy(guidanceSystem, parkingState),
+          new GuidanceSystemExplorationStrategy(),
+          new GuidanceSystemUpdateStrategy(localMap, guidanceSystem, parkingState));
      
     } else {     
       parkingBehavior = new ParkingBehavior(new BaselineInitializationStrategy(), 
           new BaselineSelectionStrategy(localMap, parkingState.getParkingPreferences(), parkingState.getParkingUtility(), validTime),
           new BaselineExplorationStrategy(localMap, parkingState.getParkingPreferences(), parkingState.getParkingUtility(), parkingIndex, validTime),
           new BaselineUpdateStrategy(localMap));
-      person.setParkingBehavior(parkingBehavior);
     }
     // Set state and behavior
     person.setParkingState(parkingState);

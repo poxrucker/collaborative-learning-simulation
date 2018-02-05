@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +54,7 @@ import de.dfki.parking.knowledge.ParkingMapFactory;
 import de.dfki.parking.model.GuidanceSystem;
 import de.dfki.parking.model.ParkingFactory;
 import de.dfki.parking.model.ParkingRepository;
+import de.dfki.parking.model.ParkingReservationRequest;
 import de.dfki.parking.utility.ParkingPreferencesModel;
 import de.dfki.parking.utility.ProfileBasedParkingPreferencesFactory;
 import de.dfki.simulation.AbstractSimulationModel;
@@ -66,7 +68,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *
  */
 public final class ParkingSimulationModel extends AbstractSimulationModel {
-
   // Simulation context
   private Context context;
 
@@ -138,11 +139,9 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     // Initialize ParkingIndex
     ParkingIndex parkingIndex = ParkingIndex.build(parkingRepository);
 
-    // Create global context from world, time, planner and data services, and
-    // weather
-    GuidanceSystem guidanceSystem = new GuidanceSystem(new ParkingMapFactory(parkingIndex).createFull(), parkingIndex);
+    // Create global context from world, time, planner and data services, and weather
     context = new Context(world, parkingIndex, entityManager, time, planner, dataServices.get(0), weather, new Statistics(500), params,
-        new ObjectArrayList<>(), guidanceSystem);
+        new ObjectArrayList<>());
 
     // Setup entities
     initializeEntities(config.getAgentConfigurationPath(), params);
@@ -259,6 +258,14 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
     }
   }
 
+  private static final class ArrivalTimeComparator implements Comparator<ParkingReservationRequest> {
+
+    @Override
+    public int compare(ParkingReservationRequest o1, ParkingReservationRequest o2) {
+      return Long.compare(o1.getExpectedArrivalTime(), o2.getExpectedArrivalTime());
+    }   
+  }
+  
   private void initializeParkingSpotModel(Context context, SimulationParameter param) {
     // Get all persons
     Collection<Entity> persons = context.getEntityManager().getEntitiesOfType(EntityTypes.PERSON);
@@ -290,10 +297,10 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
           parkingIndex, globalKnowledge, validTime, percentUsers, percentSensorCars);
 
     } else if (param.Model.equals("Central Guidance")) {
-      ParkingMap globalKnowledge = knowledgeFactory.createWithGarages();
-      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex);
-      modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, guidanceSystem, validTime, percentUsers,
-          percentSensorCars);
+      ParkingMap globalKnowledge = knowledgeFactory.createFull();
+      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex, new ArrivalTimeComparator());
+      modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, guidanceSystem, 
+          validTime, percentUsers, percentSensorCars);
 
     } else {
       throw new IllegalArgumentException();

@@ -447,9 +447,8 @@ public class Statistics {
     return (int) parkingSuccess.getCount(SUCCESS);
   }
 
-  public void reportFailedParking(int reason) {
+  public void reportFailedParking() {
     parkingSuccess.addValue(FAILURE);
-    parkingFailureReason.addValue(reason);
   }
 
   public int getFailedParking() {

@@ -30,9 +30,11 @@ public class Park extends Activity<Person> {
       updateParkingMaps(parking, false);
       
       // Add SelectParkingSpot activity to find new alternative parking spot
-      entity.getFlow().addAfter(this, new SelectParkingSpot(entity, currentNode));
+      Activity<Person> initParkingSearch = new InitializeParkingSearch(entity); 
+      entity.getFlow().addAfter(this, initParkingSearch);
+      entity.getFlow().addAfter(initParkingSearch, new SelectParkingSpot(entity, currentNode));
       setFinished();
-      return 0;
+      return deltaT;
     }
     // Save end time of parking spot search
     parkingState.setSearchEndTime(entity.getContext().getTime().getTimestamp());

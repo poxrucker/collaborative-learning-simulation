@@ -59,23 +59,42 @@ public final class SelectParkingSpot extends Activity<Person> {
         if (path != null && path.size() > 0) {
           Activity<Person> drive = new DriveToDestination(entity, path);
           entity.getFlow().addAfter(this, drive);
-          Activity<Person> park = new Park(entity, path.get(path.size() - 1).getEndNode());
-          entity.getFlow().addAfter(drive, park);
+          entity.getFlow().addAfter(drive, new Park(entity, path.get(path.size() - 1).getEndNode()));
 
         } else if (path == null) {
-          System.out.println("No path to parking found initial");
+          // System.out.println("No path to parking found initial");
         }
 
       } else {
-        Activity<Person> park = new Park(entity, currentNode);
-        entity.getFlow().addAfter(this, park);
+        entity.getFlow().addAfter(this, new Park(entity, currentNode));
       }
-      
-    } else {
-      System.out.println("No parking found");
+      setFinished();
+      return 0;
     }
+    // Select next destination to look for parking possibility
+    Coordinate next = entity.getParkingBehavior().getExplorationStrategy().findNextPossibleParking(entity.getPosition(), dest, currentTime);
+    
+    if (next != null) {
+      // Calculate path to parking spot
+      List<Street> path = getPathToParking(next, true);
+
+      // Add Drive and FindParkingSpot activities
+      if (path != null && path.size() > 0) {
+        Activity<Person> drive = new DriveToDestination(entity, path);
+        entity.getFlow().addAfter(this, drive);
+        Activity<Person> park = new SelectParkingSpot(entity, path.get(path.size() - 1).getEndNode());
+        entity.getFlow().addAfter(drive, park);
+
+      } else if (path == null){
+        // System.out.println("No path to parking found fallback");
+      }
+      setFinished();
+      return 0;
+    }
+    // Otherwise, do fallback
+    entity.getContext().getStatistics().reportFailedParking();
     setFinished();
-    return 0;
+    return deltaT;
   }
 
   public String toString() {

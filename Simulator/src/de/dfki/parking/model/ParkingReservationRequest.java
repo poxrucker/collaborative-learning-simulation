@@ -3,34 +3,53 @@ package de.dfki.parking.model;
 import allow.simulator.util.Coordinate;
 import de.dfki.parking.utility.ParkingPreferences;
 import de.dfki.parking.utility.ParkingUtility;
+import it.unimi.dsi.fastutil.ints.IntList;
 
-public final class ParkingRequest {
+public final class ParkingReservationRequest {
+  // Reservation id
+  private final int id;
+  
   // Request time
   private final long requestTime;
-  
+
   // Expected arrival time of person
   private final long expectedArrivalTime;
-  
+
   // Destination of requesting user
   private final Coordinate destination;
-  
+
   // Utility function of requesting user to choose parking spot
   private final ParkingUtility utility;
-  
+
   // Parking preferences of requesting user
   private final ParkingPreferences preferences;
   
-  public ParkingRequest(long expectedArrivalTime, long requestTime, Coordinate destination,
-      ParkingUtility utility, ParkingPreferences preferences) {
+  // Ids of possible parkings according to users constraints
+  private final IntList possibleParking;
+
+  public ParkingReservationRequest(int id, long requestTime, long expectedArrivalTime,
+      Coordinate destination, ParkingUtility utility, ParkingPreferences preferences,
+      IntList possibleParking) {
+    this.id = id;
     this.requestTime = requestTime;
     this.expectedArrivalTime = expectedArrivalTime;
     this.destination = destination;
     this.utility = utility;
     this.preferences = preferences;
+    this.possibleParking = possibleParking;
   }
   
   /**
-   * Returns the time the ParkingRequest instance was created.
+   * Returns the id of the ParkingReservationRequest instance.
+   * 
+   * @return Reservation id 
+   */
+  public int getId() {
+    return id;
+  }
+  
+  /**
+   * Returns the time the ParkingReservationRequest instance was created.
    * 
    * @return Time parking spot request was created
    */
@@ -73,5 +92,9 @@ public final class ParkingRequest {
    */
   public ParkingPreferences getPreferences() {
     return preferences;
+  }
+  
+  public IntList getPossibleParking() {
+    return possibleParking;
   }
 }

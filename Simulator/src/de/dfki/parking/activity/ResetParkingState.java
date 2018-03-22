@@ -16,6 +16,11 @@ public final class ResetParkingState extends Activity<Person> {
   public double execute(double deltaT) {
     // Initialize parking state
     ParkingState parkingState = entity.getParkingState();
+    
+    if (parkingState == null) {
+      setFinished();
+      return 0;
+    }
     parkingState.setSearchStartTime(0);
     parkingState.setSearchEndTime(0);
     parkingState.setParkingReservationId(-1);

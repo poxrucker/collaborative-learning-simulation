@@ -187,7 +187,8 @@ public final class FindParkingSpot extends Activity<Person> {
 
   private boolean parkingSpotRequired() {
     return !entity.getCurrentItinerary().to.equals(entity.getHome())
-        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to);
+        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to)
+        && entity.getContext().getParkingMap().getParkingsWithMaxDistance(entity.getPosition(), entity.getParkingState().getParkingPreferences().getWdMax()).size() > 0;
   }
 
   private double park(double deltaT) {

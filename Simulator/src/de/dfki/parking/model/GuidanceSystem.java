@@ -21,7 +21,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 
@@ -47,10 +49,14 @@ public final class GuidanceSystem {
   // Buffers assigned reservations by parking id
   private final Int2ObjectMap<IntSet> assignmentIndex;
   
+  //Time during which information from parking maps is considered valid
+  private final long validTime;
+ 
   public GuidanceSystem(ParkingMap parkingMap, ParkingIndex parkingIndex, 
-      Comparator<ParkingReservationRequest> comp) {
+      long validTime, Comparator<ParkingReservationRequest> comp) {
     this.parkingMap = parkingMap;
     this.parkingIndex = parkingIndex;
+    this.validTime = validTime;
     this.comp = comp;
     reservationRequestIndex = new Int2ObjectOpenHashMap<>();
     pendingIndex = new Int2ObjectOpenHashMap<>();
@@ -73,7 +79,7 @@ public final class GuidanceSystem {
     // Add pending reservation to all possible parking possibilities
     for (int id : possibleParking) {
       SortedSet<ParkingReservationRequest> pending = pendingIndex.get(id);
-      
+
       if (pending == null) {
         pending = new ObjectRBTreeSet<>(comp);
         pendingIndex.put(id, pending);
@@ -83,7 +89,7 @@ public final class GuidanceSystem {
     return reservationId;
   }
  
-  public ParkingReservationResponse reserve(int reservationId, Coordinate current) {
+  public ParkingReservationResponse reserve(int reservationId, Coordinate currentPosition, long currentTime) {
     // Get request from buffer
     ParkingReservationRequest request = reservationRequestIndex.remove(reservationId);
    
@@ -92,7 +98,6 @@ public final class GuidanceSystem {
     }
     
     // Get position of request in parking spot priority queues, and find current capacities
-    int highestPriority = Integer.MAX_VALUE; 
     IntList pendingPriorities = new IntArrayList(request.getPossibleParking().size());
     IntList pendingTotal = new IntArrayList(request.getPossibleParking().size());
     IntList freeCapacities = new IntArrayList(request.getPossibleParking().size());
@@ -105,9 +110,6 @@ public final class GuidanceSystem {
       int priority = indexOf(pendingRequests, request);
       pendingPriorities.add(priority);
       
-      if (priority < highestPriority)
-        highestPriority = priority;
-      
       pendingTotal.add(pendingRequests.size());   
       pendingRequests.remove(request);
       
@@ -117,7 +119,13 @@ public final class GuidanceSystem {
       
       // Get capacities
       ParkingMapEntry entry = parkingMap.findById(parkingId);
-      freeCapacities.add(entry.getNFreeParkingSpots());
+     
+      if ((currentTime - entry.getLastUpdate()) / 1000.0 > validTime) {
+        freeCapacities.add(entry.getParkingIndexEntry().getParking().getNumberOfParkingSpots());
+        
+      } else {
+        freeCapacities.add(entry.getNFreeParkingSpots());
+      }
       maxCapacities.add(entry.getNParkingSpots());
     }
     
@@ -126,17 +134,24 @@ public final class GuidanceSystem {
     
     // Find all parking spots where user has max priority and filter those with no capacity
     IntList indices = new IntArrayList();
+    IntSortedSet uniqueSortedPriorities = new IntRBTreeSet(pendingPriorities);
     
-    for (int i = 0; i < request.getPossibleParking().size(); i++) {
+    for (int priority : uniqueSortedPriorities) {
       
-      if (pendingPriorities.get(i) > highestPriority)
-        continue;
+      for (int i = 0; i < request.getPossibleParking().size(); i++) {
+
+        if (pendingPriorities.get(i) > priority)
+          continue;
+
+        if (freeCapacities.get(i) <= assignedCapacities.get(i))
+          continue;
+        indices.add(i);
+      }
       
-      if (freeCapacities.get(i) < assignedCapacities.get(i))
-        continue;
-      indices.add(i);
+      if (indices.size() > 0)
+        break;
     }
-    
+    // System.out.println("Possible: " + request.getPossibleParking().size() + ", by priority: " + indices.size());
     List<ParkingIndexEntry> indexEntries = new ObjectArrayList<>(indices.size());
     
     for (int i : indices) {
@@ -153,7 +168,7 @@ public final class GuidanceSystem {
     }
     bldr.append("]");
     System.out.println(bldr);*/
-    List<ParkingPossibility> ranked = rank(indexEntries, current, request.getDestination(), request.getUtility(), request.getPreferences());
+    List<ParkingPossibility> ranked = rank(indexEntries, currentPosition, request.getDestination(), request.getUtility(), request.getPreferences());
     
     if (ranked.size() == 0)
       return null;
@@ -174,7 +189,7 @@ public final class GuidanceSystem {
     parkingMap.update(parking, nSpots, nFreeSpots, price, time);
   }
   
-  public void update(int reservationId, Parking parking, int nSpots, int nFreeSpots, double price, long time) {
+  public void confirm(int reservationId, Parking parking, int nSpots, int nFreeSpots, double price, long time) {
     // Remove reservationId from assignments
     if (reservationId > 0) {
       IntSet assignments = assignmentIndex.get(parking.getId());

@@ -35,7 +35,7 @@ public final class GuidanceSystemUpdateStrategy implements IUpdateStrategy {
     localMap.update(parking, nSpots, nFreeSpots, price, time);
 
     if (parked) {
-      guidanceSystem.update(parkingState.getParkingReservationId(), parking, nSpots, nFreeSpots, price, time);
+      guidanceSystem.confirm(parkingState.getParkingReservationId(), parking, nSpots, nFreeSpots, price, time);
       parkingState.setParkingReservationId(-1);
       
     } else if (parkingState.hasSensorCar()) {

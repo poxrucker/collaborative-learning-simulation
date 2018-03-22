@@ -23,7 +23,7 @@ public final class GuidanceSystemSelectionStrategy implements IParkingSelectionS
   @Override
   public ParkingPossibility selectParking(StreetNode current, Coordinate destination, long currentTime, long arrivalTime) {
     // Get response from guidance system
-    ParkingReservationResponse response = guidanceSystem.reserve(parkingState.getParkingReservationId(), current.getPosition());
+    ParkingReservationResponse response = guidanceSystem.reserve(parkingState.getParkingReservationId(), current.getPosition(), currentTime);
     
     if (response == null) {
       // If no parking spot could be assigned, reset reservation Id

@@ -298,7 +298,7 @@ public final class ParkingSimulationModel extends AbstractSimulationModel {
 
     } else if (param.Model.equals("Central Guidance")) {
       ParkingMap globalKnowledge = knowledgeFactory.createFull();
-      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex, new ArrivalTimeComparator());
+      GuidanceSystem guidanceSystem = new GuidanceSystem(globalKnowledge, parkingIndex, validTime, new ArrivalTimeComparator());
       modelInitializer = new GuidanceSystemModelInitializer(knowledgeFactory, prefsFactory, parkingIndex, guidanceSystem, 
           validTime, percentUsers, percentSensorCars);
 

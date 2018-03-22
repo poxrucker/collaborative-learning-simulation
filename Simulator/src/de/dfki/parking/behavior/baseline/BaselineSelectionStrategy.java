@@ -55,7 +55,6 @@ public final class BaselineSelectionStrategy implements IParkingSelectionStrateg
     // Get possibilities from parking maps
     Collection<ParkingMapEntry> initial = knowledge.findStreetParking(current);
     initial.addAll(knowledge.findGarageParking(current));
-    // Collection<ParkingMapEntry> initial = knowledge.findParkingNearby(destination, 250);
 
     // Filter those which are valid and which have free parking spots
     List<ParkingMapEntry> possible = new ObjectArrayList<>(initial.size());

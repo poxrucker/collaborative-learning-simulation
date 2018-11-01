@@ -112,6 +112,7 @@ public final class Experience {
 		case CAR:
 		case TAXI:
 		case BUS:
+		case CABLE_CAR:
 			return segment.getSubSegments().get(0).getMaxSpeed();
 		default:
 			throw new IllegalStateException("Invalid means of transportation");		

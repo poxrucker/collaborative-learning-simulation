@@ -158,6 +158,7 @@ public class EvoKnowledge extends Knowledge implements IPredictor<List<Itinerary
 					break;
 				
 				case BUS:
+				case CABLE_CAR:
 					double actualBusTravelTime = summary.travelTime + it.initialWaitingTime;
 					p.getContext().getStatistics().reportPriorAndPosteriorTransitTravelTimes(estimatedTravelTime, actualBusTravelTime);
 					p.getContext().getStatistics().reportPriorAndPosteriorUtilityBus(p.getCurrentItinerary().utility, posteriorUtility);

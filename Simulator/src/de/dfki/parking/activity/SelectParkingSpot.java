@@ -103,7 +103,8 @@ public final class SelectParkingSpot extends Activity<Person> {
 
   private boolean parkingSpotRequired() {
     return !entity.getCurrentItinerary().to.equals(entity.getHome())
-        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to);
+        && entity.getContext().getParkingMap().containedInSpatialIndex(entity.getCurrentItinerary().to)
+        && entity.getContext().getParkingMap().getParkingsWithMaxDistance(entity.getPosition(), entity.getParkingState().getParkingPreferences().getWdMax()).size() > 0;
   }
 
   private List<Street> getPathToParking(Coordinate to, boolean fallback) {

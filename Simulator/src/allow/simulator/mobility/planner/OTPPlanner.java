@@ -151,6 +151,7 @@ public final class OTPPlanner extends AbstractOTPPlanner {
 			break;
 			
 		case BUS:
+		case CABLE_CAR:
 			leg.streets = (dataService != null) ? mapBusTraces(leg) : Collections.emptyList();
 			break;
 			

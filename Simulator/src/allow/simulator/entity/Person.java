@@ -113,6 +113,14 @@ public final class Person extends Entity {
 	@JsonIgnore
 	private ParkingBehavior parkingBehavior;
 	
+	// Properties for air quality model
+	@JsonIgnore
+	private boolean hasAirQualitySensor;
+	@JsonIgnore
+  private long samplingInterval;
+	@JsonIgnore
+	private long lastMeasurement;
+	
 	/**
 	 * Creates new instance of a person.
 	 * 
@@ -478,6 +486,25 @@ public final class Person extends Entity {
 	
 	public void setParticipating() {
 	  participating = true;
+	}
+	
+	public void setAirQualitySensor(long samplingInterval) {
+	  this.hasAirQualitySensor = true;
+	  this.samplingInterval = samplingInterval;
+	}
+	
+	@JsonIgnore
+	public boolean hasAirQualitySensor() {
+	  return hasAirQualitySensor;
+	}
+	
+	@JsonIgnore
+	public long getLastMeasurement() {
+	  return lastMeasurement;
+	}
+	
+	public void setLastMeasurement(long lastMeasurement) {
+	  this.lastMeasurement = lastMeasurement;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -31,4 +31,9 @@ public final class SimulationParameter {
   public double CWeightWorker;
   public double WdWeightWorker;
   public double StWeightWorker;
+  
+  // Air quality simulation parameters
+  public String logfilePrefix;
+  public int PercentAirQualitySensors;
+  public int SamplingInterval;
 }

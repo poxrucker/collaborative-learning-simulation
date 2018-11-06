@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Extension-Name: parking
-Class-Manager: de.dfki.parking.netlogo.ExtensionManagerParking
+Extension-Name: airquality
+Class-Manager: de.dfki.airquality.netlogo.ExtensionManagerAirQuality
 NetLogo-Extension-API-Version: 5.0

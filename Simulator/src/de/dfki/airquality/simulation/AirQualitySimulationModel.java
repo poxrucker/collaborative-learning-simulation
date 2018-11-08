@@ -1,5 +1,7 @@
 package de.dfki.airquality.simulation;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -67,6 +69,7 @@ public final class AirQualitySimulationModel extends AbstractSimulationModel {
   // Plan generator initializing flow of daily activities
   private PlanGenerator planGenerator;
 
+  private BufferedWriter logWriter;
   public static final String OVERLAY_DISTRICTS = "partitioning";
   public static final String OVERLAY_RASTER = "raster";
 
@@ -93,7 +96,7 @@ public final class AirQualitySimulationModel extends AbstractSimulationModel {
     List<IDataService> dataServices = initializeDataServices(config, world);
 
     // Create time
-    Time time = new Time(config.getStartingDate(), 10);
+    Time time = new Time(config.getStartingDate(), 1);
 
     // Create weather model
     Weather weather = new Weather(config.getWeatherPath(), time);
@@ -144,6 +147,7 @@ public final class AirQualitySimulationModel extends AbstractSimulationModel {
     // Initialize EvoKnowlegde and setup logger.
     EvoKnowledge.initialize(config.getEvoKnowledgeConfiguration(), "without", "evo_" + params.BehaviourSpaceRunNumber, threadpool);
 
+    logWriter = new BufferedWriter(new FileWriter(params.logfilePrefix + "_" + params.SamplingInterval + "_" + params.PercentAirQualitySensors));
     // Update world
     world.update();
     System.out.println("Setup simulation run " + params.BehaviourSpaceRunNumber);
@@ -188,8 +192,19 @@ public final class AirQualitySimulationModel extends AbstractSimulationModel {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+    
+    try {
+      logWriter.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
+  public void logPosition(String positionsString) throws IOException {
+    logWriter.write(positionsString);
+    logWriter.flush();
+  }
+  
   private StreetMap initializeStreetMap(Configuration config, SimulationParameter params, EntityManager entityManager) throws IOException {
     StreetMap world = new StreetMap(config.getMapPath());
 

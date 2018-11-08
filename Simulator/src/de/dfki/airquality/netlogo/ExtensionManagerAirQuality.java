@@ -26,6 +26,9 @@ public class ExtensionManagerAirQuality extends DefaultClassManager {
 		primitiveManager.addPrimitive("shutdown-simulator", new Finish());
 		primitiveManager.addPrimitive("tick", new Tick());
 		primitiveManager.addPrimitive("has-airquality-sensor", new HasAirQualitySensor());
+    primitiveManager.addPrimitive("log-positions", new LogPosition());
+    primitiveManager.addPrimitive("should-sample", new ShouldSample());
+    primitiveManager.addPrimitive("finish", new Finish());
 	}
 	
 	@Override

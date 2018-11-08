@@ -499,6 +499,11 @@ public final class Person extends Entity {
 	}
 	
 	@JsonIgnore
+	public long getSamplingInterval() {
+	  return samplingInterval;
+	}
+	
+	@JsonIgnore
 	public long getLastMeasurement() {
 	  return lastMeasurement;
 	}
